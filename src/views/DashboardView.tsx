@@ -1,0 +1,161 @@
+import { useState } from 'react'
+import steden from '../data/steden'
+import { useNavigation } from '../context/NavigationContext'
+import type { Stad } from '../data/types'
+
+const VRAGEN = [
+  'Hoe benader je A-locaties anders dan B/C?',
+  'Pas je de pitch aan per locatieklasse?',
+  'Welke producten stel je voor per contacttype?',
+]
+
+function berekenKPIs(stad: Stad) {
+  const partijen = stad.gebieden.flatMap((g) => g.partijen)
+  return {
+    totaal: partijen.length,
+    koud: partijen.filter((p) => p.contactStatus === 'koud').length,
+    warm: partijen.filter((p) => p.contactStatus === 'warm').length,
+    actief: partijen.filter((p) => p.contactStatus === 'actief').length,
+  }
+}
+
+const KPI_CONFIG = [
+  { key: 'totaal' as const, label: 'Totaal',  dot: 'bg-slate-400',   val: 'text-slate-700', bg: 'bg-white' },
+  { key: 'koud'   as const, label: 'Koud',    dot: 'bg-slate-300',   val: 'text-slate-500', bg: 'bg-white' },
+  { key: 'warm'   as const, label: 'Warm',    dot: 'bg-amber-400',   val: 'text-amber-700', bg: 'bg-amber-50' },
+  { key: 'actief' as const, label: 'Actief',  dot: 'bg-emerald-500', val: 'text-emerald-700', bg: 'bg-emerald-50' },
+]
+
+function StadCard({ stad }: { stad: Stad }) {
+  const { setStad } = useNavigation()
+  const kpis = berekenKPIs(stad)
+
+  return (
+    <button
+      onClick={() => setStad(stad)}
+      className="group text-left bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer"
+    >
+      <div className="flex items-start justify-between mb-4">
+        <h2 className="font-semibold text-slate-800 text-base group-hover:text-indigo-700 transition-colors">
+          {stad.naam}
+        </h2>
+        <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+          {stad.gebieden.length} gebieden
+        </span>
+      </div>
+
+      <div className="grid grid-cols-4 gap-2 mb-4">
+        {KPI_CONFIG.map(({ key, label, dot, val, bg }) => (
+          <div key={key} className={`${bg} rounded-lg px-2 py-2 text-center`}>
+            <div className={`text-xl font-semibold ${val}`}>{kpis[key]}</div>
+            <div className="flex items-center justify-center gap-1 mt-0.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+              <span className="text-[10px] text-slate-400">{label}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="pt-3 border-t border-slate-100 flex justify-end">
+        <span className="text-xs text-indigo-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+          Bekijk gebieden →
+        </span>
+      </div>
+    </button>
+  )
+}
+
+export default function DashboardView() {
+  const allePartijen = steden.flatMap((s) => s.gebieden.flatMap((g) => g.partijen))
+  const totaalKPIs = {
+    totaal: allePartijen.length,
+    koud:   allePartijen.filter((p) => p.contactStatus === 'koud').length,
+    warm:   allePartijen.filter((p) => p.contactStatus === 'warm').length,
+    actief: allePartijen.filter((p) => p.contactStatus === 'actief').length,
+  }
+
+  const [checked, setChecked] = useState<boolean[]>(VRAGEN.map(() => false))
+  const aantalAfgevinkt = checked.filter(Boolean).length
+
+  function toggleVraag(i: number) {
+    setChecked((prev) => prev.map((v, idx) => (idx === i ? !v : v)))
+  }
+
+  return (
+    <div className="flex flex-col gap-8">
+      {/* Globale KPI's over alle steden */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {KPI_CONFIG.map(({ key, label, dot, val, bg }) => (
+          <div key={key} className={`${bg} rounded-xl border border-slate-200 shadow-sm px-5 py-4`}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`w-2 h-2 rounded-full shrink-0 ${dot}`} />
+              <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">{label}</span>
+            </div>
+            <div className={`text-3xl font-semibold ${val}`}>{totaalKPIs[key]}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Stedenkaarten */}
+      <div>
+        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
+          Steden
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          {steden.map((stad) => <StadCard key={stad.id} stad={stad} />)}
+        </div>
+      </div>
+
+      {/* Testmoment card */}
+      <div className="bg-indigo-900 text-white rounded-xl p-6 shadow-md">
+        <div className="flex items-start justify-between gap-4 mb-1">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-widest text-indigo-300 mb-1">
+              Testmoment
+            </div>
+            <h3 className="text-base font-semibold">Interview Michiel Bijmols</h3>
+          </div>
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ${
+            aantalAfgevinkt === VRAGEN.length
+              ? 'bg-emerald-500 text-white'
+              : 'bg-indigo-700 text-indigo-200'
+          }`}>
+            {aantalAfgevinkt}/{VRAGEN.length} klaar
+          </span>
+        </div>
+
+        <p className="text-indigo-300 text-xs mb-5">
+          Gebruik deze vragen als leidraad tijdens het testgesprek met Michiel.
+        </p>
+
+        <ul className="flex flex-col gap-3">
+          {VRAGEN.map((vraag, i) => (
+            <li key={i} className="flex items-start gap-3">
+              <button
+                onClick={() => toggleVraag(i)}
+                className={`mt-0.5 w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors cursor-pointer ${
+                  checked[i]
+                    ? 'bg-emerald-500 border-emerald-500 text-white'
+                    : 'border-indigo-500 hover:border-emerald-400'
+                }`}
+              >
+                {checked[i] && <span className="text-[10px] leading-none">✓</span>}
+              </button>
+              <span className={`text-sm leading-snug transition-colors ${
+                checked[i] ? 'text-indigo-400 line-through' : 'text-indigo-100'
+              }`}>
+                {vraag}
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        {aantalAfgevinkt === VRAGEN.length && (
+          <div className="mt-5 pt-4 border-t border-indigo-700 text-xs text-emerald-400 font-medium">
+            ✓ Alle vragen behandeld — testmoment afgerond.
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
