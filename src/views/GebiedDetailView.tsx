@@ -1012,7 +1012,6 @@ function InzichtKaarten({ inzichten }: { inzichten: InterviewInzicht[] }) {
 
 function InfoTooltip({ storageKey, defaultQuote }: { storageKey: string; defaultQuote: string }) {
   const [open, setOpen] = useState(false)
-  const fullKey = 'ditt_txt_' + storageKey
   return (
     <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
       <button
