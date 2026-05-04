@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigation } from './context/NavigationContext'
+import { loadRemoteEdits } from './components/EditableText'
 import { GebiedStatusProvider } from './context/GebiedStatusContext'
 import FilterSidebar from './components/FilterSidebar'
 import MarktDashboard from './views/MarktDashboard'
@@ -180,6 +181,10 @@ function AppContent() {
 }
 
 export default function App() {
+  useEffect(() => {
+    loadRemoteEdits()
+  }, [])
+
   return (
     <GebiedStatusProvider>
       <AppContent />

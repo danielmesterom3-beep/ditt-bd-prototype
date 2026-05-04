@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 
 interface EditableTextProps {
   storageKey: string
@@ -19,6 +20,39 @@ export function getEditableText(storageKey: string, defaultValue: string): strin
   }
 }
 
+// Load all edits from Supabase into localStorage on app start
+let loaded = false
+export async function loadRemoteEdits() {
+  if (loaded) return
+  loaded = true
+  try {
+    const { data } = await supabase.from('edits').select('key, value')
+    if (data) {
+      data.forEach(({ key, value }) => {
+        localStorage.setItem(STORAGE_PREFIX + key, value)
+      })
+    }
+  } catch {
+    // Supabase not available, fall back to localStorage only
+  }
+}
+
+async function saveRemoteEdit(key: string, value: string) {
+  try {
+    await supabase.from('edits').upsert({ key, value, updated_at: new Date().toISOString() })
+  } catch {
+    // Ignore — localStorage is fallback
+  }
+}
+
+async function deleteRemoteEdit(key: string) {
+  try {
+    await supabase.from('edits').delete().eq('key', key)
+  } catch {
+    // Ignore
+  }
+}
+
 export default function EditableText({
   storageKey,
   defaultValue,
@@ -30,7 +64,6 @@ export default function EditableText({
   const ref = useRef<HTMLElement>(null)
   const fullKey = STORAGE_PREFIX + storageKey
 
-  // Set content on mount only — never let React touch the DOM content again
   useEffect(() => {
     if (ref.current) {
       ref.current.textContent = localStorage.getItem(fullKey) ?? defaultValue
@@ -42,7 +75,6 @@ export default function EditableText({
     e.currentTarget.style.background = 'rgba(255,127,80,0.08)'
     e.currentTarget.style.outline = '1px solid rgba(255,127,80,0.35)'
     e.currentTarget.style.borderRadius = '3px'
-    // Select all on focus
     const range = document.createRange()
     range.selectNodeContents(e.currentTarget)
     const sel = window.getSelection()
@@ -57,10 +89,13 @@ export default function EditableText({
     if (!text) {
       e.currentTarget.textContent = defaultValue
       localStorage.removeItem(fullKey)
+      deleteRemoteEdit(storageKey)
     } else if (text !== defaultValue) {
       localStorage.setItem(fullKey, text)
+      saveRemoteEdit(storageKey, text)
     } else {
       localStorage.removeItem(fullKey)
+      deleteRemoteEdit(storageKey)
     }
   }
 
