@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigation } from './context/NavigationContext'
-import { loadRemoteEdits } from './components/EditableText'
+import { loadRemoteEdits, SaveButton } from './components/EditableText'
 import { GebiedStatusProvider } from './context/GebiedStatusContext'
 import FilterSidebar from './components/FilterSidebar'
 import MarktDashboard from './views/MarktDashboard'
@@ -188,6 +188,7 @@ export default function App() {
   return (
     <GebiedStatusProvider>
       <AppContent />
+      <SaveButton />
     </GebiedStatusProvider>
   )
 }

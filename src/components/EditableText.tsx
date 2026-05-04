@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 interface EditableTextProps {
@@ -11,6 +11,40 @@ interface EditableTextProps {
 }
 
 const STORAGE_PREFIX = 'ditt_txt_'
+
+// Pending changes waiting to be saved to Supabase
+const pendingChanges = new Map<string, string | null>() // null = delete
+const changeListeners = new Set<() => void>()
+
+function notifyListeners() {
+  changeListeners.forEach(fn => fn())
+}
+
+export function subscribeToPending(fn: () => void) {
+  changeListeners.add(fn)
+  return () => changeListeners.delete(fn)
+}
+
+export function hasPendingChanges() {
+  return pendingChanges.size > 0
+}
+
+export async function flushPendingChanges() {
+  const entries = [...pendingChanges.entries()]
+  pendingChanges.clear()
+  notifyListeners()
+  for (const [key, value] of entries) {
+    try {
+      if (value === null) {
+        await supabase.from('edits').delete().eq('key', key)
+      } else {
+        await supabase.from('edits').upsert({ key, value, updated_at: new Date().toISOString() })
+      }
+    } catch {
+      // Ignore
+    }
+  }
+}
 
 export function getEditableText(storageKey: string, defaultValue: string): string {
   try {
@@ -34,22 +68,6 @@ export async function loadRemoteEdits() {
     }
   } catch {
     // Supabase not available, fall back to localStorage only
-  }
-}
-
-async function saveRemoteEdit(key: string, value: string) {
-  try {
-    await supabase.from('edits').upsert({ key, value, updated_at: new Date().toISOString() })
-  } catch {
-    // Ignore — localStorage is fallback
-  }
-}
-
-async function deleteRemoteEdit(key: string) {
-  try {
-    await supabase.from('edits').delete().eq('key', key)
-  } catch {
-    // Ignore
   }
 }
 
@@ -89,14 +107,15 @@ export default function EditableText({
     if (!text) {
       e.currentTarget.textContent = defaultValue
       localStorage.removeItem(fullKey)
-      deleteRemoteEdit(storageKey)
+      pendingChanges.set(storageKey, null)
     } else if (text !== defaultValue) {
       localStorage.setItem(fullKey, text)
-      saveRemoteEdit(storageKey, text)
+      pendingChanges.set(storageKey, text)
     } else {
       localStorage.removeItem(fullKey)
-      deleteRemoteEdit(storageKey)
+      pendingChanges.set(storageKey, null)
     }
+    notifyListeners()
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
@@ -135,5 +154,62 @@ export default function EditableText({
       }}
       className={className}
     />
+  )
+}
+
+export function SaveButton() {
+  const [pending, setPending] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    const unsub = subscribeToPending(() => {
+      setPending(hasPendingChanges())
+      setSaved(false)
+    })
+    return unsub
+  }, [])
+
+  async function handleSave() {
+    setSaving(true)
+    await flushPendingChanges()
+    setSaving(false)
+    setPending(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+  }
+
+  if (!pending && !saved) return null
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        bottom: 28,
+        right: 28,
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        background: saved ? '#16a34a' : '#ff7f50',
+        color: '#fff',
+        borderRadius: 10,
+        padding: '10px 20px',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
+        fontSize: 13,
+        fontWeight: 600,
+        cursor: saved ? 'default' : 'pointer',
+        transition: 'background 0.2s',
+        userSelect: 'none',
+      }}
+      onClick={saved ? undefined : handleSave}
+    >
+      {saving && (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: 'spin 0.8s linear infinite' }}>
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+        </svg>
+      )}
+      {saved ? 'Opgeslagen' : saving ? 'Opslaan...' : 'Aanpassingen opslaan'}
+    </div>
   )
 }
