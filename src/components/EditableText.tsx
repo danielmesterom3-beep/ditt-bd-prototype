@@ -20,9 +20,9 @@ function notifyListeners() {
   changeListeners.forEach(fn => fn())
 }
 
-export function subscribeToPending(fn: () => void) {
+export function subscribeToPending(fn: () => void): () => void {
   changeListeners.add(fn)
-  return () => changeListeners.delete(fn)
+  return () => { changeListeners.delete(fn) }
 }
 
 export function hasPendingChanges() {
@@ -167,7 +167,7 @@ export function SaveButton() {
       setPending(hasPendingChanges())
       setSaved(false)
     })
-    return unsub
+    return () => unsub()
   }, [])
 
   async function handleSave() {
