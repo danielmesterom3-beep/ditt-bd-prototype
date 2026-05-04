@@ -4,6 +4,8 @@ export interface Deal {
   id: string
   company: string
   contact: string
+  email: string
+  phone: string
   value: number
   stage: DealStage
   probability: number

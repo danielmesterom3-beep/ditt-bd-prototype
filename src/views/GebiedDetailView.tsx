@@ -552,14 +552,20 @@ function WarmContactCard({ contact }: { contact: WarmContact }) {
         {heeftEmail ? (
           <ActionBtn href={`mailto:${contact.email}`} label="E-mail" icon="✉" primary />
         ) : (
-          <span style={{ fontSize: 11, color: '#c4b5a0', fontStyle: 'italic' }}>E-mail onbekend</span>
+          <EditableText
+            storageKey={`wc.${contact.id}.email`}
+            defaultValue="E-mail toevoegen..."
+            style={{ fontSize: 11, color: '#92400e', fontStyle: 'italic', cursor: 'text' }}
+          />
         )}
         {heeftTelefoon ? (
           <ActionBtn href={`tel:${contact.telefoon}`} label="Bel" icon="↗" />
         ) : (
-          !heeftEmail && (
-            <span style={{ fontSize: 11, color: '#c4b5a0', fontStyle: 'italic' }}>Telefoon onbekend</span>
-          )
+          <EditableText
+            storageKey={`wc.${contact.id}.telefoon`}
+            defaultValue="Telefoon toevoegen..."
+            style={{ fontSize: 11, color: '#92400e', fontStyle: 'italic', cursor: 'text' }}
+          />
         )}
 
         {heeftNotitie && (
@@ -1004,11 +1010,68 @@ function InzichtKaarten({ inzichten }: { inzichten: InterviewInzicht[] }) {
 
 // ── Section 0: Kansrijke leads ────────────────────────────────────────────────
 
+function InfoTooltip({ storageKey, defaultQuote }: { storageKey: string; defaultQuote: string }) {
+  const [open, setOpen] = useState(false)
+  const fullKey = 'ditt_txt_' + storageKey
+  return (
+    <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o) }}
+        title="Toon toelichting"
+        style={{
+          width: 14, height: 14, borderRadius: '50%',
+          background: '#e2e8f0', border: 'none', cursor: 'pointer',
+          fontSize: 9, fontWeight: 800, color: '#64748b',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0, lineHeight: 1,
+        }}
+      >
+        i
+      </button>
+      {open && (
+        <div
+          style={{
+            position: 'fixed', zIndex: 999,
+            background: '#1a1a1a', color: '#e5e7eb',
+            borderRadius: 8, padding: '12px 14px',
+            width: 280, fontSize: 12, lineHeight: 1.7,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+            textTransform: 'none', letterSpacing: 'normal', fontWeight: 400,
+            top: 'auto', left: 'auto',
+            marginTop: 8,
+          }}
+          ref={(el) => {
+            if (el) {
+              const btn = el.previousElementSibling as HTMLElement
+              if (btn) {
+                const rect = btn.getBoundingClientRect()
+                el.style.top = `${rect.bottom + 6}px`
+                const left = Math.min(rect.left, window.innerWidth - 296)
+                el.style.left = `${Math.max(8, left)}px`
+              }
+            }
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <EditableText
+            storageKey={storageKey}
+            defaultValue={defaultQuote}
+            tag="div"
+            style={{ fontSize: 12, color: '#e5e7eb', lineHeight: 1.7, fontStyle: 'italic' }}
+          />
+          <div style={{ fontSize: 10, color: '#666', marginTop: 8 }}>Klik op de tekst om aan te passen</div>
+        </div>
+      )}
+    </span>
+  )
+}
+
 const TODAY = new Date('2026-04-30')
 
-function urgentie(contractAfloop: string): 'rood' | 'oranje' | 'groen' {
-  const [year, month] = contractAfloop.split('-').map(Number)
-  const afloop = new Date(year, month - 1, 1)
+function urgentie(contractBegin: string): 'rood' | 'oranje' | 'groen' {
+  const [year, month] = contractBegin.split('-').map(Number)
+  // Contract loopt gemiddeld 5 jaar — einddatum = begin + 60 maanden
+  const afloop = new Date(year + 5, month - 1, 1)
   const maanden = (afloop.getFullYear() - TODAY.getFullYear()) * 12 + (afloop.getMonth() - TODAY.getMonth())
   if (maanden < 12) return 'rood'
   if (maanden < 24) return 'oranje'
@@ -1021,12 +1084,12 @@ const URGENTIE_CFG = {
   groen:  { label: '> 2 jaar',   bg: '#f0fdf4', text: '#166534', border: '#86efac', dot: '#22c55e' },
 }
 
-function LeadCard({ lead }: { lead: KansrijkeLead }) {
-  const u = urgentie(lead.contractAfloop)
+function LeadCard({ lead, stad }: { lead: KansrijkeLead; stad?: string }) {
+  const u = urgentie(lead.contractBegin)
   const cfg = URGENTIE_CFG[u]
-  const [jaar, maand] = lead.contractAfloop.split('-')
+  const [jaar, maand] = lead.contractBegin.split('-')
   const maandNamen = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec']
-  const afloopLabel = `${maandNamen[parseInt(maand) - 1]} ${jaar}`
+  const beginLabel = `${maandNamen[parseInt(maand) - 1]} ${jaar}`
 
   return (
     <div
@@ -1093,7 +1156,7 @@ function LeadCard({ lead }: { lead: KansrijkeLead }) {
       >
         {[
           { label: 'Omvang', value: `${lead.omvang} m²` },
-          { label: 'Afloop contract', value: afloopLabel },
+          { label: 'Begin contract', value: beginLabel },
           ...(lead.huurprijsPerM2 ? [{ label: 'Huurprijs', value: `€${lead.huurprijsPerM2}/m²/jr` }] : []),
         ].map(({ label, value }, i) => (
           <div
@@ -1101,10 +1164,16 @@ function LeadCard({ lead }: { lead: KansrijkeLead }) {
             style={{
               padding: '8px 12px',
               borderLeft: i > 0 ? '1px solid var(--c-border)' : 'none',
+              position: 'relative',
             }}
           >
-            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--c-subtle)', marginBottom: 2 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--c-subtle)', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
               {label}
+              {label === 'Begin contract' && (
+                stad?.toLowerCase().includes('rotterdam')
+                  ? <InfoTooltip storageKey={`lead.info.begincontract.rotterdam`} defaultQuote={`"In Rotterdam zie je vaak contracten van vijf tot zeven jaar, zeker op de Kop van Zuid. De huurder zit er lang — dus je moet er vroeg bij zijn." — Maurits de Peuteer`} />
+                  : <InfoTooltip storageKey={`lead.info.begincontract.eindhoven`} defaultQuote={`"Kantoorcontracten lopen in Nederland gemiddeld vijf jaar. Dat betekent dat je als BD'er twee tot drie jaar vóór de einddatum in beeld moet zijn." — Dirk Verberne`} />
+              )}
             </div>
             <EditableText storageKey={`lead.${lead.id}.stat.${label}`} defaultValue={value} style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }} />
           </div>
@@ -1130,20 +1199,20 @@ function LeadCard({ lead }: { lead: KansrijkeLead }) {
   )
 }
 
-function KansrijkeLeadsSection({ leads }: { leads: KansrijkeLead[] }) {
+function KansrijkeLeadsSection({ leads, stad }: { leads: KansrijkeLead[]; stad?: string }) {
   // Sorteren: rood eerst, dan oranje, dan groen; binnen zelfde kleur op omvang desc
   const URGENTIE_ORDER = { rood: 0, oranje: 1, groen: 2 }
   const gesorteerd = [...leads].sort((a, b) => {
-    const uA = URGENTIE_ORDER[urgentie(a.contractAfloop)]
-    const uB = URGENTIE_ORDER[urgentie(b.contractAfloop)]
+    const uA = URGENTIE_ORDER[urgentie(a.contractBegin)]
+    const uB = URGENTIE_ORDER[urgentie(b.contractBegin)]
     if (uA !== uB) return uA - uB
     return b.omvang - a.omvang
   })
 
   const counts = {
-    rood:   leads.filter((l) => urgentie(l.contractAfloop) === 'rood').length,
-    oranje: leads.filter((l) => urgentie(l.contractAfloop) === 'oranje').length,
-    groen:  leads.filter((l) => urgentie(l.contractAfloop) === 'groen').length,
+    rood:   leads.filter((l) => urgentie(l.contractBegin) === 'rood').length,
+    oranje: leads.filter((l) => urgentie(l.contractBegin) === 'oranje').length,
+    groen:  leads.filter((l) => urgentie(l.contractBegin) === 'groen').length,
   }
 
   return (
@@ -1191,7 +1260,7 @@ function KansrijkeLeadsSection({ leads }: { leads: KansrijkeLead[] }) {
       {/* Lead cards grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
         {gesorteerd.map((lead) => (
-          <LeadCard key={lead.id} lead={lead} />
+          <LeadCard key={lead.id} lead={lead} stad={stad} />
         ))}
       </div>
     </div>
@@ -1337,7 +1406,7 @@ export default function GebiedDetailView() {
       {/* ── Section 0: Kansrijke leads ── */}
       {gebied.kansrijkeLeads && gebied.kansrijkeLeads.length > 0 && effectiveStatus !== 'under-construction' && (
         <Section title={`Kansrijke leads — ${gebied.kansrijkeLeads.length} geselecteerde panden`}>
-          <KansrijkeLeadsSection leads={gebied.kansrijkeLeads} />
+          <KansrijkeLeadsSection leads={gebied.kansrijkeLeads} stad={geselecteerdeStad?.naam} />
         </Section>
       )}
 
