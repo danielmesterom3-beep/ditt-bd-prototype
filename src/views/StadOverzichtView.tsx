@@ -674,6 +674,134 @@ function TestvalidatiePanel() {
   )
 }
 
+// ── OmgevingskenmerkenPanel ───────────────────────────────────────────────────
+
+function BalansRij({ label, value, highlight }: { label: string; value: string; highlight?: 'rood' | 'groen' }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '5px 0', borderBottom: '1px solid var(--c-border)' }}>
+      <span style={{ fontSize: 12, color: 'var(--c-muted)' }}>{label}</span>
+      <span style={{
+        fontSize: 12, fontWeight: 700,
+        color: highlight === 'rood' ? '#dc2626' : highlight === 'groen' ? '#16a34a' : 'var(--c-text)',
+      }}>{value}</span>
+    </div>
+  )
+}
+
+function OmgevingskenmerkenPanel() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+      {/* Header / toggle */}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+        }}
+      >
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em' }}>
+            Omgevingskenmerken — Eindhoven
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
+            Concurrentieanalyse · Design & Build activiteit · Strategische context
+          </div>
+        </div>
+        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+
+            {/* HAL 2 balans */}
+            <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>HAL 2 B.V.</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1 }}>Jaarrekening 2024 · Eindhoven</div>
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#dcfce7', color: '#166534', border: '1px solid #86efac' }}>Financieel gezond</span>
+              </div>
+              <BalansRij label="Totaal activa" value="€ 2.500.078" />
+              <BalansRij label="Eigen vermogen" value="€ 1.269.861" highlight="groen" />
+              <BalansRij label="Niet-verdeelde winst" value="€ 951.957" highlight="groen" />
+              <BalansRij label="Liquide middelen" value="€ 1.257.029" />
+              <BalansRij label="Kortlopende schulden" value="€ 1.230.217" />
+              <div style={{ marginTop: 12, padding: '10px 12px', background: '#f0fdf4', borderRadius: 8, border: '1px solid #86efac' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#166534', marginBottom: 4 }}>Wat dit betekent voor Ditt</div>
+                <div style={{ fontSize: 11, color: '#166534', lineHeight: 1.6 }}>
+                  HAL 2 is financieel sterk met bijna €1,3M eigen vermogen en ruim €950K winst. Ze opereren vanuit een gezonde kaspositie en kunnen concurreren op prijs. Ditt moet zich richten op snelheid, ontzorging en het ASML-netwerk — niet op prijs.
+                </div>
+              </div>
+            </div>
+
+            {/* Desque balans */}
+            <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>Desque Eindhoven B.V.</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1 }}>Jaarrekening 2024 · Eindhoven</div>
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#fef2f2', color: '#991b1b', border: '1px solid #fca5a5' }}>Continuïteitszorg</span>
+              </div>
+              <BalansRij label="Totaal activa" value="€ 3.388.629" />
+              <BalansRij label="Eigen vermogen" value="€ 58.605" highlight="rood" />
+              <BalansRij label="Liquide middelen" value="€ 641.019" />
+              <BalansRij label="Vorderingen" value="€ 2.198.746" />
+              <BalansRij label="Kortlopende schulden" value="€ 3.261.485" highlight="rood" />
+              <div style={{ marginTop: 12, padding: '10px 12px', background: '#fef2f2', borderRadius: 8, border: '1px solid #fca5a5' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#991b1b', marginBottom: 4 }}>Wat dit betekent voor Ditt</div>
+                <div style={{ fontSize: 11, color: '#991b1b', lineHeight: 1.6 }}>
+                  Desque meldt expliciet een negatief eigen vermogen per 31 dec 2024 en continuïteitsonzekerheid. Kortlopende schulden overstijgen vlottende activa. Dit biedt een opening: opdrachtgevers die zekerheid zoeken over oplevering en nakoming zijn een directe kans voor Ditt.
+                </div>
+              </div>
+            </div>
+
+            {/* D&B activiteit Eindhoven */}
+            <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', marginBottom: 4 }}>Design & Build activiteit — Eindhoven</div>
+              <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginBottom: 12 }}>Bekende opdrachten in de markt · 2023–2025</div>
+
+              {[
+                {
+                  partij: 'Sweco Architecten → HAL 2 B.V.',
+                  aantal: '4 opdrachten',
+                  context: 'Sweco, dat veel projecten uitvoert voor ASML, heeft HAL 2 vier keer ingeschakeld voor Design & Build. Dit bevestigt HAL 2 als vaste partner in de ASML-keten — een netwerk dat voor Ditt nog niet ontsloten is.',
+                  kleur: '#dc2626',
+                },
+                {
+                  partij: 'Yksi Ontwerp + De Bever Architecten → Geva Vastgoed',
+                  aantal: '2 opdrachten op Strijp-T',
+                  context: 'Yksi Ontwerp (interieurarchitect) voerde samen met De Bever Architecten twee opdrachten uit op Strijp-T voor Geva Vastgoed — een grote eigenaar in de Eindhovense markt. Geva is nog geen warme relatie voor Ditt.',
+                  kleur: '#d97706',
+                },
+                {
+                  partij: 'Yksi Ontwerp — Hightech Campus',
+                  aantal: '2 opdrachten',
+                  context: 'Twee opdrachten op de Hightech Campus bevestigen dat Yksi actief is in het ASML-ecosysteem. De campus is een groeisegment waarbij Ditt tot nu toe niet in beeld is.',
+                  kleur: '#d97706',
+                },
+              ].map((item) => (
+                <div key={item.partij} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid var(--c-border)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', flex: 1 }}>{item.partij}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#f1f5f9', color: '#475569', flexShrink: 0, marginLeft: 8 }}>{item.aantal}</span>
+                  </div>
+                  <p style={{ fontSize: 11, color: 'var(--c-muted)', margin: 0, lineHeight: 1.6 }}>{item.context}</p>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── StadOverzichtView ─────────────────────────────────────────────────────────
 
 export default function StadOverzichtView() {
@@ -706,6 +834,9 @@ export default function StadOverzichtView() {
 
       {/* Testvalidatie */}
       <TestvalidatiePanel />
+
+      {/* Omgevingskenmerken */}
+      <OmgevingskenmerkenPanel />
 
       {/* Source note */}
       <div
