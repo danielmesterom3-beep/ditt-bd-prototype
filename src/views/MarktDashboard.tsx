@@ -56,7 +56,7 @@ const TREND_COLOR = { positief: '#059669', neutraal: '#d97706', negatief: '#dc26
 function GebiedCard({ gebied }: { gebied: Gebied }) {
   const { setGebied } = useNavigation()
   const { getStatus } = useGebiedStatus()
-  const { getMarktdata, setField, hasOverrides } = useDataOverride()
+  const { getMarktdata, setField } = useDataOverride()
   const klasse = klasseVanGebied(gebied)
   const ks = klasse ? KLASSE_STYLE[klasse] : null
   const { pandenInOntwikkeling, trends, warmeContacten } = gebied
