@@ -107,12 +107,7 @@ function Gebiedskenmerken({ gebied }: { gebied: Gebied }) {
 
   const rows = [
     { label: 'Totaal kantoor VVO',  value: fmM2(m.totaalKantoorVvo) },
-    { label: 'Leegstand',           value: `${m.leegstandPercentage}%`,
-      color: m.leegstandPercentage > 15 ? '#dc2626' : m.leegstandPercentage > 8 ? '#d97706' : '#059669' },
-    { label: 'Beschikbaar aanbod',  value: fmM2(m.beschikbaarAanbod) },
-    { label: 'Huurprijs (min)',     value: `€${m.huurprijsBandwidth.min}/m²/jr` },
-    { label: 'Huurprijs (max)',     value: `€${m.huurprijsBandwidth.max}/m²/jr` },
-    { label: 'Huurprijs (gem. ~)',  value: `€${gem}/m²/jr` },
+    { label: 'Gem. huurprijs/m²/jr', value: m.huurprijsGemiddeld ? `€${m.huurprijsGemiddeld}` : `€${gem}` },
     { label: 'Opname 2025',        value: fmM2(m.opnameVorigeJaar) },
     { label: 'Peildatum',           value: m.peildatum },
   ]
@@ -128,7 +123,7 @@ function Gebiedskenmerken({ gebied }: { gebied: Gebied }) {
           overflow: 'hidden',
         }}
       >
-        {rows.map(({ label, value, color }, i) => (
+        {rows.map(({ label, value }, i) => (
           <div
             key={label}
             style={{
@@ -141,7 +136,7 @@ function Gebiedskenmerken({ gebied }: { gebied: Gebied }) {
             }}
           >
             <EditableText storageKey={`gkm.${gebiedId}.${label}.label`} defaultValue={label} style={{ fontSize: 12, color: 'var(--c-muted)' }} />
-            <EditableText storageKey={`gkm.${gebiedId}.${label}.value`} defaultValue={value} style={{ fontSize: 13, fontWeight: 600, color: color ?? 'var(--c-text)' }} />
+            <EditableText storageKey={`gkm.${gebiedId}.${label}.value`} defaultValue={value} style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-text)' }} />
           </div>
         ))}
       </div>
@@ -1386,8 +1381,6 @@ export default function GebiedDetailView() {
         {/* Quick stats */}
         <div style={{ display: 'flex', gap: 20, flexShrink: 0 }}>
           {[
-            { label: 'Leegstand',      value: `${gebied.marktdata.leegstandPercentage}%` },
-            { label: 'Beschikbaar',    value: `${(gebied.marktdata.beschikbaarAanbod / 1000).toFixed(0)}k m²` },
             { label: 'In ontwikkeling', value: `${heeftPanden ? gebied.pandenInOntwikkeling.length : '—'}` },
           ].map(({ label, value }) => (
             <div key={label} style={{ textAlign: 'right' }}>

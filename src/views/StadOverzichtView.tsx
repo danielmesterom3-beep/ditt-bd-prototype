@@ -240,18 +240,9 @@ function StadPanel({ stad }: { stad: Stad }) {
 
   // ── Aggregate marktdata ────
   const totaalVVO         = stad.gebieden.reduce((s, g) => s + g.marktdata.totaalKantoorVvo, 0)
-  const beschikbaarAanbod = stad.gebieden.reduce((s, g) => s + g.marktdata.beschikbaarAanbod, 0)
-  const leegstandM2       = stad.gebieden.reduce(
-    (s, g) => s + (g.marktdata.totaalKantoorVvo * g.marktdata.leegstandPercentage) / 100, 0
-  )
-  const gewogenLeegstand  = ((leegstandM2 / totaalVVO) * 100).toFixed(1)
   const opname            = stad.gebieden.reduce((s, g) => s + g.marktdata.opnameVorigeJaar, 0)
   const aantalOntwikkeling = stad.gebieden.reduce((s, g) => s + g.pandenInOntwikkeling.length, 0)
 
-  const leegstandColor =
-    parseFloat(gewogenLeegstand) > 12 ? '#dc2626'
-    : parseFloat(gewogenLeegstand) > 8  ? '#d97706'
-    : '#059669'
 
   return (
     <div
@@ -392,14 +383,12 @@ function StadPanel({ stad }: { stad: Stad }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
                 {[
                   { label: 'Totaal kantoor VVO',       value: fmM2(totaalVVO),                  bron: BRONNEN.vvo },
-                  { label: 'Leegstand (gewogen VVO)',   value: `${gewogenLeegstand}%`,            color: leegstandColor, bron: BRONNEN.leegstand },
-                  { label: 'Vacancy rate (JLL)',        value: `${jll?.vacancyRate}%`,            color: leegstandColor, bron: BRONNEN.jll },
-                  { label: 'Beschikbaar aanbod',        value: fmM2(beschikbaarAanbod),          bron: BRONNEN.aanbod },
+                  { label: 'Vacancy rate (JLL)',        value: `${jll?.vacancyRate}%`,            bron: BRONNEN.jll },
                   { label: 'Opname 2025 (gebieden)',    value: fmM2(opname),                     bron: BRONNEN.opname },
                   { label: 'Take-up 2025 (JLL)',        value: fmM2(jll?.takeUp2025 ?? 0),       bron: BRONNEN.jll },
                   { label: 'Pijplijn 2026–2030 (JLL)', value: fmM2(jll?.pipeline2030 ?? 0),     bron: BRONNEN.jll },
                   { label: 'Panden in ontwikkeling',   value: `${aantalOntwikkeling}`,           bron: BRONNEN.vvo },
-                ].map(({ label, value, color, bron }) => (
+                ].map(({ label, value, bron }) => (
                   <div
                     key={label}
                     style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}
@@ -408,7 +397,7 @@ function StadPanel({ stad }: { stad: Stad }) {
                       <EditableText storageKey={`ind.${stad.id}.${label}.label`} defaultValue={label} />
                       {bron && <BronTooltip bron={bron} />}
                     </span>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: color ?? 'var(--c-text)', textAlign: 'right' }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--c-text)', textAlign: 'right' }}>
                       <EditableText storageKey={`ind.${stad.id}.${label}.value`} defaultValue={value} />
                     </span>
                   </div>
@@ -846,7 +835,7 @@ export default function StadOverzichtView() {
         Vastgoeddata.nl. (2026). <em>Transactiemonitor kantoormarkt 2025</em> [Dataset]. Vastgoeddata.nl.
         <br /><br />
         <span style={{ color: 'var(--c-subtle)' }}>
-          Leegstand gewogen naar VVO per gebied. Hover over het <strong>ⓘ</strong>-icoon naast een waarde voor de specifieke bron.
+          Hover over het <strong>ⓘ</strong>-icoon naast een waarde voor de specifieke bron.
         </span>
       </div>
     </div>
