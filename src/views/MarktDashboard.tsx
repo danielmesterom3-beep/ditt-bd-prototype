@@ -10,7 +10,6 @@ import EditableText from '../components/EditableText'
 
 const BRONNEN = {
   vvo:      'Vastgoeddata.nl. (2026, 29 april). Gebiedsanalyses kantoormarkten [Dataset]. Vastgoeddata.nl.',
-  leegstand:'Vastgoeddata.nl. (2026, 29 april). Gebiedsanalyses kantoormarkten [Dataset]. Vastgoeddata.nl. Leegstand berekend als: beschikbaar aanbod / totaal VVO per gebied.',
   huurprijs:'Vastgoeddata.nl. (2026, 29 april). Gebiedsanalyses kantoormarkten [Dataset]. Vastgoeddata.nl.',
 }
 
@@ -51,11 +50,6 @@ const KLASSE_STYLE: Record<NonNullable<LocatieKlasse>, { bg: string; text: strin
 const TREND_ICON = { positief: '↑', neutraal: '→', negatief: '↓' } as const
 const TREND_COLOR = { positief: '#059669', neutraal: '#d97706', negatief: '#dc2626' } as const
 
-function leegstandColor(pct: number): string {
-  if (pct > 15) return '#dc2626'
-  if (pct > 8)  return '#d97706'
-  return '#059669'
-}
 
 // ── GebiedCard ────────────────────────────────────────────────────────────────
 
@@ -156,29 +150,6 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
               onSave={(v) => setField(gebied.id, 'totaalKantoorVvo', v)}
               inputWidth="8ch"
             />
-          </div>
-        </div>
-        <div className="rounded-lg px-3 py-2.5" style={{ background: '#f8f7f5' }}>
-          <div
-            className="text-[10px] font-semibold uppercase tracking-wide mb-0.5 flex items-center"
-            style={{ color: 'var(--c-subtle)' }}
-          >
-            <EditableText storageKey={`gebied.${gebied.id}.label.leegstand`} defaultValue="Leegstand" />
-            <BronTooltip bron={BRONNEN.leegstand} />
-          </div>
-          <div
-            className="text-sm font-semibold"
-            style={{ color: leegstandColor(marktdata.leegstandPercentage) }}
-          >
-            <InlineEdit
-              value={marktdata.leegstandPercentage}
-              format={(n) => `${n}%`}
-              onSave={(v) => setField(gebied.id, 'leegstandPercentage', v)}
-              inputWidth="4ch"
-            />
-            {hasOverrides(gebied.id) && (
-              <span style={{ fontSize: 9, color: '#d97706', marginLeft: 4, fontWeight: 700 }}>✎</span>
-            )}
           </div>
         </div>
       </div>
@@ -316,10 +287,6 @@ export default function MarktDashboard() {
   })
 
   const totaalVVO = huidigStad.gebieden.reduce((s, g) => s + g.marktdata.totaalKantoorVvo, 0)
-  const gemLeegstand = (
-    huidigStad.gebieden.reduce((s, g) => s + g.marktdata.leegstandPercentage, 0) /
-    huidigStad.gebieden.length
-  ).toFixed(1)
   const totaalOntwikkeling = huidigStad.gebieden.reduce(
     (s, g) => s + g.pandenInOntwikkeling.length, 0
   )
@@ -363,7 +330,6 @@ export default function MarktDashboard() {
         <div className="flex items-center gap-5">
           {[
             { key: 'totaalvvo',     label: 'Totaal VVO',     value: formatVVO(totaalVVO) },
-            { key: 'gemleegstand',  label: 'Gem. leegstand', value: `${gemLeegstand}%` },
             { key: 'ontwikkeling',  label: 'In ontwikkeling',value: `${totaalOntwikkeling} panden` },
           ].map(({ key, label, value }) => (
             <div key={key} className="text-right">
