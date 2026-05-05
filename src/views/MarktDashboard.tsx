@@ -195,28 +195,25 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
 
       {/* ── Panden in ontwikkeling ── */}
       {activePanden.length > 0 && (
-        <div
-          className="relative"
-          onMouseEnter={() => setShowPanden(true)}
-          onMouseLeave={() => setShowPanden(false)}
-        >
-          <div
-            className="flex items-center gap-1.5 rounded-lg px-3 py-2"
-            style={{ background: '#fff7ed', border: '1px solid #fed7aa', cursor: 'default' }}
+        <div className="relative">
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowPanden(v => !v) }}
+            className="w-full flex items-center gap-1.5 rounded-lg px-3 py-2 text-left"
+            style={{ background: '#f0fdf4', border: '1px solid #86efac', cursor: 'pointer' }}
           >
             <span
               style={{
                 width: 6, height: 6, borderRadius: '50%',
-                background: 'var(--c-coral)',
+                background: '#16a34a',
                 animation: 'pulse-dot 2s ease-in-out infinite',
                 display: 'inline-block', flexShrink: 0,
               }}
             />
-            <span className="text-xs font-medium" style={{ color: '#c2410c' }}>
+            <span className="text-xs font-medium" style={{ color: '#15803d' }}>
               {activePanden.length} kantoorpand{activePanden.length !== 1 ? 'en' : ''} in ontwikkeling
             </span>
-            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#c2410c' }}>▾</span>
-          </div>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#15803d', transition: 'transform 0.15s', transform: showPanden ? 'rotate(180deg)' : 'none' }}>▾</span>
+          </button>
           {showPanden && (
             <div
               className="absolute z-50 rounded-lg shadow-lg"
@@ -239,9 +236,17 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
                     borderBottom: i < activePanden.length - 1 ? '1px solid #f0ede8' : 'none',
                   }}
                 >
-                  <div style={{ fontWeight: 600, color: 'var(--c-text)' }}>{p.naam || p.adres}</div>
-                  <div style={{ color: 'var(--c-subtle)', marginTop: 2 }}>
-                    {p.oppervlakte.toLocaleString('nl-NL')} m² · {p.fase} · {p.verwachteOplevering}
+                  <EditableText
+                    storageKey={`pand.${p.id}.naam`}
+                    defaultValue={p.naam || p.adres}
+                    style={{ fontWeight: 600, color: 'var(--c-text)', display: 'block' }}
+                  />
+                  <div style={{ color: 'var(--c-subtle)', marginTop: 2, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    <EditableText storageKey={`pand.${p.id}.opp`} defaultValue={`${p.oppervlakte.toLocaleString('nl-NL')} m²`} />
+                    <span>·</span>
+                    <EditableText storageKey={`pand.${p.id}.fase`} defaultValue={p.fase} />
+                    <span>·</span>
+                    <EditableText storageKey={`pand.${p.id}.oplevering`} defaultValue={p.verwachteOplevering} />
                   </div>
                 </div>
               ))}
