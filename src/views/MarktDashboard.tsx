@@ -160,15 +160,15 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
             />
           </div>
         </div>
-        <div className="rounded-lg px-3 py-2.5" style={{ background: '#f8f7f5' }}>
+        <div className="rounded-lg px-3 py-2.5" style={{ background: '#eff6ff' }}>
           <div
             className="text-[10px] font-semibold uppercase tracking-wide mb-0.5 flex items-center"
-            style={{ color: 'var(--c-subtle)' }}
+            style={{ color: '#3b82f6' }}
           >
             <EditableText storageKey={`gebied.${gebied.id}.label.huurprijs`} defaultValue="Gem. huurprijs/m²/jr" />
             <BronTooltip bron={BRONNEN.huurprijs} />
           </div>
-          <div className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>
+          <div className="text-sm font-semibold" style={{ color: '#1d4ed8' }}>
             {marktdata.huurprijsGemiddeld != null ? (
               <>€<InlineEdit
                 value={marktdata.huurprijsGemiddeld}
@@ -199,20 +199,20 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
           <button
             onClick={(e) => { e.stopPropagation(); setShowPanden(v => !v) }}
             className="w-full flex items-center gap-1.5 rounded-lg px-3 py-2 text-left"
-            style={{ background: '#f0fdf4', border: '1px solid #86efac', cursor: 'pointer' }}
+            style={{ background: '#fff7ed', border: '1px solid #fed7aa', cursor: 'pointer' }}
           >
             <span
               style={{
                 width: 6, height: 6, borderRadius: '50%',
-                background: '#16a34a',
+                background: 'var(--c-coral)',
                 animation: 'pulse-dot 2s ease-in-out infinite',
                 display: 'inline-block', flexShrink: 0,
               }}
             />
-            <span className="text-xs font-medium" style={{ color: '#15803d' }}>
+            <span className="text-xs font-medium" style={{ color: '#c2410c' }}>
               {activePanden.length} kantoorpand{activePanden.length !== 1 ? 'en' : ''} in ontwikkeling
             </span>
-            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#15803d', transition: 'transform 0.15s', transform: showPanden ? 'rotate(180deg)' : 'none' }}>▾</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#c2410c', transition: 'transform 0.15s', transform: showPanden ? 'rotate(180deg)' : 'none' }}>▾</span>
           </button>
           {showPanden && (
             <div
