@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigation } from '../context/NavigationContext'
 import { useFilters } from '../context/FilterContext'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
@@ -50,6 +51,11 @@ const KLASSE_STYLE: Record<NonNullable<LocatieKlasse>, { bg: string; text: strin
 const TREND_ICON = { positief: '↑', neutraal: '→', negatief: '↓' } as const
 const TREND_COLOR = { positief: '#059669', neutraal: '#d97706', negatief: '#dc2626' } as const
 
+function pandJaar(s: string): number {
+  const m = s.match(/\d{4}/)
+  return m ? parseInt(m[0]) : 9999
+}
+
 
 // ── GebiedCard ────────────────────────────────────────────────────────────────
 
@@ -62,6 +68,8 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
   const { pandenInOntwikkeling, trends, warmeContacten } = gebied
   const marktdata = getMarktdata(gebied.id, gebied.marktdata)
   const mainTrend = trends[0] ?? null
+  const activePanden = pandenInOntwikkeling.filter(p => pandJaar(p.verwachteOplevering) >= 2025)
+  const [showPanden, setShowPanden] = useState(false)
   const effectiveStatus = getStatus(gebied.id, gebied.status ?? 'live')
 
   function handleMouseEnter(e: React.MouseEvent<HTMLDivElement>) {
@@ -152,26 +160,22 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
             />
           </div>
         </div>
-      </div>
-
-      {/* ── Huurprijs + ontwikkeling badge ── */}
-      <div className="flex items-end justify-between gap-2">
-        <div>
+        <div className="rounded-lg px-3 py-2.5" style={{ background: '#f8f7f5' }}>
           <div
-            className="text-[10px] font-semibold uppercase tracking-wide flex items-center"
+            className="text-[10px] font-semibold uppercase tracking-wide mb-0.5 flex items-center"
             style={{ color: 'var(--c-subtle)' }}
           >
-            <EditableText storageKey={`gebied.${gebied.id}.label.huurprijs`} defaultValue="Gem. huurprijs/m²/jr (afgelopen 2 jaar)" />
+            <EditableText storageKey={`gebied.${gebied.id}.label.huurprijs`} defaultValue="Gem. huurprijs/m²/jr" />
             <BronTooltip bron={BRONNEN.huurprijs} />
           </div>
-          <div className="text-xs font-medium mt-0.5" style={{ color: 'var(--c-text)' }}>
+          <div className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>
             {marktdata.huurprijsGemiddeld != null ? (
               <>€<InlineEdit
                 value={marktdata.huurprijsGemiddeld}
                 format={(n) => `${n}`}
                 onSave={(v) => setField(gebied.id, 'huurprijsGemiddeld', v)}
                 inputWidth="4ch"
-              /> /m²/jr</>
+              /></>
             ) : (
               <>€<InlineEdit
                 value={marktdata.huurprijsBandwidth.min}
@@ -183,38 +187,68 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
                 format={(n) => `${n}`}
                 onSave={(v) => setField(gebied.id, 'huurprijsMax', v)}
                 inputWidth="4ch"
-              /> /m²/jr</>
+              /></>
             )}
           </div>
         </div>
-        {pandenInOntwikkeling.length > 0 && (
+      </div>
+
+      {/* ── Panden in ontwikkeling ── */}
+      {activePanden.length > 0 && (
+        <div
+          className="relative"
+          onMouseEnter={() => setShowPanden(true)}
+          onMouseLeave={() => setShowPanden(false)}
+        >
           <div
-            className="flex items-center gap-1.5 rounded-full shrink-0"
-            style={{
-              background: '#fff7ed',
-              border: '1px solid #fed7aa',
-              padding: '3px 10px',
-            }}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-2"
+            style={{ background: '#fff7ed', border: '1px solid #fed7aa', cursor: 'default' }}
           >
             <span
               style={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
+                width: 6, height: 6, borderRadius: '50%',
                 background: 'var(--c-coral)',
                 animation: 'pulse-dot 2s ease-in-out infinite',
-                display: 'inline-block',
+                display: 'inline-block', flexShrink: 0,
               }}
             />
-            <EditableText
-              storageKey={`gebied.${gebied.id}.badge.ontwikkeling`}
-              defaultValue={`${pandenInOntwikkeling.length} in ontwikkeling`}
-              className="text-xs font-medium"
-              style={{ color: '#c2410c' }}
-            />
+            <span className="text-xs font-medium" style={{ color: '#c2410c' }}>
+              {activePanden.length} kantoorpand{activePanden.length !== 1 ? 'en' : ''} in ontwikkeling
+            </span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: '#c2410c' }}>▾</span>
           </div>
-        )}
-      </div>
+          {showPanden && (
+            <div
+              className="absolute z-50 rounded-lg shadow-lg"
+              style={{
+                bottom: 'calc(100% + 4px)',
+                left: 0,
+                right: 0,
+                background: 'white',
+                border: '1px solid var(--c-border)',
+                padding: '10px 12px',
+              }}
+            >
+              {activePanden.map((p, i) => (
+                <div
+                  key={p.id}
+                  style={{
+                    fontSize: 11,
+                    paddingBottom: i < activePanden.length - 1 ? 8 : 0,
+                    marginBottom: i < activePanden.length - 1 ? 8 : 0,
+                    borderBottom: i < activePanden.length - 1 ? '1px solid #f0ede8' : 'none',
+                  }}
+                >
+                  <div style={{ fontWeight: 600, color: 'var(--c-text)' }}>{p.naam || p.adres}</div>
+                  <div style={{ color: 'var(--c-subtle)', marginTop: 2 }}>
+                    {p.oppervlakte.toLocaleString('nl-NL')} m² · {p.fase} · {p.verwachteOplevering}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Card footer ── */}
       <div
