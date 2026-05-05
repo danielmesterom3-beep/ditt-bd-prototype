@@ -25,6 +25,7 @@ export interface Marktdata {
   totaalKantoorVvo: number            // m² verhuurbaar vloeroppervlak
   leegstandPercentage: number         // bijv. 12.5
   huurprijsBandwidth: HuurprijsBandwidth
+  huurprijsGemiddeld?: number         // gem. EUR/m²/jaar (afgelopen 2 jaar, uit gebiedsanalyse)
   opnameVorigeJaar: number            // m² opgenomen vorig jaar
   beschikbaarAanbod: number           // m² direct beschikbaar
 }

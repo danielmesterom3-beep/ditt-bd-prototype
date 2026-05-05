@@ -5,6 +5,7 @@ interface GebiedOverrides {
   leegstandPercentage?: number
   huurprijsMin?: number
   huurprijsMax?: number
+  huurprijsGemiddeld?: number
   totaalKantoorVvo?: number
   beschikbaarAanbod?: number
   opnameVorigeJaar?: number
@@ -50,6 +51,7 @@ export function DataOverrideProvider({ children }: { children: React.ReactNode }
         min: o.huurprijsMin ?? original.huurprijsBandwidth.min,
         max: o.huurprijsMax ?? original.huurprijsBandwidth.max,
       },
+      huurprijsGemiddeld: o.huurprijsGemiddeld ?? original.huurprijsGemiddeld,
     }
   }
 

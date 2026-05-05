@@ -15,6 +15,7 @@ const eindhoven: Gebied[] = [
       totaalKantoorVvo: 273211,          // bron: gebiedskenmerken PDF
       leegstandPercentage: 7.5,           // schatting o.b.v. opname/aanbod verhouding
       huurprijsBandwidth: { min: 160, max: 320 }, // gem. €285/m²/jr (PDF)
+      huurprijsGemiddeld: 285,
       opnameVorigeJaar: 2992,            // 2025: <500m² 801 + >=500m² 2.191
       beschikbaarAanbod: 20500,
     },
@@ -182,6 +183,7 @@ const eindhoven: Gebied[] = [
       totaalKantoorVvo: 567325,          // bron: gebiedskenmerken PDF Centrum
       leegstandPercentage: 6.5,
       huurprijsBandwidth: { min: 125, max: 320 }, // gem. €258/m²/jr; 2025: €245; range breed door mixed kwaliteit
+      huurprijsGemiddeld: 258,
       opnameVorigeJaar: 15447,           // 2025: <500m² 4.801 + >=500m² 10.646
       beschikbaarAanbod: 36900,
     },
@@ -385,6 +387,7 @@ const eindhoven: Gebied[] = [
       totaalKantoorVvo: 275672,          // bron: gebiedskenmerken PDF Strijp-S
       leegstandPercentage: 4.2,
       huurprijsBandwidth: { min: 130, max: 270 }, // gem. €200/m²/jr; kleine units tot €266
+      huurprijsGemiddeld: 200,
       opnameVorigeJaar: 1503,            // 2025: alleen <500m² (1.503); >=500m² = 0
       beschikbaarAanbod: 11600,
     },
@@ -549,6 +552,7 @@ const eindhoven: Gebied[] = [
       totaalKantoorVvo: 283104,          // bron: gebiedskenmerken PDF Airport
       leegstandPercentage: 11.5,
       huurprijsBandwidth: { min: 80, max: 175 }, // gem. €156/m²/jr; range breed (€80 bedrijfsmatig t/m €156 kantoor prime)
+      huurprijsGemiddeld: 156,
       opnameVorigeJaar: 8751,            // 2025: <500m² 1.729 + >=500m² 7.022
       beschikbaarAanbod: 32600,
     },
@@ -708,6 +712,7 @@ const eindhoven: Gebied[] = [
       totaalKantoorVvo: 334200,          // bron: gebiedskenmerken PDF HTC/ASML
       leegstandPercentage: 2.5,           // campus-managed; vrijwel geen vrije leegstand
       huurprijsBandwidth: { min: 175, max: 325 }, // gem. €258/m²/jr; range incl. lab/cleanroom-premiums
+      huurprijsGemiddeld: 258,
       opnameVorigeJaar: 806,             // 2025: <500m² 150 + >=500m² 656 (sterk gedaald t.o.v. 6.936 in 2024)
       beschikbaarAanbod: 8400,
     },

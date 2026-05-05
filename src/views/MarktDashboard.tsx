@@ -11,7 +11,7 @@ import EditableText from '../components/EditableText'
 const BRONNEN = {
   vvo:      'Vastgoeddata.nl. (2026, 29 april). Gebiedsanalyses kantoormarkten [Dataset]. Vastgoeddata.nl.',
   leegstand:'Vastgoeddata.nl. (2026, 29 april). Gebiedsanalyses kantoormarkten [Dataset]. Vastgoeddata.nl. Leegstand berekend als: beschikbaar aanbod / totaal VVO per gebied.',
-  huurprijs:'Vastgoeddata.nl. (2026, 29 april). Transactiedatabase kantoormarkt 2024–2026 [Dataset]. Vastgoeddata.nl.',
+  huurprijs:'Vastgoeddata.nl. (2026, 29 april). Gebiedsanalyses kantoormarkten [Dataset]. Vastgoeddata.nl.',
 }
 
 const MARKT_STATUS_CFG: Record<GebiedStatus, { label: string; bg: string; text: string }> = {
@@ -190,21 +190,30 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
             className="text-[10px] font-semibold uppercase tracking-wide flex items-center"
             style={{ color: 'var(--c-subtle)' }}
           >
-            <EditableText storageKey={`gebied.${gebied.id}.label.huurprijs`} defaultValue="Huurprijs" />
+            <EditableText storageKey={`gebied.${gebied.id}.label.huurprijs`} defaultValue="Gem. huurprijs/m²/jr (afgelopen 2 jaar)" />
             <BronTooltip bron={BRONNEN.huurprijs} />
           </div>
           <div className="text-xs font-medium mt-0.5" style={{ color: 'var(--c-text)' }}>
-            €<InlineEdit
-              value={marktdata.huurprijsBandwidth.min}
-              format={(n) => `${n}`}
-              onSave={(v) => setField(gebied.id, 'huurprijsMin', v)}
-              inputWidth="4ch"
-            />–<InlineEdit
-              value={marktdata.huurprijsBandwidth.max}
-              format={(n) => `${n}`}
-              onSave={(v) => setField(gebied.id, 'huurprijsMax', v)}
-              inputWidth="4ch"
-            /> /m²/jr
+            {marktdata.huurprijsGemiddeld != null ? (
+              <>€<InlineEdit
+                value={marktdata.huurprijsGemiddeld}
+                format={(n) => `${n}`}
+                onSave={(v) => setField(gebied.id, 'huurprijsGemiddeld', v)}
+                inputWidth="4ch"
+              /> /m²/jr</>
+            ) : (
+              <>€<InlineEdit
+                value={marktdata.huurprijsBandwidth.min}
+                format={(n) => `${n}`}
+                onSave={(v) => setField(gebied.id, 'huurprijsMin', v)}
+                inputWidth="4ch"
+              />–<InlineEdit
+                value={marktdata.huurprijsBandwidth.max}
+                format={(n) => `${n}`}
+                onSave={(v) => setField(gebied.id, 'huurprijsMax', v)}
+                inputWidth="4ch"
+              /> /m²/jr</>
+            )}
           </div>
         </div>
         {pandenInOntwikkeling.length > 0 && (
