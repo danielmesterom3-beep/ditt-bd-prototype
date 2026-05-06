@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useEditMode } from '../context/EditContext'
+import { queueChange } from '../components/EditableText'
 import type {
   LocatieKlasse,
   PandInOntwikkeling,
@@ -18,6 +20,47 @@ import type {
 import { useNavigation } from '../context/NavigationContext'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
 import EditableText from '../components/EditableText'
+
+// ── Verwijder hulpfuncties ────────────────────────────────────────────────────
+
+function useDeletedItems(storageKey: string) {
+  const [deleted, setDeleted] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem(storageKey) ?? '[]')) } catch { return new Set() }
+  })
+  function deleteItem(id: string) {
+    setDeleted(prev => {
+      const next = new Set(prev)
+      next.add(id)
+      localStorage.setItem(storageKey, JSON.stringify([...next]))
+      queueChange(storageKey, JSON.stringify([...next]))
+      return next
+    })
+  }
+  return { deleted, deleteItem }
+}
+
+function DeleteBtn({ onDelete }: { onDelete: () => void }) {
+  const { isEditMode } = useEditMode()
+  if (!isEditMode) return null
+  return (
+    <button
+      onClick={onDelete}
+      title="Kaart verwijderen"
+      style={{
+        position: 'absolute', top: 8, right: 8,
+        width: 20, height: 20, borderRadius: 4,
+        background: 'none', border: '1px solid #e2e8f0',
+        color: '#9ca3af', cursor: 'pointer', fontSize: 11,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        lineHeight: 1,
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fca5a5' }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.borderColor = '#e2e8f0' }}
+    >
+      ×
+    </button>
+  )
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -223,7 +266,7 @@ function Gebiedskenmerken({ gebied }: { gebied: Gebied }) {
 
 // ── Section 2: Panden in ontwikkeling ────────────────────────────────────────
 
-function PandCard({ pand }: { pand: PandInOntwikkeling }) {
+function PandCard({ pand, onDelete }: { pand: PandInOntwikkeling; onDelete?: () => void }) {
   const [open, setOpen] = useState(false)
   const fase = FASE_STYLE[pand.fase]
 
@@ -234,8 +277,10 @@ function PandCard({ pand }: { pand: PandInOntwikkeling }) {
         border: '1px solid var(--c-border)',
         borderRadius: 12,
         overflow: 'hidden',
+        position: 'relative',
       }}
     >
+      <DeleteBtn onDelete={onDelete ?? (() => {})} />
       <div style={{ padding: '16px 16px 14px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
           <EditableText storageKey={`pand.${pand.id}.naam`} defaultValue={pand.naam || pand.adres} style={{ fontWeight: 600, fontSize: 13, color: 'var(--c-text)', lineHeight: 1.3 }} />
@@ -319,7 +364,7 @@ function PandCard({ pand }: { pand: PandInOntwikkeling }) {
 
 // ── Section 3: Trends ─────────────────────────────────────────────────────────
 
-function TrendItem({ trend }: { trend: Trend }) {
+function TrendItem({ trend, onDelete }: { trend: Trend; onDelete?: () => void }) {
   const s = TREND_STYLE[trend.richting]
   return (
     <div
@@ -331,8 +376,10 @@ function TrendItem({ trend }: { trend: Trend }) {
         border: `1px solid ${s.color}22`,
         borderLeft: `3px solid ${s.color}`,
         borderRadius: 8,
+        position: 'relative',
       }}
     >
+      <DeleteBtn onDelete={onDelete ?? (() => {})} />
       <span style={{ fontSize: 16, color: s.color, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>
         {s.icon}
       </span>
@@ -343,7 +390,7 @@ function TrendItem({ trend }: { trend: Trend }) {
 
 // ── Section 4: Interessante opdrachtgevers (SFO) ──────────────────────────────
 
-function OpdrachtgeverCard({ og }: { og: InteressanteOpdrachtgever }) {
+function OpdrachtgeverCard({ og, onDelete }: { og: InteressanteOpdrachtgever; onDelete?: () => void }) {
   const s = OG_STATUS_STYLE[og.status]
   return (
     <div
@@ -355,8 +402,10 @@ function OpdrachtgeverCard({ og }: { og: InteressanteOpdrachtgever }) {
         display: 'flex',
         flexDirection: 'column',
         gap: 10,
+        position: 'relative',
       }}
     >
+      <DeleteBtn onDelete={onDelete ?? (() => {})} />
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
         <div>
@@ -462,7 +511,7 @@ function ActionBtn({
   )
 }
 
-function WarmContactCard({ contact }: { contact: WarmContact }) {
+function WarmContactCard({ contact, onDelete }: { contact: WarmContact; onDelete?: () => void }) {
   const [showNote, setShowNote] = useState(false)
   const heeftEmail    = !!contact.email
   const heeftTelefoon = !!contact.telefoon
@@ -477,8 +526,10 @@ function WarmContactCard({ contact }: { contact: WarmContact }) {
         borderRadius: 12,
         overflow: 'hidden',
         boxShadow: '0 2px 8px rgba(217,119,6,0.08)',
+        position: 'relative',
       }}
     >
+      <DeleteBtn onDelete={onDelete ?? (() => {})} />
       {/* Warm badge + header */}
       <div style={{ padding: '14px 16px 12px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
@@ -878,7 +929,7 @@ const CATEGORIE_STYLE: Record<InzichtCategorie, { bg: string; text: string; bord
   inrichting:    { bg: '#faf5ff', text: '#7e22ce', border: '#e9d5ff', label: 'Inrichting' },
 }
 
-function InzichtKaart({ inzicht }: { inzicht: InterviewInzicht }) {
+function InzichtKaart({ inzicht, onDelete }: { inzicht: InterviewInzicht; onDelete?: () => void }) {
   const cs = CATEGORIE_STYLE[inzicht.categorie]
   const datum = new Date(inzicht.datum).toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' })
 
@@ -893,8 +944,10 @@ function InzichtKaart({ inzicht }: { inzicht: InterviewInzicht }) {
         display: 'flex',
         flexDirection: 'column',
         gap: 8,
+        position: 'relative',
       }}
     >
+      <DeleteBtn onDelete={onDelete ?? (() => {})} />
       {/* Categorie badge + datum */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <span
@@ -951,9 +1004,11 @@ function InzichtKaart({ inzicht }: { inzicht: InterviewInzicht }) {
 function InzichtKaarten({ inzichten }: { inzichten: InterviewInzicht[] }) {
   if (inzichten.length === 0) return null
   const [actief, setActief] = useState<InzichtCategorie | 'alle'>('alle')
+  const { deleted, deleteItem } = useDeletedItems('deleted_inzichten')
 
-  const categorieën = ['alle', ...Array.from(new Set(inzichten.map((i) => i.categorie)))] as (InzichtCategorie | 'alle')[]
-  const gefilterd = actief === 'alle' ? inzichten : inzichten.filter((i) => i.categorie === actief)
+  const zichtbaar = inzichten.filter((i) => !deleted.has(i.id))
+  const categorieën = ['alle', ...Array.from(new Set(zichtbaar.map((i) => i.categorie)))] as (InzichtCategorie | 'alle')[]
+  const gefilterd = actief === 'alle' ? zichtbaar : zichtbaar.filter((i) => i.categorie === actief)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -979,7 +1034,7 @@ function InzichtKaarten({ inzichten }: { inzichten: InterviewInzicht[] }) {
                 transition: 'all 0.12s',
               }}
             >
-              {isAlle ? `Alle (${inzichten.length})` : CATEGORIE_STYLE[cat].label}
+              {isAlle ? `Alle (${zichtbaar.length})` : CATEGORIE_STYLE[cat].label}
             </button>
           )
         })}
@@ -994,7 +1049,7 @@ function InzichtKaarten({ inzichten }: { inzichten: InterviewInzicht[] }) {
         }}
       >
         {gefilterd.map((inzicht) => (
-          <InzichtKaart key={inzicht.id} inzicht={inzicht} />
+          <InzichtKaart key={inzicht.id} inzicht={inzicht} onDelete={() => deleteItem(inzicht.id)} />
         ))}
       </div>
     </div>
@@ -1078,7 +1133,7 @@ const URGENTIE_CFG = {
   groen:  { label: '> 2 jaar',   bg: '#f0fdf4', text: '#166534', border: '#86efac', dot: '#22c55e' },
 }
 
-function LeadCard({ lead, stad }: { lead: KansrijkeLead; stad?: string }) {
+function LeadCard({ lead, stad, onDelete }: { lead: KansrijkeLead; stad?: string; onDelete?: () => void }) {
   const u = urgentie(lead.contractBegin)
   const cfg = URGENTIE_CFG[u]
   const [jaar, maand] = lead.contractBegin.split('-')
@@ -1093,8 +1148,10 @@ function LeadCard({ lead, stad }: { lead: KansrijkeLead; stad?: string }) {
         borderRadius: 12,
         overflow: 'hidden',
         borderTop: `3px solid ${cfg.dot}`,
+        position: 'relative',
       }}
     >
+      <DeleteBtn onDelete={onDelete ?? (() => {})} />
       {/* Header */}
       <div style={{ padding: '14px 18px 10px', borderBottom: '1px solid var(--c-border)' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
@@ -1194,9 +1251,12 @@ function LeadCard({ lead, stad }: { lead: KansrijkeLead; stad?: string }) {
 }
 
 function KansrijkeLeadsSection({ leads, stad }: { leads: KansrijkeLead[]; stad?: string }) {
+  const { deleted, deleteItem } = useDeletedItems('deleted_leads')
+  const zichtbaar = leads.filter((l) => !deleted.has(l.id))
+
   // Sorteren: rood eerst, dan oranje, dan groen; binnen zelfde kleur op omvang desc
   const URGENTIE_ORDER = { rood: 0, oranje: 1, groen: 2 }
-  const gesorteerd = [...leads].sort((a, b) => {
+  const gesorteerd = [...zichtbaar].sort((a, b) => {
     const uA = URGENTIE_ORDER[urgentie(a.contractBegin)]
     const uB = URGENTIE_ORDER[urgentie(b.contractBegin)]
     if (uA !== uB) return uA - uB
@@ -1204,9 +1264,9 @@ function KansrijkeLeadsSection({ leads, stad }: { leads: KansrijkeLead[]; stad?:
   })
 
   const counts = {
-    rood:   leads.filter((l) => urgentie(l.contractBegin) === 'rood').length,
-    oranje: leads.filter((l) => urgentie(l.contractBegin) === 'oranje').length,
-    groen:  leads.filter((l) => urgentie(l.contractBegin) === 'groen').length,
+    rood:   zichtbaar.filter((l) => urgentie(l.contractBegin) === 'rood').length,
+    oranje: zichtbaar.filter((l) => urgentie(l.contractBegin) === 'oranje').length,
+    groen:  zichtbaar.filter((l) => urgentie(l.contractBegin) === 'groen').length,
   }
 
   return (
@@ -1254,7 +1314,7 @@ function KansrijkeLeadsSection({ leads, stad }: { leads: KansrijkeLead[]; stad?:
       {/* Lead cards grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
         {gesorteerd.map((lead) => (
-          <LeadCard key={lead.id} lead={lead} stad={stad} />
+          <LeadCard key={lead.id} lead={lead} stad={stad} onDelete={() => deleteItem(lead.id)} />
         ))}
       </div>
     </div>
@@ -1278,14 +1338,24 @@ export default function GebiedDetailView() {
   const ks = klasse ? KLASSE_STYLE[klasse] : null
   const effectiveStatus = getStatus(gebied.id, gebied.status ?? 'live')
   const statusCfg = GEBIED_STATUS_CFG[effectiveStatus]
-  const heeftPanden    = gebied.pandenInOntwikkeling.length > 0
-  const heeftContacten = gebied.warmeContacten.length > 0
+  const { deleted: deletedPanden,    deleteItem: deletePand }    = useDeletedItems('deleted_panden')
+  const { deleted: deletedTrends,    deleteItem: deleteTrend }   = useDeletedItems('deleted_trends')
+  const { deleted: deletedOg,        deleteItem: deleteOg }      = useDeletedItems('deleted_og')
+  const { deleted: deletedContacten, deleteItem: deleteContact } = useDeletedItems('deleted_wc')
+
+  const zichtbarePanden    = gebied.pandenInOntwikkeling.filter((p) => !deletedPanden.has(p.id))
+  const zichtbareTrends    = gebied.trends.filter((t) => !deletedTrends.has(t.id))
+  const zichtbareOg        = gebied.interessanteOpdrachtgevers.filter((o) => !deletedOg.has(o.id))
+  const zichtbareContacten = gebied.warmeContacten.filter((c) => !deletedContacten.has(c.id))
+
+  const heeftPanden    = zichtbarePanden.length > 0
+  const heeftContacten = zichtbareContacten.length > 0
 
   // Split trends by richting for at-a-glance counts
   const trendCounts = {
-    positief: gebied.trends.filter((t) => t.richting === 'positief').length,
-    neutraal: gebied.trends.filter((t) => t.richting === 'neutraal').length,
-    negatief: gebied.trends.filter((t) => t.richting === 'negatief').length,
+    positief: zichtbareTrends.filter((t) => t.richting === 'positief').length,
+    neutraal: zichtbareTrends.filter((t) => t.richting === 'neutraal').length,
+    negatief: zichtbareTrends.filter((t) => t.richting === 'negatief').length,
   }
 
   return (
@@ -1412,7 +1482,7 @@ export default function GebiedDetailView() {
 
       {/* ── Section 2: Panden in ontwikkeling ── */}
       {heeftPanden && (
-        <Section title={`Panden in ontwikkeling met kantoorfunctie — ${gebied.pandenInOntwikkeling.length} object${gebied.pandenInOntwikkeling.length !== 1 ? 'en' : ''}`}>
+        <Section title={`Panden in ontwikkeling met kantoorfunctie — ${zichtbarePanden.length} object${zichtbarePanden.length !== 1 ? 'en' : ''}`}>
           <div
             style={{
               display: 'grid',
@@ -1420,8 +1490,8 @@ export default function GebiedDetailView() {
               gap: 16,
             }}
           >
-            {gebied.pandenInOntwikkeling.map((pand) => (
-              <PandCard key={pand.id} pand={pand} />
+            {zichtbarePanden.map((pand) => (
+              <PandCard key={pand.id} pand={pand} onDelete={() => deletePand(pand.id)} />
             ))}
           </div>
         </Section>
@@ -1435,10 +1505,10 @@ export default function GebiedDetailView() {
           title={`Trends — ${trendCounts.positief} positief · ${trendCounts.neutraal} neutraal · ${trendCounts.negatief} negatief`}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {gebied.trends.map((trend) => (
-              <TrendItem key={trend.id} trend={trend} />
+            {zichtbareTrends.map((trend) => (
+              <TrendItem key={trend.id} trend={trend} onDelete={() => deleteTrend(trend.id)} />
             ))}
-            {gebied.trends.length === 0 && (
+            {zichtbareTrends.length === 0 && (
               <div
                 style={{
                   padding: '20px',
@@ -1457,12 +1527,12 @@ export default function GebiedDetailView() {
         </Section>
 
         {/* Section 4: Interessante opdrachtgevers */}
-        <Section title={`Interessante opdrachtgevers (SFO) — ${gebied.interessanteOpdrachtgevers.length}`}>
+        <Section title={`Interessante opdrachtgevers (SFO) — ${zichtbareOg.length}`}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {gebied.interessanteOpdrachtgevers.map((og) => (
-              <OpdrachtgeverCard key={og.id} og={og} />
+            {zichtbareOg.map((og) => (
+              <OpdrachtgeverCard key={og.id} og={og} onDelete={() => deleteOg(og.id)} />
             ))}
-            {gebied.interessanteOpdrachtgevers.length === 0 && (
+            {zichtbareOg.length === 0 && (
               <div
                 style={{
                   padding: '20px',
@@ -1483,7 +1553,7 @@ export default function GebiedDetailView() {
 
       {/* ── Section 5: Warme contacten ── */}
       {heeftContacten && (
-        <Section title={`Warme contacten — ${gebied.warmeContacten.length}`}>
+        <Section title={`Warme contacten — ${zichtbareContacten.length}`}>
           <div
             style={{
               display: 'grid',
@@ -1491,8 +1561,8 @@ export default function GebiedDetailView() {
               gap: 14,
             }}
           >
-            {gebied.warmeContacten.map((contact) => (
-              <WarmContactCard key={contact.id} contact={contact} />
+            {zichtbareContacten.map((contact) => (
+              <WarmContactCard key={contact.id} contact={contact} onDelete={() => deleteContact(contact.id)} />
             ))}
           </div>
         </Section>
