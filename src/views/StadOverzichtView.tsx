@@ -840,14 +840,6 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
         datum: 'februari 2025',
         context: 'Hotel-acquisitie in het centrum bevestigt actieve investeringsmarkt. Van der Valk investeert in transformatie en herinrichting — een type project waarbij Ditt inzetbaar is voor interieur Design & Build.',
       },
-      {
-        adres: 'Kennedyplein 300, Eindhoven',
-        verkoper: 'Aberdeen Standard Investments',
-        koper: 'Gemeente Eindhoven',
-        koopsom: '~€20–25M',
-        datum: 'december 2025',
-        context: 'Onderdeel van het Fellenoord transformatieplan. De gemeente koopt panden strategisch op om herontwikkeling mogelijk te maken. Huurders die verplaatst worden zoeken vervangende kantoorruimte — directe BD-kans.',
-      },
     ],
   },
   {
@@ -1094,17 +1086,17 @@ function RecenteTransactiesPanel() {
                     >
                       {/* Adres */}
                       <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', marginBottom: 8 }}>
-                        {t.adres}
+                        <EditableText storageKey={`transactie.${gebied.id}.${i}.adres`} defaultValue={t.adres} />
                       </div>
 
                       {/* Verkoper → Koper */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
                         <span style={{ fontSize: 11, color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 6, padding: '2px 8px' }}>
-                          {t.verkoper}
+                          <EditableText storageKey={`transactie.${gebied.id}.${i}.verkoper`} defaultValue={t.verkoper} />
                         </span>
                         <span style={{ fontSize: 11, color: colors.accent, fontWeight: 700 }}>→</span>
                         <span style={{ fontSize: 11, color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 6, padding: '2px 8px' }}>
-                          {t.koper}
+                          <EditableText storageKey={`transactie.${gebied.id}.${i}.koper`} defaultValue={t.koper} />
                         </span>
                       </div>
 
@@ -1116,7 +1108,7 @@ function RecenteTransactiesPanel() {
                             background: colors.accent, color: '#fff',
                           }}
                         >
-                          {t.koopsom}
+                          <EditableText storageKey={`transactie.${gebied.id}.${i}.koopsom`} defaultValue={t.koopsom} />
                         </span>
                         <span
                           style={{
@@ -1124,14 +1116,17 @@ function RecenteTransactiesPanel() {
                             background: 'var(--c-surface)', color: 'var(--c-muted)', border: '1px solid var(--c-border)',
                           }}
                         >
-                          {t.datum}
+                          <EditableText storageKey={`transactie.${gebied.id}.${i}.datum`} defaultValue={t.datum} />
                         </span>
                       </div>
 
                       {/* Context */}
-                      <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}>
-                        {t.context}
-                      </div>
+                      <EditableText
+                        storageKey={`transactie.${gebied.id}.${i}.context`}
+                        defaultValue={t.context}
+                        tag="div"
+                        style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}
+                      />
                     </div>
                   ))}
                 </div>
