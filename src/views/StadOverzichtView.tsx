@@ -15,6 +15,7 @@ const BRONNEN = {
   niy:      'Jones Lang LaSalle IP, Inc. (2026). Office market: Rotterdam & Eindhoven Q4 2025. JLL Research.',
   kvk_hal2: 'HAL 2 B.V. (2024). Jaarrekening 2024. Gedeponeerd bij de Kamer van Koophandel.',
   kvk_desque: 'Desque Eindhoven B.V. (2024). Jaarrekening 2024. Gedeponeerd bij de Kamer van Koophandel.',
+  transacties: 'Vastgoeddata.nl. (2026). Transactiedatabase vastgoed 2024–2026 [Dataset]. Vastgoeddata.nl.',
 }
 
 // ── JLL Office Q4 2025 — hardcoded source data ───────────────────────────────
@@ -776,6 +777,373 @@ function OmgevingskenmerkenPanel() {
   )
 }
 
+// ── RecenteTransactiesPanel ───────────────────────────────────────────────────
+
+interface Transactie {
+  adres: string
+  verkoper: string
+  koper: string
+  koopsom: string
+  datum: string
+  context: string
+}
+
+interface GebiedTransacties {
+  id: string
+  naam: string
+  stad: 'eindhoven' | 'rotterdam'
+  transacties: Transactie[]
+}
+
+const TRANSACTIES_DATA: GebiedTransacties[] = [
+  {
+    id: 'htc-asml',
+    naam: 'HTC-ASML (Veldhoven)',
+    stad: 'eindhoven',
+    transacties: [
+      {
+        adres: 'De Run 1101, Veldhoven',
+        verkoper: 'Simac Techniek NV',
+        koper: 'ASML',
+        koopsom: '~€10–12M',
+        datum: 'mei 2024',
+        context: 'ASML breidt zijn campus verder uit door naastgelegen pand van IT-dienstverlener Simac over te nemen. Signaleert actieve verhuisbewegingen in het ASML-ecosysteem: kantoorruimte die vrijkomt bij leveranciers en partners is een directe ingang voor Ditt.',
+      },
+    ],
+  },
+  {
+    id: 'eindhoven-centrum',
+    naam: 'Eindhoven Centrum',
+    stad: 'eindhoven',
+    transacties: [
+      {
+        adres: 'Stationsweg 17, Eindhoven',
+        verkoper: 'Edge Technologies',
+        koper: 'Bouwinvest',
+        koopsom: '~€100–150M',
+        datum: 'juni 2024',
+        context: 'Grootste kantooroverdracht bij Eindhoven Centraal in jaren. Bouwinvest treedt aan als nieuwe eigenaar van dit multi-huurder complex. Eigendomswissel bij institutionele partij genereert verhuur- en inrichtingsactiviteit bij bestaande en nieuwe huurders.',
+      },
+      {
+        adres: 'De Rungraaf 78, Eindhoven',
+        verkoper: 'Achmea Real Estate',
+        koper: 'Investe Group',
+        koopsom: '~€18–20M',
+        datum: 'maart 2025',
+        context: 'Na overdracht van Achmea aan Investe Group volgt doorgaans herpositionering en nieuwe verhuur. Nieuwe eigenaar investeert veelal in kwaliteitsverbetering — een kans voor D&B-acquisitie bij fit-out van instromende huurders.',
+      },
+      {
+        adres: 'Vestdijk 45, Eindhoven',
+        verkoper: 'Cantera Beheer',
+        koper: 'Van der Valk',
+        koopsom: '~€60–70M',
+        datum: 'februari 2025',
+        context: 'Hotel-acquisitie in het centrum bevestigt actieve investeringsmarkt. Van der Valk investeert in transformatie en herinrichting — een type project waarbij Ditt inzetbaar is voor interieur Design & Build.',
+      },
+      {
+        adres: 'Kennedyplein 300, Eindhoven',
+        verkoper: 'Aberdeen Standard Investments',
+        koper: 'Gemeente Eindhoven',
+        koopsom: '~€20–25M',
+        datum: 'december 2025',
+        context: 'Onderdeel van het Fellenoord transformatieplan. De gemeente koopt panden strategisch op om herontwikkeling mogelijk te maken. Huurders die verplaatst worden zoeken vervangende kantoorruimte — directe BD-kans.',
+      },
+    ],
+  },
+  {
+    id: 'eindhoven-airport',
+    naam: 'Eindhoven Airport / Flight Forum',
+    stad: 'eindhoven',
+    transacties: [
+      {
+        adres: 'Park Forum 1119, Eindhoven',
+        verkoper: 'Edmond de Rothschild REIM',
+        koper: 'The Pictet Group / Stoneweg',
+        koopsom: '~€7–8M',
+        datum: 'oktober 2025',
+        context: 'Internationale institutionele transactie: Frans-Zwitsers consortium neemt object over. Nieuwe eigenaar met internationale huurdersbasis genereert inrichtingsvraag en is open voor kwaliteitspartners.',
+      },
+      {
+        adres: 'Park Forum 1053, Eindhoven',
+        verkoper: 'PowerSlim',
+        koper: 'GD Medical',
+        koopsom: '~€6–7M',
+        datum: 'november 2025',
+        context: 'Eindgebruiker koopt pand; gebruikerswijziging van lifestyle/voeding naar medtech genereert directe inrichtingsvraag voor specifiek werkplekconcept.',
+      },
+      {
+        adres: 'Luchthavenweg 75, Eindhoven',
+        verkoper: 'Bond Concepts',
+        koper: 'Breadstone',
+        koopsom: '~€9–10M',
+        datum: 'februari 2025',
+        context: 'Nieuwe eigenaar op strategische locatie dicht bij luchthaven. Breadstone is actief als vastgoedinvesteerder en zal pand verhuurklaar maken — kans voor Ditt bij cat-A/cat-B inrichting.',
+      },
+      {
+        adres: 'Westfields 1010, Oirschot (Airport-corridor)',
+        verkoper: 'Nuveen Real Estate',
+        koper: 'SEGRO',
+        koopsom: '~€100–150M',
+        datum: 'juli 2024',
+        context: 'Grote logistieke transactie in Airport-corridor illustreert het sterke institutionele investeringsklimaat rondom Eindhoven Airport. SEGRO is pan-Europees actief en brengt internationale huurders mee.',
+      },
+    ],
+  },
+  {
+    id: 'rotterdam-centrum',
+    naam: 'Rotterdam Centrum',
+    stad: 'rotterdam',
+    transacties: [
+      {
+        adres: 'Diergaardesingel 75A, Rotterdam (WTC)',
+        verkoper: 'Union Investment',
+        koper: 'Bouwinvest',
+        koopsom: '~€150–200M',
+        datum: 'september 2025',
+        context: 'Grootste Rotterdamse kantoorverkoop van 2025. Bouwinvest neemt WTC Rotterdam over van Union Investment. Bij eigendomswisseling van dit formaat verwachten huurders serviceniveauwijzigingen en voeren herinrichtingsgesprekken.',
+      },
+      {
+        adres: 'Blaak 555, Rotterdam',
+        verkoper: 'Edge Technologies',
+        koper: 'MSC',
+        koopsom: '~€70–80M',
+        datum: 'juni 2025',
+        context: 'Flight-to-quality: internationale scheepvaartgigant MSC neemt topkantoor op A-locatie Blaak. Gebruikersovername van deze omvang gepaard met volledige herinrichting naar eigen bedrijfsidentiteit — core D&B-propositie.',
+      },
+      {
+        adres: 'Delftsestraat 26, Rotterdam',
+        verkoper: 'Achmea',
+        koper: 'Dudok Groep',
+        koopsom: '~€25–30M',
+        datum: 'juni 2024',
+        context: 'Dudok Groep is actief in herontwikkeling van kantoorpanden naar gemengd gebruik. Na aankoop volgt doorgaans transformatie waarbij architectonisch Design & Build centraal staat.',
+      },
+      {
+        adres: 'Blaak 20, Rotterdam',
+        verkoper: 'Review Real Estate',
+        koper: 'Egeria / Flow Real Estate',
+        koopsom: '~€20–25M',
+        datum: 'februari 2025',
+        context: 'Egeria is een duurzame kantoorontwikkelaar; aankoop wordt gevolgd door verbouwing richting BREEAM-/WELL-gecertificeerd pand. Dit type project sluit direct aan op Ditt\'s D&B-propositie met duurzaamheidsfocus.',
+      },
+      {
+        adres: 'Lijnbaan 101, Rotterdam',
+        verkoper: 'Dela Vastgoed',
+        koper: 'A1 Vastgoed',
+        koopsom: '~€18–20M',
+        datum: 'januari 2026',
+        context: 'Eigendomswisseling in prime winkel-/kantoorgebied; A1 Vastgoed positioneert pand her voor nieuwe huurders. Nieuwe verhuurcampagne genereert inrichtingsvraag.',
+      },
+      {
+        adres: 'Calandstraat 33, Rotterdam',
+        verkoper: 'Bouwinvest',
+        koper: 'Provast Beheer',
+        koopsom: '~€14–16M',
+        datum: 'oktober 2025',
+        context: 'Provast staat bekend om herontwikkeling van kantoorpanden. Aankoop van Bouwinvest duidt op transformatieproject in voorbereiding — ideale instap voor Ditt in vroeg stadium.',
+      },
+    ],
+  },
+  {
+    id: 'rotterdam-alexander',
+    naam: 'Rotterdam Alexander',
+    stad: 'rotterdam',
+    transacties: [
+      {
+        adres: 'Fascinatio Boulevard 348, Rotterdam',
+        verkoper: 'Flemyn / 1Zone Capital',
+        koper: 'Corum Investments',
+        koopsom: '~€50–60M',
+        datum: 'december 2024',
+        context: 'Frans REIT Corum koopt het grootste kantoorcomplex in het Alexander-cluster. Multi-huurder object met internationale eigenaar: nieuwe verhuurstrategie brengt nieuwe huurders die ingerichte ruimte zoeken.',
+      },
+      {
+        adres: 'Watermanweg 4, Rotterdam',
+        verkoper: 'DWS',
+        koper: 'Corum Origin',
+        koopsom: '~€14–16M',
+        datum: 'oktober 2024',
+        context: 'DWS (Deutsche Bank vastgoedtak) verkoopt aan Corum Origin. Nieuwe eigenaar investeert in verhuurbaarheid — kans om vroeg in gesprek te komen over inrichting van verhuurbare units.',
+      },
+      {
+        adres: 'Rivium Quadrant 81, Capelle a/d IJssel',
+        verkoper: 'Harbert / Quan Real Estate',
+        koper: 'Schouten Zekerheid',
+        koopsom: '~€9–10M',
+        datum: 'november 2024',
+        context: 'Eindgebruiker koopt eigen kantoorpand. Schouten Zekerheid is verzekeringsadviseur die nu eigenaar wordt van eigen pand — directe inrichtingsvraag voor eigen werkplek is te verwachten.',
+      },
+    ],
+  },
+  {
+    id: 'fellenoord',
+    naam: 'Fellenoord',
+    stad: 'eindhoven',
+    transacties: [
+      {
+        adres: 'Kennedyplein 100, Eindhoven',
+        verkoper: 'NSI Vastgoed',
+        koper: 'Gemeente Eindhoven',
+        koopsom: '~€18–20M',
+        datum: 'december 2025',
+        context: 'Gemeentelijke opkoop als onderdeel van het Fellenoord transformatieplan. NSI verkoopt; huurders worden verplaatst. Verhuisbeweging van gevestigde kantoorhuurders genereert directe vraag naar nieuw kantoor.',
+      },
+      {
+        adres: 'Kennedyplein 300, Eindhoven',
+        verkoper: 'Aberdeen Standard Investments',
+        koper: 'Gemeente Eindhoven',
+        koopsom: '~€20–25M',
+        datum: 'december 2025',
+        context: 'Samen met Kennedyplein 100 heeft de gemeente nu €38–45M aan Fellenoord-vastgoed in handen. Huurders van beide panden worden actief op zoek naar vervangende locaties — dit is een van de sterkste verhuistriggers in Eindhoven momenteel.',
+      },
+      {
+        adres: 'Professor Dr Dorgelolaan 20, Eindhoven',
+        verkoper: 'VB Groep',
+        koper: 'Rijksvastgoedbedrijf',
+        koopsom: '~€12–14M',
+        datum: 'april 2025',
+        context: 'Rijksoverheid verwerft pand voor eigen gebruik. Bestaande huurders zoeken vervangende kantoorruimte in Eindhoven — een groep met bekende eisen en budgetten, direct inzetbaar voor Smart Moves of D&B.',
+      },
+      {
+        adres: 'Visserstraat 18A, Eindhoven',
+        verkoper: 'Verouden Vastgoed / Kragt',
+        koper: 'BPD Ontwikkeling',
+        koopsom: '~€7–8M',
+        datum: 'december 2024',
+        context: 'BPD is woningontwikkelaar en koopt dit pand voor transformatie naar wonen. Dit vergroot de transformatiedruk op het kantoorbestand in Fellenoord en versterkt de noodzaak voor huurders om actief alternatieve kantoorlocaties te zoeken.',
+      },
+    ],
+  },
+]
+
+const STAD_COLORS: Record<'eindhoven' | 'rotterdam', { accent: string; accentLight: string; accentBorder: string; badge: string; badgeText: string }> = {
+  eindhoven: { accent: '#ff7f50', accentLight: '#fff5f0', accentBorder: '#ffd4c0', badge: '#fff0e8', badgeText: '#c2410c' },
+  rotterdam: { accent: '#3b82f6', accentLight: '#eff6ff', accentBorder: '#bfdbfe', badge: '#eff6ff', badgeText: '#1e40af' },
+}
+
+function RecenteTransactiesPanel() {
+  const [open, setOpen] = useState(false)
+
+  const totalCount = TRANSACTIES_DATA.reduce((s, g) => s + g.transacties.length, 0)
+
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+      {/* Header / toggle */}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em' }}>
+              Recente Transacties <span style={{ fontWeight: 400, color: 'var(--c-muted)' }}>(laatste 24 maanden)</span>
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
+              Koper · Verkoper · Koopsom · Strategische context — bron: Vastgoeddata.nl
+            </div>
+          </div>
+          <span
+            style={{
+              fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 20,
+              background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', flexShrink: 0,
+            }}
+          >
+            {totalCount} transacties · 6 gebieden
+          </span>
+        </div>
+        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {TRANSACTIES_DATA.map((gebied) => {
+            const colors = STAD_COLORS[gebied.stad]
+            return (
+              <div key={gebied.id}>
+                {/* Gebied header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <div style={{ width: 3, height: 18, borderRadius: 2, background: colors.accent, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em' }}>
+                    {gebied.naam}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20,
+                      background: colors.badge, color: colors.badgeText, border: `1px solid ${colors.accentBorder}`,
+                    }}
+                  >
+                    {gebied.stad === 'eindhoven' ? 'Eindhoven' : 'Rotterdam'}
+                  </span>
+                  <BronTooltip bron={BRONNEN.transacties} />
+                </div>
+
+                {/* Transacties grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
+                  {gebied.transacties.map((t, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        background: colors.accentLight,
+                        border: `1px solid ${colors.accentBorder}`,
+                        borderRadius: 10,
+                        padding: '14px 16px',
+                      }}
+                    >
+                      {/* Adres */}
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', marginBottom: 8 }}>
+                        {t.adres}
+                      </div>
+
+                      {/* Verkoper → Koper */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                        <span style={{ fontSize: 11, color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 6, padding: '2px 8px' }}>
+                          {t.verkoper}
+                        </span>
+                        <span style={{ fontSize: 11, color: colors.accent, fontWeight: 700 }}>→</span>
+                        <span style={{ fontSize: 11, color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 6, padding: '2px 8px' }}>
+                          {t.koper}
+                        </span>
+                      </div>
+
+                      {/* Koopsom + datum */}
+                      <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+                        <span
+                          style={{
+                            fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+                            background: colors.accent, color: '#fff',
+                          }}
+                        >
+                          {t.koopsom}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 11, padding: '2px 8px', borderRadius: 20,
+                            background: 'var(--c-surface)', color: 'var(--c-muted)', border: '1px solid var(--c-border)',
+                          }}
+                        >
+                          {t.datum}
+                        </span>
+                      </div>
+
+                      {/* Context */}
+                      <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}>
+                        {t.context}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── StadOverzichtView ─────────────────────────────────────────────────────────
 
 export default function StadOverzichtView() {
@@ -812,6 +1180,9 @@ export default function StadOverzichtView() {
       {/* Omgevingskenmerken */}
       <OmgevingskenmerkenPanel />
 
+      {/* Recente transacties */}
+      <RecenteTransactiesPanel />
+
       {/* Source note */}
       <div
         style={{
@@ -833,6 +1204,8 @@ export default function StadOverzichtView() {
         Vastgoeddata.nl. (2026, 29 april). <em>Transactiedatabase kantoormarkt 2024–2026</em> [Dataset]. Vastgoeddata.nl.
         <br />
         Vastgoeddata.nl. (2026). <em>Transactiemonitor kantoormarkt 2025</em> [Dataset]. Vastgoeddata.nl.
+        <br />
+        Vastgoeddata.nl. (2026). <em>Transactiedatabase vastgoed 2024–2026</em> [Dataset]. Vastgoeddata.nl.
         <br /><br />
         <span style={{ color: 'var(--c-subtle)' }}>
           Hover over het <strong>ⓘ</strong>-icoon naast een waarde voor de specifieke bron.
