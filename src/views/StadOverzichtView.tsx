@@ -16,6 +16,13 @@ const BRONNEN = {
   kvk_hal2: 'HAL 2 B.V. (2024). Jaarrekening 2024. Gedeponeerd bij de Kamer van Koophandel.',
   kvk_desque: 'Desque Eindhoven B.V. (2024). Jaarrekening 2024. Gedeponeerd bij de Kamer van Koophandel.',
   transacties: 'Vastgoeddata.nl. (2026). Transactiedatabase vastgoed 2024–2026 [Dataset]. Vastgoeddata.nl.',
+  vvoStad:    'Vastgoeddata.nl. (2026, 20 februari). Gebiedsanalyse Eindhoven / Rotterdam [Dataset]. Vastgoeddata.nl.',
+}
+
+// ── Totaal kantoor VVO per stad (stadsniveau, bron: EIND.pdf / Rdam.pdf) ──────
+const STAD_KANTOOR_VVO: Record<string, number> = {
+  eindhoven: 1_900_681,  // EIND.pdf p.3 — 20 februari 2026
+  rotterdam: 3_829_464,  // Rdam.pdf p.3 — 20 februari 2026
 }
 
 // ── JLL Office Q4 2025 — hardcoded source data ───────────────────────────────
@@ -383,7 +390,7 @@ function StadPanel({ stad }: { stad: Stad }) {
               <div style={sectionLabelStyle}>Marktindicatoren</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
                 {[
-                  { label: 'Totaal kantoor VVO',       value: fmM2(totaalVVO),                  bron: BRONNEN.vvo },
+                  { label: 'Totaal kantoor VVO',       value: fmM2(STAD_KANTOOR_VVO[stad.id] ?? totaalVVO), bron: BRONNEN.vvoStad },
                   { label: 'Vacancy rate (JLL)',        value: `${jll?.vacancyRate}%`,            bron: BRONNEN.jll },
                   { label: 'Opname 2025 (gebieden)',    value: fmM2(opname),                     bron: BRONNEN.opname },
                   { label: 'Take-up 2025 (JLL)',        value: fmM2(jll?.takeUp2025 ?? 0),       bron: BRONNEN.jll },

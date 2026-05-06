@@ -176,21 +176,12 @@ const rotterdam: Gebied[] = [
       },
       {
         id: 'rc-dev-02',
-        naam: 'RottaNova',
+        naam: 'RottaNova (gemengd)',
         adres: 'Binnenrotte 447, Rotterdam',
         oppervlakte: 29601,
         fase: 'bouw',
         verwachteOplevering: 'Q1 2027',
-        toelichting: 'Herontwikkeling aan de Binnenrotte; 29.601 m² met significant kantooraandeel. Bouwjaar geregistreerd 2022. Bron: Rdam.pdf top-10 #5.',
-      },
-      {
-        id: 'rc-dev-03',
-        naam: 'The BaanTower',
-        adres: 'Baan 4, 3011CB Rotterdam',
-        oppervlakte: 26700,
-        fase: 'bouw',
-        verwachteOplevering: 'Q2 2026',
-        toelichting: 'Hoogebouwproject aan de Baan, nabij Erasmusbrug; 26.700 m² kantoor. Bouwjaar geregistreerd 2023. Bron: Rdam.pdf top-10 #7.',
+        toelichting: 'Gemengd project aan de Binnenrotte; 29.601 m² overwegend wonen (258 appartementen) met creatieve werkruimte en horeca op de begane grond. Oplevering verwacht Q4 2027. Beperkte kantoorfunctie.',
       },
       {
         id: 'rc-dev-04',
