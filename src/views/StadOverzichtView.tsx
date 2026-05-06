@@ -1146,6 +1146,363 @@ function RecenteTransactiesPanel() {
   )
 }
 
+// ── VeldonderzoekPanel ────────────────────────────────────────────────────────
+
+interface VeldonderzoekInzicht {
+  citaat?: string
+  toelichting?: string
+  persoon: string
+  organisatie: string
+  datum: string
+  stad?: 'eindhoven' | 'rotterdam' | 'both'
+}
+
+interface VeldonderzoekThema {
+  id: string
+  titel: string
+  beschrijving: string
+  inzichten: VeldonderzoekInzicht[]
+}
+
+const VELDONDERZOEK_THEMAS: VeldonderzoekThema[] = [
+  {
+    id: 'makelaars',
+    titel: 'Acquisitie verloopt via makelaarsnetwerk',
+    beschrijving: 'Alle geïnterviewde partijen bevestigen dat nieuwe opdrachten vrijwel uitsluitend via persoonlijk netwerk en makelaarsrelaties binnenkomen. Koude acquisitie is zelden effectief.',
+    inzichten: [
+      {
+        citaat: 'Make or break komt ook door makelaars — zonder lokale makelaar is er geen structurele instroom van leads.',
+        persoon: 'Sander Visser',
+        organisatie: 'Ditt. Officemakers (Business Developer)',
+        datum: '09/02/26',
+        stad: 'both',
+      },
+      {
+        citaat: 'Koude acquisitie gebeurt eigenlijk niet echt. Tenders zijn wel koud, maar het kost vaak geld, lange trajecten, en de kans op slagen is beperkt. Je bestaande netwerk is heel belangrijk. Als je het goed doet word je automatisch de volgende keer al meegenomen.',
+        persoon: 'Renzo Goessens',
+        organisatie: 'Tenzin Vastgoed (Algemeen Directeur)',
+        datum: '14/02/26',
+        stad: 'both',
+      },
+      {
+        citaat: 'Ze vertellen gewoon tijdens het eten: hey, ik hoor dat die en die partij bij dat gebouw aan het kijken is. Dat is informatie die ver voor vastgoeddata zit.',
+        toelichting: 'Advies: focus op regionale en middelgrote makelaars die nog geen vaste design & build partner hebben, niet op grote internationale kantoren zoals JLL (Tétris) of Savills.',
+        persoon: 'Tim Zents',
+        organisatie: 'Ditt. Officemakers (Business Developer)',
+        datum: '23/02/26',
+        stad: 'both',
+      },
+      {
+        toelichting: 'De Mik werkt met Plan@Office als vaste D&B-partner op basis van vertrouwen en eerdere positieve ervaringen — niet op courtageconstructie. Benaderingen die puur verkoopgericht zijn worden niet serieus genomen.',
+        persoon: 'Marcel Naaktgeboren',
+        organisatie: 'De Mik Real Estate Partners (Rotterdam Alexander)',
+        datum: '19/03/26',
+        stad: 'rotterdam',
+      },
+    ],
+  },
+  {
+    id: 'lokale-verankering',
+    titel: 'Lokale verankering is structurele voorwaarde',
+    beschrijving: 'Rotterdam en Eindhoven zijn bewust lokaal georganiseerde markten. Zonder fysieke aanwezigheid en relaties in de regio is structurele leadinstroom vrijwel onmogelijk.',
+    inzichten: [
+      {
+        citaat: 'Je moet gewoon een makelaar hebben in Eindhoven die jouw ambassadeur is. En om die ambassadeur te krijgen moet je toch eigenlijk zijn en het liefst een Brabantse bedrijfsvoerder.',
+        persoon: 'Matthijs Kaak',
+        organisatie: 'Ditt. Officemakers (Partner)',
+        datum: '11/02/26',
+        stad: 'eindhoven',
+      },
+      {
+        citaat: 'Wij geloven er heel erg in dat je dan eigenlijk iemand moet hebben, zoals Michiel, die moet je dan echt als lokale ondernemer neerzetten. Ik ken heel Amsterdam, ik ken Twente heel goed, de ondernemers en de netwerken.',
+        persoon: 'Jan Brink',
+        organisatie: 'Ditt. Officemakers (Partner)',
+        datum: '11/02/26',
+        stad: 'both',
+      },
+      {
+        citaat: 'Wij kunnen alleen maar regionaal werken. We hebben de capaciteit niet om heel ver op ons heen te kijken. Maar daardoor zijn we wel goed in onze markt. We hebben veel mensen kennen. We horen dingen. We zien dingen.',
+        persoon: 'Renzo Goessens',
+        organisatie: 'Tenzin Vastgoed (Algemeen Directeur)',
+        datum: '14/02/26',
+        stad: 'both',
+      },
+      {
+        toelichting: 'Rotterdam wordt omschreven als een markt van "elkaar wat gunnen" en "ons kan ons" — lokale aanwezigheid is cruciaal. Makelaars als Ans De Wijn in Utrecht lieten letterlijk weten: "Jullie hebben geen kantoor in Utrecht, dus waarom zouden we het met jullie doen?"',
+        persoon: 'Sander Visser',
+        organisatie: 'Ditt. Officemakers (Business Developer)',
+        datum: '09/02/26',
+        stad: 'rotterdam',
+      },
+    ],
+  },
+  {
+    id: 'eindhoven-markt',
+    titel: 'Eindhoven — vervangingsmarkt met sweetspot 500–600 m²',
+    beschrijving: 'Eindhoven is primair een vervangingsmarkt waar bedrijven van locatie A naar B verhuizen. Snelheid en no-nonsense aanpak zijn doorslaggevend in de Brabantse bedrijfscultuur.',
+    inzichten: [
+      {
+        citaat: 'Boven de 1.000 m² zijn er op een gegeven moment slechts circa tien actieve zoekers, terwijl er onder die grens zo\'n tachtig actief zijn.',
+        toelichting: 'Sweetspot 500–600 m²; mkb-segment dominant. Grote corporates komen pas in beeld wanneer ze moeten heroverwegen.',
+        persoon: 'Dirk Verberne',
+        organisatie: 'Verschuuren & Schreppers Bedrijfsmakelaars (Eindhoven)',
+        datum: '06/03/26',
+        stad: 'eindhoven',
+      },
+      {
+        toelichting: 'Snelheid is doorslaggevend: wanneer een testfit nodig is, verwacht de makelaar dat een inrichtingspartij dezelfde ochtend langskomt en de volgende dag een plattegrond levert. Een partij uit Amsterdam die pas over twee weken kan, is te laat.',
+        persoon: 'Dirk Verberne',
+        organisatie: 'Verschuuren & Schreppers Bedrijfsmakelaars (Eindhoven)',
+        datum: '06/03/26',
+        stad: 'eindhoven',
+      },
+      {
+        citaat: 'Eindhoven hoort bij de grootste groeisteden van Nederland, dus dan denk je meteen: o ja, nou, dan moeten we daar eens heen. Maar dan zie je dat 80% van die groei voor rekening van ASML komt. Gaan wij voor ASML werken? Nee. Wat blijft dan nog over?',
+        persoon: 'Michiel Bijmols',
+        organisatie: 'Ditt. Officemakers (Business Developer)',
+        datum: '10/02/26',
+        stad: 'eindhoven',
+      },
+      {
+        toelichting: 'Eindhoven kent een overvloed aan lokale inrichtingspartijen: Hal2, King Kongs, VB Vastgoedrichter, Dan Wack Projecten, Bureaubas en diverse eenmanszaken — minimaal tien actieve bureaus die snel en lokaal opereren.',
+        persoon: 'Dirk Verberne',
+        organisatie: 'Verschuuren & Schreppers Bedrijfsmakelaars (Eindhoven)',
+        datum: '06/03/26',
+        stad: 'eindhoven',
+      },
+    ],
+  },
+  {
+    id: 'rotterdam-markt',
+    titel: 'Rotterdam — mkb-verplaatsingsmarkt met ruimte voor nieuwe partijen',
+    beschrijving: 'Rotterdam is een mkb-stad waar circa 80% van de transacties onder de 500 m² valt. Totaal transactievolume ~100.000 m²/jaar. Rotterdam biedt via wederkerigheid meer ruimte voor nieuwe partijen dan Eindhoven.',
+    inzichten: [
+      {
+        toelichting: 'Rotterdam Centrum vertegenwoordigt circa 27.000–30.000 m²/jaar van het totale transactievolume. De bulk zit qua aantallen onder de 500 m², maar grotere transacties (5.000–15.000 m²) komen ook voor.',
+        persoon: 'Marcel Naaktgeboren',
+        organisatie: 'De Mik Real Estate Partners (Rotterdam Alexander)',
+        datum: '19/03/26',
+        stad: 'rotterdam',
+      },
+      {
+        toelichting: 'Fit-out kosten: €1.500/m² (referentie Varo Energy, enkele jaren geleden), nu richting €2.000/m² voor top-segment. Basisfit-out om casco gereed te maken: €200–300/m².',
+        persoon: 'Maurits de Peuter',
+        organisatie: 'Schaub & Partners Bedrijfshuisvesting (Rotterdam)',
+        datum: '12/03/26',
+        stad: 'rotterdam',
+      },
+      {
+        citaat: 'Partijen die alleen komen halen krijgen keurig een kopje koffie maar daarna blijft het bij. Het gaat niet om het financiële stukje maar meer om de wederkerigheid — de makelaar introduceren bij een partij in plaats van alleen leads te verwachten.',
+        persoon: 'Maurits de Peuter',
+        organisatie: 'Schaub & Partners Bedrijfshuisvesting (Rotterdam)',
+        datum: '12/03/26',
+        stad: 'rotterdam',
+      },
+      {
+        toelichting: 'Waar Eindhoven een overvloed aan lokale inrichtingspartijen kent, biedt Rotterdam via de wederkerigheidsbenadering meer ruimte voor een partij die bereid is aan de voorkant waarde te leveren zonder direct iets terug te verwachten.',
+        persoon: 'Maurits de Peuter',
+        organisatie: 'Schaub & Partners Bedrijfshuisvesting (Rotterdam)',
+        datum: '12/03/26',
+        stad: 'rotterdam',
+      },
+    ],
+  },
+  {
+    id: 'data-gedreven',
+    titel: 'Aanpak mist data-gedreven onderbouwing',
+    beschrijving: 'Intern wordt erkend dat de expansiestrategie te veel op gevoel berust. Data-gedreven klantprofilering en marktanalyse zijn een structureel gemis dat concurrentievoordeel kost.',
+    inzichten: [
+      {
+        citaat: 'DITT doet veel dingen op gevoel en de aanpak is niet data-gedreven en niet onderbouwd. Wat valt er nou echt te halen, wat zou de toegevoegde waarde kunnen zijn, wanneer zou je kunnen zeggen dat we succesvol zijn, welke concurrenten zijn nou echt actief in de markt — dat ontbreekt.',
+        persoon: 'Matthijs Kaak',
+        organisatie: 'Ditt. Officemakers (Partner)',
+        datum: '11/02/26',
+        stad: 'both',
+      },
+      {
+        toelichting: 'Interne klantprofilering is onvoldoende gedocumenteerd: hoe groot zijn de opdrachten gemiddeld, in welke sectoren werken ze, en wat voor type bedrijven zijn dat? Pas wanneer dit helder is, kun je data-gedreven bepalen of de klanten ook in Rotterdam of Eindhoven zitten.',
+        persoon: 'Michiel Bijmols',
+        organisatie: 'Ditt. Officemakers (Business Developer)',
+        datum: '10/02/26',
+        stad: 'both',
+      },
+      {
+        citaat: 'Het is meer: u vraagt, wij draaien. Dus als we gebeld worden we enthousiast. Alleen, we moeten daar wel naar een marktbeweging toe.',
+        toelichting: 'Volledig reactieve acquisitie: er is geen gerichte of gestructureerde marktbenadering. Ditt probeert nu tools zoals vastgoeddata in te zetten, maar dit is nog puur pionieren.',
+        persoon: 'Jan Brink',
+        organisatie: 'Ditt. Officemakers (Partner)',
+        datum: '11/02/26',
+        stad: 'both',
+      },
+    ],
+  },
+  {
+    id: 'marktentree',
+    titel: 'Drie modellen voor marktentree in doelsteden',
+    beschrijving: 'Op basis van de interviews en ervaringen met Utrecht en Duitsland zijn drie mogelijke modellen voor marktentree geïdentificeerd met elk een eigen risico-rendementsprofiel.',
+    inzichten: [
+      {
+        toelichting: 'Model 1 — Autonoom: kantoor huren in de doelstad, lokale persoon aanstellen die de markt kent en de taal spreekt. Toegepast in Utrecht (Michiel). Werkt goed mits de juiste lokale ondernemer beschikbaar is.',
+        persoon: 'Matthijs Kaak',
+        organisatie: 'Ditt. Officemakers (Partner)',
+        datum: '17/03/26',
+        stad: 'both',
+      },
+      {
+        toelichting: 'Model 2 — Acquisitie: een bestaand bedrijf in de doelstad overnemen en vervolgens onder het Ditt-merk laten opereren. Biedt direct netwerk en klanten, maar vereist een passende overnamekandidaat.',
+        persoon: 'Matthijs Kaak',
+        organisatie: 'Ditt. Officemakers (Partner)',
+        datum: '17/03/26',
+        stad: 'both',
+      },
+      {
+        toelichting: 'Model 3 — Partnership: samenwerken met een partij die al gepositioneerd is in de doelmarkt. Ditt biedt D&B-capaciteit en Smart Moves die de lokale partner niet heeft; de partner biedt het netwerk dat Ditt nog niet heeft.',
+        persoon: 'Matthijs Kaak',
+        organisatie: 'Ditt. Officemakers (Partner)',
+        datum: '17/03/26',
+        stad: 'both',
+      },
+      {
+        toelichting: 'Tijdlijn Horizon 2028: Utrecht operationeel in 2027. Tweede helft 2027 start met ofwel Eindhoven/Brabant, ofwel Rotterdam/Den Haag. De niet-gekozen stad volgt in 2028.',
+        persoon: 'Matthijs Kaak',
+        organisatie: 'Ditt. Officemakers (Partner)',
+        datum: '17/03/26',
+        stad: 'both',
+      },
+    ],
+  },
+]
+
+const VELDONDERZOEK_STAD_BADGE: Record<string, { label: string; bg: string; text: string; border: string }> = {
+  eindhoven: { label: 'Eindhoven', bg: '#fff0e8', text: '#c2410c', border: '#ffd4c0' },
+  rotterdam: { label: 'Rotterdam', bg: '#eff6ff', text: '#1e40af', border: '#bfdbfe' },
+  both:      { label: 'Beide steden', bg: '#f0fdf4', text: '#166534', border: '#bbf7d0' },
+}
+
+const VELDONDERZOEK_BRON = 'Veldonderzoek Ditt. Officemakers (2026). Interne interviews (Bijlage 6), vastgoedbeslissers (Bijlage 7) en makelaarsinterviews doelregio\'s (Bijlage 9). Verantwoordingsverslag Ditt. Officemakers.'
+
+function VeldonderzoekPanel() {
+  const [open, setOpen] = useState(false)
+  const [activeThema, setActiveThema] = useState<string | null>(null)
+
+  const totalInzichten = VELDONDERZOEK_THEMAS.reduce((s, t) => s + t.inzichten.length, 0)
+
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em' }}>
+              Trends en inzichten veldonderzoek in de doelregio's
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
+              Interviews makelaars, vastgoedbeslissers en intern — Bijlagen 6, 7 &amp; 9
+            </div>
+          </div>
+          <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 20, background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', flexShrink: 0 }}>
+            {VELDONDERZOEK_THEMAS.length} thema's · {totalInzichten} inzichten
+          </span>
+        </div>
+        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {VELDONDERZOEK_THEMAS.map((thema) => {
+            const isExpanded = activeThema === thema.id
+            return (
+              <div key={thema.id} style={{ border: '1px solid var(--c-border)', borderRadius: 10, overflow: 'hidden' }}>
+                <button
+                  onClick={() => setActiveThema((prev) => (prev === thema.id ? null : thema.id))}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+                    padding: '14px 16px', background: isExpanded ? '#f8f7f5' : 'var(--c-surface)',
+                    border: 'none', cursor: 'pointer', textAlign: 'left', gap: 12,
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', marginBottom: 3 }}>
+                      <EditableText storageKey={`veldonderzoek.thema.${thema.id}.titel`} defaultValue={thema.titel} />
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.5 }}>
+                      <EditableText storageKey={`veldonderzoek.thema.${thema.id}.beschrijving`} defaultValue={thema.beschrijving} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingTop: 2 }}>
+                    <span style={{ fontSize: 11, color: 'var(--c-subtle)' }}>{thema.inzichten.length} inzichten</span>
+                    <span style={{ fontSize: 14, color: 'var(--c-subtle)', transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>↓</span>
+                  </div>
+                </button>
+
+                {isExpanded && (
+                  <div style={{ borderTop: '1px solid var(--c-border)', padding: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
+                    {thema.inzichten.map((inzicht, i) => {
+                      const badge = inzicht.stad ? VELDONDERZOEK_STAD_BADGE[inzicht.stad] : null
+                      return (
+                        <div
+                          key={i}
+                          style={{ background: '#fafaf9', border: '1px solid var(--c-border)', borderRadius: 8, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}
+                        >
+                          {/* Badge row */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                            {badge && (
+                              <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: badge.bg, color: badge.text, border: `1px solid ${badge.border}` }}>
+                                {badge.label}
+                              </span>
+                            )}
+                            <span style={{ fontSize: 10, color: 'var(--c-subtle)' }}>
+                              <EditableText storageKey={`veldonderzoek.inzicht.${thema.id}.${i}.datum`} defaultValue={inzicht.datum} />
+                            </span>
+                            <BronTooltip bron={VELDONDERZOEK_BRON} />
+                          </div>
+
+                          {/* Citaat */}
+                          {inzicht.citaat && (
+                            <blockquote style={{ margin: 0, padding: '8px 12px', borderLeft: '3px solid #e2e8f0', background: '#fff', borderRadius: '0 6px 6px 0' }}>
+                              <span style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6, fontStyle: 'italic' }}>
+                                "
+                                <EditableText storageKey={`veldonderzoek.inzicht.${thema.id}.${i}.citaat`} defaultValue={inzicht.citaat} />
+                                "
+                              </span>
+                            </blockquote>
+                          )}
+
+                          {/* Toelichting */}
+                          {inzicht.toelichting && (
+                            <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}>
+                              <EditableText storageKey={`veldonderzoek.inzicht.${thema.id}.${i}.toelichting`} defaultValue={inzicht.toelichting} />
+                            </div>
+                          )}
+
+                          {/* Persoon + organisatie */}
+                          <div style={{ marginTop: 'auto', paddingTop: 6, borderTop: '1px solid var(--c-border)' }}>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }}>
+                              <EditableText storageKey={`veldonderzoek.inzicht.${thema.id}.${i}.persoon`} defaultValue={inzicht.persoon} />
+                            </div>
+                            <div style={{ fontSize: 10, color: 'var(--c-muted)' }}>
+                              <EditableText storageKey={`veldonderzoek.inzicht.${thema.id}.${i}.organisatie`} defaultValue={inzicht.organisatie} />
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── StadOverzichtView ─────────────────────────────────────────────────────────
 
 export default function StadOverzichtView() {
@@ -1185,6 +1542,9 @@ export default function StadOverzichtView() {
       {/* Recente transacties */}
       <RecenteTransactiesPanel />
 
+      {/* Veldonderzoek trends & inzichten */}
+      <VeldonderzoekPanel />
+
       {/* Source note */}
       <div
         style={{
@@ -1208,6 +1568,8 @@ export default function StadOverzichtView() {
         Vastgoeddata.nl. (2026). <em>Transactiemonitor kantoormarkt 2025</em> [Dataset]. Vastgoeddata.nl.
         <br />
         Vastgoeddata.nl. (2026). <em>Transactiedatabase vastgoed 2024–2026</em> [Dataset]. Vastgoeddata.nl.
+        <br />
+        Veldonderzoek Ditt. Officemakers (2026). <em>Interne interviews (Bijlage 6), vastgoedbeslissers (Bijlage 7) en makelaarsinterviews doelregio's (Bijlage 9)</em>. Verantwoordingsverslag Ditt. Officemakers.
         <br /><br />
         <span style={{ color: 'var(--c-subtle)' }}>
           Hover over het <strong>ⓘ</strong>-icoon naast een waarde voor de specifieke bron.
