@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useEditMode } from '../context/EditContext'
 
 interface EditableTextProps {
   storageKey: string
@@ -8,9 +9,10 @@ interface EditableTextProps {
   className?: string
   tag?: 'span' | 'div' | 'h1' | 'h2' | 'h3' | 'p'
   onClick?: (e: React.MouseEvent) => void
+  multiline?: boolean
 }
 
-const STORAGE_PREFIX = 'ditt_txt_'
+export const STORAGE_PREFIX = 'ditt_txt_'
 
 // Pending changes waiting to be saved to Supabase
 const pendingChanges = new Map<string, string | null>() // null = delete
@@ -18,6 +20,11 @@ const changeListeners = new Set<() => void>()
 
 function notifyListeners() {
   changeListeners.forEach(fn => fn())
+}
+
+export function queueChange(key: string, value: string | null) {
+  pendingChanges.set(key, value)
+  notifyListeners()
 }
 
 export function subscribeToPending(fn: () => void): () => void {
@@ -71,6 +78,86 @@ export async function loadRemoteEdits() {
   }
 }
 
+// ── Rich text toolbar ─────────────────────────────────────────────────────────
+
+const TOOLBAR_BTNS = [
+  { cmd: 'bold',                label: 'B',  title: 'Vet (Ctrl+B)',        style: { fontWeight: 800 } },
+  { cmd: 'italic',              label: 'I',  title: 'Cursief (Ctrl+I)',    style: { fontStyle: 'italic' as const } },
+  { cmd: 'underline',           label: 'U',  title: 'Onderlijnen (Ctrl+U)', style: { textDecoration: 'underline' as const } },
+  { cmd: 'insertUnorderedList', label: '≡',  title: 'Opsomming',           style: {} },
+]
+
+function RichToolbar() {
+  function run(cmd: string, value?: string) {
+    document.execCommand(cmd, false, value)
+  }
+
+  const btnStyle: React.CSSProperties = {
+    width: 26, height: 26,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'none', border: 'none', cursor: 'pointer',
+    color: '#e5e7eb', borderRadius: 4, fontSize: 12,
+    flexShrink: 0,
+  }
+
+  return (
+    <div
+      style={{
+        position: 'absolute', bottom: '100%', left: 0, marginBottom: 6, zIndex: 9000,
+        display: 'flex', alignItems: 'center', gap: 2,
+        background: '#18181b', borderRadius: 7, padding: '4px 6px',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+        border: '1px solid #2d2d2d',
+        userSelect: 'none',
+      }}
+      onMouseDown={(e) => e.preventDefault()}
+    >
+      {TOOLBAR_BTNS.map(btn => (
+        <button
+          key={btn.cmd}
+          title={btn.title}
+          onMouseDown={(e) => { e.preventDefault(); run(btn.cmd) }}
+          style={{ ...btnStyle, ...btn.style }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = '#2d2d2d')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+        >
+          {btn.label}
+        </button>
+      ))}
+
+      {/* Divider */}
+      <div style={{ width: 1, height: 16, background: '#2d2d2d', margin: '0 2px' }} />
+
+      {/* Witregel */}
+      <button
+        title="Witregel invoegen"
+        onMouseDown={(e) => { e.preventDefault(); run('insertHTML', '<br><br>') }}
+        style={{ ...btnStyle, fontSize: 11, color: '#9ca3af' }}
+        onMouseEnter={(e) => (e.currentTarget.style.background = '#2d2d2d')}
+        onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+      >
+        ¶
+      </button>
+
+      {/* Divider */}
+      <div style={{ width: 1, height: 16, background: '#2d2d2d', margin: '0 2px' }} />
+
+      {/* Clear formatting */}
+      <button
+        title="Opmaak wissen"
+        onMouseDown={(e) => { e.preventDefault(); run('removeFormat') }}
+        style={{ ...btnStyle, fontSize: 10, color: '#9ca3af' }}
+        onMouseEnter={(e) => (e.currentTarget.style.background = '#2d2d2d')}
+        onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+      >
+        ✕
+      </button>
+    </div>
+  )
+}
+
+// ── EditableText ──────────────────────────────────────────────────────────────
+
 export default function EditableText({
   storageKey,
   defaultValue,
@@ -78,55 +165,85 @@ export default function EditableText({
   className,
   tag: Tag = 'span',
   onClick,
+  multiline = false,
 }: EditableTextProps) {
   const ref = useRef<HTMLElement>(null)
   const fullKey = STORAGE_PREFIX + storageKey
+  const [focused, setFocused] = useState(false)
+  const { isEditMode } = useEditMode()
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.textContent = localStorage.getItem(fullKey) ?? defaultValue
+      const stored = localStorage.getItem(fullKey)
+      if (multiline) {
+        ref.current.innerHTML = stored ?? defaultValue
+      } else {
+        ref.current.textContent = stored ?? defaultValue
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function handleFocus(e: React.FocusEvent<HTMLElement>) {
-    e.currentTarget.style.background = 'rgba(255,127,80,0.08)'
+    setFocused(true)
+    e.currentTarget.style.background = 'rgba(255,127,80,0.07)'
     e.currentTarget.style.outline = '1px solid rgba(255,127,80,0.35)'
     e.currentTarget.style.borderRadius = '3px'
-    const range = document.createRange()
-    range.selectNodeContents(e.currentTarget)
-    const sel = window.getSelection()
-    sel?.removeAllRanges()
-    sel?.addRange(range)
   }
 
   function handleBlur(e: React.FocusEvent<HTMLElement>) {
+    setFocused(false)
     e.currentTarget.style.background = ''
     e.currentTarget.style.outline = ''
-    const text = e.currentTarget.textContent?.trim() ?? ''
-    if (!text) {
-      e.currentTarget.textContent = defaultValue
-      localStorage.removeItem(fullKey)
-      pendingChanges.set(storageKey, null)
-    } else if (text !== defaultValue) {
-      localStorage.setItem(fullKey, text)
-      pendingChanges.set(storageKey, text)
+
+    if (multiline) {
+      const html = e.currentTarget.innerHTML ?? ''
+      const stripped = html.replace(/<br\s*\/?>/gi, '').replace(/<[^>]+>/g, '').trim()
+      if (!stripped) {
+        e.currentTarget.innerHTML = defaultValue
+        localStorage.removeItem(fullKey)
+        pendingChanges.set(storageKey, null)
+      } else {
+        localStorage.setItem(fullKey, html)
+        pendingChanges.set(storageKey, html)
+      }
     } else {
-      localStorage.removeItem(fullKey)
-      pendingChanges.set(storageKey, null)
+      const text = e.currentTarget.textContent?.trim() ?? ''
+      if (!text) {
+        e.currentTarget.textContent = defaultValue
+        localStorage.removeItem(fullKey)
+        pendingChanges.set(storageKey, null)
+      } else if (text !== defaultValue) {
+        localStorage.setItem(fullKey, text)
+        pendingChanges.set(storageKey, text)
+      } else {
+        localStorage.removeItem(fullKey)
+        pendingChanges.set(storageKey, null)
+      }
     }
     notifyListeners()
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
     e.stopPropagation()
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      ref.current?.blur()
-    }
-    if (e.key === 'Escape') {
-      if (ref.current) ref.current.textContent = localStorage.getItem(fullKey) ?? defaultValue
-      ref.current?.blur()
+    if (multiline) {
+      if (e.key === 'Escape') {
+        const stored = localStorage.getItem(fullKey)
+        if (ref.current) {
+          ref.current.innerHTML = stored ?? defaultValue
+        }
+        ref.current?.blur()
+      }
+      // Enter: browser default in contentEditable inserts <br> or <div> — allow it
+    } else {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        ref.current?.blur()
+      }
+      if (e.key === 'Escape') {
+        if (ref.current) ref.current.textContent = localStorage.getItem(fullKey) ?? defaultValue
+        ref.current?.blur()
+      }
     }
   }
 
@@ -135,32 +252,79 @@ export default function EditableText({
     onClick?.(e)
   }
 
+  // ── Multiline + edit mode: wrap with toolbar ────────────────────────────────
+  if (multiline) {
+    const editableStyle: React.CSSProperties = {
+      outline: 'none',
+      lineHeight: 1.7,
+      minHeight: '1.5em',
+      transition: 'background 0.1s, outline 0.1s',
+      cursor: isEditMode ? 'text' : 'default',
+      ...style,
+    }
+
+    if (isEditMode) {
+      return (
+        <div style={{ position: 'relative' }} className={className}>
+          {focused && <RichToolbar />}
+          <div
+            ref={ref as React.RefObject<HTMLDivElement>}
+            contentEditable
+            suppressContentEditableWarning
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            onClick={handleClick}
+            style={editableStyle}
+          />
+        </div>
+      )
+    }
+
+    // Read-only multiline: render stored HTML
+    return (
+      <div
+        className={className}
+        style={style}
+        dangerouslySetInnerHTML={{
+          __html: localStorage.getItem(fullKey) ?? defaultValue,
+        }}
+      />
+    )
+  }
+
+  // ── Single-line ────────────────────────────────────────────────────────────
+  const singleStyle: React.CSSProperties = {
+    cursor: isEditMode ? 'text' : 'default',
+    outline: 'none',
+    minWidth: '1ch',
+    display: Tag === 'span' ? 'inline-block' : undefined,
+    transition: 'background 0.1s, outline 0.1s',
+    ...style,
+  }
+
   return (
     <Tag
       ref={ref as unknown as never}
-      contentEditable
-      suppressContentEditableWarning
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      onKeyDown={handleKeyDown}
-      onClick={handleClick}
-      style={{
-        cursor: 'text',
-        outline: 'none',
-        minWidth: '1ch',
-        display: Tag === 'span' ? 'inline-block' : undefined,
-        transition: 'background 0.1s, outline 0.1s',
-        ...style,
-      }}
+      contentEditable={isEditMode}
+      suppressContentEditableWarning={isEditMode}
+      onFocus={isEditMode ? handleFocus : undefined}
+      onBlur={isEditMode ? handleBlur : undefined}
+      onKeyDown={isEditMode ? handleKeyDown : undefined}
+      onClick={isEditMode ? handleClick : (onClick ?? undefined)}
+      style={singleStyle}
       className={className}
     />
   )
 }
 
+// ── SaveButton ─────────────────────────────────────────────────────────────────
+
 export function SaveButton() {
   const [pending, setPending] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const { isEditMode } = useEditMode()
 
   useEffect(() => {
     const unsub = subscribeToPending(() => {
@@ -179,7 +343,7 @@ export function SaveButton() {
     setTimeout(() => setSaved(false), 2500)
   }
 
-  if (!pending && !saved) return null
+  if (!isEditMode || (!pending && !saved)) return null
 
   return (
     <div

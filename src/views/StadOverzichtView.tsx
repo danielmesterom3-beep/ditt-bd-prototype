@@ -3,7 +3,8 @@ import steden from '../data/steden'
 import type { Stad, Gebied, GebiedStatus } from '../data/types'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
 import BronTooltip from '../components/BronTooltip'
-import EditableText from '../components/EditableText'
+import EditableText, { queueChange, STORAGE_PREFIX } from '../components/EditableText'
+import { useEditMode } from '../context/EditContext'
 
 const BRONNEN = {
   jll:      'Jones Lang LaSalle IP, Inc. (2026). Office market: Rotterdam & Eindhoven Q4 2025. JLL Research.',
@@ -1351,9 +1352,35 @@ const VELDONDERZOEK_STAD_BADGE: Record<string, { label: string; bg: string; text
 
 const VELDONDERZOEK_BRON = 'Veldonderzoek Ditt. Officemakers (2026). Interne interviews (Bijlage 6), vastgoedbeslissers (Bijlage 7) en makelaarsinterviews doelregio\'s (Bijlage 9). Verantwoordingsverslag Ditt. Officemakers.'
 
+const DELETED_KEY = 'veldonderzoek_deleted'
+
+function useDeletedCards() {
+  const [deleted, setDeleted] = useState<Set<string>>(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_PREFIX + DELETED_KEY)
+      return new Set(raw ? JSON.parse(raw) : [])
+    } catch { return new Set() }
+  })
+
+  function deleteCard(id: string) {
+    setDeleted(prev => {
+      const next = new Set(prev)
+      next.add(id)
+      const arr = [...next]
+      localStorage.setItem(STORAGE_PREFIX + DELETED_KEY, JSON.stringify(arr))
+      queueChange(DELETED_KEY, JSON.stringify(arr))
+      return next
+    })
+  }
+
+  return { deleted, deleteCard }
+}
+
 function VeldonderzoekPanel() {
   const [open, setOpen] = useState(false)
   const [activeThema, setActiveThema] = useState<string | null>(null)
+  const { isEditMode } = useEditMode()
+  const { deleted, deleteCard } = useDeletedCards()
 
   const totalInzichten = VELDONDERZOEK_THEMAS.reduce((s, t) => s + t.inzichten.length, 0)
 
@@ -1413,14 +1440,36 @@ function VeldonderzoekPanel() {
                 {isExpanded && (
                   <div style={{ borderTop: '1px solid var(--c-border)', padding: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
                     {thema.inzichten.map((inzicht, i) => {
+                      const cardId = `${thema.id}_${i}`
+                      if (deleted.has(cardId)) return null
                       const badge = inzicht.stad ? VELDONDERZOEK_STAD_BADGE[inzicht.stad] : null
                       return (
                         <div
                           key={i}
-                          style={{ background: '#fafaf9', border: '1px solid var(--c-border)', borderRadius: 8, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}
+                          style={{ position: 'relative', background: '#fafaf9', border: '1px solid var(--c-border)', borderRadius: 8, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}
                         >
+                          {/* Verwijder knop (alleen in edit mode) */}
+                          {isEditMode && (
+                            <button
+                              onClick={() => deleteCard(cardId)}
+                              title="Kaart verwijderen"
+                              style={{
+                                position: 'absolute', top: 8, right: 8,
+                                width: 20, height: 20, borderRadius: 4,
+                                background: 'none', border: '1px solid #e2e8f0',
+                                color: '#9ca3af', cursor: 'pointer', fontSize: 11,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                lineHeight: 1,
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fca5a5' }}
+                              onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.borderColor = '#e2e8f0' }}
+                            >
+                              ×
+                            </button>
+                          )}
+
                           {/* Badge row */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', paddingRight: isEditMode ? 24 : 0 }}>
                             {badge && (
                               <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: badge.bg, color: badge.text, border: `1px solid ${badge.border}` }}>
                                 {badge.label}
@@ -1435,19 +1484,25 @@ function VeldonderzoekPanel() {
                           {/* Citaat */}
                           {inzicht.citaat && (
                             <blockquote style={{ margin: 0, padding: '8px 12px', borderLeft: '3px solid #e2e8f0', background: '#fff', borderRadius: '0 6px 6px 0' }}>
-                              <span style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6, fontStyle: 'italic' }}>
-                                "
-                                <EditableText storageKey={`veldonderzoek.inzicht.${thema.id}.${i}.citaat`} defaultValue={inzicht.citaat} />
-                                "
-                              </span>
+                              <EditableText
+                                multiline
+                                storageKey={`veldonderzoek.inzicht.${thema.id}.${i}.citaat`}
+                                defaultValue={inzicht.citaat}
+                                tag="div"
+                                style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6, fontStyle: 'italic' }}
+                              />
                             </blockquote>
                           )}
 
                           {/* Toelichting */}
                           {inzicht.toelichting && (
-                            <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}>
-                              <EditableText storageKey={`veldonderzoek.inzicht.${thema.id}.${i}.toelichting`} defaultValue={inzicht.toelichting} />
-                            </div>
+                            <EditableText
+                              multiline
+                              storageKey={`veldonderzoek.inzicht.${thema.id}.${i}.toelichting`}
+                              defaultValue={inzicht.toelichting}
+                              tag="div"
+                              style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}
+                            />
                           )}
 
                           {/* Persoon + organisatie */}

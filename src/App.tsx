@@ -1,13 +1,131 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigation } from './context/NavigationContext'
 import { loadRemoteEdits, SaveButton } from './components/EditableText'
 import { GebiedStatusProvider } from './context/GebiedStatusContext'
+import { EditProvider, useEditMode } from './context/EditContext'
 import FilterSidebar from './components/FilterSidebar'
 import MarktDashboard from './views/MarktDashboard'
 import StadOverzichtView from './views/StadOverzichtView'
 import GebiedDetailView from './views/GebiedDetailView'
 import BeheerView from './views/BeheerView'
 import Breadcrumb from './components/Breadcrumb'
+
+// ── EditModeButton ────────────────────────────────────────────────────────────
+
+function EditModeButton() {
+  const { isEditMode, unlock, lock } = useEditMode()
+  const [showDialog, setShowDialog] = useState(false)
+  const [pin, setPin] = useState('')
+  const [error, setError] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (showDialog) setTimeout(() => inputRef.current?.focus(), 50)
+  }, [showDialog])
+
+  function handleUnlock() {
+    if (unlock(pin)) {
+      setShowDialog(false)
+      setPin('')
+      setError(false)
+    } else {
+      setError(true)
+      setPin('')
+    }
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter') handleUnlock()
+    if (e.key === 'Escape') { setShowDialog(false); setPin(''); setError(false) }
+  }
+
+  return (
+    <>
+      <button
+        onClick={() => isEditMode ? lock() : setShowDialog(true)}
+        style={{
+          fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 6,
+          background: isEditMode ? '#1a3a1a' : '#1c1c1c',
+          color: isEditMode ? '#4ade80' : '#9ca3af',
+          border: `1px solid ${isEditMode ? '#166534' : '#2a2a2a'}`,
+          cursor: 'pointer', letterSpacing: '0.03em',
+          display: 'flex', alignItems: 'center', gap: 6,
+        }}
+      >
+        <span style={{ fontSize: 10 }}>{isEditMode ? '●' : '○'}</span>
+        {isEditMode ? 'Bewerken aan' : 'Vergrendeld'}
+      </button>
+
+      {showDialog && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 99999,
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+          onClick={() => { setShowDialog(false); setPin(''); setError(false) }}
+        >
+          <div
+            style={{
+              background: '#111', border: '1px solid #2a2a2a', borderRadius: 12,
+              padding: '28px 32px', minWidth: 320,
+              boxShadow: '0 20px 60px rgba(0,0,0,0.7)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#f9fafb', marginBottom: 6 }}>
+              Bewerkingsmodus ontgrendelen
+            </div>
+            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 20 }}>
+              Voer het wachtwoord in om aanpassingen te kunnen maken.
+            </div>
+            <input
+              ref={inputRef}
+              type="password"
+              value={pin}
+              onChange={(e) => { setPin(e.target.value); setError(false) }}
+              onKeyDown={handleKeyDown}
+              placeholder="Wachtwoord"
+              style={{
+                width: '100%', padding: '10px 14px', borderRadius: 8,
+                background: '#1c1c1c', border: `1px solid ${error ? '#dc2626' : '#2a2a2a'}`,
+                color: '#f9fafb', fontSize: 14, outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+            {error && (
+              <div style={{ fontSize: 11, color: '#dc2626', marginTop: 6 }}>
+                Onjuist wachtwoord. Probeer opnieuw.
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+              <button
+                onClick={handleUnlock}
+                style={{
+                  flex: 1, padding: '9px 0', borderRadius: 8, border: 'none',
+                  background: '#ff7f50', color: '#fff', fontWeight: 600, fontSize: 13,
+                  cursor: 'pointer',
+                }}
+              >
+                Ontgrendelen
+              </button>
+              <button
+                onClick={() => { setShowDialog(false); setPin(''); setError(false) }}
+                style={{
+                  padding: '9px 16px', borderRadius: 8,
+                  background: '#1c1c1c', color: '#9ca3af',
+                  border: '1px solid #2a2a2a', fontSize: 13, cursor: 'pointer',
+                }}
+              >
+                Annuleren
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
 
 type ViewMode = 'overzicht' | 'kaart'
 
@@ -76,6 +194,9 @@ function AppContent() {
               year: 'numeric',
             })}
           </span>
+          {/* Edit mode toggle */}
+          <EditModeButton />
+
           {/* Beheer button */}
           {isBeheer ? (
             <button
@@ -186,9 +307,11 @@ export default function App() {
   }, [])
 
   return (
-    <GebiedStatusProvider>
-      <AppContent />
-      <SaveButton />
-    </GebiedStatusProvider>
+    <EditProvider>
+      <GebiedStatusProvider>
+        <AppContent />
+        <SaveButton />
+      </GebiedStatusProvider>
+    </EditProvider>
   )
 }
