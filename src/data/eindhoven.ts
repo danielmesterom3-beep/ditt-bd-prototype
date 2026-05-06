@@ -223,15 +223,6 @@ const eindhoven: Gebied[] = [
         toelichting: 'Herontwikkeling voormalig Philips-pand op het Strijp-T/spoorzonegebied. Kantoor- en creatieve functies.',
       },
       {
-        id: 'cent-dev-04',
-        naam: 'Lumenstraat 3',
-        adres: 'Lumenstraat 3, 5611BR Eindhoven',
-        oppervlakte: 19427,
-        fase: 'bouw',
-        verwachteOplevering: '2024',
-        toelichting: 'Kantoor/mixed-use in het Strijp-T-cluster nabij centrum.',
-      },
-      {
         id: 'cent-dev-05',
         naam: 'Belle van Zuylenstraat 4',
         adres: 'Belle van Zuylenstraat 4, 5654MV Eindhoven',
@@ -424,6 +415,15 @@ const eindhoven: Gebied[] = [
         fase: 'bouw',
         verwachteOplevering: '2024 / afgerond',
         toelichting: 'Kantoor/werkruimte-project op de rand van Strijp-S.',
+      },
+      {
+        id: 'ss-dev-04',
+        naam: 'Lumenstraat 3',
+        adres: 'Lumenstraat 3, 5611BR Eindhoven',
+        oppervlakte: 19427,
+        fase: 'bouw',
+        verwachteOplevering: '2024',
+        toelichting: 'Kantoor/mixed-use in het Strijp-S-cluster.',
       },
     ],
     trends: [

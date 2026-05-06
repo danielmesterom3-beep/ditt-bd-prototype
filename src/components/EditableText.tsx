@@ -81,11 +81,42 @@ export async function loadRemoteEdits() {
 // ── Rich text toolbar ─────────────────────────────────────────────────────────
 
 const TOOLBAR_BTNS = [
-  { cmd: 'bold',                label: 'B',  title: 'Vet (Ctrl+B)',        style: { fontWeight: 800 } },
-  { cmd: 'italic',              label: 'I',  title: 'Cursief (Ctrl+I)',    style: { fontStyle: 'italic' as const } },
-  { cmd: 'underline',           label: 'U',  title: 'Onderlijnen (Ctrl+U)', style: { textDecoration: 'underline' as const } },
-  { cmd: 'insertUnorderedList', label: '≡',  title: 'Opsomming',           style: {} },
+  { cmd: 'bold',      label: 'B', title: 'Vet (Ctrl+B)',          style: { fontWeight: 800 } },
+  { cmd: 'italic',    label: 'I', title: 'Cursief (Ctrl+I)',      style: { fontStyle: 'italic' as const } },
+  { cmd: 'underline', label: 'U', title: 'Onderlijnen (Ctrl+U)',  style: { textDecoration: 'underline' as const } },
 ]
+
+function insertBulletPoint() {
+  const sel = window.getSelection()
+  if (!sel || sel.rangeCount === 0) return
+  const range = sel.getRangeAt(0)
+  // Check if we're already in a list item — if so, just insert a newline + bullet via execCommand
+  const anchor = sel.anchorNode
+  let inList = false
+  let node: Node | null = anchor
+  while (node) {
+    if (node.nodeName === 'LI' || node.nodeName === 'UL') { inList = true; break }
+    node = node.parentNode
+  }
+  if (inList) {
+    document.execCommand('insertUnorderedList', false)
+  } else {
+    range.deleteContents()
+    const ul = document.createElement('ul')
+    ul.style.margin = '0'
+    ul.style.paddingLeft = '1.4em'
+    const li = document.createElement('li')
+    li.appendChild(document.createTextNode('\u200B'))
+    ul.appendChild(li)
+    range.insertNode(ul)
+    // Move cursor inside the li
+    const newRange = document.createRange()
+    newRange.setStart(li, 1)
+    newRange.collapse(true)
+    sel.removeAllRanges()
+    sel.addRange(newRange)
+  }
+}
 
 function RichToolbar() {
   function run(cmd: string, value?: string) {
@@ -124,6 +155,17 @@ function RichToolbar() {
           {btn.label}
         </button>
       ))}
+
+      {/* Bullet list */}
+      <button
+        title="Opsomming (bullet)"
+        onMouseDown={(e) => { e.preventDefault(); insertBulletPoint() }}
+        style={{ ...btnStyle }}
+        onMouseEnter={(e) => (e.currentTarget.style.background = '#2d2d2d')}
+        onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+      >
+        ≡
+      </button>
 
       {/* Divider */}
       <div style={{ width: 1, height: 16, background: '#2d2d2d', margin: '0 2px' }} />
