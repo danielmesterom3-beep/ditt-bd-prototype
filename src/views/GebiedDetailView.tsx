@@ -310,7 +310,7 @@ function PandCard({ pand }: { pand: PandInOntwikkeling }) {
             background: '#faf9f7',
           }}
         >
-          <EditableText storageKey={`pand.${pand.id}.toelichting`} defaultValue={pand.toelichting} tag="div" style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.7 }} />
+          <EditableText storageKey={`pand.${pand.id}.toelichting`} defaultValue={pand.toelichting} multiline tag="div" style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.7 }} />
         </div>
       )}
     </div>
@@ -336,7 +336,7 @@ function TrendItem({ trend }: { trend: Trend }) {
       <span style={{ fontSize: 16, color: s.color, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>
         {s.icon}
       </span>
-      <EditableText storageKey={`trend.${trend.id}.omschrijving`} defaultValue={trend.omschrijving} style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.6 }} />
+      <EditableText storageKey={`trend.${trend.id}.omschrijving`} defaultValue={trend.omschrijving} multiline tag="div" style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.6 }} />
     </div>
   )
 }
@@ -395,7 +395,7 @@ function OpdrachtgeverCard({ og }: { og: InteressanteOpdrachtgever }) {
       </div>
 
       {/* Profiel */}
-      <EditableText storageKey={`og.${og.id}.profiel`} defaultValue={og.profiel} tag="div" style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.6 }} />
+      <EditableText storageKey={`og.${og.id}.profiel`} defaultValue={og.profiel} multiline tag="div" style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.6 }} />
 
       {/* SFO-match */}
       <div
@@ -418,7 +418,7 @@ function OpdrachtgeverCard({ og }: { og: InteressanteOpdrachtgever }) {
         >
           SFO-match
         </div>
-        <EditableText storageKey={`og.${og.id}.reden`} defaultValue={og.reden} tag="div" style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.6 }} />
+        <EditableText storageKey={`og.${og.id}.reden`} defaultValue={og.reden} multiline tag="div" style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.6 }} />
       </div>
     </div>
   )
@@ -600,7 +600,7 @@ function WarmContactCard({ contact }: { contact: WarmContact }) {
             background: 'rgba(255,255,255,0.6)',
           }}
         >
-          <EditableText storageKey={`wc.${contact.id}.notitie`} defaultValue={contact.notitie} tag="div" style={{ fontSize: 12, color: '#78716c', lineHeight: 1.75 }} />
+          <EditableText storageKey={`wc.${contact.id}.notitie`} defaultValue={contact.notitie} multiline tag="div" style={{ fontSize: 12, color: '#78716c', lineHeight: 1.75 }} />
         </div>
       )}
     </div>
@@ -1187,7 +1187,7 @@ function LeadCard({ lead, stad }: { lead: KansrijkeLead; stad?: string }) {
         <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--c-subtle)', marginBottom: 6 }}>
           Waarom kansrijk voor Ditt
         </div>
-        <EditableText storageKey={`lead.${lead.id}.motivatie`} defaultValue={lead.motivatie} tag="div" style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.65 }} />
+        <EditableText storageKey={`lead.${lead.id}.motivatie`} defaultValue={lead.motivatie} multiline tag="div" style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.65 }} />
       </div>
     </div>
   )
