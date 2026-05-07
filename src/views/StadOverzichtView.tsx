@@ -1618,14 +1618,14 @@ function MarketCapPanel() {
       }}>
         <div>
           <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            Totaal market cap (3 steden)
+            <EditableText storageKey="marketcap-banner-label" defaultValue="Totaal market cap (3 steden)" />
           </p>
           <p style={{ fontSize: 28, fontWeight: 800, color: '#fff', margin: 0, fontVariantNumeric: 'tabular-nums' }}>
             {fmEuro(totaal)}
           </p>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: '0 0 2px' }}>Ditt-aandeel m²</p>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: '0 0 2px' }}><EditableText storageKey="marketcap-banner-aandeel-label" defaultValue="Ditt-aandeel m²" /></p>
           <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: 0 }}>
             {(MARKTCAP_STEDEN.reduce((s, c) => s + c.dittM2, 0)).toLocaleString('nl-NL')} m²
           </p>
