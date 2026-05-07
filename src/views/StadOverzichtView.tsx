@@ -1937,23 +1937,32 @@ const selectStyle: React.CSSProperties = {
   minWidth: 110,
 }
 
+type StadConfig = { type: string; fitout: string; furn: string; ident: string; mep: number }
+const DEFAULT_STAD_CONFIG: StadConfig = { type: 'Hybrid', fitout: 'Mid', furn: 'Mid', ident: 'Mid', mep: 350 }
+
 function BegrotingsDoelregioPanel() {
   const [open, setOpen] = useState(false)
-  const [type,    setType]    = useState('Hybrid')
-  const [fitout,  setFitout]  = useState('Mid')
-  const [furn,    setFurn]    = useState('Mid')
-  const [ident,   setIdent]   = useState('Mid')
-  const [mep,     setMep]     = useState(350)
-
-  const steden = MARKTCAP_STEDEN.map((s) => ({
-    ...s,
-    calc: calcBegroting(s.dittM2, type, fitout, furn, ident, mep),
-  }))
-  const totaalInv   = steden.reduce((s, x) => s + x.calc.total, 0)
-  const totaalInkoop = steden.reduce((s, x) => s + x.calc.inkoop, 0)
-  const totaalMarge  = totaalInv > 0 ? (totaalInv - totaalInkoop) / totaalInv : 0
+  const [selected, setSelected] = useState(MARKTCAP_STEDEN[0].naam)
+  const [configs, setConfigs] = useState<Record<string, StadConfig>>(() =>
+    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, { ...DEFAULT_STAD_CONFIG }]))
+  )
 
   const niveauOpties = ['Low', 'Mid', 'High']
+
+  function updateConfig(naam: string, patch: Partial<StadConfig>) {
+    setConfigs((prev) => ({ ...prev, [naam]: { ...prev[naam], ...patch } }))
+  }
+
+  const steden = MARKTCAP_STEDEN.map((s) => {
+    const cfg = configs[s.naam]
+    return { ...s, cfg, calc: calcBegroting(s.dittM2, cfg.type, cfg.fitout, cfg.furn, cfg.ident, cfg.mep) }
+  })
+
+  const totaalInv    = steden.reduce((acc, x) => acc + x.calc.total, 0)
+  const totaalInkoop = steden.reduce((acc, x) => acc + x.calc.inkoop, 0)
+  const totaalMarge  = totaalInv > 0 ? (totaalInv - totaalInkoop) / totaalInv : 0
+
+  const cfg = configs[selected]
 
   return (
     <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
@@ -1975,57 +1984,87 @@ function BegrotingsDoelregioPanel() {
       {open && (
         <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px' }}>
 
-          {/* Controls */}
+          {/* Stad tabs */}
+          <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+            {MARKTCAP_STEDEN.map((s) => (
+              <button
+                key={s.naam}
+                onClick={() => setSelected(s.naam)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: 8,
+                  border: '1px solid var(--c-border)',
+                  background: selected === s.naam ? '#1e293b' : 'white',
+                  color: selected === s.naam ? 'white' : 'var(--c-text)',
+                  fontSize: 12,
+                  fontWeight: selected === s.naam ? 700 : 400,
+                  cursor: 'pointer',
+                }}
+              >
+                {s.naam}
+              </button>
+            ))}
+          </div>
+
+          {/* Controls voor geselecteerde stad */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 20, padding: '14px 16px', background: '#f8f7f5', borderRadius: 10, border: '1px solid var(--c-border)' }}>
+            <div style={{ width: '100%', fontSize: 11, fontWeight: 700, color: 'var(--c-subtle)', marginBottom: -4 }}>
+              Instellingen voor {selected}
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Type project</span>
-              <select style={selectStyle} value={type} onChange={(e) => setType(e.target.value)}>
+              <select style={selectStyle} value={cfg.type} onChange={(e) => updateConfig(selected, { type: e.target.value })}>
                 {['Open', 'Hybrid', 'Traditional'].map((t) => <option key={t}>{t}</option>)}
               </select>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Fitout</span>
-              <select style={selectStyle} value={fitout} onChange={(e) => setFitout(e.target.value)}>
+              <select style={selectStyle} value={cfg.fitout} onChange={(e) => updateConfig(selected, { fitout: e.target.value })}>
                 {niveauOpties.map((n) => <option key={n}>{n}</option>)}
               </select>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Furniture</span>
-              <select style={selectStyle} value={furn} onChange={(e) => setFurn(e.target.value)}>
+              <select style={selectStyle} value={cfg.furn} onChange={(e) => updateConfig(selected, { furn: e.target.value })}>
                 {niveauOpties.map((n) => <option key={n}>{n}</option>)}
               </select>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Identity</span>
-              <select style={selectStyle} value={ident} onChange={(e) => setIdent(e.target.value)}>
+              <select style={selectStyle} value={cfg.ident} onChange={(e) => updateConfig(selected, { ident: e.target.value })}>
                 {niveauOpties.map((n) => <option key={n}>{n}</option>)}
               </select>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Installaties (€/m²)</span>
-              <select style={selectStyle} value={mep} onChange={(e) => setMep(Number(e.target.value))}>
+              <select style={selectStyle} value={cfg.mep} onChange={(e) => updateConfig(selected, { mep: Number(e.target.value) })}>
                 {MEP_OPTIES.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'flex-end' }}>
               <span style={{ fontSize: 10, color: 'var(--c-subtle)' }}>Prijs/m² (all-in)</span>
               <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text)' }}>
-                € {(FITOUT_TABLE[type][fitout] + FURNITURE_TABLE[furn] + IDENTITY_TABLE[ident] + mep).toLocaleString('nl-NL')}/m²
+                € {(FITOUT_TABLE[cfg.type][cfg.fitout] + FURNITURE_TABLE[cfg.furn] + IDENTITY_TABLE[cfg.ident] + cfg.mep).toLocaleString('nl-NL')}/m²
               </span>
             </div>
           </div>
 
-          {/* Per stad */}
+          {/* Per stad resultaten */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
             {steden.map((s) => {
               const c = s.calc
+              const isSelected = s.naam === selected
               return (
-                <div key={s.naam} style={{ background: '#f8f7f5', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--c-border)' }}>
+                <div
+                  key={s.naam}
+                  onClick={() => setSelected(s.naam)}
+                  style={{ background: isSelected ? '#f0f4ff' : '#f8f7f5', borderRadius: 10, padding: '14px 16px', border: `1px solid ${isSelected ? '#6366f1' : 'var(--c-border)'}`, cursor: 'pointer' }}
+                >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>{s.naam}</div>
                       <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
-                        {s.dittM2.toLocaleString('nl-NL')} m² doelregio · € {Math.round(c.prijs_per_m2).toLocaleString('nl-NL')}/m²
+                        {s.dittM2.toLocaleString('nl-NL')} m² · {s.cfg.type} · {s.cfg.fitout}/{s.cfg.furn}/{s.cfg.ident} · € {Math.round(c.prijs_per_m2).toLocaleString('nl-NL')}/m²
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
@@ -2043,7 +2082,6 @@ function BegrotingsDoelregioPanel() {
                       </div>
                     </div>
                   </div>
-                  {/* Category breakdown */}
                   <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
                     {Object.entries(c.details).map(([naam, d]) => (
                       <div key={naam} style={{ fontSize: 10, color: 'var(--c-muted)', background: 'white', borderRadius: 6, padding: '3px 8px', border: '1px solid var(--c-border)' }}>
@@ -2059,7 +2097,7 @@ function BegrotingsDoelregioPanel() {
           {/* Totaal banner */}
           <div style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', borderRadius: 10, padding: '16px 20px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
             <div>
-              <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 4 }}>Totaal investering (3 steden)</div>
+              <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 4 }}>Totaal investering ({MARKTCAP_STEDEN.length} steden)</div>
               <div style={{ fontSize: 22, fontWeight: 700 }}>{fmEuro(totaalInv)}</div>
             </div>
             <div style={{ textAlign: 'right' }}>
