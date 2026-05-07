@@ -660,7 +660,7 @@ function WarmContactCard({ contact, onDelete }: { contact: WarmContact; onDelete
 
 // ── Contactprotocol ───────────────────────────────────────────────────────────
 
-type Product    = 'design-and-build' | 'smart-moves' | 'fast-fit-out' | 'turnkey'
+type Product    = 'design-and-build' | 'fast-fit-out'
 
 interface ProtocolInhoud {
   aanpak:   string
@@ -669,9 +669,7 @@ interface ProtocolInhoud {
 
 const PRODUCTEN: { id: Product; label: string; kort: string }[] = [
   { id: 'design-and-build', label: 'Design & Build',  kort: 'D&B'    },
-  { id: 'smart-moves',      label: 'Smart Moves',     kort: 'SM'     },
   { id: 'fast-fit-out',     label: 'Fast Fit-Out',    kort: 'FFO'    },
-  { id: 'turnkey',          label: 'Turnkey',         kort: 'TK'     },
 ]
 
 const PARTIJ_TYPEN: { id: PartijenType; label: string }[] = [
@@ -681,7 +679,7 @@ const PARTIJ_TYPEN: { id: PartijenType; label: string }[] = [
 ]
 
 const KLASSE_AANBEVELING: Record<NonNullable<LocatieKlasse>, Product> = {
-  A: 'smart-moves',
+  A: 'design-and-build',
   B: 'design-and-build',
   C: 'fast-fit-out',
 }
@@ -701,20 +699,6 @@ const PROTOCOL: Record<Product, Record<PartijenType, ProtocolInhoud>> = {
       kapstok: 'Hoe ziet uw ideale werkplek eruit en wat is uw tijdsplanning voor het betrekken van de nieuwe ruimte?',
     },
   },
-  'smart-moves': {
-    makelaar: {
-      aanpak: 'Positioneer als snelle kwaliteitsupgrade voor bestaande huurders die willen vernieuwen. Vraag naar contractverlengingen waarbij een vernieuwde inrichting als verleiding meegegeven kan worden.',
-      kapstok: 'Heeft u huurders wiens contract binnenkort verlengd wordt en die toe zijn aan een vernieuwde werkplek?',
-    },
-    eigenaar: {
-      aanpak: 'Kostenefficiënte verbetering van bestaande kantoorruimte die de verhuurwaarde verhoogt. Geschikt als tussenoplossing bij doorverhuur, zonder volledige renovatiebudget.',
-      kapstok: 'Wilt u de aantrekkingskracht van uw pand vergroten zonder een volledig renovatiebudget vrij te maken?',
-    },
-    huurder: {
-      aanpak: 'Slimme aanpassing van de bestaande situatie — werkbeleving verbetert direct zonder grote verstoring van de dagelijkse operatie. Focus op ROI en snelheid.',
-      kapstok: 'Wat zijn de grootste verbeterpunten in uw huidige werkomgeving die u snel wilt aanpakken?',
-    },
-  },
   'fast-fit-out': {
     makelaar: {
       aanpak: 'Uw sterkste troef bij huurkandidaten met tijdsdruk: vaste prijs, bewezen concept, snelle realisatie. Inzetbaar als doorslaggevend argument in concurrerende verhuursituaties.',
@@ -727,20 +711,6 @@ const PROTOCOL: Record<Product, Record<PartijenType, ProtocolInhoud>> = {
     huurder: {
       aanpak: 'Tijdsdruk? Fast Fit-Out levert een functioneel en aantrekkelijk kantoor binnen de afgesproken doorlooptijd, vaste prijs, geen verrassingen.',
       kapstok: 'Wanneer moet u de nieuwe ruimte uiterlijk betrekken en hoeveel speelruimte heeft u in de planning?',
-    },
-  },
-  'turnkey': {
-    makelaar: {
-      aanpak: 'Complete ontzorging van A tot Z voor complexe opgaven. Voor makelaars die hun klant maximaal willen bedienen bij grote relocatietrajecten of nieuwbouwprojecten.',
-      kapstok: 'Heeft u een klant met een grootschalige verhuisopgave waarbij alles gecoördineerd moet worden?',
-    },
-    eigenaar: {
-      aanpak: 'Totaalpakket inclusief ontwerp, bouw en oplevering — maximale ontzorging, één verantwoordelijke partij. Geschikt voor eigenaren die een pand instap-klaar willen aanbieden.',
-      kapstok: 'Wilt u uw pand volledig ingehuurd aanbieden, inclusief een kant-en-klare werkplek voor de nieuwe huurder?',
-    },
-    huurder: {
-      aanpak: 'Alles inbegrepen — van programma van eisen tot sleuteloverdracht. De huurder hoeft zich nergens anders mee bezig te houden. Ideaal bij complexe opgaven of beperkte interne capaciteit.',
-      kapstok: 'Heeft u intern de capaciteit om een verhuistraject te coördineren, of wilt u dit volledig uit handen geven?',
     },
   },
 }
