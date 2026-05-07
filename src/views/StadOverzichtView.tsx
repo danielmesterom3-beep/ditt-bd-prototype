@@ -1595,13 +1595,13 @@ function MarketCapPanel() {
       {/* Header */}
       <div>
         <p style={{ fontSize: 11, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>
-          Marktpotentieel
+          <EditableText storageKey="marketcap-label" defaultValue="Marktpotentieel" />
         </p>
         <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--c-text)', margin: '0 0 4px' }}>
-          Wat is de market cap voor Ditt?
+          <EditableText storageKey="marketcap-titel" defaultValue="Wat is de market cap voor Ditt?" />
         </h2>
         <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: 0, lineHeight: 1.6, maxWidth: 620 }}>
-          Op basis van leegstaand kantooroppervlak, het aantal actieve Design &amp; Build-partijen en een marktpenetratie van 40%, is hieronder het omzetpotentieel per stad berekend. Pas de prijs per m² aan met de slider om scenario's te verkennen.
+          <EditableText storageKey="marketcap-intro" defaultValue="Op basis van leegstaand kantooroppervlak, het aantal actieve Design & Build-partijen en een marktpenetratie van 40%, is hieronder het omzetpotentieel per stad berekend. Pas de prijs per m² aan met de slider om scenario's te verkennen." />
         </p>
       </div>
 
@@ -1657,7 +1657,7 @@ function MarketCapPanel() {
                     {stad.naam}
                   </p>
                   <p style={{ fontSize: 11, color: 'var(--c-subtle)', margin: 0 }}>
-                    D&amp;B-partijen: {stad.partijen} · Concurrenten: {stad.concurrenten}
+                    D&amp;B-partijen: {stad.partijen} · Concurrenten: <EditableText storageKey={`marketcap-concurrenten-${stad.naam}`} defaultValue={stad.concurrenten} />
                   </p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
