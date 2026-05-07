@@ -660,7 +660,7 @@ function WarmContactCard({ contact, onDelete }: { contact: WarmContact; onDelete
 
 // ── Contactprotocol ───────────────────────────────────────────────────────────
 
-type Product    = 'design-and-build' | 'fast-fit-out'
+type Product    = 'design-and-build' | 'fast-fit-out' | 'detail-and-build'
 
 interface ProtocolInhoud {
   aanpak:   string
@@ -668,8 +668,9 @@ interface ProtocolInhoud {
 }
 
 const PRODUCTEN: { id: Product; label: string; kort: string }[] = [
-  { id: 'design-and-build', label: 'Design & Build',  kort: 'D&B'    },
-  { id: 'fast-fit-out',     label: 'Fast Fit-Out',    kort: 'FFO'    },
+  { id: 'design-and-build',  label: 'Design & Build',  kort: 'D&B'    },
+  { id: 'fast-fit-out',      label: 'Fast Fit-Out',    kort: 'FFO'    },
+  { id: 'detail-and-build',  label: 'Detail & Build',  kort: 'DTB'    },
 ]
 
 const PARTIJ_TYPEN: { id: PartijenType; label: string }[] = [
@@ -711,6 +712,20 @@ const PROTOCOL: Record<Product, Record<PartijenType, ProtocolInhoud>> = {
     huurder: {
       aanpak: 'Tijdsdruk? Fast Fit-Out levert een functioneel en aantrekkelijk kantoor binnen de afgesproken doorlooptijd, vaste prijs, geen verrassingen.',
       kapstok: 'Wanneer moet u de nieuwe ruimte uiterlijk betrekken en hoeveel speelruimte heeft u in de planning?',
+    },
+  },
+  'detail-and-build': {
+    makelaar: {
+      aanpak: 'Wanneer een huurkandidaat al een architect heeft geselecteerd, positioneer Ditt als de uitvoerende partner die het ontwerp naadloos vertaalt naar realisatie. Ditt neemt de technische uitwerking en bouw volledig over — de architect blijft verantwoordelijk voor het ontwerp, Ditt voor de oplevering.',
+      kapstok: 'Heeft u huurkandidaten die al met een eigen architect werken maar nog een betrouwbare uitvoerende partij zoeken?',
+    },
+    eigenaar: {
+      aanpak: 'Ideaal voor objecten waarbij de huurder of eigenaar al een architectenbureau heeft geselecteerd. Ditt treedt op als uitvoerend partner en zorgt dat het ontwerp zonder vertraging en binnen budget wordt gerealiseerd — één aanspreekpunt voor de volledige bouwfase.',
+      kapstok: 'Werkt de toekomstige gebruiker van uw pand al met een architect? Dan kan Ditt de uitvoering volledig overnemen.',
+    },
+    huurder: {
+      aanpak: 'U heeft al een architect — Ditt zorgt dat het ontwerp ook daadwerkelijk gebouwd wordt. Van technische detaillering tot sleuteloverdracht neemt Ditt de volledige realisatie over, zodat u één aanspreekpunt heeft naast uw architect.',
+      kapstok: 'Werkt u al met een architect en zoekt u een uitvoerende partij die het ontwerp feilloos en binnen planning realiseert?',
     },
   },
 }
