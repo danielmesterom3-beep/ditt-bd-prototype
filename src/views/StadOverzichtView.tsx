@@ -778,6 +778,174 @@ function OmgevingskenmerkenPanel() {
               ))}
             </div>
 
+            {/* Gemiddeld projectformaat concurrenten — Eindhoven */}
+            <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <EditableText storageKey="omgeving.concformaat.titel" defaultValue="Gemiddeld projectformaat — concurrenten Eindhoven" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', marginBottom: 4, display: 'block' }} />
+              <EditableText storageKey="omgeving.concformaat.meta" defaultValue="Op basis van gepubliceerde portfoliogegevens · duotone-interior.nl · hal2.nl" style={{ fontSize: 11, color: 'var(--c-subtle)', marginBottom: 14, display: 'block' }} />
+
+              {[
+                {
+                  id: 'duotone',
+                  naam: 'Duotone Interior Concepts',
+                  projecten: [
+                    { naam: 'Marvell Technology (HTC)', m2: 1250 },
+                    { naam: 'Revalis', m2: 1900 },
+                    { naam: 'Molex BV (HTC)', m2: 1800 },
+                  ],
+                  gem: 1650,
+                  context: 'Actief op High Tech Campus en omgeving. Sterke focus op tech-bedrijven. Gemiddeld project is groter dan wat Ditt typisch ziet in de Eindhovense markt — wijst op A-locatie huurders.',
+                },
+                {
+                  id: 'hal2',
+                  naam: 'HAL 2 B.V.',
+                  projecten: [
+                    { naam: 'Sweco (Strijp-S)', m2: 1000 },
+                    { naam: 'BEECKK Ruimtemakers (Strijp-S)', m2: 350 },
+                  ],
+                  gem: 675,
+                  context: 'HAL 2 doet ook kleinere projecten voor creatieve bedrijven op Strijp-S naast grotere opdrachten. Gemiddeld formaat lager dan Duotone — bredere doelgroep, minder gespecialiseerd in enterprise.',
+                },
+              ].map((c) => (
+                <div key={c.id} style={{ marginBottom: 14, paddingBottom: 14, borderBottom: '1px solid var(--c-border)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <EditableText storageKey={`omgeving.concformaat.${c.id}.naam`} defaultValue={c.naam} style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }} />
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-coral)', background: '#fff7f4', border: '1px solid #ffd4c2', borderRadius: 8, padding: '2px 8px' }}>
+                      ø {c.gem.toLocaleString('nl-NL')} m²
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 8 }}>
+                    {c.projecten.map((p) => (
+                      <div key={p.naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
+                        <span>{p.naam}</span>
+                        <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.m2.toLocaleString('nl-NL')} m²</span>
+                      </div>
+                    ))}
+                  </div>
+                  <EditableText storageKey={`omgeving.concformaat.${c.id}.context`} defaultValue={c.context} tag="div" style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }} />
+                </div>
+              ))}
+
+              <div style={{ padding: '10px 12px', background: '#fff7f4', borderRadius: 8, border: '1px solid #ffd4c2', marginTop: 4 }}>
+                <EditableText storageKey="omgeving.concformaat.conclusie" defaultValue="Gemiddeld projectformaat concurrenten Eindhoven: ~1.160 m². Ditt zit met Design & Build in hetzelfde segment. Kansen liggen bij A-locaties (HTC, Strijp-S) waar concurrenten al bewezen hebben dat de markt er is." tag="div" style={{ fontSize: 11, color: 'var(--c-coral)', lineHeight: 1.6, fontWeight: 600 }} />
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Rotterdam Omgevingskenmerken ───────────────────────────────────────────────
+
+function RotterdamOmgevingskenmerkenPanel() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+      >
+        <div>
+          <EditableText storageKey="omgeving.rdam.titel" defaultValue="Omgevingskenmerken — Rotterdam" style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em', display: 'block' }} onClick={(e) => e.stopPropagation()} />
+          <EditableText storageKey="omgeving.rdam.subtitel" defaultValue="Concurrentieanalyse · Design & Build activiteit · Strategische context" style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2, display: 'block' }} onClick={(e) => e.stopPropagation()} />
+        </div>
+        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+
+            {/* Sprank */}
+            <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <div>
+                  <EditableText storageKey="omgeving.sprank.naam" defaultValue="Sprank Interieurprojecten" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
+                  <EditableText storageKey="omgeving.sprank.meta" defaultValue="sprank.nl · Rotterdam · 20+ jaar actief" style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1, display: 'block' }} />
+                </div>
+                <EditableText storageKey="omgeving.sprank.badge" defaultValue="Sterke lokale speler" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
+                {[
+                  { label: 'Locatie', value: 'Rotterdam (Centrum)' },
+                  { label: 'Specialisme', value: 'D&B kantoorinrichting' },
+                  { label: 'Klanten', value: 'Van Rees, Heerema, Van Oord, Grafisch Lyceum, LMC, Ooms Makelaars' },
+                  { label: 'Projectbereik', value: 'Rotterdam t/m Amsterdam, Den Haag, Utrecht' },
+                ].map((r) => (
+                  <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, gap: 8 }}>
+                    <span style={{ color: 'var(--c-subtle)', flexShrink: 0 }}>{r.label}</span>
+                    <span style={{ color: 'var(--c-muted)', textAlign: 'right' }}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: '10px 12px', background: '#fefce8', borderRadius: 8, border: '1px solid #fde047' }}>
+                <EditableText storageKey="omgeving.sprank.context" defaultValue="Sprank is de meest gelijkende concurrent op Ditt in Rotterdam — lokaal geworteld, D&B focus, brede klantenkring. Ze werken voor makelaars (Ooms) en directe huurders. Concurreren op relatie en snelheid, niet puur op design." tag="div" style={{ fontSize: 11, color: '#854d0e', lineHeight: 1.6 }} />
+              </div>
+            </div>
+
+            {/* Plan@Office */}
+            <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <div>
+                  <EditableText storageKey="omgeving.planatoffice.naam" defaultValue="Plan@Office" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
+                  <EditableText storageKey="omgeving.planatoffice.meta" defaultValue="planatoffice.nl · Dordrecht/Rotterdam · Project­inrichting" style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1, display: 'block' }} />
+                </div>
+                <EditableText storageKey="omgeving.planatoffice.badge" defaultValue="Meubel­gericht" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
+                {[
+                  { label: 'Locatie', value: 'Dordrecht (bedient Rotterdam)' },
+                  { label: 'Specialisme', value: 'Projectinrichting, totaalleverancier meubels' },
+                  { label: 'Klanten', value: '9Corporate (Waalhaven Rdam), SDB Vastgoed, VBE' },
+                  { label: 'Aanpak', value: 'Concept tot levering, multi-supplier' },
+                ].map((r) => (
+                  <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, gap: 8 }}>
+                    <span style={{ color: 'var(--c-subtle)', flexShrink: 0 }}>{r.label}</span>
+                    <span style={{ color: 'var(--c-muted)', textAlign: 'right' }}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid #cbd5e1' }}>
+                <EditableText storageKey="omgeving.planatoffice.context" defaultValue="Plan@Office is meer een projectinrichter dan een echte D&B-speler — sterker in meubilair en levering dan in ontwerp en bouw. Minder directe concurrent voor Ditt's kernpropositie, maar wel actief bij eigenaren en huurders in het Waalhaven/Rdam-segment." tag="div" style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }} />
+              </div>
+            </div>
+
+            {/* UP Projectinrichting */}
+            <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <div>
+                  <EditableText storageKey="omgeving.up.naam" defaultValue="UP Projectinrichting" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
+                  <EditableText storageKey="omgeving.up.meta" defaultValue="upprojectinrichting.nl · Maasdijk · opgericht 2010" style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1, display: 'block' }} />
+                </div>
+                <EditableText storageKey="omgeving.up.badge" defaultValue="Kleine speler" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
+                {[
+                  { label: 'Teamgrootte', value: '8 mensen' },
+                  { label: 'Specialisme', value: 'Kantoorinrichting, turnkey' },
+                  { label: 'Bereik', value: 'Rotterdam en regio' },
+                  { label: 'Aanpak', value: 'Design + realisatie, eigen studio' },
+                ].map((r) => (
+                  <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, gap: 8 }}>
+                    <span style={{ color: 'var(--c-subtle)', flexShrink: 0 }}>{r.label}</span>
+                    <span style={{ color: 'var(--c-muted)', textAlign: 'right' }}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid #cbd5e1' }}>
+                <EditableText storageKey="omgeving.up.context" defaultValue="UP is een kleine speler met een eigen studio — beperkte capaciteit voor grote projecten. Concurreert waarschijnlijk op het MKB-segment (200–800 m²). Minder relevant als directe concurrent voor Ditt's grotere D&B-trajecten." tag="div" style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }} />
+              </div>
+            </div>
+
+            {/* Strategische conclusie Rotterdam */}
+            <div style={{ background: '#fff7f4', borderRadius: 10, padding: '16px', border: '1px solid #ffd4c2' }}>
+              <EditableText storageKey="omgeving.rdam.conclusie.titel" defaultValue="Strategische positie Ditt — Rotterdam" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-coral)', marginBottom: 8, display: 'block' }} />
+              <EditableText storageKey="omgeving.rdam.conclusie.tekst" defaultValue="Rotterdam heeft geen dominante lokale D&B-speler van de omvang van HAL 2 in Eindhoven. Sprank is de meest directe concurrent maar opereert breder dan alleen D&B. Plan@Office en UP zitten in het lagere segment. Dit geeft Ditt ruimte om zich te positioneren als de kwalitatieve D&B-specialist op Kop van Zuid en Brainpark — een gat dat nog niet gevuld is. Prioriteit: makelaarsrelaties opbouwen (Ooms, Verschuuren & Schreppers) voordat concurrenten die positie innemen." multiline tag="div" style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.7 }} />
+            </div>
+
           </div>
         </div>
       )}
@@ -1783,8 +1951,11 @@ export default function StadOverzichtView() {
       {/* Testvalidatie */}
       <TestvalidatiePanel />
 
-      {/* Omgevingskenmerken */}
+      {/* Omgevingskenmerken Eindhoven */}
       <OmgevingskenmerkenPanel />
+
+      {/* Omgevingskenmerken Rotterdam */}
+      <RotterdamOmgevingskenmerkenPanel />
 
       {/* Recente transacties */}
       <RecenteTransactiesPanel />
