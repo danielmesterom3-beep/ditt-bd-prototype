@@ -787,37 +787,47 @@ function OmgevingskenmerkenPanel() {
                 {
                   id: 'duotone',
                   naam: 'Duotone Interior Concepts',
+                  bron: 'duotone-interior.nl/portfolio',
                   projecten: [
-                    { naam: 'Marvell Technology (HTC)', m2: 1250 },
-                    { naam: 'Revalis', m2: 1900 },
-                    { naam: 'Molex BV (HTC)', m2: 1800 },
+                    { naam: 'Molex BV — HTC', m2: 1800 },
+                    { naam: 'Marvell Technology — HTC', m2: 1500 },
+                    { naam: 'Maas Makelaars — HTC', m2: null },
+                    { naam: 'HTC Plantarium', m2: null },
+                    { naam: 'HTC Building 37', m2: null },
                   ],
                   gem: 1650,
-                  context: 'Actief op High Tech Campus en omgeving. Sterke focus op tech-bedrijven. Gemiddeld project is groter dan wat Ditt typisch ziet in de Eindhovense markt — wijst op A-locatie huurders.',
+                  context: 'Actief op High Tech Campus. Sterke focus op tech- en ASML-toeleveranciers. Gemiddeld project (op basis van 2 bekende) ~1.650 m² — wijst op A-locatie enterprise huurders.',
                 },
                 {
                   id: 'hal2',
                   naam: 'HAL 2 B.V.',
+                  bron: 'hal2.nl/projecten',
                   projecten: [
-                    { naam: 'Sweco (Strijp-S)', m2: 1000 },
-                    { naam: 'BEECKK Ruimtemakers (Strijp-S)', m2: 350 },
+                    { naam: 'VdMeijs', m2: 1000 },
+                    { naam: 'Sweco — Eindhoven', m2: 1000 },
+                    { naam: 'Stuurmen', m2: 200 },
+                    { naam: 'ALX Studio', m2: 100 },
+                    { naam: 'BEECKK Ruimtemakers — Strijp-S', m2: 100 },
                   ],
-                  gem: 675,
-                  context: 'HAL 2 doet ook kleinere projecten voor creatieve bedrijven op Strijp-S naast grotere opdrachten. Gemiddeld formaat lager dan Duotone — bredere doelgroep, minder gespecialiseerd in enterprise.',
+                  gem: 480,
+                  context: 'Brede doelgroep: van 100 m² creatieve studios op Strijp-S tot 1.000 m² zakelijke dienstverleners. Gemiddeld formaat lager dan Duotone — minder enterprise, meer MKB.',
                 },
               ].map((c) => (
                 <div key={c.id} style={{ marginBottom: 14, paddingBottom: 14, borderBottom: '1px solid var(--c-border)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                     <EditableText storageKey={`omgeving.concformaat.${c.id}.naam`} defaultValue={c.naam} style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }} />
                     <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-coral)', background: '#fff7f4', border: '1px solid #ffd4c2', borderRadius: 8, padding: '2px 8px' }}>
                       ø {c.gem.toLocaleString('nl-NL')} m²
                     </span>
                   </div>
+                  <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 8 }}>Bron: {c.bron}</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 8 }}>
                     {c.projecten.map((p) => (
                       <div key={p.naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
                         <span>{p.naam}</span>
-                        <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.m2.toLocaleString('nl-NL')} m²</span>
+                        <span style={{ fontVariantNumeric: 'tabular-nums', color: p.m2 ? 'var(--c-muted)' : 'var(--c-subtle)' }}>
+                          {p.m2 ? `${p.m2.toLocaleString('nl-NL')} m²` : 'm² onbekend'}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -861,23 +871,28 @@ function RotterdamOmgevingskenmerkenPanel() {
 
             {/* Sprank */}
             <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                 <div>
                   <EditableText storageKey="omgeving.sprank.naam" defaultValue="Sprank Interieurprojecten" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
                   <EditableText storageKey="omgeving.sprank.meta" defaultValue="sprank.nl · Rotterdam · 20+ jaar actief" style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1, display: 'block' }} />
                 </div>
                 <EditableText storageKey="omgeving.sprank.badge" defaultValue="Sterke lokale speler" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047' }} />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
+              <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 10 }}>Bron: sprank.nl/projecten</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 12 }}>
                 {[
-                  { label: 'Locatie', value: 'Rotterdam (Centrum)' },
-                  { label: 'Specialisme', value: 'D&B kantoorinrichting' },
-                  { label: 'Klanten', value: 'Van Rees, Heerema, Van Oord, Grafisch Lyceum, LMC, Ooms Makelaars' },
-                  { label: 'Projectbereik', value: 'Rotterdam t/m Amsterdam, Den Haag, Utrecht' },
-                ].map((r) => (
-                  <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, gap: 8 }}>
-                    <span style={{ color: 'var(--c-subtle)', flexShrink: 0 }}>{r.label}</span>
-                    <span style={{ color: 'var(--c-muted)', textAlign: 'right' }}>{r.value}</span>
+                  { naam: 'VTTI — The Mark', m2: null },
+                  { naam: 'Van Rees — Blaak', m2: null },
+                  { naam: 'Hoge Erasmus (Ooms Makelaars)', m2: 10000 },
+                  { naam: 'HD Groep (2 verdiepingen)', m2: null },
+                  { naam: 'Avantage Rotterdam', m2: null },
+                ].map((p) => (
+                  <div key={p.naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
+                    <span>{p.naam}</span>
+                    <span style={{ fontVariantNumeric: 'tabular-nums', color: p.m2 ? 'var(--c-muted)' : 'var(--c-subtle)' }}>
+                      {p.m2 ? `${p.m2.toLocaleString('nl-NL')} m²` : 'm² onbekend'}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -888,23 +903,24 @@ function RotterdamOmgevingskenmerkenPanel() {
 
             {/* Plan@Office */}
             <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                 <div>
                   <EditableText storageKey="omgeving.planatoffice.naam" defaultValue="Plan@Office" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
                   <EditableText storageKey="omgeving.planatoffice.meta" defaultValue="planatoffice.nl · Dordrecht/Rotterdam · Project­inrichting" style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1, display: 'block' }} />
                 </div>
                 <EditableText storageKey="omgeving.planatoffice.badge" defaultValue="Meubel­gericht" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }} />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
+              <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 10 }}>Bron: planatoffice.nl/projecten</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 12 }}>
                 {[
-                  { label: 'Locatie', value: 'Dordrecht (bedient Rotterdam)' },
-                  { label: 'Specialisme', value: 'Projectinrichting, totaalleverancier meubels' },
-                  { label: 'Klanten', value: '9Corporate (Waalhaven Rdam), SDB Vastgoed, VBE' },
-                  { label: 'Aanpak', value: 'Concept tot levering, multi-supplier' },
-                ].map((r) => (
-                  <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, gap: 8 }}>
-                    <span style={{ color: 'var(--c-subtle)', flexShrink: 0 }}>{r.label}</span>
-                    <span style={{ color: 'var(--c-muted)', textAlign: 'right' }}>{r.value}</span>
+                  { naam: 'Den Hartogh — Sluisjesdijk (campus)', m2: 24000 },
+                  { naam: 'EuroNordic — Waalhaven', m2: 1780 },
+                  { naam: '9Corporate — Weena', m2: 1000 },
+                ].map((p) => (
+                  <div key={p.naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
+                    <span>{p.naam}</span>
+                    <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.m2.toLocaleString('nl-NL')} m²</span>
                   </div>
                 ))}
               </div>
@@ -915,28 +931,33 @@ function RotterdamOmgevingskenmerkenPanel() {
 
             {/* UP Projectinrichting */}
             <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                 <div>
                   <EditableText storageKey="omgeving.up.naam" defaultValue="UP Projectinrichting" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
                   <EditableText storageKey="omgeving.up.meta" defaultValue="upprojectinrichting.nl · Maasdijk · opgericht 2010" style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1, display: 'block' }} />
                 </div>
                 <EditableText storageKey="omgeving.up.badge" defaultValue="Kleine speler" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }} />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
+              <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 10 }}>Bron: upprojectinrichting.nl/projecten</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>Projecten gepubliceerd op portfolio</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 12 }}>
                 {[
-                  { label: 'Teamgrootte', value: '8 mensen' },
-                  { label: 'Specialisme', value: 'Kantoorinrichting, turnkey' },
-                  { label: 'Bereik', value: 'Rotterdam en regio' },
-                  { label: 'Aanpak', value: 'Design + realisatie, eigen studio' },
-                ].map((r) => (
-                  <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, gap: 8 }}>
-                    <span style={{ color: 'var(--c-subtle)', flexShrink: 0 }}>{r.label}</span>
-                    <span style={{ color: 'var(--c-muted)', textAlign: 'right' }}>{r.value}</span>
+                  { naam: 'Stolze', m2: null },
+                  { naam: 'VBS Advocaten', m2: null },
+                  { naam: 'AB Sciex', m2: null },
+                  { naam: 'De Goudse Verzekeringen', m2: null },
+                  { naam: 'Vollebregt Barten', m2: null },
+                  { naam: 'Holland Shipyards', m2: null },
+                  { naam: 'NIBC', m2: null },
+                ].map((p) => (
+                  <div key={p.naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
+                    <span>{p.naam}</span>
+                    <span style={{ color: 'var(--c-subtle)' }}>m² onbekend</span>
                   </div>
                 ))}
               </div>
               <div style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid #cbd5e1' }}>
-                <EditableText storageKey="omgeving.up.context" defaultValue="UP is een kleine speler met een eigen studio — beperkte capaciteit voor grote projecten. Concurreert waarschijnlijk op het MKB-segment (200–800 m²). Minder relevant als directe concurrent voor Ditt's grotere D&B-trajecten." tag="div" style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }} />
+                <EditableText storageKey="omgeving.up.context" defaultValue="UP publiceert geen locaties of m²-groottes bij projecten. Geen duidelijke Rotterdam-focus zichtbaar in portfolio — beperkte capaciteit voor grote D&B-trajecten. Minder relevant als directe concurrent." tag="div" style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }} />
               </div>
             </div>
 
