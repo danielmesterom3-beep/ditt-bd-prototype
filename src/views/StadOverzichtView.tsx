@@ -787,16 +787,16 @@ function OmgevingskenmerkenPanel() {
                 {
                   id: 'duotone',
                   naam: 'Duotone Interior Concepts',
-                  bron: 'duotone-interior.nl/portfolio',
+                  bron: 'duotone-interior.nl/projecten',
                   projecten: [
                     { naam: 'Molex BV — HTC', m2: 1800 },
                     { naam: 'Marvell Technology — HTC', m2: 1500 },
-                    { naam: 'Maas Makelaars — HTC', m2: null },
-                    { naam: 'HTC Plantarium', m2: null },
-                    { naam: 'HTC Building 37', m2: null },
+                    { naam: 'HTC Plantarium', m2: 800 },
+                    { naam: 'HTC Building 37 (renovatie)', m2: 550 },
+                    { naam: 'Maas Makelaars', m2: 200 },
                   ],
-                  gem: 1650,
-                  context: 'Actief op High Tech Campus. Sterke focus op tech- en ASML-toeleveranciers. Gemiddeld project (op basis van 2 bekende) ~1.650 m² — wijst op A-locatie enterprise huurders.',
+                  gem: 970,
+                  context: 'Actief op High Tech Campus voor zowel enterprise (Molex, Marvell) als kleinere ruimtes en gemeenschappelijke zones. Breed portfolio — van 200 m² tot 1.800 m².',
                 },
                 {
                   id: 'hal2',
@@ -836,7 +836,7 @@ function OmgevingskenmerkenPanel() {
               ))}
 
               <div style={{ padding: '10px 12px', background: '#fff7f4', borderRadius: 8, border: '1px solid #ffd4c2', marginTop: 4 }}>
-                <EditableText storageKey="omgeving.concformaat.conclusie" defaultValue="Gemiddeld projectformaat concurrenten Eindhoven: ~1.160 m². Ditt zit met Design & Build in hetzelfde segment. Kansen liggen bij A-locaties (HTC, Strijp-S) waar concurrenten al bewezen hebben dat de markt er is." tag="div" style={{ fontSize: 11, color: 'var(--c-coral)', lineHeight: 1.6, fontWeight: 600 }} />
+                <EditableText storageKey="omgeving.concformaat.conclusie" defaultValue="Gemiddeld projectformaat (Duotone ø 970 m², HAL 2 ø 480 m²). Duotone domineert het enterprise-segment op HTC; HAL 2 bedient een brede MKB-doelgroep. Ditt kan zich positioneren in het segment 500–1.500 m² op HTC en Strijp-S." tag="div" style={{ fontSize: 11, color: 'var(--c-coral)', lineHeight: 1.6, fontWeight: 600 }} />
               </div>
             </div>
 
@@ -879,20 +879,15 @@ function RotterdamOmgevingskenmerkenPanel() {
                 <EditableText storageKey="omgeving.sprank.badge" defaultValue="Sterke lokale speler" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047' }} />
               </div>
               <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 10 }}>Bron: sprank.nl/projecten</div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam (bevestigde m²)</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 12 }}>
                 {[
-                  { naam: 'VTTI — The Mark', m2: null },
-                  { naam: 'Van Rees — Blaak', m2: null },
-                  { naam: 'Hoge Erasmus (Ooms Makelaars)', m2: 10000 },
-                  { naam: 'HD Groep (2 verdiepingen)', m2: null },
-                  { naam: 'Avantage Rotterdam', m2: null },
+                  { naam: 'VTTI — The Mark (1e verdieping)', m2: 1239 },
+                  { naam: 'Hoge Erasmus — entree (Ooms Makelaars)', m2: 500 },
                 ].map((p) => (
                   <div key={p.naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
                     <span>{p.naam}</span>
-                    <span style={{ fontVariantNumeric: 'tabular-nums', color: p.m2 ? 'var(--c-muted)' : 'var(--c-subtle)' }}>
-                      {p.m2 ? `${p.m2.toLocaleString('nl-NL')} m²` : 'm² onbekend'}
-                    </span>
+                    <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.m2.toLocaleString('nl-NL')} m²</span>
                   </div>
                 ))}
               </div>
@@ -939,22 +934,8 @@ function RotterdamOmgevingskenmerkenPanel() {
                 <EditableText storageKey="omgeving.up.badge" defaultValue="Kleine speler" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }} />
               </div>
               <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 10 }}>Bron: upprojectinrichting.nl/projecten</div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>Projecten gepubliceerd op portfolio</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 12 }}>
-                {[
-                  { naam: 'Stolze', m2: null },
-                  { naam: 'VBS Advocaten', m2: null },
-                  { naam: 'AB Sciex', m2: null },
-                  { naam: 'De Goudse Verzekeringen', m2: null },
-                  { naam: 'Vollebregt Barten', m2: null },
-                  { naam: 'Holland Shipyards', m2: null },
-                  { naam: 'NIBC', m2: null },
-                ].map((p) => (
-                  <div key={p.naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
-                    <span>{p.naam}</span>
-                    <span style={{ color: 'var(--c-subtle)' }}>m² onbekend</span>
-                  </div>
-                ))}
+              <div style={{ padding: '8px 10px', background: '#f1f5f9', borderRadius: 6, marginBottom: 12 }}>
+                <span style={{ fontSize: 11, color: 'var(--c-subtle)' }}>Geen m²-groottes of locaties gepubliceerd op portfolio — geen projectgegevens verifieerbaar.</span>
               </div>
               <div style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid #cbd5e1' }}>
                 <EditableText storageKey="omgeving.up.context" defaultValue="UP publiceert geen locaties of m²-groottes bij projecten. Geen duidelijke Rotterdam-focus zichtbaar in portfolio — beperkte capaciteit voor grote D&B-trajecten. Minder relevant als directe concurrent." tag="div" style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }} />
