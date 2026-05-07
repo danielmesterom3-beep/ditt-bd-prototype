@@ -730,12 +730,169 @@ const PROTOCOL: Record<Product, Record<PartijenType, ProtocolInhoud>> = {
   },
 }
 
-function ContactProtocol({ klasse }: { klasse: LocatieKlasse }) {
-  const aanbevolen = klasse ? KLASSE_AANBEVELING[klasse] : null
-  const [product, setProduct]   = useState<Product>(aanbevolen ?? 'design-and-build')
-  const [partijType, setPartijType] = useState<PartijenType>('makelaar')
+// ── Gebiedsinsteek ────────────────────────────────────────────────────────────
 
-  const inhoud = PROTOCOL[product][partijType]
+interface GebiedInsteek {
+  karakter: string
+  kansen:   string
+  tipPerPartij: Partial<Record<PartijenType, string>>
+}
+
+function gebiedPrefix(id: string): string {
+  if (id.startsWith('fell') || id === 'fellenoord')         return 'fellenoord'
+  if (id.startsWith('cent') || id === 'centrum-eindhoven')  return 'centrum-eindhoven'
+  if (id.startsWith('ss-')  || id === 'strijp-s')           return 'strijp-s'
+  if (id.startsWith('kvz')  || id === 'kop-van-zuid')       return 'kop-van-Zuid'
+  if (id.startsWith('rc-')  || id === 'rotterdam-centrum')  return 'rotterdam-centrum'
+  return 'generiek'
+}
+
+const GEBIED_INSTEEK: Record<string, GebiedInsteek> = {
+  'fellenoord': {
+    karakter: 'CBD Eindhoven — direct bij Centraal Station, dominant zakelijke en financiële dienstverlening (ING, Rabobank, UWV). Grootschalige transformatie: Knoop XL voegt 7.500 woningen en gemengd programma toe.',
+    kansen:   'Actieve verhuisbewegingen door mixed-use transformatie. Huurders zoeken kwalitatief upgrade bij contractverlenging of relocatie naar nieuwbouw in het gebied.',
+    tipPerPartij: {
+      makelaar: 'Vraag naar huurders met aflopend contract in de bestaande torens — die zoeken naar upgrade óf consolidatie voor de transformatiefase.',
+      eigenaar: 'Positioneer D&B als onderscheidende propositie bij transformatie naar mixed-use: ingerichte kantoorverdiepingen trekken betere huurders in een concurrerend aanbod.',
+      huurder:  'Speel in op de opwaardering van het gebied: een nieuwe werkomgeving past bij de ambitie die Knoop XL uitstraalt.',
+    },
+  },
+  'centrum-eindhoven': {
+    karakter: 'Stadscentrum Eindhoven — gemengd programma met retail, horeca en kantoren. Metz Point als ankerpunt. Relatief hoge leegstand biedt kansen voor actieve verhuurbegeleiding.',
+    kansen:   'Huurders die stad-centraal willen zitten zonder campus-sfeer. Groeiende horeca en voorzieningen in omgeving maken het aantrekkelijk voor scale-ups en MKB.',
+    tipPerPartij: {
+      makelaar: 'Focus op MKB en scale-ups die bereikbaarheid en stadse uitstraling combineren. Positioneer Fast Fit-Out als de snelle route naar een representatief kantoor.',
+      eigenaar: 'Leegstand in het centrum vraagt om onderscheidend aanbod — een instapklaar, afgewerkt kantoor slaat aan bij de doelgroep die hier zoekt.',
+      huurder:  'Benadruk de centrale ligging en de stadse beleving. Vraag naar de werkplek-identiteit die ze willen uitstralen richting medewerkers en klanten.',
+    },
+  },
+  'strijp-s': {
+    karakter: 'Voormalig Philips-complex — creatief en innovatief district met 150.000 m² voor bedrijven, makers en onderwijs. Fase 4 in uitvoering: 8.000 m² extra kantoorruimte. BIZ actief per 2026.',
+    kansen:   'Creatieve bureaus, tech scale-ups en makers zoeken hier een werkplek die bij hun identiteit past. Storytelling en uniek interieur zijn hier geen extra — ze zijn vereist.',
+    tipPerPartij: {
+      makelaar: 'Strijp-S huurders zijn bewuste kopers van beleving. D&B met sterke designcomponent is hier het meest overtuigende aanbod — positioneer dat actief.',
+      eigenaar: 'Jouw pand concurreert met iconische fabrieksgebouwen. Een generiek kantoor trekt hier niemand — investeer in identiteit en het verkoopt zichzelf.',
+      huurder:  'Vraag hoe hun merk en cultuur vertaald moet worden naar de ruimte. Hier zit een huurder die weet wat ze willen — sluit daar direct op aan.',
+    },
+  },
+  'kop-van-Zuid': {
+    karakter: 'Premium waterfront Rotterdam — Erasmusbrug, hoog opleidings- en inkomensniveau, grotere huurders (Capabel Onderwijs 4.700 m²). Verbinding Noord-Zuid Rotterdam.',
+    kansen:   'Huurders op Kop van Zuid willen representatief én duurzaam. B Corp-certificering van Ditt is hier een sterk argument. Grotere trajecten (500–2.000 m²) zijn gangbaar.',
+    tipPerPartij: {
+      makelaar: 'Premium locatie vraagt premium inrichting. D&B is hier het sterkste verhaal — huurders die naar Kop van Zuid gaan, willen dat hun kantoor dat ook uitstraalt.',
+      eigenaar: 'Benadruk Ditt\'s B Corp-score (89,5) en BREEAM-expertise — duurzaamheid is hier geen checkbox maar een echte differentiator voor verhuurwaarde.',
+      huurder:  'Vraag naar hun employer branding-ambitie. Een kantoor op Kop van Zuid is een statement — de inrichting moet dat verhaal versterken.',
+    },
+  },
+  'rotterdam-centrum': {
+    karakter: 'Rotterdam Centrum en Brainpark — divers profiel. Brainpark naast Erasmus Universiteit, financiële sector op Brainpark 2, transformatie Brainpark 1 naar wonen. Rotterdam Alexander in opkomst.',
+    kansen:   'Brainpark in transitie: 90.000 m² kantoor blijft, 1.500 woningen bijgebouwd. Huurders die willen blijven, zoeken een opgewaardeerd kantoor. Alexander trekt nieuwe namen.',
+    tipPerPartij: {
+      makelaar: 'Brainpark-huurders zitten in een transitiegebied — veel kantoorgebruikers heroriënteren zich. Dat is het moment om met D&B in gesprek te komen over de volgende stap.',
+      eigenaar: 'Met Brainpark 1 die transformeert naar wonen wordt Brainpark 2 schaarser en waardevoller. Investeer nu in kwaliteit om de juiste huurders te trekken.',
+      huurder:  'Vraag of ze al nagedacht hebben over hun plek in het veranderende Brainpark. Ditt kan helpen om hun kantoor klaar te maken voor de komende jaren.',
+    },
+  },
+  'generiek': {
+    karakter: 'Kantoorlocatie in actieve markt — verhuisbewegingen door flight to quality en hybride werken creëren instapkansen voor Ditt.',
+    kansen:   'Elk verhuismoment is een acquisitie-instapmoment. Zorg dat je vroeg in het proces zit — vóórdat een formeel selectietraject start.',
+    tipPerPartij: {
+      makelaar: 'Vraag actief naar aankomende mutaties en aflopende contracten in je portefeuille.',
+      eigenaar: 'Benadruk dat een instapklaar kantoor de verhuursnelheid verhoogt en betere huurders trekt.',
+      huurder:  'Sluit aan op hun urgentie — tijdsplanning en budget zijn de twee knoppen waarop Ditt het verschil maakt.',
+    },
+  },
+}
+
+// ── Aanbevolen slides per product + partijtype ─────────────────────────────
+
+interface SlideRef { nr: number; omschrijving: string }
+
+const AANBEVOLEN_SLIDES: Record<Product, Record<PartijenType, SlideRef[]>> = {
+  'design-and-build': {
+    makelaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 31, omschrijving: 'Dienstenoverzicht — D&B, Detail & Build, Consultancy' },
+      { nr: 43, omschrijving: 'Samenwerking — wij werken graag samen met makelaars' },
+      { nr: 45, omschrijving: 'The Office Lifecycle — vroeg betrokken = meer impact' },
+    ],
+    eigenaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 32, omschrijving: 'Design & Build Specialist — van schets tot sleuteloverdracht' },
+      { nr: 45, omschrijving: 'The Office Lifecycle — van consultancy tot oplevering' },
+      { nr: 49, omschrijving: 'Storytelling — een gebouw is meer dan een bouwproject' },
+      { nr: 20, omschrijving: 'B Corp 89,5 — duurzaamheid als verhuurargument' },
+    ],
+    huurder: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 19, omschrijving: 'Missie & Visie — een partner op wie je kunt bouwen' },
+      { nr: 36, omschrijving: 'Client Portal — transparantie tijdens het project' },
+      { nr: 45, omschrijving: 'The Office Lifecycle — jij staat centraal in elk fase' },
+      { nr: 54, omschrijving: 'Organogram D&B — één aanspreekpunt, volledig ontzorgd' },
+    ],
+  },
+  'fast-fit-out': {
+    makelaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 31, omschrijving: 'Dienstenoverzicht — Fast Fit-Out als snel inzetbaar concept' },
+      { nr: 40, omschrijving: 'Waarom Ditt? — VCA, WELL, 65+ specialisten' },
+      { nr: 99, omschrijving: 'Planningsoverzicht — vaste doorlooptijd, geen verrassingen' },
+    ],
+    eigenaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 40, omschrijving: 'Waarom Ditt? — bewezen concept, snelle realisatie' },
+      { nr: 99, omschrijving: 'Planningsoverzicht — tijdlijn en mijlpalen' },
+      { nr: 20, omschrijving: 'B Corp 89,5 — duurzame materialen standaard' },
+    ],
+    huurder: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 31, omschrijving: 'Diensten — Fast Fit-Out: functioneel en aantrekkelijk' },
+      { nr: 36, omschrijving: 'Client Portal — realtime inzicht in voortgang' },
+      { nr: 99, omschrijving: 'Planningsoverzicht — wanneer zit je erin?' },
+    ],
+  },
+  'detail-and-build': {
+    makelaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 31, omschrijving: 'Dienstenoverzicht — Detail & Build als uitvoeringspartner' },
+      { nr: 54, omschrijving: 'D&B organogram — Ditt als bouwpartner naast architect' },
+      { nr: 43, omschrijving: 'Samenwerking — prettige partner bij complexe opgaven' },
+    ],
+    eigenaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 54, omschrijving: 'D&B organogram — architect ontwerpt, Ditt bouwt' },
+      { nr: 43, omschrijving: 'Samenwerking — van dag 1 betrokken bij het team' },
+      { nr: 40, omschrijving: 'Waarom Ditt? — VCA, WELL, betrouwbare uitvoering' },
+    ],
+    huurder: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 36, omschrijving: 'Client Portal — jij en je architect blijven altijd op de hoogte' },
+      { nr: 54, omschrijving: 'D&B organogram — duidelijke rolverdeling architect / Ditt' },
+      { nr: 40, omschrijving: 'Waarom Ditt? — VCA gecertificeerd, betrouwbaar' },
+    ],
+  },
+}
+
+// ── Elevator pitch ─────────────────────────────────────────────────────────
+
+const ELEVATOR_PITCH =
+  'Ditt Officemakers is design & build specialist voor kantoorwerkomgevingen — van schets tot sleuteloverdracht. ' +
+  'Wij zijn B Corp gecertificeerd (score 89,5), werken met 65+ specialisten en zetten onze eigen AI-tool in om ' +
+  'plattegronden snel in kaart te brengen. Of het nu gaat om een volledig Design & Build traject, een snelle ' +
+  'Fast Fit-Out of Detail & Build met een externe architect — wij zorgen dat het kantoor klaar is op tijd, ' +
+  'binnen budget en met een resultaat waar mensen blij van worden.'
+
+function ContactProtocol({ klasse, gebiedId, stadNaam }: { klasse: LocatieKlasse; gebiedId: string; stadNaam: string }) {
+  const aanbevolen = klasse ? KLASSE_AANBEVELING[klasse] : null
+  const [product, setProduct]     = useState<Product>(aanbevolen ?? 'design-and-build')
+  const [partijType, setPartijType] = useState<PartijenType>('makelaar')
+  const [toonPitch, setToonPitch]  = useState(false)
+
+  const inhoud   = PROTOCOL[product][partijType]
+  const prefix   = gebiedPrefix(gebiedId)
+  const insteek  = GEBIED_INSTEEK[prefix] ?? GEBIED_INSTEEK['generiek']
+  const slides   = AANBEVOLEN_SLIDES[product][partijType]
+  const partijTip = insteek.tipPerPartij[partijType]
 
   function TabBtn<T extends string>({
     label, active, aanbevolen: isAanbevolen, onClick,
@@ -850,6 +1007,24 @@ function ContactProtocol({ klasse }: { klasse: LocatieKlasse }) {
         ))}
       </div>
 
+      {/* Gebiedsinsteek */}
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--c-border)', background: '#faf9f7', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)' }}>
+          Gebiedsprofiel — {stadNaam}
+        </div>
+        <p style={{ fontSize: 12, color: 'var(--c-muted)', margin: 0, lineHeight: 1.6 }}>
+          {insteek.karakter}
+        </p>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 2 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--c-coral)', whiteSpace: 'nowrap', paddingTop: 1 }}>
+            Tip →
+          </span>
+          <p style={{ fontSize: 12, color: 'var(--c-text)', margin: 0, lineHeight: 1.6 }}>
+            {partijTip ?? insteek.kansen}
+          </p>
+        </div>
+      </div>
+
       {/* Protocol content */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
         {/* Aanpak */}
@@ -899,6 +1074,46 @@ function ContactProtocol({ klasse }: { klasse: LocatieKlasse }) {
           >
             "{inhoud.kapstok}"
           </div>
+        </div>
+      </div>
+
+      {/* Aanbevolen slides + elevator pitch */}
+      <div style={{ borderTop: '1px solid var(--c-border)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
+        {/* Aanbevolen slides */}
+        <div style={{ padding: '18px 20px', borderRight: '1px solid var(--c-border)' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 10 }}>
+            Aanbevolen slides (PPT)
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {slides.map((s) => (
+              <div key={s.nr} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', background: 'var(--c-coral)', borderRadius: 4, padding: '1px 6px', minWidth: 28, textAlign: 'center', flexShrink: 0 }}>
+                  {s.nr}
+                </span>
+                <span style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.5 }}>{s.omschrijving}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Elevator pitch */}
+        <div style={{ padding: '18px 20px' }}>
+          <button
+            onClick={() => setToonPitch(!toonPitch)}
+            style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}
+          >
+            Elevator pitch {toonPitch ? '▲' : '▼'}
+          </button>
+          {toonPitch && (
+            <p style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.7, margin: 0 }}>
+              {ELEVATOR_PITCH}
+            </p>
+          )}
+          {!toonPitch && (
+            <p style={{ fontSize: 12, color: 'var(--c-subtle)', margin: 0, fontStyle: 'italic' }}>
+              Klik om de standaard Ditt-pitch te tonen.
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -1463,7 +1678,7 @@ export default function GebiedDetailView() {
       </Section>
 
       {/* ── Contactprotocol ── */}
-      <ContactProtocol klasse={klasse} />
+      <ContactProtocol klasse={klasse} gebiedId={gebied.id} stadNaam={geselecteerdeStad?.naam ?? ''} />
 
       {/* ── Section 2: Panden in ontwikkeling ── */}
       {heeftPanden && (
