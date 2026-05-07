@@ -1528,6 +1528,228 @@ function VeldonderzoekPanel() {
   )
 }
 
+// ── Market Cap ────────────────────────────────────────────────────────────────
+
+const MARKTCAP_BRON = 'Mesterom, D. (2026). Market cap berekening doelregio\'s. Intern document Ditt. Officemakers. Leegstand: Vastgoeddata.nl / JLL (2026). Concurrentie-aandeel: eigen inschatting o.b.v. marktanalyse.'
+
+interface MarktCapStad {
+  naam:        string
+  leegstandM2: number
+  partijen:    number
+  penetratie:  number
+  dittM2:      number
+  defaultPrijs: number
+  concurrenten: string
+}
+
+const MARKTCAP_STEDEN: MarktCapStad[] = [
+  {
+    naam:         'Eindhoven',
+    leegstandM2:  127_062,
+    partijen:     3,
+    penetratie:   0.40,
+    dittM2:       16_941,
+    defaultPrijs: 800,
+    concurrenten: 'Duotone Interior Concepts, HAL 2',
+  },
+  {
+    naam:         'Rotterdam',
+    leegstandM2:  233_940,
+    partijen:     4,
+    penetratie:   0.40,
+    dittM2:       23_394,
+    defaultPrijs: 900,
+    concurrenten: 'Sprank Interieurprojecten, Plan@Office, UP Projectinrichting',
+  },
+  {
+    naam:         'Amsterdam',
+    leegstandM2:  825_611,
+    partijen:     6,
+    penetratie:   0.40,
+    dittM2:       66_048,
+    defaultPrijs: 1_200,
+    concurrenten: 'BESPARK, Tétris, WE MAKE, Stone Projects, Cerius',
+  },
+]
+
+function fmEuro(n: number) {
+  if (n >= 1_000_000) return `€ ${(n / 1_000_000).toFixed(1).replace('.', ',')} M`
+  return `€ ${Math.round(n / 1_000)} k`
+}
+
+function MarketCapPanel() {
+  const [prijzen, setPrijzen] = useState<Record<string, number>>(() =>
+    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, s.defaultPrijs]))
+  )
+
+  const totaal = MARKTCAP_STEDEN.reduce((sum, s) => sum + s.dittM2 * prijzen[s.naam], 0)
+
+  const STAD_KLEUR: Record<string, string> = {
+    Eindhoven: '#ff7f50',
+    Rotterdam: '#5bb8c4',
+    Amsterdam: '#8fc4a0',
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Header */}
+      <div>
+        <p style={{ fontSize: 11, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 4px' }}>
+          Marktpotentieel
+        </p>
+        <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--c-text)', margin: '0 0 4px' }}>
+          Wat is de market cap voor Ditt?
+        </h2>
+        <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: 0, lineHeight: 1.6, maxWidth: 620 }}>
+          Op basis van leegstaand kantooroppervlak, het aantal actieve Design &amp; Build-partijen en een marktpenetratie van 40%, is hieronder het omzetpotentieel per stad berekend. Pas de prijs per m² aan met de slider om scenario's te verkennen.
+        </p>
+      </div>
+
+      {/* Totaal banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, #ff7f50 0%, #e8623a 100%)',
+        borderRadius: 12,
+        padding: '16px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 8,
+      }}>
+        <div>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Totaal market cap (3 steden)
+          </p>
+          <p style={{ fontSize: 28, fontWeight: 800, color: '#fff', margin: 0, fontVariantNumeric: 'tabular-nums' }}>
+            {fmEuro(totaal)}
+          </p>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: '0 0 2px' }}>Ditt-aandeel m²</p>
+          <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: 0 }}>
+            {(MARKTCAP_STEDEN.reduce((s, c) => s + c.dittM2, 0)).toLocaleString('nl-NL')} m²
+          </p>
+        </div>
+      </div>
+
+      {/* Per stad */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {MARKTCAP_STEDEN.map((stad) => {
+          const prijs    = prijzen[stad.naam]
+          const cap      = stad.dittM2 * prijs
+          const kleur    = STAD_KLEUR[stad.naam]
+          const barPct   = Math.round((cap / totaal) * 100)
+
+          return (
+            <div key={stad.naam} style={{
+              background: '#fff',
+              border: '1px solid var(--c-border)',
+              borderRadius: 10,
+              padding: '16px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+            }}>
+              {/* Stad naam + cap */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', margin: '0 0 2px' }}>
+                    {stad.naam}
+                  </p>
+                  <p style={{ fontSize: 11, color: 'var(--c-subtle)', margin: 0 }}>
+                    D&amp;B-partijen: {stad.partijen} · Concurrenten: {stad.concurrenten}
+                  </p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ fontSize: 20, fontWeight: 800, color: kleur, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
+                    {fmEuro(cap)}
+                  </p>
+                  <p style={{ fontSize: 10, color: 'var(--c-subtle)', margin: 0 }}>{barPct}% van totaal</p>
+                </div>
+              </div>
+
+              {/* Voortgangsbalk */}
+              <div style={{ height: 6, background: 'var(--c-border)', borderRadius: 3, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${barPct}%`, background: kleur, borderRadius: 3, transition: 'width 0.2s' }} />
+              </div>
+
+              {/* Formule */}
+              <div style={{
+                background: '#f8f7f5',
+                borderRadius: 8,
+                padding: '10px 14px',
+                fontSize: 12,
+                color: 'var(--c-muted)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                flexWrap: 'wrap',
+              }}>
+                <span style={{ fontVariantNumeric: 'tabular-nums' }}>{stad.leegstandM2.toLocaleString('nl-NL')} m²</span>
+                <span style={{ color: 'var(--c-subtle)' }}>leegstand</span>
+                <span style={{ color: 'var(--c-subtle)' }}>÷</span>
+                <span>{stad.partijen} partijen</span>
+                <span style={{ color: 'var(--c-subtle)' }}>×</span>
+                <span>40% penetratie</span>
+                <span style={{ color: 'var(--c-subtle)' }}>=</span>
+                <strong style={{ color: 'var(--c-text)' }}>{stad.dittM2.toLocaleString('nl-NL')} m²</strong>
+                <span style={{ color: 'var(--c-subtle)' }}>×</span>
+                <strong style={{ color: kleur }}>€ {prijs.toLocaleString('nl-NL')}/m²</strong>
+                <span style={{ color: 'var(--c-subtle)' }}>=</span>
+                <strong style={{ color: 'var(--c-text)' }}>{fmEuro(cap)}</strong>
+                <BronTooltip bron={MARKTCAP_BRON} />
+              </div>
+
+              {/* Slider */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ fontSize: 11, color: 'var(--c-muted)' }}>
+                    Prijs per m² aanpassen
+                  </label>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: kleur, fontVariantNumeric: 'tabular-nums' }}>
+                    € {prijs.toLocaleString('nl-NL')}/m²
+                    {prijs === stad.defaultPrijs && (
+                      <span style={{ fontSize: 10, fontWeight: 400, color: 'var(--c-subtle)', marginLeft: 4 }}>(standaard)</span>
+                    )}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 10, color: 'var(--c-subtle)', minWidth: 36 }}>€ 500</span>
+                  <input
+                    type="range"
+                    min={500}
+                    max={1500}
+                    step={50}
+                    value={prijs}
+                    onChange={(e) => setPrijzen((prev) => ({ ...prev, [stad.naam]: Number(e.target.value) }))}
+                    style={{ flex: 1, accentColor: kleur, cursor: 'pointer' }}
+                  />
+                  <span style={{ fontSize: 10, color: 'var(--c-subtle)', minWidth: 42, textAlign: 'right' }}>€ 1.500</span>
+                  <button
+                    onClick={() => setPrijzen((prev) => ({ ...prev, [stad.naam]: stad.defaultPrijs }))}
+                    title="Herstel standaard"
+                    style={{
+                      fontSize: 10,
+                      color: prijs === stad.defaultPrijs ? 'var(--c-subtle)' : kleur,
+                      background: 'none',
+                      border: 'none',
+                      cursor: prijs === stad.defaultPrijs ? 'default' : 'pointer',
+                      padding: '2px 4px',
+                      textDecoration: prijs !== stad.defaultPrijs ? 'underline' : 'none',
+                    }}
+                  >
+                    reset
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ── StadOverzichtView ─────────────────────────────────────────────────────────
 
 export default function StadOverzichtView() {
@@ -1569,6 +1791,9 @@ export default function StadOverzichtView() {
 
       {/* Veldonderzoek trends & inzichten */}
       <VeldonderzoekPanel />
+
+      {/* Market cap */}
+      <MarketCapPanel />
 
       {/* Source note */}
       <div
