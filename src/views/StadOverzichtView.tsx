@@ -1864,6 +1864,223 @@ function fmEuro(n: number) {
   return `€ ${Math.round(n / 1_000)} k`
 }
 
+// ── Begrotingscalculator doelregio ────────────────────────────────────────────
+
+// Lookup tabellen uit Begrotingssheet 2026 - Intern.xlsx
+const FITOUT_TABLE: Record<string, Record<string, number>> = {
+  Open:        { Low: 350, Mid: 500, High: 700 },
+  Hybrid:      { Low: 450, Mid: 600, High: 800 },
+  Traditional: { Low: 550, Mid: 700, High: 900 },
+}
+const FURNITURE_TABLE: Record<string, number> = { Low: 250, Mid: 325, High: 400 }
+const IDENTITY_TABLE:  Record<string, number>  = { Low: 50,  Mid: 75,  High: 100 }
+const MEP_OPTIES = [
+  { label: 'Basic 100',       value: 100 },
+  { label: 'Basic 150',       value: 150 },
+  { label: 'Basic 200',       value: 200 },
+  { label: 'Medium 250',      value: 250 },
+  { label: 'Medium 300',      value: 300 },
+  { label: 'Medium 350',      value: 350 },
+  { label: 'High 400',        value: 400 },
+  { label: 'High 450',        value: 450 },
+  { label: 'High 500',        value: 500 },
+  { label: 'BREEAM 550',      value: 550 },
+  { label: 'BREEAM 600',      value: 600 },
+  { label: 'BREEAM 650',      value: 650 },
+  { label: 'BREEAM High 700', value: 700 },
+  { label: 'BREEAM High 750', value: 750 },
+]
+
+function calcBegroting(m2: number, type: string, fitoutLvl: string, furnitureLvl: string, identityLvl: string, mep: number) {
+  const fp = FITOUT_TABLE[type][fitoutLvl]
+  const up = FURNITURE_TABLE[furnitureLvl]
+  const ip = IDENTITY_TABLE[identityLvl]
+  const bouwplaats = 0.04
+  // Excel: elk onderdeel ÷ (1 + bouwplaats%) zodat bouwplaats 4% = meerkosten bovenop
+  const f = 1 / (1 + bouwplaats)
+  const inv_fitout    = fp  * m2 * f
+  const inv_furniture = up  * m2 * f
+  const inv_identity  = ip  * m2 * f
+  const inv_mep       = mep * m2 * f
+  const sub           = inv_fitout + inv_furniture + inv_identity + inv_mep
+  const inv_bouwplaats = sub * bouwplaats
+  const total          = sub + inv_bouwplaats          // = (fp+up+ip+mep) * m2
+  const inkoop =
+    inv_fitout    * 0.65 +   // marge 35%
+    inv_furniture * 0.65 +
+    inv_identity  * 0.65 +
+    inv_mep       * 0.90 +   // marge 10% (installaties)
+    inv_bouwplaats * 0.65
+  return {
+    total,
+    inkoop,
+    marge: total > 0 ? (total - inkoop) / total : 0,
+    prijs_per_m2: total / m2,
+    details: {
+      'Fitout':            { p: fp,  inv: inv_fitout },
+      'Furniture':         { p: up,  inv: inv_furniture },
+      'Identity':          { p: ip,  inv: inv_identity },
+      'Installaties':      { p: mep, inv: inv_mep },
+      'Bouwplaatsinrichting': { p: inv_bouwplaats / m2, inv: inv_bouwplaats },
+    },
+  }
+}
+
+const selectStyle: React.CSSProperties = {
+  fontSize: 12,
+  padding: '4px 8px',
+  border: '1px solid var(--c-border)',
+  borderRadius: 6,
+  background: 'var(--c-surface)',
+  color: 'var(--c-text)',
+  cursor: 'pointer',
+  minWidth: 110,
+}
+
+function BegrotingsDoelregioPanel() {
+  const [open, setOpen] = useState(false)
+  const [type,    setType]    = useState('Hybrid')
+  const [fitout,  setFitout]  = useState('Mid')
+  const [furn,    setFurn]    = useState('Mid')
+  const [ident,   setIdent]   = useState('Mid')
+  const [mep,     setMep]     = useState(350)
+
+  const steden = MARKTCAP_STEDEN.map((s) => ({
+    ...s,
+    calc: calcBegroting(s.dittM2, type, fitout, furn, ident, mep),
+  }))
+  const totaalInv   = steden.reduce((s, x) => s + x.calc.total, 0)
+  const totaalInkoop = steden.reduce((s, x) => s + x.calc.inkoop, 0)
+  const totaalMarge  = totaalInv > 0 ? (totaalInv - totaalInkoop) / totaalInv : 0
+
+  const niveauOpties = ['Low', 'Mid', 'High']
+
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+      >
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)' }}>
+            Begrotingsindicatie — metrage doelregio
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
+            Kwaliteitsniveau × m² doelregio per stad · op basis van Begrotingssheet 2026 Premium
+          </div>
+        </div>
+        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px' }}>
+
+          {/* Controls */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 20, padding: '14px 16px', background: '#f8f7f5', borderRadius: 10, border: '1px solid var(--c-border)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Type project</span>
+              <select style={selectStyle} value={type} onChange={(e) => setType(e.target.value)}>
+                {['Open', 'Hybrid', 'Traditional'].map((t) => <option key={t}>{t}</option>)}
+              </select>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Fitout</span>
+              <select style={selectStyle} value={fitout} onChange={(e) => setFitout(e.target.value)}>
+                {niveauOpties.map((n) => <option key={n}>{n}</option>)}
+              </select>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Furniture</span>
+              <select style={selectStyle} value={furn} onChange={(e) => setFurn(e.target.value)}>
+                {niveauOpties.map((n) => <option key={n}>{n}</option>)}
+              </select>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Identity</span>
+              <select style={selectStyle} value={ident} onChange={(e) => setIdent(e.target.value)}>
+                {niveauOpties.map((n) => <option key={n}>{n}</option>)}
+              </select>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Installaties (€/m²)</span>
+              <select style={selectStyle} value={mep} onChange={(e) => setMep(Number(e.target.value))}>
+                {MEP_OPTIES.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'flex-end' }}>
+              <span style={{ fontSize: 10, color: 'var(--c-subtle)' }}>Prijs/m² (all-in)</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text)' }}>
+                € {(FITOUT_TABLE[type][fitout] + FURNITURE_TABLE[furn] + IDENTITY_TABLE[ident] + mep).toLocaleString('nl-NL')}/m²
+              </span>
+            </div>
+          </div>
+
+          {/* Per stad */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+            {steden.map((s) => {
+              const c = s.calc
+              return (
+                <div key={s.naam} style={{ background: '#f8f7f5', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--c-border)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>{s.naam}</div>
+                      <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
+                        {s.dittM2.toLocaleString('nl-NL')} m² doelregio · € {Math.round(c.prijs_per_m2).toLocaleString('nl-NL')}/m²
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 10, color: 'var(--c-subtle)' }}>Investering</div>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--c-text)' }}>{fmEuro(c.total)}</div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 10, color: 'var(--c-subtle)' }}>Inkoopprijs</div>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: '#475569' }}>{fmEuro(c.inkoop)}</div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 10, color: 'var(--c-subtle)' }}>Marge</div>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: '#16a34a' }}>{(c.marge * 100).toFixed(1)}%</div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Category breakdown */}
+                  <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
+                    {Object.entries(c.details).map(([naam, d]) => (
+                      <div key={naam} style={{ fontSize: 10, color: 'var(--c-muted)', background: 'white', borderRadius: 6, padding: '3px 8px', border: '1px solid var(--c-border)' }}>
+                        {naam} · € {Math.round(d.p)}/m²
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Totaal banner */}
+          <div style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', borderRadius: 10, padding: '16px 20px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 4 }}>Totaal investering (3 steden)</div>
+              <div style={{ fontSize: 22, fontWeight: 700 }}>{fmEuro(totaalInv)}</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 4 }}>Totaal inkoopprijs</div>
+              <div style={{ fontSize: 22, fontWeight: 700, opacity: 0.85 }}>{fmEuro(totaalInkoop)}</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 4 }}>Gewogen marge</div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: '#4ade80' }}>{(totaalMarge * 100).toFixed(1)}%</div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 12, fontSize: 10, color: 'var(--c-subtle)' }}>
+            Prijzen en marges op basis van Begrotingssheet 2026 Premium (intern). Bouwplaatsinrichting 4% inbegrepen. Installaties marge 10%, overige categorieën 35%. PM/ontwerp en overheads niet meegenomen.
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function MarketCapPanel() {
   const [prijzen, setPrijzen] = useState<Record<string, number>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, s.defaultPrijs]))
@@ -2087,6 +2304,9 @@ export default function StadOverzichtView() {
 
       {/* Market cap */}
       <MarketCapPanel />
+
+      {/* Begroting doelregio */}
+      <BegrotingsDoelregioPanel />
 
       {/* Source note */}
       <div
