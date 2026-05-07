@@ -847,6 +847,123 @@ function OmgevingskenmerkenPanel() {
   )
 }
 
+// ── Rotterdam Kantorenstrategie MRDH ──────────────────────────────────────────
+
+function RotterdamKantorenstrategiePanel() {
+  const [open, setOpen] = useState(false)
+
+  const kansen = [
+    {
+      id: 'vervangingsvraag',
+      titel: 'Vervangingsvraag: 321.500 m² t/m 2035',
+      context: 'De gemeente Rotterdam heeft een vervangingsvraag van 321.500 m² kantoorruimte die kwalitatief moet worden opgewaardeerd. Dit zijn verouderde panden die huurders willen verlaten of die eigenaren moeten renoveren. Dit is direct Ditt\'s markt: D&B renovatietrajecten waarbij ontwerp en realisatie in één hand liggen.',
+      kleur: '#f97316',
+      bg: '#fff7f4',
+      border: '#ffd4c2',
+    },
+    {
+      id: 'flight',
+      titel: 'Flight to quality — verhuismoment = kans',
+      context: 'Rotterdam heeft de sterkste huurprijsgroei van alle Europese kantorsteden (+28,3% jaar-op-jaar, Cushman & Wakefield 2025). Bedrijven verhuizen naar betere locaties. Elk verhuismoment is een acquisitie-instappunt voor Ditt — de huurder heeft dan een directe behoefte aan een integrale D&B partner.',
+      kleur: '#2563eb',
+      bg: '#eff6ff',
+      border: '#bfdbfe',
+    },
+    {
+      id: 'schaarste',
+      titel: 'Schaarste op toplocaties — huurders investeren in huidig pand',
+      context: 'Modern kantorenaanbod op OV-knooppuntlocaties (Centrum, Blaak, Rotterdam Alexander) is schaars. Huurders die wél op een toplocatie zitten kunnen niet verhuizen — ze investeren in hun bestaande ruimte. Dit genereert inrichtingsopdrachten zonder verhuisbeweging.',
+      kleur: '#7c3aed',
+      bg: '#faf5ff',
+      border: '#e9d5ff',
+    },
+    {
+      id: 'duurzaamheid',
+      titel: 'Duurzaamheidsrenovatie — energielabel C verplicht',
+      context: 'Sinds 2023 is energielabel C verplicht voor bestaande kantoren. Gebouweigenaren moeten renoveren. Ditt kan hier vroeg betrokken raken als D&B partner: combineer energierenovatie met interieurupgrade en positioneer Ditt als de integrale ontzorger voor gebouweigenaren en hun huurders.',
+      kleur: '#16a34a',
+      bg: '#f0fdf4',
+      border: '#86efac',
+    },
+    {
+      id: 'groeilocaties',
+      titel: 'Drie groeilocaties: Centrum, Kop van Zuid, Rotterdam Alexander',
+      context: 'De MRDH kantorenstrategie 2025–2035 wijst Rotterdam Centrum (CBD), Kop van Zuid en Rotterdam Alexander aan als de toplocaties met de meeste toekomstpotentie. Dit zijn de OV-knooppuntlocaties waar bedrijven naartoe willen en waar de vervangings- en uitbreidingsvraag zich concentreert. Ditt\'s doelgroep van 500–5.000 m² is hier sterk vertegenwoordigd.',
+      kleur: '#0891b2',
+      bg: '#f0f9ff',
+      border: '#bae6fd',
+    },
+  ]
+
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+      >
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)' }}>
+            Rotterdam kantorenstrategie 2025–2035 — kansen voor Ditt
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
+            MRDH Actualisatie Kantorenstrategie 2025–2035 · Metropoolregio Rotterdam Den Haag
+          </div>
+        </div>
+        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px' }}>
+
+          {/* Marktcijfers banner */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10, marginBottom: 20 }}>
+            {[
+              { label: 'Kantoorvoorraad Rotterdam', value: '3,17 mln m²', sub: 'gemeente Rotterdam 2023' },
+              { label: 'Leegstand regio', value: '7,4%', sub: 'Rotterdamse regio 2023' },
+              { label: 'Uitbreidingsvraag t/m 2035', value: '139.000 m²', sub: 'gemeente Rotterdam' },
+              { label: 'Vervangingsvraag t/m 2035', value: '321.500 m²', sub: 'verouderde panden' },
+              { label: 'Huurprijsgroei (Europa)', value: '+28,3%', sub: 'sterkste van Europese steden' },
+            ].map((item) => (
+              <div key={item.label} style={{ background: '#f8f7f5', borderRadius: 8, padding: '10px 12px', border: '1px solid var(--c-border)' }}>
+                <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 3 }}>{item.label}</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.2 }}>{item.value}</div>
+                <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginTop: 2 }}>{item.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Kansen voor Ditt */}
+          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 12 }}>
+            Kansen voor Ditt — Rotterdam
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {kansen.map((k) => (
+              <div key={k.id} style={{ background: k.bg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${k.border}` }}>
+                <EditableText
+                  storageKey={`rdam.strategie.${k.id}.titel`}
+                  defaultValue={k.titel}
+                  style={{ fontSize: 12, fontWeight: 700, color: k.kleur, marginBottom: 4, display: 'block' }}
+                />
+                <EditableText
+                  storageKey={`rdam.strategie.${k.id}.tekst`}
+                  defaultValue={k.context}
+                  tag="div"
+                  multiline
+                  style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.7 }}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 14, fontSize: 10, color: 'var(--c-subtle)' }}>
+            Bron: Metropoolregio Rotterdam Den Haag (2025). Actualisatie Kantorenstrategie MRDH 2025–2035. MRDH.
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Rotterdam Omgevingskenmerken ───────────────────────────────────────────────
 
 function RotterdamOmgevingskenmerkenPanel() {
@@ -1958,6 +2075,9 @@ export default function StadOverzichtView() {
 
       {/* Omgevingskenmerken Rotterdam */}
       <RotterdamOmgevingskenmerkenPanel />
+
+      {/* Rotterdam kantorenstrategie MRDH */}
+      <RotterdamKantorenstrategiePanel />
 
       {/* Recente transacties */}
       <RecenteTransactiesPanel />
