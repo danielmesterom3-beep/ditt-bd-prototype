@@ -1849,15 +1849,6 @@ const MARKTCAP_STEDEN: MarktCapStad[] = [
     defaultPrijs: 900,
     concurrenten: 'Sprank Interieurprojecten, Plan@Office, UP Projectinrichting',
   },
-  {
-    naam:         'Amsterdam',
-    leegstandM2:  825_611,
-    partijen:     6,
-    penetratie:   0.40,
-    dittM2:       66_048,
-    defaultPrijs: 1_200,
-    concurrenten: 'BESPARK, Tétris, WE MAKE, Stone Projects, Cerius',
-  },
 ]
 
 function fmEuro(n: number) {
@@ -2300,12 +2291,6 @@ type Prioriteit = 'Hoog' | 'Midden' | 'Laag'
 
 const BD_STATUSSEN: BdStatus[] = ['Oriëntatie', 'Netwerk opbouwen', 'Actief prospecting', 'Offerte uitgestuurd']
 const PRIORITEITEN: Prioriteit[] = ['Hoog', 'Midden', 'Laag']
-const CHECKLIST_ITEMS = [
-  'Makelaar(s) geïdentificeerd',
-  'Concurrenten in kaart',
-  'Doelregio vastgesteld',
-  'Begroting beschikbaar',
-]
 
 const STATUS_COLOR: Record<BdStatus, string> = {
   'Oriëntatie':           '#6366f1',
@@ -2319,6 +2304,73 @@ const PRIORITEIT_COLOR: Record<Prioriteit, string> = {
   'Laag':   '#16a34a',
 }
 
+// Drempelcriteria — minimale voorwaarden vóór acquisitie-inzet per stad
+const DREMPEL_ITEMS = [
+  'Minimaal 1 lokale makelaar geïdentificeerd & benaderd',
+  'Minimaal 2 relevante gebouweigenaren in kaart',
+  'Bestaande Ditt-relatie(s) als warme ingang geactiveerd',
+  'Concurrenten en hun makelaarskanalen in kaart',
+  'Doelregio en sweetspot m² vastgesteld',
+  'Begroting beschikbaar voor BD-gesprek',
+]
+
+// Contactprotocol per kanaal — vast per tool, inhoud is EditableText
+const KANALEN = [
+  {
+    id: 'makelaars',
+    titel: 'Makelaars',
+    aandeel: '~30% van leads',
+    kleur: '#6366f1',
+    bg: '#eef2ff',
+    border: '#a5b4fc',
+    warmeIngang: 'Referentieproject in de regio tonen (Eindhoven: sterkste ingang). Rotterdam: proactieve waardecreatie vooraf — testfit of concept zonder kosten aanbieden.',
+    contactstap: 'Bel direct — niet emailen. Zorg dat jij het gesprek stuurt. Identificeer eerst of er geen exclusieve binding met concurrent bestaat (Tétris/CBRE/JLL). Selecteer op: snelheid & responsiviteit, bereidheid tot wederkerigheid, geen exclusief.',
+    selectieCriteria: 'Snelheid & responsiviteit · Geen exclusieve binding concurrent · Bereidheid wederkerigheid · Actief in mkb-segment (500–5.000 m²)',
+  },
+  {
+    id: 'eigenaren',
+    titel: 'Gebouweigenaren',
+    aandeel: '~30% van leads',
+    kleur: '#0ea5e9',
+    bg: '#f0f9ff',
+    border: '#7dd3fc',
+    warmeIngang: 'Smart Moves indelingsscenario bij leegstaand pand (laagdrempelige ingang, creëert morele verplichting tot terugbellen). Bestaande Ditt-klanten die ook panden bezitten in de doelstad = directe warme introductie.',
+    contactstap: 'Inventariseer eerst welke gebouweigenaren ook Ditt-klant zijn of relatie kennen. Benader via portefeuille-overzicht (Vastgoeddata). Bied Smart Moves als gratis eerste stap — geen D&B-pitch direct.',
+    selectieCriteria: 'Portefeuilleomvang in doelregio · Actieve verhuurmarkt (leegstand > 500 m²) · Geen vaste D&B-partner · Investeert in kwaliteitsverbetering pand',
+  },
+  {
+    id: 'huurders',
+    titel: 'Huurders direct',
+    aandeel: '~30% van leads',
+    kleur: '#f59e0b',
+    bg: '#fffbeb',
+    border: '#fcd34d',
+    warmeIngang: 'Bestaande Ditt-relaties (referrals) — persoon die van functie wisselt en Ditt meeneemt naar nieuwe werkgever. Flight to quality trigger: verhuismoment = D&B-behoefte. Makelaar als brug: vraag de makelaar om introductie bij huurder.',
+    contactstap: 'Identificeer verhuisbewegingen in de doelregio via Vastgoeddata (aflopende contracten). Benader via makelaar of bestaande relatie — niet koud. Pitch = integrale D&B-aanpak als voordeel t.o.v. losse partijen.',
+    selectieCriteria: 'Verhuismoment aanstaande · 500–5.000 m² · Behoefte aan employer branding / cultuuruiting · Geen actief D&B-traject met concurrent',
+  },
+]
+
+function Checkbox({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+  return (
+    <div
+      onClick={onChange}
+      style={{
+        width: 15, height: 15, borderRadius: 3, flexShrink: 0, cursor: 'pointer',
+        border: `1.5px solid ${checked ? '#16a34a' : '#ccc'}`,
+        background: checked ? '#16a34a' : 'transparent',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}
+    >
+      {checked && (
+        <svg width="9" height="7" viewBox="0 0 10 8" fill="none">
+          <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+    </div>
+  )
+}
+
 function ActieOverzichtView() {
   const [statuses, setStatuses] = useState<Record<string, BdStatus>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, 'Oriëntatie' as BdStatus]))
@@ -2326,144 +2378,166 @@ function ActieOverzichtView() {
   const [prioriteiten, setPrioriteiten] = useState<Record<string, Prioriteit>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, 'Midden' as Prioriteit]))
   )
-  const [checklists, setChecklists] = useState<Record<string, boolean[]>>(() =>
-    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, CHECKLIST_ITEMS.map(() => false)]))
+  const [drempel, setDrempel] = useState<Record<string, boolean[]>>(() =>
+    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, DREMPEL_ITEMS.map(() => false)]))
   )
 
-  function toggleCheck(stadNaam: string, idx: number) {
-    setChecklists((prev) => ({
+  function toggleDrempel(stadNaam: string, idx: number) {
+    setDrempel((prev) => ({
       ...prev,
       [stadNaam]: prev[stadNaam].map((v, i) => (i === idx ? !v : v)),
     }))
   }
 
+  const labelStyle: React.CSSProperties = {
+    fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+    letterSpacing: '0.06em', color: 'var(--c-subtle)', marginBottom: 8,
+  }
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.02em', margin: 0 }}>
-          Actie-overzicht BD
+          Acquisitie-instrument BD
         </h1>
         <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '4px 0 0' }}>
-          Status per doelstad · volgende stap · drempelcriteria
+          Contactprotocol per kanaal · warme ingangen · drempelcriteria · BD-status — Eindhoven &amp; Rotterdam
         </p>
       </div>
 
       {MARKTCAP_STEDEN.map((stad) => {
         const status     = statuses[stad.naam]
         const prioriteit = prioriteiten[stad.naam]
-        const checklist  = checklists[stad.naam]
-        const aantalKlaar = checklist.filter(Boolean).length
+        const drempelLijst = drempel[stad.naam]
+        const aantalKlaar  = drempelLijst.filter(Boolean).length
+        const klaarVoorAcquisitie = aantalKlaar >= 4
 
         return (
-          <div key={stad.naam} style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+          <div key={stad.naam} style={{ border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden', background: 'var(--c-surface)' }}>
 
-            {/* Koptekst */}
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--c-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+            {/* ── Stad header ── */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--c-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, background: '#fafaf9' }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text)' }}>{stad.naam}</div>
                 <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
-                  {stad.dittM2.toLocaleString('nl-NL')} m² doelregio · {aantalKlaar}/{CHECKLIST_ITEMS.length} criteria afgevinkt
+                  {stad.dittM2.toLocaleString('nl-NL')} m² doelregio · {aantalKlaar}/{DREMPEL_ITEMS.length} drempelcriteria ·{' '}
+                  <span style={{ fontWeight: 700, color: klaarVoorAcquisitie ? '#16a34a' : '#d97706' }}>
+                    {klaarVoorAcquisitie ? 'Klaar voor acquisitie' : 'Nog niet startklaar'}
+                  </span>
                 </div>
               </div>
-              {/* Prioriteit */}
               <div style={{ display: 'flex', gap: 4 }}>
                 {PRIORITEITEN.map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setPrioriteiten((prev) => ({ ...prev, [stad.naam]: p }))}
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      padding: '4px 10px',
-                      borderRadius: 20,
+                  <button key={p} onClick={() => setPrioriteiten((prev) => ({ ...prev, [stad.naam]: p }))}
+                    style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20, cursor: 'pointer',
                       border: `1px solid ${prioriteit === p ? PRIORITEIT_COLOR[p] : 'var(--c-border)'}`,
                       background: prioriteit === p ? PRIORITEIT_COLOR[p] : 'transparent',
                       color: prioriteit === p ? 'white' : 'var(--c-muted)',
-                      cursor: 'pointer',
                     }}
-                  >
-                    {p}
-                  </button>
+                  >{p}</button>
                 ))}
               </div>
             </div>
 
-            <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-              {/* BD Status pipeline */}
+              {/* ── BD Status pipeline ── */}
               <div>
-                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--c-subtle)', marginBottom: 8 }}>BD Status</div>
+                <div style={labelStyle}>BD Status</div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   {BD_STATUSSEN.map((s, i) => {
-                    const active  = status === s
-                    const isPast  = BD_STATUSSEN.indexOf(status) > i
+                    const active = status === s
+                    const isPast = BD_STATUSSEN.indexOf(status) > i
                     return (
-                      <button
-                        key={s}
-                        onClick={() => setStatuses((prev) => ({ ...prev, [stad.naam]: s }))}
-                        style={{
-                          fontSize: 11,
-                          fontWeight: active ? 700 : 500,
-                          padding: '6px 12px',
-                          borderRadius: 8,
+                      <button key={s} onClick={() => setStatuses((prev) => ({ ...prev, [stad.naam]: s }))}
+                        style={{ fontSize: 11, fontWeight: active ? 700 : 500, padding: '6px 12px', borderRadius: 8, cursor: 'pointer',
                           border: `1px solid ${active ? STATUS_COLOR[s] : isPast ? '#bbf7d0' : 'var(--c-border)'}`,
                           background: active ? STATUS_COLOR[s] : isPast ? '#f0fdf4' : 'transparent',
                           color: active ? 'white' : isPast ? '#16a34a' : 'var(--c-muted)',
-                          cursor: 'pointer',
                         }}
-                      >
-                        {i + 1}. {s}
-                      </button>
+                      >{i + 1}. {s}</button>
                     )
                   })}
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-
-                {/* Volgende stap */}
-                <div style={{ flex: 1, minWidth: 220 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--c-subtle)', marginBottom: 8 }}>Volgende stap</div>
-                  <div style={{ padding: '10px 12px', background: '#f8f7f5', borderRadius: 8, border: '1px solid var(--c-border)', minHeight: 52 }}>
-                    <EditableText
-                      storageKey={`actie.${stad.naam.toLowerCase()}.volgende_stap`}
-                      defaultValue="Vul hier de eerstvolgende concrete actie in…"
-                      tag="div"
-                      style={{ fontSize: 13, color: 'var(--c-text)', lineHeight: 1.5 }}
-                    />
-                  </div>
+              {/* ── Warme toegangen ── */}
+              <div>
+                <div style={labelStyle}>Warme toegangen in {stad.naam}</div>
+                <div style={{ padding: '10px 14px', background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0', minHeight: 44 }}>
+                  <EditableText
+                    storageKey={`actie.${stad.naam.toLowerCase()}.warme_toegangen`}
+                    defaultValue="Vul hier bestaande Ditt-relaties, referrals of contacten in die als warme introductie kunnen dienen…"
+                    tag="div"
+                    style={{ fontSize: 12, color: '#166534', lineHeight: 1.6 }}
+                  />
                 </div>
-
-                {/* Drempelcriteria checklist */}
-                <div style={{ flex: 1, minWidth: 200 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--c-subtle)', marginBottom: 8 }}>Drempelcriteria</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                    {CHECKLIST_ITEMS.map((item, idx) => {
-                      const checked = checklist[idx]
-                      return (
-                        <label key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => toggleCheck(stad.naam, idx)}>
-                          <div style={{
-                            width: 16, height: 16, borderRadius: 4, flexShrink: 0,
-                            border: `1.5px solid ${checked ? '#16a34a' : '#ccc'}`,
-                            background: checked ? '#16a34a' : 'transparent',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          }}>
-                            {checked && (
-                              <svg width="9" height="7" viewBox="0 0 10 8" fill="none">
-                                <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
-                            )}
-                          </div>
-                          <span style={{ fontSize: 12, color: checked ? '#16a34a' : 'var(--c-text)', textDecoration: checked ? 'line-through' : 'none' }}>
-                            {item}
-                          </span>
-                        </label>
-                      )
-                    })}
-                  </div>
-                </div>
-
               </div>
+
+              {/* ── Contactprotocol per kanaal ── */}
+              <div>
+                <div style={labelStyle}>Contactprotocol — 3 acquisitiekanalen</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {KANALEN.map((kanaal) => (
+                    <div key={kanaal.id} style={{ borderRadius: 10, border: `1px solid ${kanaal.border}`, background: kanaal.bg, overflow: 'hidden' }}>
+                      <div style={{ padding: '10px 14px', borderBottom: `1px solid ${kanaal.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: kanaal.kleur }}>{kanaal.titel}</span>
+                        <span style={{ fontSize: 10, color: kanaal.kleur, background: 'white', borderRadius: 20, padding: '2px 8px', border: `1px solid ${kanaal.border}` }}>{kanaal.aandeel}</span>
+                      </div>
+                      <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+                        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                          <div style={{ flex: 1, minWidth: 180 }}>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Warme ingang</div>
+                            <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}>{kanaal.warmeIngang}</div>
+                          </div>
+                          <div style={{ flex: 1, minWidth: 180 }}>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Eerste contactstap</div>
+                            <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}>{kanaal.contactstap}</div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Selectiecriteria</div>
+                          <div style={{ fontSize: 11, color: 'var(--c-text)' }}>{kanaal.selectieCriteria}</div>
+                        </div>
+
+                        <div>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Volgende stap — {stad.naam}</div>
+                          <div style={{ background: 'white', borderRadius: 6, padding: '8px 10px', border: `1px solid ${kanaal.border}`, minHeight: 36 }}>
+                            <EditableText
+                              storageKey={`actie.${stad.naam.toLowerCase()}.${kanaal.id}.stap`}
+                              defaultValue="Vul eerstvolgende concrete actie in voor dit kanaal…"
+                              tag="div"
+                              style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.5 }}
+                            />
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── Drempelcriteria ── */}
+              <div>
+                <div style={labelStyle}>Drempelcriteria — minimale startvoorwaarden</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {DREMPEL_ITEMS.map((item, idx) => {
+                    const checked = drempelLijst[idx]
+                    return (
+                      <label key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => toggleDrempel(stad.naam, idx)}>
+                        <Checkbox checked={checked} onChange={() => toggleDrempel(stad.naam, idx)} />
+                        <span style={{ fontSize: 12, color: checked ? '#16a34a' : 'var(--c-text)', textDecoration: checked ? 'line-through' : 'none' }}>
+                          {item}
+                        </span>
+                      </label>
+                    )
+                  })}
+                </div>
+              </div>
+
             </div>
           </div>
         )
