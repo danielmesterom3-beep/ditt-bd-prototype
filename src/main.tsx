@@ -6,6 +6,7 @@ import { NavigationProvider } from './context/NavigationContext.tsx'
 import { FilterProvider } from './context/FilterContext.tsx'
 import { DataOverrideProvider } from './context/DataOverrideContext.tsx'
 import { ClerkProvider, SignedIn, SignedOut, SignIn } from '@clerk/clerk-react'
+import { ViewModeProvider } from './context/ViewModeContext.tsx'
 
 const clerkKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
@@ -20,9 +21,11 @@ createRoot(document.getElementById('root')!).render(
       <SignedIn>
         <NavigationProvider>
           <FilterProvider>
-            <DataOverrideProvider>
-              <App />
-            </DataOverrideProvider>
+            <ViewModeProvider>
+              <DataOverrideProvider>
+                <App />
+              </DataOverrideProvider>
+            </ViewModeProvider>
           </FilterProvider>
         </NavigationProvider>
       </SignedIn>

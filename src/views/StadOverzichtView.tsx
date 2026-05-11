@@ -5,6 +5,7 @@ import { useGebiedStatus } from '../context/GebiedStatusContext'
 import BronTooltip from '../components/BronTooltip'
 import EditableText, { queueChange, STORAGE_PREFIX } from '../components/EditableText'
 import { useEditMode } from '../context/EditContext'
+import { useViewMode } from '../context/ViewModeContext'
 
 const BRONNEN = {
   jll:      'Jones Lang LaSalle IP, Inc. (2026). Office market: Rotterdam & Eindhoven Q4 2025. JLL Research.',
@@ -2292,9 +2293,192 @@ function MarketCapPanel() {
   )
 }
 
+// ── ActieOverzichtView ────────────────────────────────────────────────────────
+
+type BdStatus = 'Oriëntatie' | 'Netwerk opbouwen' | 'Actief prospecting' | 'Offerte uitgestuurd'
+type Prioriteit = 'Hoog' | 'Midden' | 'Laag'
+
+const BD_STATUSSEN: BdStatus[] = ['Oriëntatie', 'Netwerk opbouwen', 'Actief prospecting', 'Offerte uitgestuurd']
+const PRIORITEITEN: Prioriteit[] = ['Hoog', 'Midden', 'Laag']
+const CHECKLIST_ITEMS = [
+  'Makelaar(s) geïdentificeerd',
+  'Concurrenten in kaart',
+  'Doelregio vastgesteld',
+  'Begroting beschikbaar',
+]
+
+const STATUS_COLOR: Record<BdStatus, string> = {
+  'Oriëntatie':           '#6366f1',
+  'Netwerk opbouwen':     '#0ea5e9',
+  'Actief prospecting':   '#f59e0b',
+  'Offerte uitgestuurd':  '#16a34a',
+}
+const PRIORITEIT_COLOR: Record<Prioriteit, string> = {
+  'Hoog':   '#dc2626',
+  'Midden': '#d97706',
+  'Laag':   '#16a34a',
+}
+
+function ActieOverzichtView() {
+  const [statuses, setStatuses] = useState<Record<string, BdStatus>>(() =>
+    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, 'Oriëntatie' as BdStatus]))
+  )
+  const [prioriteiten, setPrioriteiten] = useState<Record<string, Prioriteit>>(() =>
+    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, 'Midden' as Prioriteit]))
+  )
+  const [checklists, setChecklists] = useState<Record<string, boolean[]>>(() =>
+    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, CHECKLIST_ITEMS.map(() => false)]))
+  )
+
+  function toggleCheck(stadNaam: string, idx: number) {
+    setChecklists((prev) => ({
+      ...prev,
+      [stadNaam]: prev[stadNaam].map((v, i) => (i === idx ? !v : v)),
+    }))
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.02em', margin: 0 }}>
+          Actie-overzicht BD
+        </h1>
+        <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '4px 0 0' }}>
+          Status per doelstad · volgende stap · drempelcriteria
+        </p>
+      </div>
+
+      {MARKTCAP_STEDEN.map((stad) => {
+        const status     = statuses[stad.naam]
+        const prioriteit = prioriteiten[stad.naam]
+        const checklist  = checklists[stad.naam]
+        const aantalKlaar = checklist.filter(Boolean).length
+
+        return (
+          <div key={stad.naam} style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+
+            {/* Koptekst */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--c-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text)' }}>{stad.naam}</div>
+                <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
+                  {stad.dittM2.toLocaleString('nl-NL')} m² doelregio · {aantalKlaar}/{CHECKLIST_ITEMS.length} criteria afgevinkt
+                </div>
+              </div>
+              {/* Prioriteit */}
+              <div style={{ display: 'flex', gap: 4 }}>
+                {PRIORITEITEN.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPrioriteiten((prev) => ({ ...prev, [stad.naam]: p }))}
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      padding: '4px 10px',
+                      borderRadius: 20,
+                      border: `1px solid ${prioriteit === p ? PRIORITEIT_COLOR[p] : 'var(--c-border)'}`,
+                      background: prioriteit === p ? PRIORITEIT_COLOR[p] : 'transparent',
+                      color: prioriteit === p ? 'white' : 'var(--c-muted)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+              {/* BD Status pipeline */}
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--c-subtle)', marginBottom: 8 }}>BD Status</div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {BD_STATUSSEN.map((s, i) => {
+                    const active  = status === s
+                    const isPast  = BD_STATUSSEN.indexOf(status) > i
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => setStatuses((prev) => ({ ...prev, [stad.naam]: s }))}
+                        style={{
+                          fontSize: 11,
+                          fontWeight: active ? 700 : 500,
+                          padding: '6px 12px',
+                          borderRadius: 8,
+                          border: `1px solid ${active ? STATUS_COLOR[s] : isPast ? '#bbf7d0' : 'var(--c-border)'}`,
+                          background: active ? STATUS_COLOR[s] : isPast ? '#f0fdf4' : 'transparent',
+                          color: active ? 'white' : isPast ? '#16a34a' : 'var(--c-muted)',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {i + 1}. {s}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+
+                {/* Volgende stap */}
+                <div style={{ flex: 1, minWidth: 220 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--c-subtle)', marginBottom: 8 }}>Volgende stap</div>
+                  <div style={{ padding: '10px 12px', background: '#f8f7f5', borderRadius: 8, border: '1px solid var(--c-border)', minHeight: 52 }}>
+                    <EditableText
+                      storageKey={`actie.${stad.naam.toLowerCase()}.volgende_stap`}
+                      defaultValue="Vul hier de eerstvolgende concrete actie in…"
+                      tag="div"
+                      style={{ fontSize: 13, color: 'var(--c-text)', lineHeight: 1.5 }}
+                    />
+                  </div>
+                </div>
+
+                {/* Drempelcriteria checklist */}
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--c-subtle)', marginBottom: 8 }}>Drempelcriteria</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                    {CHECKLIST_ITEMS.map((item, idx) => {
+                      const checked = checklist[idx]
+                      return (
+                        <label key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => toggleCheck(stad.naam, idx)}>
+                          <div style={{
+                            width: 16, height: 16, borderRadius: 4, flexShrink: 0,
+                            border: `1.5px solid ${checked ? '#16a34a' : '#ccc'}`,
+                            background: checked ? '#16a34a' : 'transparent',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}>
+                            {checked && (
+                              <svg width="9" height="7" viewBox="0 0 10 8" fill="none">
+                                <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            )}
+                          </div>
+                          <span style={{ fontSize: 12, color: checked ? '#16a34a' : 'var(--c-text)', textDecoration: checked ? 'line-through' : 'none' }}>
+                            {item}
+                          </span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // ── StadOverzichtView ─────────────────────────────────────────────────────────
 
 export default function StadOverzichtView() {
+  const { viewMode } = useViewMode()
+
+  if (viewMode === 'actie') return <ActieOverzichtView />
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Page header */}

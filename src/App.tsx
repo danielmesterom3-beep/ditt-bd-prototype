@@ -3,7 +3,7 @@ import { useNavigation } from './context/NavigationContext'
 import { loadRemoteEdits, SaveButton } from './components/EditableText'
 import { GebiedStatusProvider } from './context/GebiedStatusContext'
 import { EditProvider, useEditMode } from './context/EditContext'
-import FilterSidebar from './components/FilterSidebar'
+import ViewModeSidebar from './components/ViewModeSidebar'
 import MarktDashboard from './views/MarktDashboard'
 import StadOverzichtView from './views/StadOverzichtView'
 import GebiedDetailView from './views/GebiedDetailView'
@@ -286,7 +286,7 @@ function AppContent() {
 
           {/* Body */}
           <div className="flex flex-1 overflow-hidden">
-            <FilterSidebar />
+            <ViewModeSidebar />
             <main className="flex-1 overflow-auto">
               <div className="p-6 max-w-7xl mx-auto">
                 {showMarkt  && viewMode === 'overzicht' && <StadOverzichtView />}
