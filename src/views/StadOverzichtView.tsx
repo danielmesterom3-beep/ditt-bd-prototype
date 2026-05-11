@@ -1849,6 +1849,15 @@ const MARKTCAP_STEDEN: MarktCapStad[] = [
     defaultPrijs: 900,
     concurrenten: 'Sprank Interieurprojecten, Plan@Office, UP Projectinrichting',
   },
+  {
+    naam:         'Amsterdam',
+    leegstandM2:  825_611,
+    partijen:     6,
+    penetratie:   0.40,
+    dittM2:       66_048,
+    defaultPrijs: 1_200,
+    concurrenten: 'BESPARK, Tétris, WE MAKE, Stone Projects, Cerius',
+  },
 ]
 
 function fmEuro(n: number) {
@@ -2405,7 +2414,7 @@ function ActieOverzichtView() {
         </p>
       </div>
 
-      {MARKTCAP_STEDEN.map((stad) => {
+      {MARKTCAP_STEDEN.filter((s) => s.naam !== 'Amsterdam').map((stad) => {
         const status     = statuses[stad.naam]
         const prioriteit = prioriteiten[stad.naam]
         const drempelLijst = drempel[stad.naam]
