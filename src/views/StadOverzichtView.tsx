@@ -2293,6 +2293,184 @@ function MarketCapPanel() {
   )
 }
 
+// ── ContactprotocolPanel (informatie weergave) ────────────────────────────────
+
+function ContactprotocolPanel() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+      >
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)' }}>Contactprotocol — 3 acquisitiekanalen</div>
+          <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
+            Makelaars · Gebouweigenaren · Huurders direct · warme ingang + contactstap per kanaal
+          </div>
+        </div>
+        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+      </button>
+      {open && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {KANALEN.map((kanaal) => (
+            <div key={kanaal.id} style={{ borderRadius: 10, border: `1px solid ${kanaal.border}`, background: kanaal.bg, padding: '14px 16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: kanaal.kleur }}>{kanaal.titel}</span>
+                <span style={{ fontSize: 10, color: kanaal.kleur, background: 'white', borderRadius: 20, padding: '2px 8px', border: `1px solid ${kanaal.border}` }}>{kanaal.aandeel}</span>
+              </div>
+              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: 160 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Warme ingang</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}>{kanaal.warmeIngang}</div>
+                </div>
+                <div style={{ flex: 1, minWidth: 160 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Eerste contactstap</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}>{kanaal.contactstap}</div>
+                </div>
+                <div style={{ flex: 1, minWidth: 160 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Selectiecriteria</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}>{kanaal.selectieCriteria}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+          <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginTop: 4 }}>
+            Bron: Michiel Bijmols (BD Utrecht), Sander Visser (stagebegeleider BD), makelaarsinterviews Eindhoven &amp; Rotterdam (Bijlage 9). Grönroos (2020) — warme ingangen effectiever dan koude acquisitie.
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Touchpoint Overzicht ───────────────────────────────────────────────────────
+
+const TOUCHPOINTS = [
+  {
+    nr: 1,
+    naam: 'Provada — Nationale Vastgoedbeurs',
+    datum: '9–11 juni 2026 · RAI Amsterdam',
+    kleur: '#7c3aed',
+    bg: '#f5f3ff',
+    border: '#c4b5fd',
+    doel: 'Eerste gezichtscontact met makelaars en gebouweigenaren uit beide doelregio\'s. Geen pitch — kennismaking en agenda voor vervolgafspraak in de stad.',
+    stadskenmerken: {
+      Eindhoven: 'Focus op Verschuuren & Schreppers en regionale mkb-makelaars. Referentieproject als gespreksopener. Toon lokale Eindhoven-projecten expliciet — lokale trots speelt mee in partnerselectie.',
+      Rotterdam: 'No-nonsense toon — haak op kosten, snelheid en betrouwbaarheid. Spreek Maurits de Peuter (JLL) en Naaktgeboren aan. Huurprijsgroei +28,3% als conversatiestarter.',
+    },
+  },
+  {
+    nr: 2,
+    naam: 'Gemeente',
+    datum: 'Touchpoint 2',
+    kleur: '#0369a1',
+    bg: '#f0f9ff',
+    border: '#7dd3fc',
+    doel: 'Toegang tot lokale ontwikkelingsprogramma\'s en netwerken. Gemeente als legitimiteitsbron richting makelaars en eigenaren — vergroot lokale geloofwaardigheid zonder fysieke vestiging.',
+    stadskenmerken: {
+      Eindhoven: 'Gemeente Eindhoven — Brainport-netwerk en Knoop XL ontwikkeling (2025–2030). Vraag naar contacten binnen vastgoedteam. Knoop XL genereert verhuisbewegingen van tech-bedrijven → D&B-vraag.',
+      Rotterdam: 'MRDH / Gemeente Rotterdam — kantorenstrategie 2025–2035, OV-knooppuntlocaties (Centrum, Kop van Zuid, Rotterdam Alexander). Beleid stuurt op vervangingsvraag 321.500 m².',
+    },
+  },
+  {
+    nr: 3,
+    naam: 'Dynamis',
+    datum: 'Touchpoint 3',
+    kleur: '#0f766e',
+    bg: '#f0fdfa',
+    border: '#5eead4',
+    doel: 'Regionaal marktonderzoeksbureau als neutrale introductie tot lokale makelaarsmarkt. Dynamis publiceert kantorenrapportages per regio en heeft contacten met regionale makelaars die nog geen exclusieve D&B-binding hebben.',
+    stadskenmerken: {
+      Eindhoven: 'Eindhoven in Dynamis-rapportages als vervangingsmarkt met nieuwbouwontwikkelingen rondom HTC en Brainport. Gebruik rapportage als gespreksopener bij onbekende makelaars.',
+      Rotterdam: 'Rotterdam sterkste huurprijsstijging NL (+28,3%, Cushman & Wakefield 2025). Dynamis-data bevestigt polarisatie naar OV-locaties. Haak voor gesprek over flight to quality en integrale D&B-behoefte.',
+    },
+  },
+  {
+    nr: 4,
+    naam: 'Individuele makelaar',
+    datum: 'Touchpoint 4',
+    kleur: '#b45309',
+    bg: '#fffbeb',
+    border: '#fcd34d',
+    doel: 'Gerichte benadering op basis van selectiecriteria. Doel: vaste wekelijkse leadoverleg-afspraak. Relatie opbouwen via waardecreatie vooraf — niet via koude acquisitie.',
+    stadskenmerken: {
+      Eindhoven: 'Verschuuren & Schreppers dominant — check exclusiviteit. Focus op middelgrote regionale makelaars zonder vaste D&B-binding. Referentieproject in regio is sterkste ingang. Snelheid & responsiviteit zijn doorslaggevend selectiecriterium.',
+      Rotterdam: 'Geen dominante makelaar — markt mkb-gedreven (<500 m²). Naaktgeboren: zoekt vaste D&B-partner, snelheid en betrouwbaarheid doorslaggevend. Maurits de Peuter (JLL): proactieve waardecreatie vooraf (testfit/concept) als haak voor warme intro.',
+    },
+  },
+  {
+    nr: 5,
+    naam: 'Zichtbaarheid verankeren',
+    datum: 'Touchpoint 5 — continu',
+    kleur: '#1d4ed8',
+    bg: '#eff6ff',
+    border: '#93c5fd',
+    doel: 'LinkedIn-aanwezigheid opbouwen als bewijslast voor makelaars. Referentieproject in de regio als permanente warme ingang voor volgende leads. Kennis overdraagbaar maken zodat elke BD\'er de stad zelfstandig kan betreden.',
+    stadskenmerken: {
+      Eindhoven: 'Lokale trots is factor — publiceer Eindhoven-projecten expliciet op LinkedIn. LinkedIn-post bij oplevering vergroot bekendheid in lokaal HTC/Brainport-netwerk. Referentieproject is snelste route naar vervolgvragen.',
+      Rotterdam: 'No-nonsense bewijslast: publiceer cijfers en resultaten, geen sfeerbeelden. Rotterdam-klant als casestudy werkt beter dan algemene positionering. Makelaar als ambassadeur activeren via wederkerigheid.',
+    },
+  },
+]
+
+function TouchpointOverzicht() {
+  const [open, setOpen] = useState(true)
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden', background: 'var(--c-surface)' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: '#fafaf9', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+      >
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)' }}>Touchpoint-overzicht — acquisitieroutekaart</div>
+          <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
+            Provada → Gemeente → Dynamis → Individuele makelaar → Zichtbaarheid verankeren · Eindhoven &amp; Rotterdam
+          </div>
+        </div>
+        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {TOUCHPOINTS.map((tp) => (
+            <div key={tp.nr} style={{ borderRadius: 10, border: `1px solid ${tp.border}`, background: tp.bg, overflow: 'hidden' }}>
+              {/* Header */}
+              <div style={{ padding: '10px 16px', borderBottom: `1px solid ${tp.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 24, height: 24, borderRadius: '50%', background: tp.kleur, color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  {tp.nr}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: tp.kleur }}>{tp.naam}</span>
+                  <span style={{ fontSize: 10, color: tp.kleur, marginLeft: 8, opacity: 0.8 }}>{tp.datum}</span>
+                </div>
+              </div>
+
+              <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {/* Doel */}
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: tp.kleur, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Doel</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}>{tp.doel}</div>
+                </div>
+
+                {/* Per stad */}
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  {Object.entries(tp.stadskenmerken).map(([stad, tekst]) => (
+                    <div key={stad} style={{ flex: 1, minWidth: 200, background: 'white', borderRadius: 8, padding: '10px 12px', border: `1px solid ${tp.border}` }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: tp.kleur, marginBottom: 4 }}>{stad}</div>
+                      <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}>{tekst}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── ActieOverzichtView ────────────────────────────────────────────────────────
 
 type BdStatus = 'Oriëntatie' | 'Netwerk opbouwen' | 'Actief prospecting' | 'Offerte uitgestuurd'
@@ -2413,6 +2591,8 @@ function ActieOverzichtView() {
           Contactprotocol per kanaal · warme ingangen · drempelcriteria · BD-status — Eindhoven &amp; Rotterdam
         </p>
       </div>
+
+      <TouchpointOverzicht />
 
       {MARKTCAP_STEDEN.filter((s) => s.naam !== 'Amsterdam').map((stad) => {
         const status     = statuses[stad.naam]
@@ -2606,6 +2786,9 @@ export default function StadOverzichtView() {
 
       {/* Veldonderzoek trends & inzichten */}
       <VeldonderzoekPanel />
+
+      {/* Contactprotocol */}
+      <ContactprotocolPanel />
 
       {/* Market cap */}
       <MarketCapPanel />
