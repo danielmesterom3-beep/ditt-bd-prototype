@@ -2293,101 +2293,6 @@ function MarketCapPanel() {
   )
 }
 
-// ── Touchpoint Overzicht ───────────────────────────────────────────────────────
-
-const PROVADA_STOPS = [
-  { id: 'gem-eind', stand: 'Stand 12.32', label: 'Gemeente Eindhoven', defaultToelichting: 'Haal lokale marktcontext op: welke gebiedsontwikkelingen lopen (Knoop XL, Brainport), welke bedrijven bewegen. Gebruik dit direct als gespreksopener bij Dynamis en individuele makelaars.' },
-  { id: 'gem-rdam', stand: 'Stand 12.06', label: 'Gemeente Rotterdam', defaultToelichting: 'Focus op OV-knooppuntlocaties en de kantorenstrategie 2025–2035 (vervangingsvraag 321.500 m²). Vraag naar contacten binnen het vastgoednetwerk van de gemeente.' },
-  { id: 'dynamis',  stand: 'Stand 10.31', label: 'Dynamis', defaultToelichting: 'Eén gesprek, twee steden. Verschuuren & Schreppers (Eindhoven) en Ooms Makelaars (Rotterdam) zitten beide in dit netwerk. Kom niet koud binnen — gebruik de gemeentegesprekken als context.' },
-  { id: 'makelaars', stand: '',           label: 'Individuele makelaars', defaultToelichting: 'Spreek gerichte makelaars aan met de opgedane context als gespreksopener. Geen pitch — agenda zetten voor een vervolgafspraak in de stad zelf.' },
-]
-
-const NA_PROVADA_STAPPEN = [
-  { id: 'linkedin', label: 'LinkedIn-verbinding leggen', defaultTekst: 'Connect op LinkedIn met iedereen die je op PROVADA hebt gesproken. Persoonlijk berichtje met korte terugkoppeling op het gesprek.' },
-  { id: 'mail',     label: 'Terugkoppeling per mail',    defaultTekst: 'Stuur binnen 48 uur een opvolgmail met een concreet voorstel voor een vervolgafspraak in de doelstad.' },
-  { id: 'gesprek',  label: 'Eerste gesprek in de stad',  defaultTekst: 'Plan een afspraak in Eindhoven of Rotterdam. Geen presentatie — gesprek over de lokale markt en hoe Ditt daarin past.' },
-  { id: 'zichtbaar', label: 'Zichtbaarheid verankeren',  defaultTekst: 'Post bij projectoplevering in de doelregio op LinkedIn. Referentieproject in de stad = permanente warme ingang voor volgende leads en makelaars.' },
-]
-
-function TouchpointOverzicht() {
-  const [open, setOpen] = useState(true)
-
-  return (
-    <div style={{ border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden', background: 'var(--c-surface)' }}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: '#fafaf9', border: 'none', cursor: 'pointer', textAlign: 'left' }}
-      >
-        <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)' }}>Acquisitieroutekaart</div>
-          <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
-            PROVADA → LinkedIn → Mail → Gesprek in stad → Zichtbaarheid verankeren
-          </div>
-        </div>
-        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
-      </button>
-
-      {open && (
-        <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-          {/* ── PROVADA ── */}
-          <div style={{ borderRadius: 10, border: '1px solid #c4b5fd', background: '#f5f3ff', overflow: 'hidden' }}>
-            <div style={{ padding: '12px 16px', borderBottom: '1px solid #c4b5fd', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#7c3aed', color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>1</div>
-              <div>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#7c3aed' }}>PROVADA — Nationale Vastgoedbeurs</span>
-                <span style={{ fontSize: 10, color: '#7c3aed', marginLeft: 8, opacity: 0.8 }}>9–11 juni 2026 · RAI Amsterdam</span>
-              </div>
-            </div>
-            <div style={{ padding: '12px 16px' }}>
-              <div style={{ fontSize: 11, color: '#5b21b6', marginBottom: 12, lineHeight: 1.6 }}>
-                <EditableText storageKey="tp.provada.intro" defaultValue="Alle relevante partijen voor Rotterdam en Eindhoven staan op één beursvloer. Eén dag vervangt maanden koude outreach." tag="span" />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {PROVADA_STOPS.map((stop, i) => (
-                  <div key={stop.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'white', border: '2px solid #7c3aed', color: '#7c3aed', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
-                      {i < PROVADA_STOPS.length - 1 && <div style={{ width: 1, height: 12, background: '#c4b5fd', marginTop: 2 }} />}
-                    </div>
-                    <div style={{ flex: 1, background: 'white', borderRadius: 8, padding: '8px 12px', border: '1px solid #ddd6fe' }}>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'baseline', marginBottom: 3 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: '#5b21b6' }}>{stop.label}</span>
-                        {stop.stand && <span style={{ fontSize: 10, color: '#7c3aed', background: '#ede9fe', borderRadius: 4, padding: '1px 6px' }}>{stop.stand}</span>}
-                      </div>
-                      <EditableText storageKey={`tp.provada.${stop.id}`} defaultValue={stop.defaultToelichting} tag="div" style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* ── Na PROVADA ── */}
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--c-subtle)', marginBottom: 10 }}>Na PROVADA</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {NA_PROVADA_STAPPEN.map((stap, i) => (
-                <div key={stap.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#1e293b', color: 'white', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 2}</div>
-                    {i < NA_PROVADA_STAPPEN.length - 1 && <div style={{ width: 1, height: 12, background: 'var(--c-border)', marginTop: 2 }} />}
-                  </div>
-                  <div style={{ flex: 1, background: '#f8f7f5', borderRadius: 8, padding: '8px 12px', border: '1px solid var(--c-border)' }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', marginBottom: 3 }}>{stap.label}</div>
-                    <EditableText storageKey={`tp.naprovada.${stap.id}`} defaultValue={stap.defaultTekst} tag="div" style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ── ActieOverzichtView ────────────────────────────────────────────────────────
 
 type BdStatus = 'Oriëntatie' | 'Netwerk opbouwen' | 'Actief prospecting' | 'Offerte uitgestuurd'
@@ -2509,8 +2414,6 @@ function ActieOverzichtView() {
         </p>
       </div>
 
-      <TouchpointOverzicht />
-
       {MARKTCAP_STEDEN.filter((s) => s.naam !== 'Amsterdam').map((stad) => {
         const status     = statuses[stad.naam]
         const prioriteit = prioriteiten[stad.naam]
@@ -2565,6 +2468,28 @@ function ActieOverzichtView() {
                     )
                   })}
                 </div>
+
+                {/* ── Touchpoint bij huidige status ── */}
+                {(status === 'Oriëntatie' || status === 'Netwerk opbouwen') && (
+                  <div style={{ marginTop: 10, padding: '10px 14px', borderRadius: 8,
+                    background: status === 'Oriëntatie' ? '#f5f3ff' : '#f0f9ff',
+                    border: `1px solid ${status === 'Oriëntatie' ? '#c4b5fd' : '#7dd3fc'}`,
+                  }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+                      color: status === 'Oriëntatie' ? '#7c3aed' : '#0ea5e9', marginBottom: 4,
+                    }}>
+                      {status === 'Oriëntatie' ? 'Touchpoint 1 — PROVADA beursvloer · 9–11 juni 2026' : 'Touchpoint 2 — Netwerk activeren'}
+                    </div>
+                    <div style={{ fontSize: 11, lineHeight: 1.7,
+                      color: status === 'Oriëntatie' ? '#5b21b6' : '#0369a1',
+                    }}>
+                      {status === 'Oriëntatie'
+                        ? 'Gemeente Eindhoven (stand 12.32) → Gemeente Rotterdam (stand 12.06) → Dynamis (stand 10.31) → Individuele makelaars'
+                        : 'LinkedIn-verbinding leggen → Terugkoppeling per mail → Gesprek in stad → Zichtbaarheid verankeren'
+                      }
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* ── Warme toegangen ── */}
