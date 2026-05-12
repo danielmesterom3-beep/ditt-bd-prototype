@@ -2123,7 +2123,8 @@ function BegrotingsDoelregioPanel({ partijOverrides }: { partijOverrides: Record
 
 function calcDittM2(s: MarktCapStad, partijOverrides: Record<string, number>) {
   const n = partijOverrides[s.naam] ?? s.partijen
-  return Math.round(s.leegstandM2 / n * s.penetratie)
+  if (n === s.partijen) return s.dittM2
+  return Math.round(s.dittM2 * s.partijen / n)
 }
 
 function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrides: Record<string, number>; setPartijOverrides: React.Dispatch<React.SetStateAction<Record<string, number>>> }) {
