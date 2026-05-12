@@ -27,6 +27,7 @@ const rotterdam: Gebied[] = [
       totaalKantoorVvo: 155000,          // schatting: compact waterfront-cluster Wilhelminakade/Stieltjesplein; polygon incl. aangrenzende woonwijk
       leegstandPercentage: 7.8,
       huurprijsBandwidth: { min: 175, max: 275 },
+      huurprijsGemiddeld: 220,           // o.b.v. transacties: UIH €190, De Rotterdam €225, WPC €255 (2024–2025)
       opnameVorigeJaar: 18500,
       beschikbaarAanbod: 12100,          // herschaald o.b.v. gecorrigeerde voorraad (leegstand 7.8%)
     },
@@ -154,6 +155,7 @@ const rotterdam: Gebied[] = [
       totaalKantoorVvo: 520000,          // schatting: WTC/Weena/Blaak/Scheepvaartkwartier; polygon was iets te groot
       leegstandPercentage: 12.4,
       huurprijsBandwidth: { min: 150, max: 240 },
+      huurprijsGemiddeld: 195,           // o.b.v. transacties: Blaak €200, Westerkade €215, Westerstraat €150; JLL stadsgemiddeld €206
       opnameVorigeJaar: 42000,
       beschikbaarAanbod: 64500,          // herschaald o.b.v. gecorrigeerde voorraad (leegstand 12.4%)
     },
@@ -363,6 +365,7 @@ const rotterdam: Gebied[] = [
       totaalKantoorVvo: 370000,          // schatting: Brainpark I+II+III + Alexander kantorenpark; polygon incl. omliggend woongebied
       leegstandPercentage: 17.2,
       huurprijsBandwidth: { min: 100, max: 185 },
+      huurprijsGemiddeld: 165,           // o.b.v. transacties: Fascinatio €195, V-NOM €201; mix A/B-panden drukt gemiddelde
       opnameVorigeJaar: 33500,
       beschikbaarAanbod: 63600,          // herschaald o.b.v. gecorrigeerde voorraad (leegstand 17.2%)
     },
@@ -532,7 +535,8 @@ const rotterdam: Gebied[] = [
       peildatum: '2026-04-29',
       totaalKantoorVvo: 82000,           // schatting: Pegasusweg-corridor + directe omgeving luchthaven; kleine zone
       leegstandPercentage: 10.5,
-      huurprijsBandwidth: { min: 120, max: 185 },
+      huurprijsBandwidth: { min: 120, max: 165 },
+      huurprijsGemiddeld: 145,           // o.b.v. transactie Ballast Nedam Pegasusweg €145 (jul 2025)
       opnameVorigeJaar: 9800,
       beschikbaarAanbod: 8600,           // herschaald o.b.v. gecorrigeerde voorraad (leegstand 10.5%)
     },
