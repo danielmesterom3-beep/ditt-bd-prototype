@@ -1941,7 +1941,7 @@ const selectStyle: React.CSSProperties = {
 type StadConfig = { type: string; fitout: string; furn: string; ident: string; mep: number }
 const DEFAULT_STAD_CONFIG: StadConfig = { type: 'Hybrid', fitout: 'Mid', furn: 'Mid', ident: 'Mid', mep: 350 }
 
-function BegrotingsDoelregioPanel() {
+function BegrotingsDoelregioPanel({ partijOverrides }: { partijOverrides: Record<string, number> }) {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState(MARKTCAP_STEDEN[0].naam)
   const [configs, setConfigs] = useState<Record<string, StadConfig>>(() =>
@@ -1956,7 +1956,8 @@ function BegrotingsDoelregioPanel() {
 
   const steden = MARKTCAP_STEDEN.map((s) => {
     const cfg = configs[s.naam]
-    return { ...s, cfg, calc: calcBegroting(s.dittM2, cfg.type, cfg.fitout, cfg.furn, cfg.ident, cfg.mep) }
+    const dittM2 = calcDittM2(s, partijOverrides)
+    return { ...s, dittM2, cfg, calc: calcBegroting(dittM2, cfg.type, cfg.fitout, cfg.furn, cfg.ident, cfg.mep) }
   })
 
   const totaalInv    = steden.reduce((acc, x) => acc + x.calc.total, 0)
@@ -2120,12 +2121,17 @@ function BegrotingsDoelregioPanel() {
   )
 }
 
+function calcDittM2(s: MarktCapStad, partijOverrides: Record<string, number>) {
+  const n = partijOverrides[s.naam] ?? s.partijen
+  return Math.round(s.leegstandM2 / n * s.penetratie)
+}
+
 function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrides: Record<string, number>; setPartijOverrides: React.Dispatch<React.SetStateAction<Record<string, number>>> }) {
   const [prijzen, setPrijzen] = useState<Record<string, number>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, s.defaultPrijs]))
   )
 
-  const totaal = MARKTCAP_STEDEN.reduce((sum, s) => sum + s.dittM2 * prijzen[s.naam], 0)
+  const totaal = MARKTCAP_STEDEN.reduce((sum, s) => sum + calcDittM2(s, partijOverrides) * prijzen[s.naam], 0)
 
   const STAD_KLEUR: Record<string, string> = {
     Eindhoven: '#ff7f50',
@@ -2170,7 +2176,7 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
         <div style={{ textAlign: 'right' }}>
           <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: '0 0 2px' }}><EditableText storageKey="marketcap-banner-aandeel-label" defaultValue="Ditt-aandeel m²" /></p>
           <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: 0 }}>
-            {(MARKTCAP_STEDEN.reduce((s, c) => s + c.dittM2, 0)).toLocaleString('nl-NL')} m²
+            {(MARKTCAP_STEDEN.reduce((s, c) => s + calcDittM2(c, partijOverrides), 0)).toLocaleString('nl-NL')} m²
           </p>
         </div>
       </div>
@@ -2180,7 +2186,7 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
         {MARKTCAP_STEDEN.map((stad) => {
           const prijs    = prijzen[stad.naam]
           const nPartijen = partijOverrides[stad.naam] ?? stad.partijen
-          const dittM2   = stad.dittM2
+          const dittM2   = calcDittM2(stad, partijOverrides)
           const cap      = dittM2 * prijs
           const kleur    = STAD_KLEUR[stad.naam]
           const barPct   = Math.round((cap / totaal) * 100)
@@ -2719,7 +2725,7 @@ export default function StadOverzichtView() {
       <MarketCapPanel partijOverrides={partijOverrides} setPartijOverrides={setPartijOverrides} />
 
       {/* Begroting doelregio */}
-      <BegrotingsDoelregioPanel />
+      <BegrotingsDoelregioPanel partijOverrides={partijOverrides} />
 
       {/* Source note */}
       <div
