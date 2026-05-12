@@ -2323,42 +2323,91 @@ const DREMPEL_ITEMS = [
   'Begroting beschikbaar voor BD-gesprek',
 ]
 
-// Contactprotocol per kanaal — vast per tool, inhoud is EditableText
-const KANALEN = [
-  {
-    id: 'makelaars',
-    titel: 'Makelaars',
-    aandeel: '~30% van leads',
-    kleur: '#6366f1',
-    bg: '#eef2ff',
-    border: '#a5b4fc',
-    warmeIngang: 'Referentieproject in de regio tonen (Eindhoven: sterkste ingang). Rotterdam: proactieve waardecreatie vooraf — testfit of concept zonder kosten aanbieden.',
-    contactstap: 'Bel direct — niet emailen. Zorg dat jij het gesprek stuurt. Identificeer eerst of er geen exclusieve binding met concurrent bestaat (Tétris/CBRE/JLL). Selecteer op: snelheid & responsiviteit, bereidheid tot wederkerigheid, geen exclusief.',
-    selectieCriteria: 'Snelheid & responsiviteit · Geen exclusieve binding concurrent · Bereidheid wederkerigheid · Actief in mkb-segment (500–5.000 m²)',
-  },
-  {
-    id: 'eigenaren',
-    titel: 'Gebouweigenaren',
-    aandeel: '~30% van leads',
-    kleur: '#0ea5e9',
-    bg: '#f0f9ff',
-    border: '#7dd3fc',
-    warmeIngang: 'Smart Moves indelingsscenario bij leegstaand pand (laagdrempelige ingang, creëert morele verplichting tot terugbellen). Bestaande Ditt-klanten die ook panden bezitten in de doelstad = directe warme introductie.',
-    contactstap: 'Inventariseer eerst welke gebouweigenaren ook Ditt-klant zijn of relatie kennen. Benader via portefeuille-overzicht (Vastgoeddata). Bied Smart Moves als gratis eerste stap — geen D&B-pitch direct.',
-    selectieCriteria: 'Portefeuilleomvang in doelregio · Actieve verhuurmarkt (leegstand > 500 m²) · Geen vaste D&B-partner · Investeert in kwaliteitsverbetering pand',
-  },
-  {
-    id: 'huurders',
-    titel: 'Huurders direct',
-    aandeel: '~30% van leads',
-    kleur: '#f59e0b',
-    bg: '#fffbeb',
-    border: '#fcd34d',
-    warmeIngang: 'Bestaande Ditt-relaties (referrals) — persoon die van functie wisselt en Ditt meeneemt naar nieuwe werkgever. Flight to quality trigger: verhuismoment = D&B-behoefte. Makelaar als brug: vraag de makelaar om introductie bij huurder.',
-    contactstap: 'Identificeer verhuisbewegingen in de doelregio via Vastgoeddata (aflopende contracten). Benader via makelaar of bestaande relatie — niet koud. Pitch = integrale D&B-aanpak als voordeel t.o.v. losse partijen.',
-    selectieCriteria: 'Verhuismoment aanstaande · 500–5.000 m² · Behoefte aan employer branding / cultuuruiting · Geen actief D&B-traject met concurrent',
-  },
-]
+// Contactprotocol per kanaal — stad-specifiek
+interface Kanaal {
+  id: string
+  titel: string
+  aandeel: string
+  kleur: string
+  bg: string
+  border: string
+  warmeIngang: string
+  contactstap: string
+  selectieCriteria: string
+}
+
+const KANALEN_PER_STAD: Record<string, Kanaal[]> = {
+  Eindhoven: [
+    {
+      id: 'makelaars',
+      titel: 'Makelaars',
+      aandeel: '~30% van leads',
+      kleur: '#6366f1',
+      bg: '#eef2ff',
+      border: '#a5b4fc',
+      warmeIngang: 'Referentieproject in Eindhoven als sterkste ingang. PROVADA beursvloer (juni 2026) is het belangrijkste moment voor directe ontmoetingen met Dynamis-makelaars en lokale bedrijfsmakelaars. Koud benaderen werkt averechts in de Brabantse markt.',
+      contactstap: 'Bel direct — niet e-mailen. Stuur het gesprek op totale ontzorging. Controleer eerst of er geen exclusieve binding met Duotone of HAL 2 bestaat. Selecteer op snelheid & responsiviteit en bereidheid tot wederkerigheid.',
+      selectieCriteria: 'Snelheid & responsiviteit · Geen exclusieve binding Duotone/HAL 2 · Bereidheid wederkerigheid · Actief in mkb-segment (500–5.000 m²)',
+    },
+    {
+      id: 'eigenaren',
+      titel: 'Gebouweigenaren',
+      aandeel: '~30% van leads',
+      kleur: '#0ea5e9',
+      bg: '#f0f9ff',
+      border: '#7dd3fc',
+      warmeIngang: 'Bestaande Ditt-klanten die ook panden bezitten in Eindhoven = directe warme introductie. Vastgoeddata leegstandsanalyse als laagdrempelige gespreksopener — toon concrete inzichten over hun pand.',
+      contactstap: 'Inventariseer via Vastgoeddata welke eigenaren leegstand >500 m² hebben. Prioriteer eigenaren met een bestaande Ditt-relatie. Bied gratis eerste adviesgesprek als instapmoment — geen D&B-pitch direct.',
+      selectieCriteria: 'Portefeuilleomvang in Eindhoven · Actieve verhuurmarkt (leegstand > 500 m²) · Geen vaste D&B-partner · Investeert in kwaliteitsverbetering pand',
+    },
+    {
+      id: 'huurders',
+      titel: 'Huurders direct',
+      aandeel: '~30% van leads',
+      kleur: '#f59e0b',
+      bg: '#fffbeb',
+      border: '#fcd34d',
+      warmeIngang: 'Bestaande Ditt-relaties (referrals) — persoon die van functie wisselt en Ditt meeneemt naar nieuwe werkgever. Verhuismoment = D&B-behoefte. Sweetspot Eindhoven: 500–600 m²; circa 80 actieve zoekers onder 1.000 m².',
+      contactstap: 'Identificeer verhuisbewegingen via Vastgoeddata (aflopende contracten). Benader via makelaar of bestaande relatie — niet koud. Pitch = integrale D&B-aanpak als voordeel t.o.v. losse partijen.',
+      selectieCriteria: 'Verhuismoment aanstaande · 500–5.000 m² · Behoefte aan employer branding / cultuuruiting · Geen actief D&B-traject met Duotone/HAL 2',
+    },
+  ],
+  Rotterdam: [
+    {
+      id: 'makelaars',
+      titel: 'Makelaars',
+      aandeel: '~30% van leads',
+      kleur: '#6366f1',
+      bg: '#eef2ff',
+      border: '#a5b4fc',
+      warmeIngang: 'Proactieve waardecreatie vooraf: concept of eerste analyse aanbieden als instapmoment. Rotterdam-markt draait op vertrouwen — toon inhoud voordat je vraagt. Let op: Sprank heeft makelaarsbinding via Ooms Makelaars.',
+      contactstap: 'Bel direct — niet e-mailen. Identificeer eerst welke makelaars exclusief aan Sprank of Plan@Office zijn verbonden. Selecteer op: geen exclusiviteit, actief in WTC/Kop van Zuid-segment, bereidheid tot pilotproject.',
+      selectieCriteria: 'Geen exclusieve binding Sprank/Plan@Office · Actief in prime-segment (WTC, Kop van Zuid, Brainpark) · Bereidheid wederkerigheid · Actief in mkb-segment (500–5.000 m²)',
+    },
+    {
+      id: 'eigenaren',
+      titel: 'Gebouweigenaren',
+      aandeel: '~30% van leads',
+      kleur: '#0ea5e9',
+      bg: '#f0f9ff',
+      border: '#7dd3fc',
+      warmeIngang: 'WTC-eigendomswissel (Bouwinvest) en actieve Kop van Zuid-markt zijn directe instappunten. Nieuwe institutionele eigenaren zoeken kwaliteitspartners. Gebruik leegstandsanalyse als gespreksopener — toon proactief inzicht in hun portefeuille.',
+      contactstap: 'Inventariseer via Vastgoeddata welke eigenaren recent panden verwierven (Bouwinvest WTC, Dudok Groep). Benader via netwerk of portefeuille-analyse. Bied gratis eerste adviesgesprek — geen directe D&B-pitch.',
+      selectieCriteria: 'Recente eigendomswisseling · Actieve verhuurmarkt (leegstand > 500 m²) · Geen vaste D&B-partner · Investeert in kwaliteitsupgrade',
+    },
+    {
+      id: 'huurders',
+      titel: 'Huurders direct',
+      aandeel: '~30% van leads',
+      kleur: '#f59e0b',
+      bg: '#fffbeb',
+      border: '#fcd34d',
+      warmeIngang: 'Rotterdam heeft de sterkste huurprijsgroei van Europa (+28% j-o-j): elk verhuismoment is direct een D&B-behoefte. Flight to quality naar WTC/Kop van Zuid genereert vraag. Makelaar als brug naar huurder.',
+      contactstap: 'Identificeer verhuisbewegingen via Vastgoeddata (aflopende contracten in prime-gebouwen). Benader via makelaar of bestaande Ditt-relatie. Pitch = integrale D&B als voordeel t.o.v. losse partijen — benadruk snelheid en ontzorging.',
+      selectieCriteria: 'Verhuismoment aanstaande · 500–5.000 m² · Wil naar A-locatie (WTC, Kop van Zuid, Brainpark) · Geen actief D&B-traject met Sprank/Plan@Office',
+    },
+  ],
+}
 
 function Checkbox({ checked, onChange }: { checked: boolean; onChange: () => void }) {
   return (
@@ -2390,12 +2439,24 @@ function ActieOverzichtView() {
   const [drempel, setDrempel] = useState<Record<string, boolean[]>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, DREMPEL_ITEMS.map(() => false)]))
   )
+  const [openKanalen, setOpenKanalen] = useState<Record<string, Set<string>>>(() =>
+    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, new Set<string>()]))
+  )
 
   function toggleDrempel(stadNaam: string, idx: number) {
     setDrempel((prev) => ({
       ...prev,
       [stadNaam]: prev[stadNaam].map((v, i) => (i === idx ? !v : v)),
     }))
+  }
+
+  function toggleKanaal(stadNaam: string, kanaalId: string) {
+    setOpenKanalen((prev) => {
+      const next = new Set(prev[stadNaam])
+      if (next.has(kanaalId)) next.delete(kanaalId)
+      else next.add(kanaalId)
+      return { ...prev, [stadNaam]: next }
+    })
   }
 
   const labelStyle: React.CSSProperties = {
@@ -2420,6 +2481,8 @@ function ActieOverzichtView() {
         const drempelLijst = drempel[stad.naam]
         const aantalKlaar  = drempelLijst.filter(Boolean).length
         const klaarVoorAcquisitie = aantalKlaar >= 4
+        const kanalen = KANALEN_PER_STAD[stad.naam] ?? KANALEN_PER_STAD['Eindhoven']
+        const openSet = openKanalen[stad.naam] ?? new Set()
 
         return (
           <div key={stad.naam} style={{ border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden', background: 'var(--c-surface)' }}>
@@ -2508,46 +2571,57 @@ function ActieOverzichtView() {
               {/* ── Contactprotocol per kanaal ── */}
               <div>
                 <div style={labelStyle}>Contactprotocol — 3 acquisitiekanalen</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {KANALEN.map((kanaal) => (
-                    <div key={kanaal.id} style={{ borderRadius: 10, border: `1px solid ${kanaal.border}`, background: kanaal.bg, overflow: 'hidden' }}>
-                      <div style={{ padding: '10px 14px', borderBottom: `1px solid ${kanaal.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: kanaal.kleur }}>{kanaal.titel}</span>
-                        <span style={{ fontSize: 10, color: kanaal.kleur, background: 'white', borderRadius: 20, padding: '2px 8px', border: `1px solid ${kanaal.border}` }}>{kanaal.aandeel}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {kanalen.map((kanaal) => {
+                    const isOpen = openSet.has(kanaal.id)
+                    return (
+                      <div key={kanaal.id} style={{ borderRadius: 10, border: `1px solid ${kanaal.border}`, background: kanaal.bg, overflow: 'hidden' }}>
+                        <button
+                          onClick={() => toggleKanaal(stad.naam, kanaal.id)}
+                          style={{ width: '100%', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', borderBottom: isOpen ? `1px solid ${kanaal.border}` : 'none' }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: kanaal.kleur }}>{kanaal.titel}</span>
+                            <span style={{ fontSize: 10, color: kanaal.kleur, background: 'white', borderRadius: 20, padding: '2px 8px', border: `1px solid ${kanaal.border}` }}>{kanaal.aandeel}</span>
+                          </div>
+                          <span style={{ fontSize: 12, color: kanaal.kleur, opacity: 0.7 }}>{isOpen ? '▲' : '▼'}</span>
+                        </button>
+                        {isOpen && (
+                          <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+                            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                              <div style={{ flex: 1, minWidth: 180 }}>
+                                <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Warme ingang</div>
+                                <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}>{kanaal.warmeIngang}</div>
+                              </div>
+                              <div style={{ flex: 1, minWidth: 180 }}>
+                                <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Eerste contactstap</div>
+                                <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}>{kanaal.contactstap}</div>
+                              </div>
+                            </div>
+
+                            <div>
+                              <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Selectiecriteria</div>
+                              <div style={{ fontSize: 11, color: 'var(--c-text)' }}>{kanaal.selectieCriteria}</div>
+                            </div>
+
+                            <div>
+                              <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Volgende stap — {stad.naam}</div>
+                              <div style={{ background: 'white', borderRadius: 6, padding: '8px 10px', border: `1px solid ${kanaal.border}`, minHeight: 36 }}>
+                                <EditableText
+                                  storageKey={`actie.${stad.naam.toLowerCase()}.${kanaal.id}.stap`}
+                                  defaultValue="Vul eerstvolgende concrete actie in voor dit kanaal…"
+                                  tag="div"
+                                  style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.5 }}
+                                />
+                              </div>
+                            </div>
+
+                          </div>
+                        )}
                       </div>
-                      <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-
-                        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-                          <div style={{ flex: 1, minWidth: 180 }}>
-                            <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Warme ingang</div>
-                            <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}>{kanaal.warmeIngang}</div>
-                          </div>
-                          <div style={{ flex: 1, minWidth: 180 }}>
-                            <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Eerste contactstap</div>
-                            <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}>{kanaal.contactstap}</div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Selectiecriteria</div>
-                          <div style={{ fontSize: 11, color: 'var(--c-text)' }}>{kanaal.selectieCriteria}</div>
-                        </div>
-
-                        <div>
-                          <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Volgende stap — {stad.naam}</div>
-                          <div style={{ background: 'white', borderRadius: 6, padding: '8px 10px', border: `1px solid ${kanaal.border}`, minHeight: 36 }}>
-                            <EditableText
-                              storageKey={`actie.${stad.naam.toLowerCase()}.${kanaal.id}.stap`}
-                              defaultValue="Vul eerstvolgende concrete actie in voor dit kanaal…"
-                              tag="div"
-                              style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.5 }}
-                            />
-                          </div>
-                        </div>
-
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
 
