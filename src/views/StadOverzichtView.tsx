@@ -2592,17 +2592,17 @@ function ActieOverzichtView() {
                             <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
                               <div style={{ flex: 1, minWidth: 180 }}>
                                 <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Warme ingang</div>
-                                <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}>{kanaal.warmeIngang}</div>
+                                <EditableText storageKey={`actie.kanaal.${stad.naam.toLowerCase()}.${kanaal.id}.warmeIngang`} defaultValue={kanaal.warmeIngang} tag="div" style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }} />
                               </div>
                               <div style={{ flex: 1, minWidth: 180 }}>
                                 <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Eerste contactstap</div>
-                                <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}>{kanaal.contactstap}</div>
+                                <EditableText storageKey={`actie.kanaal.${stad.naam.toLowerCase()}.${kanaal.id}.contactstap`} defaultValue={kanaal.contactstap} tag="div" style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }} />
                               </div>
                             </div>
 
                             <div>
                               <div style={{ fontSize: 10, fontWeight: 700, color: kanaal.kleur, marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Selectiecriteria</div>
-                              <div style={{ fontSize: 11, color: 'var(--c-text)' }}>{kanaal.selectieCriteria}</div>
+                              <EditableText storageKey={`actie.kanaal.${stad.naam.toLowerCase()}.${kanaal.id}.selectieCriteria`} defaultValue={kanaal.selectieCriteria} tag="div" style={{ fontSize: 11, color: 'var(--c-text)' }} />
                             </div>
 
                             <div>
