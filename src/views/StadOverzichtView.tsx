@@ -2514,6 +2514,9 @@ function ActieOverzichtView() {
   const [openKanalen, setOpenKanalen] = useState<Record<string, Set<string>>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, new Set<string>()]))
   )
+  const [openDrempel, setOpenDrempel] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, false]))
+  )
 
   function toggleDrempel(stadNaam: string, idx: number) {
     setDrempel((prev) => ({
@@ -2698,21 +2701,34 @@ function ActieOverzichtView() {
               </div>
 
               {/* ── Drempelcriteria ── */}
-              <div>
-                <div style={labelStyle}>Drempelcriteria — minimale startvoorwaarden</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {DREMPEL_ITEMS.map((item, idx) => {
-                    const checked = drempelLijst[idx]
-                    return (
-                      <label key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => toggleDrempel(stad.naam, idx)}>
-                        <Checkbox checked={checked} onChange={() => toggleDrempel(stad.naam, idx)} />
-                        <span style={{ fontSize: 12, color: checked ? '#16a34a' : 'var(--c-text)', textDecoration: checked ? 'line-through' : 'none' }}>
-                          {item}
-                        </span>
-                      </label>
-                    )
-                  })}
-                </div>
+              <div style={{ border: '1px solid var(--c-border)', borderRadius: 8, overflow: 'hidden' }}>
+                <button
+                  onClick={() => setOpenDrempel((prev) => ({ ...prev, [stad.naam]: !prev[stad.naam] }))}
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ ...labelStyle, margin: 0 }}>Drempelcriteria — minimale startvoorwaarden</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: '1px 7px', borderRadius: 8, background: klaarVoorAcquisitie ? '#dcfce7' : '#fef9c3', color: klaarVoorAcquisitie ? '#16a34a' : '#854d0e' }}>
+                      {aantalKlaar}/{DREMPEL_ITEMS.length}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: 14, color: 'var(--c-subtle)', transform: openDrempel[stad.naam] ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+                </button>
+                {openDrempel[stad.naam] && (
+                  <div style={{ borderTop: '1px solid var(--c-border)', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {DREMPEL_ITEMS.map((item, idx) => {
+                      const checked = drempelLijst[idx]
+                      return (
+                        <label key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => toggleDrempel(stad.naam, idx)}>
+                          <Checkbox checked={checked} onChange={() => toggleDrempel(stad.naam, idx)} />
+                          <span style={{ fontSize: 12, color: checked ? '#16a34a' : 'var(--c-text)', textDecoration: checked ? 'line-through' : 'none' }}>
+                            {item}
+                          </span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
 
             </div>
