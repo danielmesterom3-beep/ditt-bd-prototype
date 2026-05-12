@@ -5,30 +5,18 @@ import App from './App.tsx'
 import { NavigationProvider } from './context/NavigationContext.tsx'
 import { FilterProvider } from './context/FilterContext.tsx'
 import { DataOverrideProvider } from './context/DataOverrideContext.tsx'
-import { ClerkProvider, SignedIn, SignedOut, SignIn } from '@clerk/clerk-react'
 import { ViewModeProvider } from './context/ViewModeContext.tsx'
-
-const clerkKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ClerkProvider publishableKey={clerkKey}>
-      <SignedOut>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-          <SignIn />
-        </div>
-      </SignedOut>
-      <SignedIn>
-        <NavigationProvider>
-          <FilterProvider>
-            <ViewModeProvider>
-              <DataOverrideProvider>
-                <App />
-              </DataOverrideProvider>
-            </ViewModeProvider>
-          </FilterProvider>
-        </NavigationProvider>
-      </SignedIn>
-    </ClerkProvider>
+    <NavigationProvider>
+      <FilterProvider>
+        <ViewModeProvider>
+          <DataOverrideProvider>
+            <App />
+          </DataOverrideProvider>
+        </ViewModeProvider>
+      </FilterProvider>
+    </NavigationProvider>
   </StrictMode>,
 )
