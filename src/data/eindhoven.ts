@@ -5,175 +5,7 @@ import type { Gebied } from './types'
 
 const eindhoven: Gebied[] = [
   // ─────────────────────────────────────────────────────────────────
-  // 1. FELLENOORD (Kennedyplein / TU-omgeving)
-  // ─────────────────────────────────────────────────────────────────
-  {
-    id: 'fellenoord',
-    naam: 'Fellenoord',
-    marktdata: {
-      peildatum: '2026-04-29',
-      totaalKantoorVvo: 78000,           // schatting: compact Kennedyplein-cluster (~20 kantoorgebouwen); polygon Vastgoeddata was te groot
-      leegstandPercentage: 7.5,
-      huurprijsBandwidth: { min: 160, max: 320 },
-      huurprijsGemiddeld: 285,
-      opnameVorigeJaar: 2992,            // 2025: <500m² 801 + >=500m² 2.191
-      beschikbaarAanbod: 5850,           // herschaald o.b.v. gecorrigeerde voorraad (leegstand 7.5%)
-    },
-    vastgoedMix: {
-      kantoor: 11,   // 273.211 / 2.481.230 m² totaal
-      retail: 3,
-      wonen: 52,
-      overig: 34,    // incl. TU/e-campus, zorg, overige functies
-    },
-    pandenInOntwikkeling: [
-      {
-        id: 'fell-dev-01',
-        naam: 'Eckartseweg Zuid 408',
-        adres: 'Eckartseweg Zuid 408, 5623PD Eindhoven',
-        oppervlakte: 4106,
-        fase: 'bouw',
-        verwachteOplevering: '2023 / in gebruik',
-        toelichting: 'Nieuw kantoorpand Fellenoord-rand; recent opgeleverd.',
-      },
-      {
-        id: 'fell-dev-02',
-        naam: 'Wassenaarstraat 1',
-        adres: 'Wassenaarstraat 1, 5612ET Eindhoven',
-        oppervlakte: 3855,
-        fase: 'oplevering',
-        verwachteOplevering: '2025',
-        toelichting: 'Kleinschalig kantoorontwikkeling nabij Kennedyplein.',
-      },
-      {
-        id: 'fell-dev-03',
-        naam: 'Generaal Dibbetslaan 309',
-        adres: 'Generaal Dibbetslaan 309, 5623JP Eindhoven',
-        oppervlakte: 3785,
-        fase: 'bouw',
-        verwachteOplevering: '2024 / afgerond',
-        toelichting: 'Onderdeel van cluster Generaal Dibbetslaan; mixed-use kantoor.',
-      },
-      {
-        id: 'fell-dev-04',
-        naam: 'Generaal Dibbetslaan 205 & 117',
-        adres: 'Generaal Dibbetslaan, 5623JP Eindhoven',
-        oppervlakte: 5948,   // 3.223 + 2.725
-        fase: 'bouw',
-        verwachteOplevering: '2024 / afgerond',
-        toelichting: 'Twee aangrenzende kantoorprojecten op Dibbetslaan-cluster.',
-      },
-    ],
-    trends: [
-      {
-        id: 'fell-trend-01',
-        omschrijving: 'Hoogste gemiddelde huurprijs van Eindhoven (€285/m²/jr); prime status neemt toe door TU/e-nabijheid en ASML-spillover.',
-        richting: 'positief',
-      },
-      {
-        id: 'fell-trend-02',
-        omschrijving: 'Opname >=500m² daalde in 2025 naar 2.191 m² (van 6.905 in 2024); markt selectiever door beperkt aanbod op toplocaties.',
-        richting: 'neutraal',
-      },
-      {
-        id: 'fell-trend-03',
-        omschrijving: 'Kleine, innovatieve bedrijven (life sciences, neurotechnology) vestigen zich rondom TU-terrein; cluster vergroot aantrekkingskracht.',
-        richting: 'positief',
-      },
-      {
-        id: 'fell-trend-04',
-        omschrijving: 'Beperkte nieuwbouwpijplijn (20.852 m² in ontwikkeling, slechts 0,84% van voorraad); aanbodschaarste op korte termijn.',
-        richting: 'neutraal',
-      },
-    ],
-    warmeContacten: [
-      {
-        id: 'fell-wc-01',
-        naam: 'Wouter Cox',
-        organisatie: 'HERE Technologies',
-        rol: 'Facility / Real Estate Manager',
-        email: '',
-        telefoon: '',
-        datumLaatsteContact: '',
-        notitie: 'HERE Technologies gevestigd op Kennedyplein 222. Grote tech-huurder; relevant als referentie en potentiële groeivraag.',
-      },
-    ],
-    interessanteOpdrachtgevers: [
-      {
-        id: 'fell-og-01',
-        naam: 'Scherp Online',
-        sector: 'Digitale marketing / tech',
-        profiel: 'Gehuurd 728 m² op Professor Dr Dorgelolaan 14 (€181/m²/jr, juni 2025). Groeiend digitaal bureau.',
-        reden: 'Recente huurder in het gebied; mogelijk uitbreidingsvraag op termijn.',
-        status: 'prospect',
-      },
-      {
-        id: 'fell-og-02',
-        naam: '',
-        sector: 'Life sciences / medtech',
-        profiel: 'Open Mind Neuroscience gehuurd 303 m² op Bogert 1 (€150/m²/jr, mei 2025). Neurotechnology spin-off TU/e-omgeving.',
-        reden: 'Snelgroeiend wetenschappelijk bedrijf in Brainport-ecosysteem; schaalvraag verwacht.',
-        status: 'prospect',
-      },
-    ],
-    inzichten: [
-      {
-        id: 'fell-inz-01',
-        bron: 'Dirk Verberne',
-        organisatie: 'Verschuuren & Scheppers Bedrijfsmakelaars',
-        datum: '2026-03-06',
-        categorie: 'acquisitie',
-        inzicht: 'Snelheid is in Eindhoven doorslaggevend: een testfit moet de volgende ochtend klaar liggen, anders is een partij al te laat. Zichtbaar snel schakelen is de beste introductie bij lokale makelaars.',
-      },
-      {
-        id: 'fell-inz-02',
-        bron: 'Dirk Verberne',
-        organisatie: 'Verschuuren & Scheppers Bedrijfsmakelaars',
-        datum: '2026-03-06',
-        categorie: 'marktdynamiek',
-        inzicht: 'De Eindhovense markt is een vervangingsmarkt met een sweetspot van 500–600 m²; er zijn slechts circa tien actieve zoekers boven de 1.000 m², tegenover tachtig actieve zoekers onder die grens.',
-      },
-    ],
-    partijen: [
-      { id: 'fell-01', naam: '', type: 'eigenaar', contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
-      { id: 'fell-02', naam: '', type: 'makelaar', contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
-      { id: 'fell-03', naam: '', type: 'huurder',  contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
-    ],
-    kansrijkeLeads: [
-      {
-        id: 'fell-lead-01',
-        pandnaam: 'De Admirant',
-        adres: 'Admirantweg, Eindhoven',
-        huurder: '& Van de Laar',
-        branche: 'Zakelijke dienstverlening',
-        omvang: 307,
-        contractBegin: '2022-01',
-        motivatie: 'Zakelijke dienstverlener in prime centrumlocatie De Admirant; contract loopt per januari 2027 af — directe acquisitiekans in Ditt.\'s sweetspot.',
-      },
-      {
-        id: 'fell-lead-02',
-        pandnaam: 'Kennedyhuis',
-        adres: 'Kennedyplein, Eindhoven',
-        huurder: '3Dimerce',
-        branche: 'E-commerce tech',
-        omvang: 282,
-        contractBegin: '2022-03',
-        motivatie: 'Tech-huurder op het Kennedyhuis — meest zichtbare locatie van Fellenoord. Contract loopt in maart 2027 af; kans voor herhuisvesting met een passende tech-inrichting.',
-      },
-      {
-        id: 'fell-lead-03',
-        pandnaam: 'Eindhoven Tower',
-        adres: 'Kennedyplein, Eindhoven',
-        huurder: 'Unitas Software',
-        branche: 'Software / IT',
-        omvang: 336,
-        contractBegin: '2022-06',
-        motivatie: 'Software-huurder in het meest herkenbare kantoorgebouw van Fellenoord; 336 m² valt precies in de sweetspot. Loopt juni 2027 af — voldoende aanlooptijd voor een sterk voorstel.',
-      },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────────
-  // 2. CENTRUM EINDHOVEN (Stationsgebied / Vestdijk / Oude Stad)
+  // 1. CENTRUM EINDHOVEN (Stationsgebied / Kennedyplein / Vestdijk)
   // ─────────────────────────────────────────────────────────────────
   {
     id: 'centrum-eindhoven',
@@ -231,6 +63,42 @@ const eindhoven: Gebied[] = [
         verwachteOplevering: '2026',
         toelichting: 'Nieuw kantoorproject centrumrand.',
       },
+      {
+        id: 'fell-dev-01',
+        naam: 'Eckartseweg Zuid 408',
+        adres: 'Eckartseweg Zuid 408, 5623PD Eindhoven',
+        oppervlakte: 4106,
+        fase: 'bouw',
+        verwachteOplevering: '2023 / in gebruik',
+        toelichting: 'Nieuw kantoorpand Fellenoord-rand; recent opgeleverd.',
+      },
+      {
+        id: 'fell-dev-02',
+        naam: 'Wassenaarstraat 1',
+        adres: 'Wassenaarstraat 1, 5612ET Eindhoven',
+        oppervlakte: 3855,
+        fase: 'oplevering',
+        verwachteOplevering: '2025',
+        toelichting: 'Kleinschalig kantoorontwikkeling nabij Kennedyplein.',
+      },
+      {
+        id: 'fell-dev-03',
+        naam: 'Generaal Dibbetslaan 309',
+        adres: 'Generaal Dibbetslaan 309, 5623JP Eindhoven',
+        oppervlakte: 3785,
+        fase: 'bouw',
+        verwachteOplevering: '2024 / afgerond',
+        toelichting: 'Onderdeel van cluster Generaal Dibbetslaan; mixed-use kantoor.',
+      },
+      {
+        id: 'fell-dev-04',
+        naam: 'Generaal Dibbetslaan 205 & 117',
+        adres: 'Generaal Dibbetslaan, 5623JP Eindhoven',
+        oppervlakte: 5948,   // 3.223 + 2.725
+        fase: 'bouw',
+        verwachteOplevering: '2024 / afgerond',
+        toelichting: 'Twee aangrenzende kantoorprojecten op Dibbetslaan-cluster.',
+      },
     ],
     trends: [
       {
@@ -258,6 +126,26 @@ const eindhoven: Gebied[] = [
         omschrijving: 'Opname >=500m² volatiel (2025: 10.646 m², 2022: 6.724 m², 2021: 14.749 m²); vraag concentreert zich op A-locaties bij station.',
         richting: 'neutraal',
       },
+      {
+        id: 'fell-trend-01',
+        omschrijving: 'Hoogste gemiddelde huurprijs van Eindhoven (€285/m²/jr); prime status neemt toe door TU/e-nabijheid en ASML-spillover.',
+        richting: 'positief',
+      },
+      {
+        id: 'fell-trend-02',
+        omschrijving: 'Opname >=500m² daalde in 2025 naar 2.191 m² (van 6.905 in 2024); markt selectiever door beperkt aanbod op toplocaties.',
+        richting: 'neutraal',
+      },
+      {
+        id: 'fell-trend-03',
+        omschrijving: 'Kleine, innovatieve bedrijven (life sciences, neurotechnology) vestigen zich rondom TU-terrein; cluster vergroot aantrekkingskracht.',
+        richting: 'positief',
+      },
+      {
+        id: 'fell-trend-04',
+        omschrijving: 'Beperkte nieuwbouwpijplijn (20.852 m² in ontwikkeling, slechts 0,84% van voorraad); aanbodschaarste op korte termijn.',
+        richting: 'neutraal',
+      },
     ],
     warmeContacten: [
       {
@@ -269,6 +157,16 @@ const eindhoven: Gebied[] = [
         telefoon: '',
         datumLaatsteContact: '',
         notitie: 'Edge Eindhoven op Stationsweg 17 (35.351 m²) is het grootste kantoorontwikkelingsproject in het centrum. Berning is contactpersoon voor het project. Kansen voor serviceconcepten, huurdersbegeleiding en facilitaire diensten.',
+      },
+      {
+        id: 'fell-wc-01',
+        naam: 'Wouter Cox',
+        organisatie: 'HERE Technologies',
+        rol: 'Facility / Real Estate Manager',
+        email: '',
+        telefoon: '',
+        datumLaatsteContact: '',
+        notitie: 'HERE Technologies gevestigd op Kennedyplein 222. Grote tech-huurder; relevant als referentie en potentiële groeivraag.',
       },
     ],
     interessanteOpdrachtgevers: [
@@ -296,6 +194,22 @@ const eindhoven: Gebied[] = [
         reden: 'Actieve huurder centrumlocatie; relevant voor maatschappelijk georiënteerde klantenpropositie.',
         status: 'prospect',
       },
+      {
+        id: 'fell-og-01',
+        naam: 'Scherp Online',
+        sector: 'Digitale marketing / tech',
+        profiel: 'Gehuurd 728 m² op Professor Dr Dorgelolaan 14 (€181/m²/jr, juni 2025). Groeiend digitaal bureau.',
+        reden: 'Recente huurder in het gebied; mogelijk uitbreidingsvraag op termijn.',
+        status: 'prospect',
+      },
+      {
+        id: 'fell-og-02',
+        naam: '',
+        sector: 'Life sciences / medtech',
+        profiel: 'Open Mind Neuroscience gehuurd 303 m² op Bogert 1 (€150/m²/jr, mei 2025). Neurotechnology spin-off TU/e-omgeving.',
+        reden: 'Snelgroeiend wetenschappelijk bedrijf in Brainport-ecosysteem; schaalvraag verwacht.',
+        status: 'prospect',
+      },
     ],
     inzichten: [
       {
@@ -321,6 +235,22 @@ const eindhoven: Gebied[] = [
         datum: '2026-02-14',
         categorie: 'acquisitie',
         inzicht: 'Voor advocatenkantoren en zakelijke dienstverleners — sterk vertegenwoordigd in het centrum — moet taalgebruik, kleding en inhoudelijke nadruk volledig worden aangepast op de gesprekspartner.',
+      },
+      {
+        id: 'fell-inz-01',
+        bron: 'Dirk Verberne',
+        organisatie: 'Verschuuren & Scheppers Bedrijfsmakelaars',
+        datum: '2026-03-06',
+        categorie: 'acquisitie',
+        inzicht: 'Snelheid is in Eindhoven doorslaggevend: een testfit moet de volgende ochtend klaar liggen, anders is een partij al te laat. Zichtbaar snel schakelen is de beste introductie bij lokale makelaars.',
+      },
+      {
+        id: 'fell-inz-02',
+        bron: 'Dirk Verberne',
+        organisatie: 'Verschuuren & Scheppers Bedrijfsmakelaars',
+        datum: '2026-03-06',
+        categorie: 'marktdynamiek',
+        inzicht: 'De Eindhovense markt is een vervangingsmarkt met een sweetspot van 500–600 m²; er zijn slechts circa tien actieve zoekers boven de 1.000 m², tegenover tachtig actieve zoekers onder die grens.',
       },
     ],
     partijen: [
@@ -363,6 +293,36 @@ const eindhoven: Gebied[] = [
         eigenaar: 'Forma',
         contractBegin: '2022-07',
         motivatie: 'Interim-managementbureau in de zakelijke kern van het centrum; 408 m² in de sweetspot. Contract in juli 2027 — ruim op tijd om een turnkey-propositie voor te leggen.',
+      },
+      {
+        id: 'fell-lead-01',
+        pandnaam: 'De Admirant',
+        adres: 'Admirantweg, Eindhoven',
+        huurder: '& Van de Laar',
+        branche: 'Zakelijke dienstverlening',
+        omvang: 307,
+        contractBegin: '2022-01',
+        motivatie: 'Zakelijke dienstverlener in prime centrumlocatie De Admirant; contract loopt per januari 2027 af — directe acquisitiekans in Ditt.\'s sweetspot.',
+      },
+      {
+        id: 'fell-lead-02',
+        pandnaam: 'Kennedyhuis',
+        adres: 'Kennedyplein, Eindhoven',
+        huurder: '3Dimerce',
+        branche: 'E-commerce tech',
+        omvang: 282,
+        contractBegin: '2022-03',
+        motivatie: 'Tech-huurder op het Kennedyhuis — meest zichtbare locatie van Fellenoord. Contract loopt in maart 2027 af; kans voor herhuisvesting met een passende tech-inrichting.',
+      },
+      {
+        id: 'fell-lead-03',
+        pandnaam: 'Eindhoven Tower',
+        adres: 'Kennedyplein, Eindhoven',
+        huurder: 'Unitas Software',
+        branche: 'Software / IT',
+        omvang: 336,
+        contractBegin: '2022-06',
+        motivatie: 'Software-huurder in het meest herkenbare kantoorgebouw van Fellenoord; 336 m² valt precies in de sweetspot. Loopt juni 2027 af — voldoende aanlooptijd voor een sterk voorstel.',
       },
     ],
   },
