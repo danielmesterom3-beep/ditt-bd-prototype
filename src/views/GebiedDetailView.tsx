@@ -599,15 +599,22 @@ function WarmContactCard({ contact, onDelete }: { contact: WarmContact; onDelete
           alignItems: 'center',
         }}
       >
-        {heeftEmail ? (
-          <ActionBtn href={`mailto:${contact.email}`} label="E-mail" icon="✉" primary />
-        ) : (
-          <EditableText
-            storageKey={`wc.${contact.id}.email`}
-            defaultValue="E-mail toevoegen..."
-            style={{ fontSize: 11, color: '#92400e', fontStyle: 'italic', cursor: 'text' }}
-          />
-        )}
+        <a
+          href={heeftEmail ? `mailto:${contact.email}` : undefined}
+          onClick={(e) => { if (!heeftEmail) e.preventDefault(); e.stopPropagation() }}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+            textDecoration: 'none', transition: 'opacity 0.15s',
+            background: heeftEmail ? 'var(--c-coral)' : '#fef3c7',
+            color: heeftEmail ? '#fff' : '#92400e',
+            border: heeftEmail ? 'none' : '1px solid #fcd34d',
+            cursor: heeftEmail ? 'pointer' : 'default',
+            opacity: heeftEmail ? 1 : 0.6,
+          }}
+        >
+          ✉ {heeftEmail ? contact.email : 'E-mail onbekend'}
+        </a>
         {heeftTelefoon ? (
           <ActionBtn href={`tel:${contact.telefoon}`} label="Bel" icon="↗" />
         ) : (
