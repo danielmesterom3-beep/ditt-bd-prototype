@@ -969,6 +969,36 @@ function RotterdamKantorenstrategiePanel() {
 
 function RotterdamOmgevingskenmerkenPanel() {
   const [open, setOpen] = useState(false)
+  const [hiddenCards, setHiddenCards] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('omgeving.rdam.hiddenCards')
+      return stored ? new Set(JSON.parse(stored)) : new Set()
+    } catch { return new Set() }
+  })
+
+  function hideCard(id: string) {
+    setHiddenCards((prev) => {
+      const next = new Set(prev)
+      next.add(id)
+      localStorage.setItem('omgeving.rdam.hiddenCards', JSON.stringify([...next]))
+      return next
+    })
+  }
+
+  function restoreAll() {
+    setHiddenCards(new Set())
+    localStorage.removeItem('omgeving.rdam.hiddenCards')
+  }
+
+  const deleteBtn = (id: string) => (
+    <button
+      onClick={(e) => { e.stopPropagation(); hideCard(id) }}
+      title="Verwijder kaart"
+      style={{ marginLeft: 8, flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--c-subtle)', lineHeight: 1, padding: '2px 4px', borderRadius: 4 }}
+      onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+      onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--c-subtle)')}
+    >×</button>
+  )
 
   return (
     <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
@@ -985,16 +1015,26 @@ function RotterdamOmgevingskenmerkenPanel() {
 
       {open && (
         <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px' }}>
+          {hiddenCards.size > 0 && (
+            <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 11, color: 'var(--c-muted)' }}>{hiddenCards.size} kaart{hiddenCards.size > 1 ? 'en' : ''} verborgen</span>
+              <button onClick={restoreAll} style={{ fontSize: 11, color: 'var(--c-coral)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>Herstel alles</button>
+            </div>
+          )}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
 
             {/* Sprank */}
+            {!hiddenCards.has('sprank') && (
             <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                 <div>
                   <EditableText storageKey="omgeving.sprank.naam" defaultValue="Sprank Interieurprojecten" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
                   <EditableText storageKey="omgeving.sprank.meta" defaultValue="sprank.nl · Rotterdam · 20+ jaar actief" style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1, display: 'block' }} />
                 </div>
-                <EditableText storageKey="omgeving.sprank.badge" defaultValue="Sterke lokale speler" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047' }} />
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <EditableText storageKey="omgeving.sprank.badge" defaultValue="Sterke lokale speler" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047' }} />
+                  {deleteBtn('sprank')}
+                </div>
               </div>
               <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 10 }}>Bron: sprank.nl/projecten</div>
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam (bevestigde m²)</div>
@@ -1013,15 +1053,20 @@ function RotterdamOmgevingskenmerkenPanel() {
                 <EditableText storageKey="omgeving.sprank.context" defaultValue="Sprank is de meest gelijkende concurrent op Ditt in Rotterdam — lokaal geworteld, D&B focus, brede klantenkring. Ze werken voor makelaars (Ooms) en directe huurders. Concurreren op relatie en snelheid, niet puur op design." tag="div" style={{ fontSize: 11, color: '#854d0e', lineHeight: 1.6 }} />
               </div>
             </div>
+            )}
 
             {/* Plan@Office */}
+            {!hiddenCards.has('planatoffice') && (
             <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                 <div>
                   <EditableText storageKey="omgeving.planatoffice.naam" defaultValue="Plan@Office" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
                   <EditableText storageKey="omgeving.planatoffice.meta" defaultValue="planatoffice.nl · Dordrecht/Rotterdam · Project­inrichting" style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1, display: 'block' }} />
                 </div>
-                <EditableText storageKey="omgeving.planatoffice.badge" defaultValue="Meubel­gericht" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }} />
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <EditableText storageKey="omgeving.planatoffice.badge" defaultValue="Meubel­gericht" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }} />
+                  {deleteBtn('planatoffice')}
+                </div>
               </div>
               <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 10 }}>Bron: planatoffice.nl/projecten</div>
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam</div>
@@ -1041,15 +1086,20 @@ function RotterdamOmgevingskenmerkenPanel() {
                 <EditableText storageKey="omgeving.planatoffice.context" defaultValue="Plan@Office is meer een projectinrichter dan een echte D&B-speler — sterker in meubilair en levering dan in ontwerp en bouw. Minder directe concurrent voor Ditt's kernpropositie, maar wel actief bij eigenaren en huurders in het Waalhaven/Rdam-segment." tag="div" style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }} />
               </div>
             </div>
+            )}
 
             {/* UP Projectinrichting */}
+            {!hiddenCards.has('up') && (
             <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                 <div>
                   <EditableText storageKey="omgeving.up.naam" defaultValue="UP Projectinrichting" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
                   <EditableText storageKey="omgeving.up.meta" defaultValue="upprojectinrichting.nl · Maasdijk · opgericht 2010" style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1, display: 'block' }} />
                 </div>
-                <EditableText storageKey="omgeving.up.badge" defaultValue="Kleine speler" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }} />
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <EditableText storageKey="omgeving.up.badge" defaultValue="Kleine speler" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }} />
+                  {deleteBtn('up')}
+                </div>
               </div>
               <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 10 }}>Bron: upprojectinrichting.nl/projecten</div>
               <div style={{ padding: '8px 10px', background: '#f1f5f9', borderRadius: 6, marginBottom: 12 }}>
@@ -1059,12 +1109,18 @@ function RotterdamOmgevingskenmerkenPanel() {
                 <EditableText storageKey="omgeving.up.context" defaultValue="UP publiceert geen locaties of m²-groottes bij projecten. Geen duidelijke Rotterdam-focus zichtbaar in portfolio — beperkte capaciteit voor grote D&B-trajecten. Minder relevant als directe concurrent." tag="div" style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }} />
               </div>
             </div>
+            )}
 
             {/* Strategische conclusie Rotterdam */}
+            {!hiddenCards.has('conclusie') && (
             <div style={{ background: '#fff7f4', borderRadius: 10, padding: '16px', border: '1px solid #ffd4c2' }}>
-              <EditableText storageKey="omgeving.rdam.conclusie.titel" defaultValue="Strategische positie Ditt — Rotterdam" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-coral)', marginBottom: 8, display: 'block' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                <EditableText storageKey="omgeving.rdam.conclusie.titel" defaultValue="Strategische positie Ditt — Rotterdam" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-coral)', display: 'block' }} />
+                {deleteBtn('conclusie')}
+              </div>
               <EditableText storageKey="omgeving.rdam.conclusie.tekst" defaultValue="Rotterdam heeft geen dominante lokale D&B-speler van de omvang van HAL 2 in Eindhoven. Sprank is de meest directe concurrent maar opereert breder dan alleen D&B. Plan@Office en UP zitten in het lagere segment. Dit geeft Ditt ruimte om zich te positioneren als de kwalitatieve D&B-specialist op Kop van Zuid en Brainpark — een gat dat nog niet gevuld is. Prioriteit: makelaarsrelaties opbouwen (Ooms, Verschuuren & Schreppers) voordat concurrenten die positie innemen." multiline tag="div" style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.7 }} />
             </div>
+            )}
 
           </div>
         </div>
