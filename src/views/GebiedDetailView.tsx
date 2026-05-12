@@ -602,18 +602,22 @@ function WarmContactCard({ contact, onDelete }: { contact: WarmContact; onDelete
         <a
           href={heeftEmail ? `mailto:${contact.email}` : undefined}
           onClick={(e) => { if (!heeftEmail) e.preventDefault(); e.stopPropagation() }}
+          title={heeftEmail ? contact.email : 'E-mail onbekend'}
           style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: 34, height: 34, borderRadius: 8,
             textDecoration: 'none', transition: 'opacity 0.15s',
             background: heeftEmail ? 'var(--c-coral)' : '#fef3c7',
-            color: heeftEmail ? '#fff' : '#92400e',
             border: heeftEmail ? 'none' : '1px solid #fcd34d',
             cursor: heeftEmail ? 'pointer' : 'default',
-            opacity: heeftEmail ? 1 : 0.6,
+            opacity: heeftEmail ? 1 : 0.5,
+            flexShrink: 0,
           }}
         >
-          ✉ {heeftEmail ? contact.email : 'E-mail onbekend'}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={heeftEmail ? '#fff' : '#92400e'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <polyline points="2,4 12,13 22,4"/>
+          </svg>
         </a>
         {heeftTelefoon ? (
           <ActionBtn href={`tel:${contact.telefoon}`} label="Bel" icon="↗" />
