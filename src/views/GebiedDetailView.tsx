@@ -20,6 +20,7 @@ import type {
 import { useNavigation } from '../context/NavigationContext'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
 import { useViewMode } from '../context/ViewModeContext'
+import { useDataOverride } from '../context/DataOverrideContext'
 import EditableText from '../components/EditableText'
 
 // ── Verwijder hulpfuncties ────────────────────────────────────────────────────
@@ -146,7 +147,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Gebiedskenmerken({ gebied }: { gebied: Gebied }) {
   const gebiedId = gebied.id
-  const { marktdata: m, vastgoedMix: mix } = gebied
+  const { vastgoedMix: mix } = gebied
+  const { getMarktdata } = useDataOverride()
+  const m = getMarktdata(gebiedId, gebied.marktdata)
   const gem = ((m.huurprijsBandwidth.min + m.huurprijsBandwidth.max) / 2).toFixed(0)
 
   const rows = [
