@@ -24,11 +24,11 @@ const rotterdam: Gebied[] = [
     status: 'under-construction',
     marktdata: {
       peildatum: '2026-04-29',
-      totaalKantoorVvo: 185000,
+      totaalKantoorVvo: 155000,          // schatting: compact waterfront-cluster Wilhelminakade/Stieltjesplein; polygon incl. aangrenzende woonwijk
       leegstandPercentage: 7.8,
       huurprijsBandwidth: { min: 175, max: 275 },
       opnameVorigeJaar: 18500,
-      beschikbaarAanbod: 14400,
+      beschikbaarAanbod: 12100,          // herschaald o.b.v. gecorrigeerde voorraad (leegstand 7.8%)
     },
     vastgoedMix: {
       kantoor: 62,
@@ -151,11 +151,11 @@ const rotterdam: Gebied[] = [
     status: 'under-construction',
     marktdata: {
       peildatum: '2026-04-29',
-      totaalKantoorVvo: 580000,
+      totaalKantoorVvo: 520000,          // schatting: WTC/Weena/Blaak/Scheepvaartkwartier; polygon was iets te groot
       leegstandPercentage: 12.4,
       huurprijsBandwidth: { min: 150, max: 240 },
       opnameVorigeJaar: 42000,
-      beschikbaarAanbod: 71900,
+      beschikbaarAanbod: 64500,          // herschaald o.b.v. gecorrigeerde voorraad (leegstand 12.4%)
     },
     vastgoedMix: {
       kantoor: 45,
@@ -360,11 +360,11 @@ const rotterdam: Gebied[] = [
     status: 'under-construction',
     marktdata: {
       peildatum: '2026-04-29',
-      totaalKantoorVvo: 460000,
+      totaalKantoorVvo: 370000,          // schatting: Brainpark I+II+III + Alexander kantorenpark; polygon incl. omliggend woongebied
       leegstandPercentage: 17.2,
       huurprijsBandwidth: { min: 100, max: 185 },
       opnameVorigeJaar: 33500,
-      beschikbaarAanbod: 79100,
+      beschikbaarAanbod: 63600,          // herschaald o.b.v. gecorrigeerde voorraad (leegstand 17.2%)
     },
     vastgoedMix: {
       kantoor: 74,
@@ -530,11 +530,11 @@ const rotterdam: Gebied[] = [
     status: 'under-construction',
     marktdata: {
       peildatum: '2026-04-29',
-      totaalKantoorVvo: 98000,
+      totaalKantoorVvo: 82000,           // schatting: Pegasusweg-corridor + directe omgeving luchthaven; kleine zone
       leegstandPercentage: 10.5,
       huurprijsBandwidth: { min: 120, max: 185 },
       opnameVorigeJaar: 9800,
-      beschikbaarAanbod: 10300,
+      beschikbaarAanbod: 8600,           // herschaald o.b.v. gecorrigeerde voorraad (leegstand 10.5%)
     },
     vastgoedMix: {
       kantoor: 55,

@@ -12,12 +12,12 @@ const eindhoven: Gebied[] = [
     naam: 'Fellenoord',
     marktdata: {
       peildatum: '2026-04-29',
-      totaalKantoorVvo: 273211,          // bron: gebiedskenmerken PDF
-      leegstandPercentage: 7.5,           // schatting o.b.v. opname/aanbod verhouding
-      huurprijsBandwidth: { min: 160, max: 320 }, // gem. €285/m²/jr (PDF)
+      totaalKantoorVvo: 78000,           // schatting: compact Kennedyplein-cluster (~20 kantoorgebouwen); polygon Vastgoeddata was te groot
+      leegstandPercentage: 7.5,
+      huurprijsBandwidth: { min: 160, max: 320 },
       huurprijsGemiddeld: 285,
       opnameVorigeJaar: 2992,            // 2025: <500m² 801 + >=500m² 2.191
-      beschikbaarAanbod: 20500,
+      beschikbaarAanbod: 5850,           // herschaald o.b.v. gecorrigeerde voorraad (leegstand 7.5%)
     },
     vastgoedMix: {
       kantoor: 11,   // 273.211 / 2.481.230 m² totaal
@@ -180,12 +180,12 @@ const eindhoven: Gebied[] = [
     naam: 'Centrum Eindhoven',
     marktdata: {
       peildatum: '2026-04-29',
-      totaalKantoorVvo: 567325,          // bron: gebiedskenmerken PDF Centrum
+      totaalKantoorVvo: 265000,          // schatting: stationsgebied + Vestdijk + Oude Stad; polygon was te groot
       leegstandPercentage: 6.5,
-      huurprijsBandwidth: { min: 125, max: 320 }, // gem. €258/m²/jr; 2025: €245; range breed door mixed kwaliteit
+      huurprijsBandwidth: { min: 125, max: 320 },
       huurprijsGemiddeld: 258,
       opnameVorigeJaar: 15447,           // 2025: <500m² 4.801 + >=500m² 10.646
-      beschikbaarAanbod: 36900,
+      beschikbaarAanbod: 17200,          // herschaald o.b.v. gecorrigeerde voorraad (leegstand 6.5%)
     },
     vastgoedMix: {
       kantoor: 9,    // 567.325 / 6.592.828 m² totaal = 8,6%
@@ -375,12 +375,12 @@ const eindhoven: Gebied[] = [
     naam: 'Strijp-S',
     marktdata: {
       peildatum: '2026-04-29',
-      totaalKantoorVvo: 275672,          // bron: gebiedskenmerken PDF Strijp-S
+      totaalKantoorVvo: 46000,           // schatting: creatief district, 75% wonen — beperkt kantooraanbod (Bold, Ketelhuis e.o.); polygon was te groot
       leegstandPercentage: 4.2,
-      huurprijsBandwidth: { min: 130, max: 270 }, // gem. €200/m²/jr; kleine units tot €266
+      huurprijsBandwidth: { min: 130, max: 270 },
       huurprijsGemiddeld: 200,
       opnameVorigeJaar: 1503,            // 2025: alleen <500m² (1.503); >=500m² = 0
-      beschikbaarAanbod: 11600,
+      beschikbaarAanbod: 1950,           // herschaald o.b.v. gecorrigeerde voorraad (leegstand 4.2%)
     },
     vastgoedMix: {
       kantoor: 9,    // 275.672 / 3.113.202 m² totaal
@@ -549,12 +549,12 @@ const eindhoven: Gebied[] = [
     naam: 'Airport / Flight Forum',
     marktdata: {
       peildatum: '2026-04-29',
-      totaalKantoorVvo: 283104,          // bron: gebiedskenmerken PDF Airport
+      totaalKantoorVvo: 205000,          // schatting: Flight Forum + Park Forum businesspark; polygon iets te groot (incl. omliggend industriegebied)
       leegstandPercentage: 11.5,
-      huurprijsBandwidth: { min: 80, max: 175 }, // gem. €156/m²/jr; range breed (€80 bedrijfsmatig t/m €156 kantoor prime)
+      huurprijsBandwidth: { min: 80, max: 175 },
       huurprijsGemiddeld: 156,
       opnameVorigeJaar: 8751,            // 2025: <500m² 1.729 + >=500m² 7.022
-      beschikbaarAanbod: 32600,
+      beschikbaarAanbod: 23600,          // herschaald o.b.v. gecorrigeerde voorraad (leegstand 11.5%)
     },
     vastgoedMix: {
       kantoor: 10,   // 283.104 / 2.779.690 m² totaal
@@ -709,12 +709,12 @@ const eindhoven: Gebied[] = [
     naam: 'High Tech Campus / ASML',
     marktdata: {
       peildatum: '2026-04-29',
-      totaalKantoorVvo: 334200,          // bron: gebiedskenmerken PDF HTC/ASML
+      totaalKantoorVvo: 115000,          // schatting: extern toegankelijk kantooraandeel HTC + Veldhoven-cluster; campus intern veel groter maar gesloten; polygon incl. Veldhoven woonwijken
       leegstandPercentage: 2.5,           // campus-managed; vrijwel geen vrije leegstand
-      huurprijsBandwidth: { min: 175, max: 325 }, // gem. €258/m²/jr; range incl. lab/cleanroom-premiums
+      huurprijsBandwidth: { min: 175, max: 325 },
       huurprijsGemiddeld: 258,
       opnameVorigeJaar: 806,             // 2025: <500m² 150 + >=500m² 656 (sterk gedaald t.o.v. 6.936 in 2024)
-      beschikbaarAanbod: 8400,
+      beschikbaarAanbod: 2900,           // herschaald o.b.v. gecorrigeerde voorraad (leegstand 2.5%)
     },
     vastgoedMix: {
       kantoor: 19,   // 334.200 / 1.774.863 m² totaal
