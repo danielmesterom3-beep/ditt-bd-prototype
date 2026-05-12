@@ -19,6 +19,7 @@ import type {
 } from '../data/types'
 import { useNavigation } from '../context/NavigationContext'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
+import { useViewMode } from '../context/ViewModeContext'
 import EditableText from '../components/EditableText'
 
 // ── Verwijder hulpfuncties ────────────────────────────────────────────────────
@@ -1530,6 +1531,7 @@ const GEBIED_STATUS_CFG: Record<GebiedStatus, { label: string; dot: string; bg: 
 export default function GebiedDetailView() {
   const { geselecteerdGebied, geselecteerdeStad, terug } = useNavigation()
   const { getStatus } = useGebiedStatus()
+  const { viewMode } = useViewMode()
 
   if (!geselecteerdGebied) return null
 
@@ -1665,114 +1667,87 @@ export default function GebiedDetailView() {
         </div>
       </div>
 
-      {/* ── Section 0: Kansrijke leads ── */}
-      {gebied.kansrijkeLeads && gebied.kansrijkeLeads.length > 0 && effectiveStatus !== 'under-construction' && (
-        <Section title={`Kansrijke leads — ${gebied.kansrijkeLeads.length} geselecteerde panden`}>
-          <KansrijkeLeadsSection leads={gebied.kansrijkeLeads} stad={geselecteerdeStad?.naam} />
-        </Section>
-      )}
+      {/* ── INFORMATIE weergave ── */}
+      {viewMode === 'informatie' && (
+        <>
+          {/* Kansrijke leads */}
+          {gebied.kansrijkeLeads && gebied.kansrijkeLeads.length > 0 && effectiveStatus !== 'under-construction' && (
+            <Section title={`Kansrijke leads — ${gebied.kansrijkeLeads.length} geselecteerde panden`}>
+              <KansrijkeLeadsSection leads={gebied.kansrijkeLeads} stad={geselecteerdeStad?.naam} />
+            </Section>
+          )}
 
-      {/* ── Section 1: Gebiedskenmerken ── */}
-      <Section title="Gebiedskenmerken">
-        <Gebiedskenmerken gebied={gebied} />
-      </Section>
+          {/* Gebiedskenmerken */}
+          <Section title="Gebiedskenmerken">
+            <Gebiedskenmerken gebied={gebied} />
+          </Section>
 
-      {/* ── Contactprotocol ── */}
-      <ContactProtocol klasse={klasse} gebiedId={gebied.id} stadNaam={geselecteerdeStad?.naam ?? ''} />
-
-      {/* ── Section 2: Panden in ontwikkeling ── */}
-      {heeftPanden && (
-        <Section title={`Panden in ontwikkeling met kantoorfunctie — ${zichtbarePanden.length} object${zichtbarePanden.length !== 1 ? 'en' : ''}`}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: 16,
-            }}
-          >
-            {zichtbarePanden.map((pand) => (
-              <PandCard key={pand.id} pand={pand} onDelete={() => deletePand(pand.id)} />
-            ))}
-          </div>
-        </Section>
-      )}
-
-      {/* ── Sections 3 + 4 side by side ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-
-        {/* Section 3: Trends */}
-        <Section
-          title={`Trends — ${trendCounts.positief} positief · ${trendCounts.neutraal} neutraal · ${trendCounts.negatief} negatief`}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {zichtbareTrends.map((trend) => (
-              <TrendItem key={trend.id} trend={trend} onDelete={() => deleteTrend(trend.id)} />
-            ))}
-            {zichtbareTrends.length === 0 && (
-              <div
-                style={{
-                  padding: '20px',
-                  background: '#faf9f7',
-                  borderRadius: 10,
-                  fontSize: 12,
-                  color: 'var(--c-subtle)',
-                  textAlign: 'center',
-                  border: '1px dashed var(--c-border)',
-                }}
-              >
-                Geen trends beschikbaar
+          {/* Panden in ontwikkeling */}
+          {heeftPanden && (
+            <Section title={`Panden in ontwikkeling met kantoorfunctie — ${zichtbarePanden.length} object${zichtbarePanden.length !== 1 ? 'en' : ''}`}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+                {zichtbarePanden.map((pand) => (
+                  <PandCard key={pand.id} pand={pand} onDelete={() => deletePand(pand.id)} />
+                ))}
               </div>
-            )}
-          </div>
-        </Section>
+            </Section>
+          )}
 
-        {/* Section 4: Interessante opdrachtgevers */}
-        <Section title={`Interessante opdrachtgevers (SFO) — ${zichtbareOg.length}`}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {zichtbareOg.map((og) => (
-              <OpdrachtgeverCard key={og.id} og={og} onDelete={() => deleteOg(og.id)} />
-            ))}
-            {zichtbareOg.length === 0 && (
-              <div
-                style={{
-                  padding: '20px',
-                  background: '#faf9f7',
-                  borderRadius: 10,
-                  fontSize: 12,
-                  color: 'var(--c-subtle)',
-                  textAlign: 'center',
-                  border: '1px dashed var(--c-border)',
-                }}
-              >
-                Geen opdrachtgevers vastgelegd
+          {/* Trends + Opdrachtgevers side by side */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            <Section title={`Trends — ${trendCounts.positief} positief · ${trendCounts.neutraal} neutraal · ${trendCounts.negatief} negatief`}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {zichtbareTrends.map((trend) => (
+                  <TrendItem key={trend.id} trend={trend} onDelete={() => deleteTrend(trend.id)} />
+                ))}
+                {zichtbareTrends.length === 0 && (
+                  <div style={{ padding: '20px', background: '#faf9f7', borderRadius: 10, fontSize: 12, color: 'var(--c-subtle)', textAlign: 'center', border: '1px dashed var(--c-border)' }}>
+                    Geen trends beschikbaar
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </Section>
-      </div>
+            </Section>
 
-      {/* ── Section 5: Warme contacten ── */}
-      {heeftContacten && (
-        <Section title={`Warme contacten — ${zichtbareContacten.length}`}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-              gap: 14,
-            }}
-          >
-            {zichtbareContacten.map((contact) => (
-              <WarmContactCard key={contact.id} contact={contact} onDelete={() => deleteContact(contact.id)} />
-            ))}
+            <Section title={`Interessante opdrachtgevers (SFO) — ${zichtbareOg.length}`}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {zichtbareOg.map((og) => (
+                  <OpdrachtgeverCard key={og.id} og={og} onDelete={() => deleteOg(og.id)} />
+                ))}
+                {zichtbareOg.length === 0 && (
+                  <div style={{ padding: '20px', background: '#faf9f7', borderRadius: 10, fontSize: 12, color: 'var(--c-subtle)', textAlign: 'center', border: '1px dashed var(--c-border)' }}>
+                    Geen opdrachtgevers vastgelegd
+                  </div>
+                )}
+              </div>
+            </Section>
           </div>
-        </Section>
+        </>
       )}
 
-      {/* ── Section 6: Veldonderzoek inzichten ── */}
-      {gebied.inzichten.length > 0 && (
-        <Section title={`Veldonderzoek — ${gebied.inzichten.length} inzicht${gebied.inzichten.length !== 1 ? 'en' : ''} uit interviews`}>
-          <InzichtKaarten inzichten={gebied.inzichten} />
-        </Section>
+      {/* ── ACTIE weergave ── */}
+      {viewMode === 'actie' && (
+        <>
+          {/* Contactprotocol */}
+          <ContactProtocol klasse={klasse} gebiedId={gebied.id} stadNaam={geselecteerdeStad?.naam ?? ''} />
+
+          {/* Warme contacten */}
+          {heeftContacten && (
+            <Section title={`Warme contacten — ${zichtbareContacten.length}`}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
+                {zichtbareContacten.map((contact) => (
+                  <WarmContactCard key={contact.id} contact={contact} onDelete={() => deleteContact(contact.id)} />
+                ))}
+              </div>
+            </Section>
+          )}
+
+          {/* Veldonderzoek inzichten */}
+          {gebied.inzichten.length > 0 && (
+            <Section title={`Veldonderzoek — ${gebied.inzichten.length} inzicht${gebied.inzichten.length !== 1 ? 'en' : ''} uit interviews`}>
+              <InzichtKaarten inzichten={gebied.inzichten} />
+            </Section>
+          )}
+        </>
       )}
     </div>
   )
