@@ -1149,6 +1149,54 @@ interface VastgoedGebouw {
 
 const RENDABELE_GEBOUWEN: VastgoedGebouw[] = [
   {
+    id: 'bogert31',
+    adres: 'Bogert 31',
+    postcode: '5611 AK',
+    stad: 'Eindhoven',
+    gebied: 'Centrum Eindhoven',
+    transacties: [
+      { huurder: 'Mint Studios',             m2: 19,  prijsM2: 853, datum: '2025-01' },
+      { huurder: 'Schouten Legal Advocaten', m2: 17,  prijsM2: 716, datum: '2024-07' },
+      { huurder: 'FlowBridge',               m2: 30,  prijsM2: 540, datum: '2025-04' },
+      { huurder: 'Constructiehuis',          m2: 25,  prijsM2: 396, datum: '2022-10' },
+    ],
+  },
+  {
+    id: 'emmasingel33',
+    adres: 'Emmasingel 33',
+    postcode: '5611 AZ',
+    stad: 'Eindhoven',
+    gebied: 'Centrum Eindhoven',
+    transacties: [
+      { huurder: 'Codex Connectors',   m2: 30, prijsM2: 800, datum: '2025-05' },
+      { huurder: 'AOP',                m2: 56, prijsM2: 782, datum: '2024-09' },
+      { huurder: 'Merisa Investments', m2: 25, prijsM2: 422, datum: '2022-11' },
+    ],
+  },
+  {
+    id: 'parklaan54a',
+    adres: 'Parklaan 54A',
+    postcode: '5611 NJ',
+    stad: 'Eindhoven',
+    gebied: 'Centrum Eindhoven',
+    transacties: [
+      { huurder: 'Q-Concepts Accountancy',       m2: 60, prijsM2: 700, datum: '2024-11' },
+      { huurder: 'BeljonWesterterp',             m2: 20, prijsM2: 660, datum: '2022-02' },
+      { huurder: 'W&O Accountants en Adviseurs', m2: 86, prijsM2: 460, datum: '2025-03' },
+      { huurder: 'The Interim Company',          m2: 30, prijsM2: 400, datum: '2021-12' },
+    ],
+  },
+  {
+    id: 'kastanjelaan400',
+    adres: 'Kastanjelaan 400',
+    postcode: '5616 LZ',
+    stad: 'Eindhoven',
+    gebied: 'Strijp-S',
+    transacties: [
+      { huurder: 'Marlies & Barbara', m2: 20, prijsM2: 581, datum: '2022-06' },
+    ],
+  },
+  {
     id: 'willemstraat1m',
     adres: 'Willemstraat 1M',
     postcode: '5611 HA',
@@ -1168,15 +1216,58 @@ const RENDABELE_GEBOUWEN: VastgoedGebouw[] = [
       { huurder: 'PHC Telecom', m2: 180, prijsM2: 500, datum: '2025-03' },
     ],
   },
+  {
+    id: 'parklaan34b',
+    adres: 'Parklaan 34B',
+    postcode: '5611 NJ',
+    stad: 'Eindhoven',
+    gebied: 'Centrum Eindhoven',
+    transacties: [
+      { huurder: 'MOOT Real Estate', m2: 74, prijsM2: 405, datum: '2025-04' },
+    ],
+  },
+  {
+    id: 'hurksestraat60',
+    adres: 'Hurksestraat 60',
+    postcode: '5652 AK',
+    stad: 'Eindhoven',
+    gebied: 'Strijp-S',
+    transacties: [
+      { huurder: 'A.A. Sales and Promotions', m2: 24, prijsM2: 408, datum: '2023-07' },
+      { huurder: 'Reland Adviseurs',          m2: 40, prijsM2: 396, datum: '2023-03' },
+      { huurder: 'REBO Vastgoedmanagement',   m2: 57, prijsM2: 384, datum: '2023-01' },
+      { huurder: 'EU Trucking Service',       m2: 20, prijsM2: 376, datum: '2022-07' },
+    ],
+  },
+  {
+    id: 'htc10',
+    adres: 'High Tech Campus 10',
+    postcode: '5656 AE',
+    stad: 'Eindhoven',
+    gebied: 'HTC Eindhoven',
+    transacties: [
+      { huurder: 'Orgfit', m2: 39, prijsM2: 399, datum: '2024-06' },
+    ],
+  },
+  {
+    id: 'bogert1',
+    adres: 'Bogert 1',
+    postcode: '5611 AK',
+    stad: 'Eindhoven',
+    gebied: 'Centrum Eindhoven',
+    transacties: [
+      { huurder: 'Constructiehuis', m2: 25, prijsM2: 396, datum: '2022-10' },
+    ],
+  },
 ]
 
 function RendabelGebouwCard({ geb }: { geb: VastgoedGebouw }) {
   const [open, setOpen] = useState(false)
-  const [openTransacties, setOpenTransacties] = useState(false)
-  const gemPrijs = Math.round(geb.transacties.reduce((s, t) => s + t.prijsM2, 0) / geb.transacties.length)
+  const maxPrijs = Math.max(...geb.transacties.map((t) => t.prijsM2))
 
   return (
     <div style={{ border: '1px solid var(--c-border)', borderRadius: 10, overflow: 'hidden', background: '#f8f7f5' }}>
+      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
           <div>
@@ -1188,7 +1279,7 @@ function RendabelGebouwCard({ geb }: { geb: VastgoedGebouw }) {
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-coral)', fontVariantNumeric: 'tabular-nums' }}>ø €{gemPrijs}/m²</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-coral)', fontVariantNumeric: 'tabular-nums' }}>max €{maxPrijs}/m²</span>
           <button
             onClick={() => setOpen((o) => !o)}
             style={{ width: 26, height: 26, borderRadius: 6, background: open ? 'var(--c-coral)' : '#e5e7eb', border: 'none', cursor: 'pointer', fontSize: 18, color: open ? '#fff' : 'var(--c-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, lineHeight: 1 }}
@@ -1199,54 +1290,35 @@ function RendabelGebouwCard({ geb }: { geb: VastgoedGebouw }) {
       </div>
 
       {open && (
-        <div style={{ borderTop: '1px solid var(--c-border)', padding: 14 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
-            {([
-              { label: 'Eigenaar',      key: 'eigenaar' },
-              { label: 'Asset manager', key: 'assetmanager' },
-              { label: 'Beheerder',     key: 'beheerder' },
-              { label: 'Makelaar',      key: 'makelaar' },
-            ] as const).map(({ label, key }) => (
-              <div key={key} style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', border: '1px solid var(--c-border)' }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 3 }}>{label}</div>
-                <EditableText
-                  storageKey={`vastgoed.${geb.id}.${key}`}
-                  defaultValue={key === 'makelaar' && geb.id === 'achtseweg161b' ? 'Verschuuren & Schreppers' : `${label} invullen...`}
-                  tag="div"
-                  style={{ fontSize: 11, color: 'var(--c-text)' }}
-                />
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {/* Transacties */}
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
+              <span>Huurder</span>
+              <span style={{ display: 'flex', gap: 20 }}><span>€/m²</span><span>m²</span><span>datum</span></span>
+            </div>
+            {geb.transacties.map((t) => (
+              <div key={t.huurder} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, padding: '5px 0', borderBottom: '1px solid #f0ede8' }}>
+                <span style={{ color: 'var(--c-text)' }}>{t.huurder}</span>
+                <span style={{ display: 'flex', gap: 16, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+                  <span style={{ color: 'var(--c-coral)', fontWeight: 700, minWidth: 52, textAlign: 'right' }}>€{t.prijsM2}</span>
+                  <span style={{ color: 'var(--c-muted)', minWidth: 44, textAlign: 'right' }}>{t.m2} m²</span>
+                  <span style={{ color: 'var(--c-subtle)', minWidth: 48 }}>{t.datum}</span>
+                </span>
               </div>
             ))}
           </div>
 
-          <div style={{ border: '1px solid var(--c-border)', borderRadius: 8, overflow: 'hidden' }}>
-            <button
-              onClick={() => setOpenTransacties((o) => !o)}
-              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
-            >
-              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }}>
-                Huurcontracten — {geb.transacties.length} transactie{geb.transacties.length !== 1 ? 's' : ''} ≥ 100 m²
-              </span>
-              <span style={{ fontSize: 12, color: 'var(--c-subtle)', transform: openTransacties ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>↓</span>
-            </button>
-            {openTransacties && (
-              <div style={{ borderTop: '1px solid var(--c-border)', padding: '10px 12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
-                  <span>Huurder</span>
-                  <span style={{ display: 'flex', gap: 20 }}><span>€/m²</span><span>m²</span><span>datum</span></span>
-                </div>
-                {geb.transacties.map((t) => (
-                  <div key={t.huurder} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, padding: '4px 0', borderBottom: '1px solid #f3f4f6' }}>
-                    <span style={{ color: 'var(--c-text)' }}>{t.huurder}</span>
-                    <span style={{ display: 'flex', gap: 16, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
-                      <span style={{ color: 'var(--c-coral)', fontWeight: 700, minWidth: 52, textAlign: 'right' }}>€{t.prijsM2}</span>
-                      <span style={{ color: 'var(--c-muted)', minWidth: 44, textAlign: 'right' }}>{t.m2} m²</span>
-                      <span style={{ color: 'var(--c-subtle)', minWidth: 48 }}>{t.datum}</span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
+          {/* Omschrijving */}
+          <div style={{ padding: '10px 12px', background: '#fff', borderRadius: 8, border: '1px solid var(--c-border)' }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>Omschrijving</div>
+            <EditableText
+              storageKey={`vastgoed.${geb.id}.omschrijving`}
+              defaultValue="Omschrijving toevoegen..."
+              tag="div"
+              multiline
+              style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}
+            />
           </div>
         </div>
       )}
@@ -1266,7 +1338,7 @@ function VastgoedRendabelsteGebouwenPanel() {
         <div>
           <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em', display: 'block' }}>Rendabelste gebouwen — Eindhoven</span>
           <span style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2, display: 'block' }}>
-            Vastgoeddata · {RENDABELE_GEBOUWEN.length} gebouwen · transacties ≥ 100 m² · contract &gt; 1 jaar
+            Vastgoeddata · {RENDABELE_GEBOUWEN.length} gebouwen · huurprijzen &gt; €230/m²
           </span>
         </div>
         <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
