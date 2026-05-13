@@ -184,6 +184,35 @@ function RichToolbar() {
       {/* Divider */}
       <div style={{ width: 1, height: 16, background: '#2d2d2d', margin: '0 2px' }} />
 
+      {/* Font size */}
+      {(['S', 'M', 'L'] as const).map((size) => {
+        const px = size === 'S' ? '10px' : size === 'M' ? '13px' : '16px'
+        return (
+          <button
+            key={size}
+            title={`Tekstgrootte ${size} (${px})`}
+            onMouseDown={(e) => {
+              e.preventDefault()
+              const sel = window.getSelection()
+              if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+                document.execCommand('insertHTML', false, `<span style="font-size:${px}">${sel.toString()}</span>`)
+              } else {
+                document.execCommand('fontSize', false, '3')
+                // fallback: wrap selection
+              }
+            }}
+            style={{ ...btnStyle, fontSize: 11, color: '#9ca3af', width: 20 }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = '#2d2d2d')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+          >
+            {size}
+          </button>
+        )
+      })}
+
+      {/* Divider */}
+      <div style={{ width: 1, height: 16, background: '#2d2d2d', margin: '0 2px' }} />
+
       {/* Clear formatting */}
       <button
         title="Opmaak wissen"
@@ -289,6 +318,18 @@ export default function EditableText({
     }
   }
 
+  function handlePaste(e: React.ClipboardEvent<HTMLElement>) {
+    e.preventDefault()
+    const text = e.clipboardData.getData('text/plain')
+    if (multiline) {
+      // Preserve line breaks as <br>
+      const html = text.replace(/\r?\n/g, '<br>')
+      document.execCommand('insertHTML', false, html)
+    } else {
+      document.execCommand('insertText', false, text.replace(/\r?\n/g, ' '))
+    }
+  }
+
   function handleClick(e: React.MouseEvent<HTMLElement>) {
     e.stopPropagation()
     onClick?.(e)
@@ -316,6 +357,7 @@ export default function EditableText({
             onFocus={handleFocus}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
             onClick={handleClick}
             style={editableStyle}
           />
@@ -353,6 +395,7 @@ export default function EditableText({
       onFocus={isEditMode ? handleFocus : undefined}
       onBlur={isEditMode ? handleBlur : undefined}
       onKeyDown={isEditMode ? handleKeyDown : undefined}
+      onPaste={isEditMode ? handlePaste : undefined}
       onClick={isEditMode ? handleClick : (onClick ?? undefined)}
       style={singleStyle}
       className={className}
