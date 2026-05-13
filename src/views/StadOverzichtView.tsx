@@ -1129,6 +1129,163 @@ function RotterdamOmgevingskenmerkenPanel() {
   )
 }
 
+// ── VastgoedRendabelsteGebouwen ───────────────────────────────────────────────
+
+interface VastgoedTransactie {
+  huurder: string
+  m2: number
+  prijsM2: number
+  datum: string
+}
+
+interface VastgoedGebouw {
+  id: string
+  adres: string
+  postcode: string
+  stad: string
+  gebied: string
+  transacties: VastgoedTransactie[]
+}
+
+const RENDABELE_GEBOUWEN: VastgoedGebouw[] = [
+  {
+    id: 'willemstraat1m',
+    adres: 'Willemstraat 1M',
+    postcode: '5611 HA',
+    stad: 'Eindhoven',
+    gebied: 'Centrum Eindhoven',
+    transacties: [
+      { huurder: 'Mignot & De Block', m2: 179, prijsM2: 523, datum: '2023-04' },
+    ],
+  },
+  {
+    id: 'achtseweg161b',
+    adres: 'Achtseweg Zuid 161B',
+    postcode: '5651 GW',
+    stad: 'Eindhoven',
+    gebied: 'Strijp / Achtseweg',
+    transacties: [
+      { huurder: 'PHC Telecom', m2: 180, prijsM2: 500, datum: '2025-03' },
+    ],
+  },
+]
+
+function RendabelGebouwCard({ geb }: { geb: VastgoedGebouw }) {
+  const [open, setOpen] = useState(false)
+  const [openTransacties, setOpenTransacties] = useState(false)
+  const gemPrijs = Math.round(geb.transacties.reduce((s, t) => s + t.prijsM2, 0) / geb.transacties.length)
+
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 10, overflow: 'hidden', background: '#f8f7f5' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>{geb.adres}</div>
+            <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1 }}>{geb.postcode} · {geb.stad}</div>
+          </div>
+          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 8, background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa', flexShrink: 0 }}>
+            {geb.gebied}
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-coral)', fontVariantNumeric: 'tabular-nums' }}>ø €{gemPrijs}/m²</span>
+          <button
+            onClick={() => setOpen((o) => !o)}
+            style={{ width: 26, height: 26, borderRadius: 6, background: open ? 'var(--c-coral)' : '#e5e7eb', border: 'none', cursor: 'pointer', fontSize: 18, color: open ? '#fff' : 'var(--c-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, lineHeight: 1 }}
+          >
+            {open ? '−' : '+'}
+          </button>
+        </div>
+      </div>
+
+      {open && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+            {([
+              { label: 'Eigenaar',      key: 'eigenaar' },
+              { label: 'Asset manager', key: 'assetmanager' },
+              { label: 'Beheerder',     key: 'beheerder' },
+              { label: 'Makelaar',      key: 'makelaar' },
+            ] as const).map(({ label, key }) => (
+              <div key={key} style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', border: '1px solid var(--c-border)' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 3 }}>{label}</div>
+                <EditableText
+                  storageKey={`vastgoed.${geb.id}.${key}`}
+                  defaultValue={key === 'makelaar' && geb.id === 'achtseweg161b' ? 'Verschuuren & Schreppers' : `${label} invullen...`}
+                  tag="div"
+                  style={{ fontSize: 11, color: 'var(--c-text)' }}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div style={{ border: '1px solid var(--c-border)', borderRadius: 8, overflow: 'hidden' }}>
+            <button
+              onClick={() => setOpenTransacties((o) => !o)}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+            >
+              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }}>
+                Huurcontracten — {geb.transacties.length} transactie{geb.transacties.length !== 1 ? 's' : ''} ≥ 100 m²
+              </span>
+              <span style={{ fontSize: 12, color: 'var(--c-subtle)', transform: openTransacties ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>↓</span>
+            </button>
+            {openTransacties && (
+              <div style={{ borderTop: '1px solid var(--c-border)', padding: '10px 12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
+                  <span>Huurder</span>
+                  <span style={{ display: 'flex', gap: 20 }}><span>€/m²</span><span>m²</span><span>datum</span></span>
+                </div>
+                {geb.transacties.map((t) => (
+                  <div key={t.huurder} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, padding: '4px 0', borderBottom: '1px solid #f3f4f6' }}>
+                    <span style={{ color: 'var(--c-text)' }}>{t.huurder}</span>
+                    <span style={{ display: 'flex', gap: 16, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+                      <span style={{ color: 'var(--c-coral)', fontWeight: 700, minWidth: 52, textAlign: 'right' }}>€{t.prijsM2}</span>
+                      <span style={{ color: 'var(--c-muted)', minWidth: 44, textAlign: 'right' }}>{t.m2} m²</span>
+                      <span style={{ color: 'var(--c-subtle)', minWidth: 48 }}>{t.datum}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function VastgoedRendabelsteGebouwenPanel() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+      >
+        <div>
+          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em', display: 'block' }}>Rendabelste gebouwen — Eindhoven</span>
+          <span style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2, display: 'block' }}>
+            Vastgoeddata · {RENDABELE_GEBOUWEN.length} gebouwen · transacties ≥ 100 m² · contract &gt; 1 jaar
+          </span>
+        </div>
+        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: 20 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {RENDABELE_GEBOUWEN.map((geb) => (
+              <RendabelGebouwCard key={geb.id} geb={geb} />
+            ))}
+          </div>
+          <div style={{ marginTop: 12, fontSize: 10, color: 'var(--c-subtle)' }}>Bron: vastgoeddata.nl · export mei 2026</div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── RecenteTransactiesPanel ───────────────────────────────────────────────────
 
 interface Transactie {
@@ -2787,6 +2944,9 @@ export default function StadOverzichtView() {
 
       {/* Rotterdam kantorenstrategie MRDH */}
       <RotterdamKantorenstrategiePanel />
+
+      {/* Rendabelste gebouwen (Vastgoeddata) */}
+      <VastgoedRendabelsteGebouwenPanel />
 
       {/* Recente transacties */}
       <RecenteTransactiesPanel />

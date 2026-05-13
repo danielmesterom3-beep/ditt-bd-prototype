@@ -1135,85 +1135,6 @@ function ContactProtocol({ klasse, gebiedId, stadNaam }: { klasse: LocatieKlasse
   )
 }
 
-// ── Vastgoeddata huurcontracten per gebied ────────────────────────────────────
-
-interface VastgoedHuurder {
-  naam: string
-  m2: number
-  prijsM2: number
-  datum: string
-  makelaar?: string
-}
-
-interface VastgoedGebouw {
-  adres: string
-  postcode: string
-  huurders: VastgoedHuurder[]
-}
-
-const VASTGOED_PER_GEBIED: Record<string, VastgoedGebouw[]> = {
-  'centrum-eindhoven': [
-    {
-      adres: 'Willemstraat 1M',
-      postcode: '5611 HA',
-      huurders: [
-        { naam: 'Mignot & De Block', m2: 179, prijsM2: 523, datum: '2023-04' },
-      ],
-    },
-  ],
-  'strijp-s': [
-    {
-      adres: 'Achtseweg Zuid 161B',
-      postcode: '5651 GW',
-      huurders: [
-        { naam: 'PHC Telecom', m2: 180, prijsM2: 500, datum: '2025-03', makelaar: 'Verschuuren & Schreppers Bedrijfsmakelaars' },
-      ],
-    },
-  ],
-}
-
-function VastgoedHuurprijzenSection({ gebiedId }: { gebiedId: string }) {
-  const gebouwen = VASTGOED_PER_GEBIED[gebiedId]
-  if (!gebouwen || gebouwen.length === 0) return null
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {gebouwen.map((geb) => (
-        <div key={geb.adres} style={{ background: '#f8f7f5', borderRadius: 10, padding: 14, border: '1px solid var(--c-border)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>{geb.adres}</div>
-              <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1 }}>{geb.postcode} · Eindhoven</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: geb.huurders[0]?.makelaar ? 10 : 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 2 }}>
-              <span>Huurder</span>
-              <span style={{ display: 'flex', gap: 20 }}><span>€/m²</span><span>m²</span><span>datum</span></span>
-            </div>
-            {geb.huurders.map((h) => (
-              <div key={h.naam} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12 }}>
-                <span style={{ color: 'var(--c-text)' }}>{h.naam}</span>
-                <span style={{ display: 'flex', gap: 16, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
-                  <span style={{ color: 'var(--c-coral)', fontWeight: 700, minWidth: 52, textAlign: 'right' }}>€{h.prijsM2}/m²</span>
-                  <span style={{ color: 'var(--c-muted)', minWidth: 44, textAlign: 'right' }}>{h.m2} m²</span>
-                  <span style={{ color: 'var(--c-subtle)', minWidth: 48 }}>{h.datum}</span>
-                </span>
-              </div>
-            ))}
-          </div>
-          {geb.huurders[0]?.makelaar && (
-            <div style={{ padding: '6px 10px', background: '#f1f5f9', borderRadius: 6, fontSize: 11, color: 'var(--c-muted)' }}>
-              <span style={{ fontWeight: 700, color: 'var(--c-subtle)' }}>Makelaar: </span>{geb.huurders[0].makelaar}
-            </div>
-          )}
-        </div>
-      ))}
-      <div style={{ fontSize: 10, color: 'var(--c-subtle)' }}>Bron: vastgoeddata.nl · export mei 2026</div>
-    </div>
-  )
-}
-
 // ── InzichtKaarten ────────────────────────────────────────────────────────────
 
 const CATEGORIE_STYLE: Record<InzichtCategorie, { bg: string; text: string; border: string; label: string }> = {
@@ -1767,13 +1688,6 @@ export default function GebiedDetailView() {
           {gebied.kansrijkeLeads && gebied.kansrijkeLeads.length > 0 && effectiveStatus !== 'under-construction' && (
             <Section title={`Kansrijke leads — ${gebied.kansrijkeLeads.length} geselecteerde panden`}>
               <KansrijkeLeadsSection leads={gebied.kansrijkeLeads} stad={geselecteerdeStad?.naam} />
-            </Section>
-          )}
-
-          {/* Vastgoeddata huurcontracten */}
-          {VASTGOED_PER_GEBIED[gebied.id] && (
-            <Section title="Huurcontracten (Vastgoeddata) — ≥ 100 m²">
-              <VastgoedHuurprijzenSection gebiedId={gebied.id} />
             </Section>
           )}
 
