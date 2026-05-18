@@ -2,14 +2,14 @@ import { useViewMode, type DashboardViewMode } from '../context/ViewModeContext'
 
 const MODES: { value: DashboardViewMode; label: string; sub: string }[] = [
   {
-    value: 'informatie',
-    label: 'Informatie',
-    sub: 'Marktdata, concurrenten & KPIs',
-  },
-  {
     value: 'actie',
     label: 'Actie',
     sub: 'Status, prioriteit & volgende stap',
+  },
+  {
+    value: 'informatie',
+    label: 'Informatie',
+    sub: 'Marktdata, concurrenten & KPIs',
   },
 ]
 

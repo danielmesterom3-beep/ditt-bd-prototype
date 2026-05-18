@@ -10,7 +10,7 @@ interface ViewModeContextValue {
 const ViewModeContext = createContext<ViewModeContextValue | null>(null)
 
 export function ViewModeProvider({ children }: { children: ReactNode }) {
-  const [viewMode, setViewMode] = useState<DashboardViewMode>('informatie')
+  const [viewMode, setViewMode] = useState<DashboardViewMode>('actie')
   return (
     <ViewModeContext.Provider value={{ viewMode, setViewMode }}>
       {children}
