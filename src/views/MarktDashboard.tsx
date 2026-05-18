@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigation } from '../context/NavigationContext'
+import StadsKaart from '../components/StadsKaart'
 import { useFilters } from '../context/FilterContext'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
 import { useDataOverride } from '../context/DataOverrideContext'
@@ -59,7 +60,7 @@ function pandJaar(s: string): number {
 
 // ── GebiedCard ────────────────────────────────────────────────────────────────
 
-function GebiedCard({ gebied }: { gebied: Gebied }) {
+export function GebiedCard({ gebied }: { gebied: Gebied }) {
   const { setGebied } = useNavigation()
   const { getStatus } = useGebiedStatus()
   const { getMarktdata, setField } = useDataOverride()
@@ -311,7 +312,7 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
 // ── MarktDashboard ────────────────────────────────────────────────────────────
 
 export default function MarktDashboard() {
-  const { geselecteerdeStad, setStad } = useNavigation()
+  const { geselecteerdeStad, setStad, setGebied } = useNavigation()
   const { filters } = useFilters()
 
   const huidigStad = geselecteerdeStad ?? steden[0]
@@ -404,30 +405,7 @@ export default function MarktDashboard() {
       </div>
 
       {/* ── Kaart ── */}
-      <div
-        className="rounded-xl p-4"
-        style={{
-          backgroundImage: 'radial-gradient(circle, #ccc9c2 1px, transparent 1px)',
-          backgroundSize: '22px 22px',
-          backgroundColor: '#eae8e3',
-          border: '1px solid #dbd9d4',
-          minHeight: 360,
-        }}
-      >
-        {gefilterdeGebieden.length === 0 ? (
-          <div className="flex items-center justify-center" style={{ minHeight: 300 }}>
-            <p className="text-sm" style={{ color: 'var(--c-subtle)' }}>
-              Geen gebieden gevonden met de huidige filters.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {gefilterdeGebieden.map((g) => (
-              <GebiedCard key={g.id} gebied={g} />
-            ))}
-          </div>
-        )}
-      </div>
+      <StadsKaart stad={huidigStad} onGebiedClick={setGebied} />
     </div>
   )
 }
