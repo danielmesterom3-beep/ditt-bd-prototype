@@ -2510,39 +2510,53 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
                 <div style={{ height: '100%', width: `${barPct}%`, background: kleur, borderRadius: 3, transition: 'width 0.2s' }} />
               </div>
 
-              {/* Formule */}
-              <div style={{
-                background: '#f8f7f5',
-                borderRadius: 8,
-                padding: '10px 14px',
-                fontSize: 12,
-                color: 'var(--c-muted)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                flexWrap: 'wrap',
-              }}>
-                <span style={{ fontVariantNumeric: 'tabular-nums' }}>{stad.leegstandM2.toLocaleString('nl-NL')} m²</span>
-                <span style={{ color: 'var(--c-subtle)' }}>leegstand</span>
-                <span style={{ color: 'var(--c-subtle)' }}>÷</span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  <button onClick={() => setPartijOverrides(p => ({ ...p, [stad.naam]: Math.max(1, nPartijen - 1) }))}
-                    style={{ width: 18, height: 18, borderRadius: 4, border: '1px solid var(--c-border)', background: 'white', cursor: 'pointer', fontSize: 12, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
-                  <span style={{ fontWeight: 700, minWidth: 12, textAlign: 'center' }}>{nPartijen}</span>
-                  <button onClick={() => setPartijOverrides(p => ({ ...p, [stad.naam]: nPartijen + 1 }))}
-                    style={{ width: 18, height: 18, borderRadius: 4, border: '1px solid var(--c-border)', background: 'white', cursor: 'pointer', fontSize: 12, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
-                  <span>partijen</span>
-                </span>
-                <span style={{ color: 'var(--c-subtle)' }}>×</span>
-                <span>{Math.round(stad.penetratie * 100)}% penetratie</span>
-                <span style={{ color: 'var(--c-subtle)' }}>=</span>
-                <strong style={{ color: 'var(--c-text)' }}>{dittM2.toLocaleString('nl-NL')} m²</strong>
-                <span style={{ color: 'var(--c-subtle)' }}>×</span>
-                <strong style={{ color: kleur }}>€ {prijs.toLocaleString('nl-NL')}/m²</strong>
-                <span style={{ color: 'var(--c-subtle)' }}>=</span>
-                <strong style={{ color: 'var(--c-text)' }}>{fmEuro(cap)}</strong>
-                <BronTooltip bron={MARKTCAP_BRON} />
-              </div>
+              {/* Formule — uitklapbaar */}
+              <details style={{ fontSize: 12 }}>
+                <summary style={{
+                  fontSize: 11,
+                  color: 'var(--c-subtle)',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  listStyle: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}>
+                  <span>ℹ</span> Berekeningswijze
+                </summary>
+                <div style={{
+                  marginTop: 8,
+                  background: '#f8f7f5',
+                  borderRadius: 8,
+                  padding: '10px 14px',
+                  color: 'var(--c-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  flexWrap: 'wrap',
+                }}>
+                  <span style={{ fontVariantNumeric: 'tabular-nums' }}>{stad.leegstandM2.toLocaleString('nl-NL')} m²</span>
+                  <span style={{ color: 'var(--c-subtle)' }}>leegstand</span>
+                  <span style={{ color: 'var(--c-subtle)' }}>÷</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <button onClick={() => setPartijOverrides(p => ({ ...p, [stad.naam]: Math.max(1, nPartijen - 1) }))}
+                      style={{ width: 18, height: 18, borderRadius: 4, border: '1px solid var(--c-border)', background: 'white', cursor: 'pointer', fontSize: 12, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+                    <span style={{ fontWeight: 700, minWidth: 12, textAlign: 'center' }}>{nPartijen}</span>
+                    <button onClick={() => setPartijOverrides(p => ({ ...p, [stad.naam]: nPartijen + 1 }))}
+                      style={{ width: 18, height: 18, borderRadius: 4, border: '1px solid var(--c-border)', background: 'white', cursor: 'pointer', fontSize: 12, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                    <span>partijen</span>
+                  </span>
+                  <span style={{ color: 'var(--c-subtle)' }}>×</span>
+                  <span>{Math.round(stad.penetratie * 100)}% penetratie</span>
+                  <span style={{ color: 'var(--c-subtle)' }}>=</span>
+                  <strong style={{ color: 'var(--c-text)' }}>{dittM2.toLocaleString('nl-NL')} m²</strong>
+                  <span style={{ color: 'var(--c-subtle)' }}>×</span>
+                  <strong style={{ color: kleur }}>€ {prijs.toLocaleString('nl-NL')}/m²</strong>
+                  <span style={{ color: 'var(--c-subtle)' }}>=</span>
+                  <strong style={{ color: 'var(--c-text)' }}>{fmEuro(cap)}</strong>
+                  <BronTooltip bron={MARKTCAP_BRON} />
+                </div>
+              </details>
 
               {/* Slider */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>

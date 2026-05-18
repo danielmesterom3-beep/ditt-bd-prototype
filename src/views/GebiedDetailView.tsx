@@ -83,6 +83,12 @@ function fmM2(n: number) {
   return `${n} m²`
 }
 
+function nlDatum(iso: string): string {
+  if (!iso) return iso
+  const p = iso.split('-')
+  return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : iso
+}
+
 // ── Style constants ───────────────────────────────────────────────────────────
 
 const KLASSE_STYLE: Record<NonNullable<LocatieKlasse>, { bg: string; text: string; border: string }> = {
@@ -123,7 +129,7 @@ const MIX_LABELS: Record<string, string> = {
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, icon, children }: { title: string; icon?: string; children: React.ReactNode }) {
   return (
     <section>
       <h2
@@ -134,8 +140,12 @@ function Section({ title, children }: { title: string; children: React.ReactNode
           letterSpacing: '0.1em',
           color: 'var(--c-subtle)',
           margin: '0 0 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
         }}
       >
+        {icon && <span style={{ fontSize: 13, textTransform: 'none' }}>{icon}</span>}
         {title}
       </h2>
       {children}
@@ -156,7 +166,7 @@ function Gebiedskenmerken({ gebied }: { gebied: Gebied }) {
     { label: 'Totaal kantoor VVO',  value: fmM2(m.totaalKantoorVvo) },
     { label: 'Gem. huurprijs/m²/jr', value: m.huurprijsGemiddeld ? `€${m.huurprijsGemiddeld}` : `€${gem}` },
     { label: 'Opname 2025',        value: fmM2(m.opnameVorigeJaar) },
-    { label: 'Peildatum',           value: m.peildatum },
+    { label: 'Peildatum',           value: nlDatum(m.peildatum) },
   ]
 
   return (
@@ -183,7 +193,7 @@ function Gebiedskenmerken({ gebied }: { gebied: Gebied }) {
             }}
           >
             <EditableText storageKey={`gkm.${gebiedId}.${label}.label`} defaultValue={label} style={{ fontSize: 12, color: 'var(--c-muted)' }} />
-            <EditableText storageKey={`gkm.${gebiedId}.${label}.value`} defaultValue={value} style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-text)' }} />
+            <EditableText storageKey={`gkm.${gebiedId}.${label}.value`} defaultValue={value} style={{ fontSize: 12, fontWeight: 600, color: 'var(--c-text)' }} />
           </div>
         ))}
       </div>
@@ -583,7 +593,7 @@ function WarmContactCard({ contact, onDelete }: { contact: WarmContact; onDelete
               color: '#a8a29e',
             }}
           >
-            Laatste contact: {contact.datumLaatsteContact}
+            Laatste contact: {nlDatum(contact.datumLaatsteContact)}
           </span>
         )}
       </div>
@@ -963,7 +973,8 @@ function ContactProtocol({ klasse, gebiedId, stadNaam }: { klasse: LocatieKlasse
         }}
       >
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--c-subtle)' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--c-subtle)', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 13, textTransform: 'none' }}>📋</span>
             Contactprotocol
           </div>
           {aanbevolen && (
@@ -1027,14 +1038,14 @@ function ContactProtocol({ klasse, gebiedId, stadNaam }: { klasse: LocatieKlasse
         <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)' }}>
           Gebiedsprofiel — {stadNaam}
         </div>
-        <p style={{ fontSize: 12, color: 'var(--c-muted)', margin: 0, lineHeight: 1.6 }}>
+        <p style={{ fontSize: 12, color: 'var(--c-muted)', margin: 0, lineHeight: 1.65, maxWidth: 560 }}>
           {insteek.karakter}
         </p>
         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 2 }}>
           <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--c-coral)', whiteSpace: 'nowrap', paddingTop: 1 }}>
             Tip →
           </span>
-          <p style={{ fontSize: 12, color: 'var(--c-text)', margin: 0, lineHeight: 1.6 }}>
+          <p style={{ fontSize: 12, color: 'var(--c-text)', margin: 0, lineHeight: 1.65, maxWidth: 520 }}>
             {partijTip ?? insteek.kansen}
           </p>
         </div>
@@ -1660,7 +1671,7 @@ export default function GebiedDetailView() {
             )}
           </div>
           <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: 0 }}>
-            {geselecteerdeStad?.naam} · Peildatum {gebied.marktdata.peildatum}
+            {geselecteerdeStad?.naam} · Peildatum {nlDatum(gebied.marktdata.peildatum)}
           </p>
         </div>
 
@@ -1686,19 +1697,19 @@ export default function GebiedDetailView() {
         <>
           {/* Kansrijke leads */}
           {gebied.kansrijkeLeads && gebied.kansrijkeLeads.length > 0 && effectiveStatus !== 'under-construction' && (
-            <Section title={`Kansrijke leads — ${gebied.kansrijkeLeads.length} geselecteerde panden`}>
+            <Section icon="🎯" title={`Kansrijke leads — ${gebied.kansrijkeLeads.length} geselecteerde panden`}>
               <KansrijkeLeadsSection leads={gebied.kansrijkeLeads} stad={geselecteerdeStad?.naam} />
             </Section>
           )}
 
           {/* Gebiedskenmerken */}
-          <Section title="Gebiedskenmerken">
+          <Section icon="📊" title="Gebiedskenmerken">
             <Gebiedskenmerken gebied={gebied} />
           </Section>
 
           {/* Panden in ontwikkeling */}
           {heeftPanden && (
-            <Section title={`Panden in ontwikkeling met kantoorfunctie — ${zichtbarePanden.length} object${zichtbarePanden.length !== 1 ? 'en' : ''}`}>
+            <Section icon="🏗" title={`Panden in ontwikkeling met kantoorfunctie — ${zichtbarePanden.length} object${zichtbarePanden.length !== 1 ? 'en' : ''}`}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
                 {zichtbarePanden.map((pand) => (
                   <PandCard key={pand.id} pand={pand} onDelete={() => deletePand(pand.id)} />
@@ -1709,7 +1720,7 @@ export default function GebiedDetailView() {
 
           {/* Trends + Opdrachtgevers side by side */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-            <Section title={`Trends — ${trendCounts.positief} positief · ${trendCounts.neutraal} neutraal · ${trendCounts.negatief} negatief`}>
+            <Section icon="📈" title={`Trends — ${trendCounts.positief} positief · ${trendCounts.neutraal} neutraal · ${trendCounts.negatief} negatief`}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {zichtbareTrends.map((trend) => (
                   <TrendItem key={trend.id} trend={trend} onDelete={() => deleteTrend(trend.id)} />
@@ -1722,7 +1733,7 @@ export default function GebiedDetailView() {
               </div>
             </Section>
 
-            <Section title={`Interessante opdrachtgevers (SFO) — ${zichtbareOg.length}`}>
+            <Section icon="🏢" title={`Interessante opdrachtgevers (SFO) — ${zichtbareOg.length}`}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {zichtbareOg.map((og) => (
                   <OpdrachtgeverCard key={og.id} og={og} onDelete={() => deleteOg(og.id)} />
@@ -1746,7 +1757,7 @@ export default function GebiedDetailView() {
 
           {/* Warme contacten */}
           {heeftContacten && (
-            <Section title={`Warme contacten — ${zichtbareContacten.length}`}>
+            <Section icon="👋" title={`Warme contacten — ${zichtbareContacten.length}`}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
                 {zichtbareContacten.map((contact) => (
                   <WarmContactCard key={contact.id} contact={contact} onDelete={() => deleteContact(contact.id)} />
@@ -1757,7 +1768,7 @@ export default function GebiedDetailView() {
 
           {/* Veldonderzoek inzichten */}
           {gebied.inzichten.length > 0 && (
-            <Section title={`Veldonderzoek — ${gebied.inzichten.length} inzicht${gebied.inzichten.length !== 1 ? 'en' : ''} uit interviews`}>
+            <Section icon="💬" title={`Veldonderzoek — ${gebied.inzichten.length} inzicht${gebied.inzichten.length !== 1 ? 'en' : ''} uit interviews`}>
               <InzichtKaarten inzichten={gebied.inzichten} />
             </Section>
           )}
