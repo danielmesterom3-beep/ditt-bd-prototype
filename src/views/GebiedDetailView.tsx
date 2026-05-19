@@ -129,7 +129,7 @@ const MIX_LABELS: Record<string, string> = {
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
 
-function Section({ title, icon, children }: { title: string; icon?: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; icon?: string; children: React.ReactNode }) {
   return (
     <section>
       <h2
@@ -140,12 +140,8 @@ function Section({ title, icon, children }: { title: string; icon?: string; chil
           letterSpacing: '0.1em',
           color: 'var(--c-subtle)',
           margin: '0 0 14px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
         }}
       >
-        {icon && <span style={{ fontSize: 13, textTransform: 'none' }}>{icon}</span>}
         {title}
       </h2>
       {children}
@@ -973,8 +969,7 @@ function ContactProtocol({ klasse, gebiedId, stadNaam }: { klasse: LocatieKlasse
         }}
       >
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--c-subtle)', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 13, textTransform: 'none' }}>📋</span>
+          <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--c-subtle)' }}>
             Contactprotocol
           </div>
           {aanbevolen && (
@@ -1697,19 +1692,19 @@ export default function GebiedDetailView() {
         <>
           {/* Kansrijke leads */}
           {gebied.kansrijkeLeads && gebied.kansrijkeLeads.length > 0 && effectiveStatus !== 'under-construction' && (
-            <Section icon="🎯" title={`Kansrijke leads — ${gebied.kansrijkeLeads.length} geselecteerde panden`}>
+            <Section title={`Kansrijke leads — ${gebied.kansrijkeLeads.length} geselecteerde panden`}>
               <KansrijkeLeadsSection leads={gebied.kansrijkeLeads} stad={geselecteerdeStad?.naam} />
             </Section>
           )}
 
           {/* Gebiedskenmerken */}
-          <Section icon="📊" title="Gebiedskenmerken">
+          <Section title="Gebiedskenmerken">
             <Gebiedskenmerken gebied={gebied} />
           </Section>
 
           {/* Panden in ontwikkeling */}
           {heeftPanden && (
-            <Section icon="🏗" title={`Panden in ontwikkeling met kantoorfunctie — ${zichtbarePanden.length} object${zichtbarePanden.length !== 1 ? 'en' : ''}`}>
+            <Section title={`Panden in ontwikkeling met kantoorfunctie — ${zichtbarePanden.length} object${zichtbarePanden.length !== 1 ? 'en' : ''}`}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
                 {zichtbarePanden.map((pand) => (
                   <PandCard key={pand.id} pand={pand} onDelete={() => deletePand(pand.id)} />
@@ -1720,7 +1715,7 @@ export default function GebiedDetailView() {
 
           {/* Trends + Opdrachtgevers side by side */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-            <Section icon="📈" title={`Trends — ${trendCounts.positief} positief · ${trendCounts.neutraal} neutraal · ${trendCounts.negatief} negatief`}>
+            <Section title={`Trends — ${trendCounts.positief} positief · ${trendCounts.neutraal} neutraal · ${trendCounts.negatief} negatief`}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {zichtbareTrends.map((trend) => (
                   <TrendItem key={trend.id} trend={trend} onDelete={() => deleteTrend(trend.id)} />
@@ -1733,7 +1728,7 @@ export default function GebiedDetailView() {
               </div>
             </Section>
 
-            <Section icon="🏢" title={`Interessante opdrachtgevers (SFO) — ${zichtbareOg.length}`}>
+            <Section title={`Interessante opdrachtgevers (SFO) — ${zichtbareOg.length}`}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {zichtbareOg.map((og) => (
                   <OpdrachtgeverCard key={og.id} og={og} onDelete={() => deleteOg(og.id)} />
@@ -1757,7 +1752,7 @@ export default function GebiedDetailView() {
 
           {/* Warme contacten */}
           {heeftContacten && (
-            <Section icon="👋" title={`Warme contacten — ${zichtbareContacten.length}`}>
+            <Section title={`Warme contacten — ${zichtbareContacten.length}`}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
                 {zichtbareContacten.map((contact) => (
                   <WarmContactCard key={contact.id} contact={contact} onDelete={() => deleteContact(contact.id)} />
@@ -1768,7 +1763,7 @@ export default function GebiedDetailView() {
 
           {/* Veldonderzoek inzichten */}
           {gebied.inzichten.length > 0 && (
-            <Section icon="💬" title={`Veldonderzoek — ${gebied.inzichten.length} inzicht${gebied.inzichten.length !== 1 ? 'en' : ''} uit interviews`}>
+            <Section title={`Veldonderzoek — ${gebied.inzichten.length} inzicht${gebied.inzichten.length !== 1 ? 'en' : ''} uit interviews`}>
               <InzichtKaarten inzichten={gebied.inzichten} />
             </Section>
           )}
