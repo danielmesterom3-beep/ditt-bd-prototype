@@ -267,7 +267,7 @@ const eindhoven: Gebied[] = [
         branche: 'Subsidie- / innovatieadvies',
         omvang: 729,
         huurprijsPerM2: 182,
-        eigenaar: 'Aroundtown',
+        eigenaar: 'Braintown',
         contractBegin: '2022-07',
         motivatie: 'PNO Consultants — marktleider EU-subsidieadvies — huurt 729 m² in The Core. Contract loopt in juli 2027 af; dit is de grootste en meest profielrijke lead in het centrum, precies op de grens van Ditt.\'s sweetspot.',
       },

@@ -358,7 +358,7 @@ const rotterdam: Gebied[] = [
         omvang: 400,
         contractBegin: '2022-09',
         eigenaar: 'Bouwinvest',
-        motivatie: 'Humanoids is een AI-bedrijf dat 400 m² huurt in het WTC Rotterdam — een van de sterkste kantooradressen van de stad. AI-bedrijven investeren bovengemiddeld in een kantooromgeving die talent aantrekt en hun technologische identiteit uitstraalt. Eigenaar Bouwinvest is een grote institutionele belegger met een brede nationale portefeuille; een goed eerste project opent de deur naar herhaalcontacten.',
+        motivatie: 'Humanoids is een UX design & development bureau dat 400 m² huurt in het WTC Rotterdam — een van de sterkste kantooradressen van de stad. AI-bedrijven investeren bovengemiddeld in een kantooromgeving die talent aantrekt en hun technologische identiteit uitstraalt. Eigenaar Bouwinvest is een grote institutionele belegger met een brede nationale portefeuille; een goed eerste project opent de deur naar herhaalcontacten.',
       },
       {
         id: 'rc-lead-06',
