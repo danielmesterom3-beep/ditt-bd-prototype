@@ -1498,7 +1498,7 @@ function LeadCard({ lead, stad, onDelete }: { lead: KansrijkeLead; stad?: string
               position: 'relative',
             }}
           >
-            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--c-subtle)', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--c-subtle)', minHeight: 28, display: 'flex', alignItems: 'flex-start', gap: 4, whiteSpace: 'nowrap' }}>
               {label}
               {label === 'Begin contract' && (
                 stad?.toLowerCase().includes('rotterdam')
