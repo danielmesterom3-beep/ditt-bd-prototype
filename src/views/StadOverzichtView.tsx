@@ -170,7 +170,8 @@ function KpiItem({
           color: 'var(--c-subtle)',
           marginBottom: 4,
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'flex-start',
+          minHeight: 28,
         }}
       >
         <EditableText storageKey={`${storageKey}.label`} defaultValue={label} />
@@ -356,13 +357,13 @@ function StadPanel({ stad }: { stad: Stad }) {
                 ].map(({ label, value, bron }) => (
                   <div
                     key={label}
-                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}
+                    style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'baseline', gap: 8 }}
                   >
-                    <span style={{ fontSize: 12, color: 'var(--c-muted)', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                    <span style={{ fontSize: 12, color: 'var(--c-muted)', display: 'flex', alignItems: 'center' }}>
                       <EditableText storageKey={`ind.${stad.id}.${label}.label`} defaultValue={label} />
                       {bron && <BronTooltip bron={bron} />}
                     </span>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--c-text)', textAlign: 'right' }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--c-text)', textAlign: 'right', whiteSpace: 'nowrap' }}>
                       <EditableText storageKey={`ind.${stad.id}.${label}.value`} defaultValue={value} />
                     </span>
                   </div>
