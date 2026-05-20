@@ -1493,12 +1493,16 @@ function LeadCard({ lead, stad, onDelete }: { lead: KansrijkeLead; stad?: string
           <div
             key={label}
             style={{
-              padding: '8px 12px',
+              padding: '10px 12px',
               borderLeft: i > 0 ? '1px solid var(--c-border)' : 'none',
-              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
             }}
           >
-            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--c-subtle)', minHeight: 28, display: 'flex', alignItems: 'flex-start', gap: 4, whiteSpace: 'nowrap' }}>
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--c-subtle)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
               {label}
               {label === 'Begin contract' && (
                 stad?.toLowerCase().includes('rotterdam')
@@ -1638,7 +1642,7 @@ function KansrijkeLeadsSection({ leads, stad }: { leads: KansrijkeLead[]; stad?:
         }}
       >
         <span style={{ fontSize: 12, color: 'var(--c-muted)', marginRight: 4 }}>
-          {leads.length} lead{leads.length !== 1 ? 's' : ''} geselecteerd
+          {leads.length} aflopend{leads.length !== 1 ? 'e contracten' : ' contract'}
         </span>
         {(['rood', 'oranje', 'groen'] as const).map((u) => counts[u] > 0 && (
           <span
@@ -1825,7 +1829,7 @@ export default function GebiedDetailView() {
         <>
           {/* Kansrijke leads */}
           {gebied.kansrijkeLeads && gebied.kansrijkeLeads.length > 0 && effectiveStatus !== 'under-construction' && (
-            <Section title={`Kansrijke leads — ${gebied.kansrijkeLeads.length} geselecteerde panden`}>
+            <Section title={`Aflopende contracten — ${gebied.kansrijkeLeads.length} geselecteerde panden`}>
               <KansrijkeLeadsSection leads={gebied.kansrijkeLeads} stad={geselecteerdeStad?.naam} />
             </Section>
           )}

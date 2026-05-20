@@ -85,57 +85,48 @@ const MIX: Record<string, { color: string; label: string }> = {
 
 function VastgoedMixChart({ gebieden }: { gebieden: Gebied[] }) {
   const { getStatus } = useGebiedStatus()
-  const [open, setOpen] = useState(false)
 
   return (
-    <div style={{ border: '1px solid var(--c-border)', borderRadius: 8, overflow: 'hidden' }}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: '#faf9f7', border: 'none', cursor: 'pointer', gap: 12 }}
-      >
-        <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', whiteSpace: 'nowrap' }}>Vastgoedmix</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          {Object.entries(MIX).map(([key, { color, label }]) => (
-            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <div style={{ width: 8, height: 8, borderRadius: 2, background: color, flexShrink: 0 }} />
-              <span style={{ fontSize: 11, color: 'var(--c-muted)' }}>{label}</span>
-            </div>
-          ))}
-        </div>
-        <span style={{ fontSize: 13, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s', flexShrink: 0 }}>↓</span>
-      </button>
-
-      {open && (
-        <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {gebieden.map((g) => {
-            const effectiveStatus = getStatus(g.id, g.status ?? 'live')
-            const statusCfg = effectiveStatus !== 'live' ? GEBIED_STATUS_CONFIG[effectiveStatus] : null
-            return (
-              <div key={g.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ minWidth: 130, maxWidth: 130, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  {statusCfg && (
-                    <span title={statusCfg.label} style={{ fontSize: 10, color: statusCfg.text, flexShrink: 0 }}>
-                      {statusCfg.dot}
-                    </span>
-                  )}
-                  <span style={{ fontSize: 11, color: 'var(--c-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {g.naam}
+    <div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {gebieden.map((g) => {
+          const effectiveStatus = getStatus(g.id, g.status ?? 'live')
+          const statusCfg = effectiveStatus !== 'live' ? GEBIED_STATUS_CONFIG[effectiveStatus] : null
+          return (
+            <div key={g.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ minWidth: 130, maxWidth: 130, display: 'flex', alignItems: 'center', gap: 4 }}>
+                {statusCfg && (
+                  <span title={statusCfg.label} style={{ fontSize: 10, color: statusCfg.text, flexShrink: 0 }}>
+                    {statusCfg.dot}
                   </span>
-                </div>
-                <div style={{ flex: 1, display: 'flex', height: 20, borderRadius: 4, overflow: 'hidden', background: '#f0ede8' }}>
-                  {Object.keys(MIX).map((key) => {
-                    const pct = g.vastgoedMix[key as keyof typeof g.vastgoedMix]
-                    if (!pct) return null
-                    return (
-                      <div key={key} title={`${MIX[key].label}: ${pct}%`} style={{ width: `${pct}%`, background: MIX[key].color }} />
-                    )
-                  })}
-                </div>
+                )}
+                <span style={{ fontSize: 11, color: 'var(--c-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {g.naam}
+                </span>
               </div>
-            )
-          })}
-        </div>
-      )}
+              <div style={{ flex: 1, display: 'flex', height: 20, borderRadius: 4, overflow: 'hidden', background: '#f0ede8' }}>
+                {Object.keys(MIX).map((key) => {
+                  const pct = g.vastgoedMix[key as keyof typeof g.vastgoedMix]
+                  if (!pct) return null
+                  return (
+                    <div key={key} title={`${MIX[key].label}: ${pct}%`} style={{ width: `${pct}%`, background: MIX[key].color }} />
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Legend */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 14px', marginTop: 14 }}>
+        {Object.entries(MIX).map(([key, { color, label }]) => (
+          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div style={{ width: 10, height: 10, borderRadius: 2, background: color }} />
+            <span style={{ fontSize: 11, color: 'var(--c-muted)' }}>{label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -378,7 +369,10 @@ function StadPanel({ stad }: { stad: Stad }) {
 
           {/* Right column — vastgoedmix chart */}
           <div style={{ padding: '20px 24px 20px 20px' }}>
-            <VastgoedMixChart gebieden={stad.gebieden} />
+            <div style={sectionLabelStyle}>Vastgoedmix per gebied</div>
+            <div style={{ marginTop: 14 }}>
+              <VastgoedMixChart gebieden={stad.gebieden} />
+            </div>
 
             {/* Prime NIY context */}
             {jll && (
