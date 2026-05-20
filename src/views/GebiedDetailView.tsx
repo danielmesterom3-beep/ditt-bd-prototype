@@ -1480,7 +1480,7 @@ function LeadCard({ lead, stad, onDelete }: { lead: KansrijkeLead; stad?: string
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: lead.huurprijsPerM2 ? '1fr 1fr 1fr' : '1fr 1fr',
+          gridTemplateColumns: '1fr 1fr 1fr',
           background: '#faf9f7',
           borderBottom: '1px solid var(--c-border)',
         }}
@@ -1488,7 +1488,7 @@ function LeadCard({ lead, stad, onDelete }: { lead: KansrijkeLead; stad?: string
         {[
           { label: 'Omvang', value: `${lead.omvang} m²` },
           { label: 'Begin contract', value: beginLabel },
-          ...(lead.huurprijsPerM2 ? [{ label: 'Huurprijs', value: `€${lead.huurprijsPerM2}/m²/jr` }] : []),
+          { label: 'Huurprijs', value: lead.huurprijsPerM2 ? `€${lead.huurprijsPerM2}/m²/jr` : '—' },
         ].map(({ label, value }, i) => (
           <div
             key={label}
