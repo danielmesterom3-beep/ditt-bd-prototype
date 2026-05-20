@@ -1279,6 +1279,52 @@ function InzichtKaarten({ inzichten }: { inzichten: InterviewInzicht[] }) {
 
 // ── GebiedDetailView ──────────────────────────────────────────────────────────
 
+// ── Begrotingsberekening (gedeeld met StadOverzichtView) ──────────────────────
+
+const LEAD_FITOUT_TABLE: Record<string, Record<string, number>> = {
+  Open:        { Low: 350, Mid: 500, High: 700 },
+  Hybrid:      { Low: 450, Mid: 600, High: 800 },
+  Traditional: { Low: 550, Mid: 700, High: 900 },
+}
+const LEAD_FURNITURE_TABLE: Record<string, number> = { Low: 250, Mid: 325, High: 400 }
+const LEAD_IDENTITY_TABLE:  Record<string, number>  = { Low: 50,  Mid: 75,  High: 100 }
+const LEAD_MEP_OPTIES = [
+  { label: 'Basic 100',       value: 100 },
+  { label: 'Basic 150',       value: 150 },
+  { label: 'Basic 200',       value: 200 },
+  { label: 'Medium 250',      value: 250 },
+  { label: 'Medium 300',      value: 300 },
+  { label: 'Medium 350',      value: 350 },
+  { label: 'High 400',        value: 400 },
+  { label: 'High 450',        value: 450 },
+  { label: 'High 500',        value: 500 },
+  { label: 'BREEAM 550',      value: 550 },
+  { label: 'BREEAM 600',      value: 600 },
+  { label: 'BREEAM 650',      value: 650 },
+  { label: 'BREEAM High 700', value: 700 },
+  { label: 'BREEAM High 750', value: 750 },
+]
+
+function calcLeadBegroting(m2: number, type: string, fitout: string, furn: string, ident: string, mep: number) {
+  const fp = LEAD_FITOUT_TABLE[type][fitout]
+  const up = LEAD_FURNITURE_TABLE[furn]
+  const ip = LEAD_IDENTITY_TABLE[ident]
+  const f  = 1 / 1.04
+  const inv_f  = fp  * m2 * f
+  const inv_u  = up  * m2 * f
+  const inv_i  = ip  * m2 * f
+  const inv_m  = mep * m2 * f
+  const sub    = inv_f + inv_u + inv_i + inv_m
+  const inv_bp = sub * 0.04
+  const total  = sub + inv_bp
+  const inkoop = inv_f * 0.65 + inv_u * 0.65 + inv_i * 0.65 + inv_m * 0.90 + inv_bp * 0.65
+  return { total, inkoop, marge: total > 0 ? (total - inkoop) / total : 0, per_m2: total / m2 }
+}
+
+function fmK(n: number) {
+  return n >= 1000 ? `€${(n / 1000).toFixed(0)}k` : `€${Math.round(n).toLocaleString('nl-NL')}`
+}
+
 // ── Section 0: Kansrijke leads ────────────────────────────────────────────────
 
 function InfoTooltip({ storageKey, defaultQuote }: { storageKey: string; defaultQuote: string }) {
@@ -1354,10 +1400,23 @@ const URGENTIE_CFG = {
   groen:  { label: '> 2 jaar',   bg: '#f0fdf4', text: '#166534', border: '#86efac', dot: '#22c55e' },
 }
 
+const SEL_STYLE: React.CSSProperties = {
+  fontSize: 11, padding: '3px 6px',
+  border: '1px solid var(--c-border)', borderRadius: 5,
+  background: 'var(--c-surface)', color: 'var(--c-text)', cursor: 'pointer',
+}
+
 function LeadCard({ lead, stad, onDelete }: { lead: KansrijkeLead; stad?: string; onDelete?: () => void }) {
   const u = urgentie(lead.contractBegin)
   const cfg = URGENTIE_CFG[u]
   const [jaar, maand] = lead.contractBegin.split('-')
+  const [showBegroting, setShowBegroting] = useState(false)
+  const [bType,  setBType]  = useState('Hybrid')
+  const [bFit,   setBFit]   = useState('Mid')
+  const [bFurn,  setBFurn]  = useState('Mid')
+  const [bIdent, setBIdent] = useState('Mid')
+  const [bMep,   setBMep]   = useState(350)
+  const calc = calcLeadBegroting(lead.omvang, bType, bFit, bFurn, bIdent, bMep)
   const maandNamen = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec']
   const beginLabel = `${maandNamen[parseInt(maand) - 1]} ${jaar}`
 
@@ -1466,6 +1525,80 @@ function LeadCard({ lead, stad, onDelete }: { lead: KansrijkeLead; stad?: string
           Waarom kansrijk voor Ditt
         </div>
         <EditableText storageKey={`lead.${lead.id}.motivatie`} defaultValue={lead.motivatie} multiline tag="div" style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.65 }} />
+      </div>
+
+      {/* Begrotingsindcatie toggle */}
+      <div style={{ borderTop: '1px solid var(--c-border)' }}>
+        <button
+          onClick={() => setShowBegroting((o) => !o)}
+          style={{
+            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '9px 18px', background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: 11, fontWeight: 700, color: '#6366f1',
+            textTransform: 'uppercase', letterSpacing: '0.07em',
+          }}
+        >
+          <span>Begrotingsindicatie</span>
+          <span style={{ transform: showBegroting ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s', fontSize: 14 }}>↓</span>
+        </button>
+
+        {showBegroting && (
+          <div style={{ padding: '0 18px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* Controls */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--c-subtle)' }}>Type</span>
+                <select style={SEL_STYLE} value={bType} onChange={(e) => setBType(e.target.value)}>
+                  {['Open', 'Hybrid', 'Traditional'].map((t) => <option key={t}>{t}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--c-subtle)' }}>Fitout</span>
+                <select style={SEL_STYLE} value={bFit} onChange={(e) => setBFit(e.target.value)}>
+                  {['Low', 'Mid', 'High'].map((n) => <option key={n}>{n}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--c-subtle)' }}>Furniture</span>
+                <select style={SEL_STYLE} value={bFurn} onChange={(e) => setBFurn(e.target.value)}>
+                  {['Low', 'Mid', 'High'].map((n) => <option key={n}>{n}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--c-subtle)' }}>Identity</span>
+                <select style={SEL_STYLE} value={bIdent} onChange={(e) => setBIdent(e.target.value)}>
+                  {['Low', 'Mid', 'High'].map((n) => <option key={n}>{n}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3, gridColumn: '1 / -1' }}>
+                <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--c-subtle)' }}>Installaties</span>
+                <select style={SEL_STYLE} value={bMep} onChange={(e) => setBMep(Number(e.target.value))}>
+                  {LEAD_MEP_OPTIES.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Resultaat */}
+            <div style={{ background: '#1e293b', borderRadius: 8, padding: '10px 14px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+              <div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Investering</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'white' }}>{fmK(calc.total)}</div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>€{Math.round(calc.per_m2).toLocaleString('nl-NL')}/m²</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Inkoop</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.75)' }}>{fmK(calc.inkoop)}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>Marge</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#4ade80' }}>{(calc.marge * 100).toFixed(1)}%</div>
+              </div>
+            </div>
+            <div style={{ fontSize: 9, color: 'var(--c-subtle)' }}>
+              {lead.omvang} m² · Begrotingssheet 2026 Premium · bouwplaats 4% inbegrepen
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
