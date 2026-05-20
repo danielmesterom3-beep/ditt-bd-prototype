@@ -104,14 +104,19 @@ function VastgoedMixChart({ gebieden }: { gebieden: Gebied[] }) {
                   {g.naam}
                 </span>
               </div>
-              <div style={{ flex: 1, display: 'flex', height: 20, borderRadius: 4, overflow: 'hidden', background: '#f0ede8' }}>
-                {Object.keys(MIX).map((key) => {
-                  const pct = g.vastgoedMix[key as keyof typeof g.vastgoedMix]
-                  if (!pct) return null
-                  return (
-                    <div key={key} title={`${MIX[key].label}: ${pct}%`} style={{ width: `${pct}%`, background: MIX[key].color }} />
-                  )
-                })}
+              <div style={{ display: 'flex', alignItems: 'center', flex: 1, gap: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#ff7f50', minWidth: 26, textAlign: 'right', flexShrink: 0 }}>
+                  {g.vastgoedMix.kantoor}%
+                </span>
+                <div style={{ flex: 1, display: 'flex', height: 20, borderRadius: 4, overflow: 'hidden', background: '#f0ede8' }}>
+                  {Object.keys(MIX).map((key) => {
+                    const pct = g.vastgoedMix[key as keyof typeof g.vastgoedMix]
+                    if (!pct) return null
+                    return (
+                      <div key={key} title={`${MIX[key].label}: ${pct}%`} style={{ width: `${pct}%`, background: MIX[key].color }} />
+                    )
+                  })}
+                </div>
               </div>
             </div>
           )
