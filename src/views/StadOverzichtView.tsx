@@ -2767,15 +2767,24 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
 
       {/* 4 · Veldonderzoek-inzichten — uitklapbaar */}
       <div>
-        <button
-          onClick={() => setOpenVeld((o) => !o)}
-          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', marginBottom: openVeld ? 10 : 0 }}
-        >
-          <div style={subLabel}>4 · Veldonderzoek — markt, huurcontracten &amp; turn-key</div>
-          <span style={{ fontSize: 14, color: 'var(--c-subtle)', transform: openVeld ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
-        </button>
-        {openVeld && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={subLabel}>4 · Veldonderzoek — markt, huurcontracten &amp; turn-key</div>
+        <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+          <button
+            onClick={() => setOpenVeld((o) => !o)}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+          >
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em' }}>
+                Veldonderzoek inzichten
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
+                Marktomvang · Huurcontractduren · Turn-key vraag · Fitoutkosten
+              </div>
+            </div>
+            <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: openVeld ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+          </button>
+          {openVeld && (
+          <div style={{ borderTop: '1px solid var(--c-border)', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
             {deletedVeld.size > 0 && (
               <button
                 onClick={() => setDeletedVeld(new Set())}
@@ -2832,7 +2841,8 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
               )
             })}
           </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* 5 · Makelaars-quotes */}
