@@ -3094,6 +3094,241 @@ const F2_PRODUCTEN: { id: F2Product; label: string }[] = [
   { id: 'detail-and-build',  label: 'Detail & Build'  },
 ]
 
+// ── FASE-FASE 3: Actief prospecting ──────────────────────────────────────────
+
+type OntwikkelingFaseBadge = { label: string; bg: string; text: string }
+const FASE_BADGE: Record<string, OntwikkelingFaseBadge> = {
+  planfase:   { label: 'Planfase',   bg: '#f1f5f9', text: '#475569' },
+  vergunning: { label: 'Vergunning', bg: '#fefce8', text: '#854d0e' },
+  bouw:       { label: 'Bouw',       bg: '#fff7ed', text: '#c2410c' },
+  oplevering: { label: 'Oplevering', bg: '#f0fdf4', text: '#166534' },
+}
+
+function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
+  const stadId = stadNaam.toLowerCase() as 'eindhoven' | 'rotterdam'
+  const colors = STAD_COLORS[stadId]
+
+  // 1. Rendabelste gebouwen — gefilterd op stad
+  const rendabeleGebouwen = RENDABELE_GEBOUWEN.filter(
+    (g) => g.stad.toLowerCase() === stadId
+  )
+
+  // 2. Panden in ontwikkeling — aggregaat uit steden-data
+  const stadData = steden.find((s) => s.naam === stadNaam)
+  const pandenInOntwikkeling = stadData?.gebieden.flatMap((g) =>
+    g.pandenInOntwikkeling.map((p) => ({ ...p, gebiedNaam: g.naam }))
+  ) ?? []
+
+  // 3. Recente transacties — gefilterd op stad
+  const transactiesVoorStad = TRANSACTIES_DATA.filter((g) => g.stad === stadId)
+  const totalTransacties = transactiesVoorStad.reduce((s, g) => s + g.transacties.length, 0)
+
+  const subLabel: React.CSSProperties = {
+    fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)',
+    textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8,
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+      {/* 1 · Rendabelste gebouwen */}
+      <div>
+        <div style={subLabel}>1 · Rendabelste gebouwen</div>
+        {rendabeleGebouwen.length === 0 ? (
+          <div style={{
+            border: '1px dashed var(--c-border)', borderRadius: 10, padding: '20px 16px',
+            fontSize: 12, color: 'var(--c-muted)', textAlign: 'center', fontStyle: 'italic',
+          }}>
+            {/* TODO: voeg Rotterdam-gebouwen toe aan RENDABELE_GEBOUWEN in StadOverzichtView.tsx */}
+            Nog geen rendabele gebouwen beschikbaar voor {stadNaam}.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {rendabeleGebouwen.map((geb) => (
+              <RendabelGebouwCard key={geb.id} geb={geb} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 2 · Panden in ontwikkeling */}
+      <div>
+        <div style={subLabel}>2 · Panden in ontwikkeling</div>
+        {pandenInOntwikkeling.length === 0 ? (
+          <div style={{
+            border: '1px dashed var(--c-border)', borderRadius: 10, padding: '20px 16px',
+            fontSize: 12, color: 'var(--c-muted)', textAlign: 'center', fontStyle: 'italic',
+          }}>
+            {/* TODO: voeg pandenInOntwikkeling toe aan src/data/{stadNaam.toLowerCase()}.ts */}
+            Nog geen panden in ontwikkeling geregistreerd voor {stadNaam}.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {pandenInOntwikkeling.map((pand) => {
+              const badge = FASE_BADGE[pand.fase] ?? { label: pand.fase, bg: '#f1f5f9', text: '#475569' }
+              return (
+                <div
+                  key={pand.id}
+                  style={{
+                    border: '1px solid var(--c-border)', borderRadius: 10,
+                    padding: '14px 16px', background: 'var(--c-surface)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 6 }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>
+                        <EditableText
+                          storageKey={`fase3.${stadId}.pand.${pand.id}.naam`}
+                          defaultValue={pand.naam}
+                        />
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
+                        <EditableText
+                          storageKey={`fase3.${stadId}.pand.${pand.id}.adres`}
+                          defaultValue={pand.adres}
+                        />
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: badge.bg, color: badge.text, border: '1px solid transparent' }}>
+                        {badge.label}
+                      </span>
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: colors.accentLight, color: colors.accent, border: `1px solid ${colors.accentBorder}` }}>
+                        {pand.oppervlakte.toLocaleString('nl-NL')} m²
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+                    <span style={{ fontSize: 10, color: 'var(--c-muted)', padding: '2px 8px', borderRadius: 6, background: '#f8f7f5', border: '1px solid var(--c-border)' }}>
+                      Oplevering: <strong>{pand.verwachteOplevering}</strong>
+                    </span>
+                    {pand.ontwikkelaar && (
+                      <span style={{ fontSize: 10, color: 'var(--c-muted)', padding: '2px 8px', borderRadius: 6, background: '#f8f7f5', border: '1px solid var(--c-border)' }}>
+                        Ontwikkelaar: <strong>{pand.ontwikkelaar}</strong>
+                      </span>
+                    )}
+                    <span style={{ fontSize: 10, color: 'var(--c-subtle)', padding: '2px 8px', borderRadius: 6, background: '#f8f7f5', border: '1px solid var(--c-border)' }}>
+                      {(pand as any).gebiedNaam}
+                    </span>
+                  </div>
+                  <EditableText
+                    storageKey={`fase3.${stadId}.pand.${pand.id}.toelichting`}
+                    defaultValue={pand.toelichting}
+                    tag="div"
+                    multiline
+                    style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}
+                  />
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* 3 · Recente transacties */}
+      <div>
+        <div style={subLabel}>3 · Recente transacties</div>
+        {transactiesVoorStad.length === 0 ? (
+          <div style={{
+            border: '1px dashed var(--c-border)', borderRadius: 10, padding: '20px 16px',
+            fontSize: 12, color: 'var(--c-muted)', textAlign: 'center', fontStyle: 'italic',
+          }}>
+            Nog geen transacties beschikbaar voor {stadNaam}.
+          </div>
+        ) : (
+          <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--c-border)', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>Recente transacties</span>
+              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#f1f5f9', color: '#475569' }}>
+                {totalTransacties} transacties · {transactiesVoorStad.length} gebieden
+              </span>
+              <span style={{ fontSize: 10, color: 'var(--c-subtle)' }}>bron: Vastgoeddata.nl</span>
+            </div>
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {transactiesVoorStad.map((gebied) => (
+                <div key={gebied.id}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                    <div style={{ width: 3, height: 16, borderRadius: 2, background: colors.accent, flexShrink: 0 }} />
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }}>{gebied.naam}</span>
+                    <BronTooltip bron={BRONNEN.transacties} />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10 }}>
+                    {gebied.transacties.map((t, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          background: colors.accentLight,
+                          border: `1px solid ${colors.accentBorder}`,
+                          borderRadius: 10,
+                          padding: '12px 14px',
+                        }}
+                      >
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>
+                          <EditableText storageKey={`transactie.${gebied.id}.${i}.adres`} defaultValue={t.adres} />
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 6 }}>
+                          <span style={{ fontSize: 10, color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 6, padding: '2px 7px' }}>
+                            <EditableText storageKey={`transactie.${gebied.id}.${i}.verkoper`} defaultValue={t.verkoper} />
+                          </span>
+                          <span style={{ fontSize: 11, color: colors.accent, fontWeight: 700 }}>→</span>
+                          <span style={{ fontSize: 10, color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 6, padding: '2px 7px' }}>
+                            <EditableText storageKey={`transactie.${gebied.id}.${i}.koper`} defaultValue={t.koper} />
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: colors.accent, color: '#fff' }}>
+                            <EditableText storageKey={`transactie.${gebied.id}.${i}.koopsom`} defaultValue={t.koopsom} />
+                          </span>
+                          <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: 'var(--c-surface)', color: 'var(--c-muted)', border: '1px solid var(--c-border)' }}>
+                            <EditableText storageKey={`transactie.${gebied.id}.${i}.datum`} defaultValue={t.datum} />
+                          </span>
+                        </div>
+                        <EditableText
+                          storageKey={`transactie.${gebied.id}.${i}.context`}
+                          defaultValue={t.context}
+                          tag="div"
+                          style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 4 · Aflopende huurcontracten */}
+      <div>
+        <div style={subLabel}>4 · Aflopende huurcontracten</div>
+        {/* TODO: voeg AflopendeHuurcontract[] toe aan src/data/types.ts en per-stad data */}
+        <div style={{
+          border: '1px dashed var(--c-border)', borderRadius: 12,
+          padding: '20px 16px', background: 'var(--c-surface)',
+        }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>
+            Aflopende huurcontracten — {stadNaam}
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 12 }}>
+            Huurcontracten met verwachte einddatum binnen 12–24 maanden. Bron: NVM/CBRE lease-data of directe navraag bij makelaars.
+          </div>
+          <EditableText
+            storageKey={`fase3.${stadId}.huurcontracten.placeholder`}
+            defaultValue={`Placeholder — voeg hier aflopende huurcontracten in voor ${stadNaam}. Format: pandnaam · huurder · m² · einddatum contract.`}
+            tag="div"
+            multiline
+            style={{ fontSize: 12, color: 'var(--c-subtle)', lineHeight: 1.6, padding: '12px 14px', background: '#f8f7f5', borderRadius: 8, border: '1px solid var(--c-border)' }}
+          />
+        </div>
+      </div>
+
+    </div>
+  )
+}
+
+// ── FASE 2: Netwerk opbouwen ──────────────────────────────────────────────────
+
 function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
   const stadId = stadNaam.toLowerCase() as 'eindhoven' | 'rotterdam'
   const [product,    setProduct]    = useState<F2Product>('design-and-build')
@@ -3544,6 +3779,8 @@ function ActieOverzichtView() {
                       <Fase1OrientatieContent stadNaam={stad.naam} />
                     ) : huidigeFase.nr === 2 ? (
                       <Fase2NetwerkContent stadNaam={stad.naam} />
+                    ) : huidigeFase.nr === 3 ? (
+                      <Fase3ProspectingContent stadNaam={stad.naam} />
                     ) : (
                       <EditableText
                         storageKey={`actie.${stad.naam.toLowerCase()}.fase${huidigeFase.nr}.inhoud`}
