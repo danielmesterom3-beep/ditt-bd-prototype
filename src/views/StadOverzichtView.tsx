@@ -3327,6 +3327,332 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   )
 }
 
+// ── FASE 4: Acquisitiegesprek ─────────────────────────────────────────────────
+
+type F4Partij = 'eigenaar' | 'huurder'
+
+const F4_PROTOCOL: Record<F2Product, Record<F4Partij, F2ProtocolInhoud>> = {
+  'design-and-build': {
+    eigenaar: {
+      aanpak:  'Presenteer D&B als totaaloplossing bij herinrichting of renovatie. Nadruk op ontzorging: één aanspreekpunt van ontwerp tot oplevering, vaste prijs, bewezen proces. Verbindt de investering aan verhuurwaardeverhoging en energielabel C-renovatie.',
+      kapstok: 'Heeft u plannen voor renovatie of herinrichting van uw pand in de komende 12–24 maanden?',
+    },
+    huurder: {
+      aanpak:  'Luister naar het bedrijfsprofiel, de teamsamenstelling en de gewenste sfeer. Positioneer D&B als totaaloplossing waarbij Ditt van schets tot sleuteloverdracht verantwoordelijk is. Benadruk vaste prijs, bewezen planning en B Corp 89,5 als duurzaamheidsprofiel.',
+      kapstok: 'Hoe ziet uw ideale werkplek eruit, en wat is uw tijdsplanning voor het betrekken van de nieuwe ruimte?',
+    },
+  },
+  'fast-fit-out': {
+    eigenaar: {
+      aanpak:  'Verhoog bezettingsgraad door snel op te leveren. Geschikt voor objecten waar snelheid boven volledig maatwerk gaat. Beperkt risico, direct resultaat — aantrekkelijk argument richting aankomende huurders met tijdsdruk.',
+      kapstok: 'Hoe lang staat uw pand al leeg en hoe urgent is het om snel een huurder te huisvesten?',
+    },
+    huurder: {
+      aanpak:  'Wanneer een huurder tijdsdruk heeft, is Fast Fit-Out het sterkste argument. Presenteer het concept als een vooraf gedefinieerd, bewezen pakket met vaste doorlooptijd. Geen langdurig ontwerptraject — direct zekerheid over planning en prijs.',
+      kapstok: 'Wanneer moet u de nieuwe ruimte uiterlijk betrekken en hoeveel speelruimte heeft u in de planning?',
+    },
+  },
+  'detail-and-build': {
+    eigenaar: {
+      aanpak:  'Ideaal voor objecten waarbij de huurder of eigenaar al een architectenbureau heeft geselecteerd. Ditt treedt op als uitvoerend partner — één aanspreekpunt voor de volledige bouwfase, zonder vertraging en binnen budget.',
+      kapstok: 'Werkt de toekomstige gebruiker van uw pand al met een architect? Dan kan Ditt de uitvoering volledig overnemen.',
+    },
+    huurder: {
+      aanpak:  'Wanneer de huurder al een architect in de arm heeft genomen, positioneer Ditt als de uitvoerende bouwpartner. Het ontwerp blijft volledig bij de architect; Ditt beheerst de volledige realisatie — één aanspreekpunt, vaste prijs, betrouwbare oplevering.',
+      kapstok: 'Werkt u al met een architect voor de inrichting? Dan kunnen wij de volledige uitvoering voor u overnemen.',
+    },
+  },
+}
+
+const F4_SLIDES: Record<F2Product, Record<F4Partij, { nr: number; omschrijving: string }[]>> = {
+  'design-and-build': {
+    eigenaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 32, omschrijving: 'Design & Build Specialist — van schets tot sleuteloverdracht' },
+      { nr: 45, omschrijving: 'The Office Lifecycle — van consultancy tot oplevering' },
+      { nr: 20, omschrijving: 'B Corp 89,5 — duurzaamheid als verhuurargument' },
+    ],
+    huurder: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 32, omschrijving: 'Design & Build — van concept tot sleuteloverdracht' },
+      { nr: 49, omschrijving: 'Storytelling — kantoor als verlengstuk van uw merk' },
+      { nr: 20, omschrijving: 'B Corp 89,5 — duurzame materialen standaard' },
+      { nr: 45, omschrijving: 'The Office Lifecycle — vroeg betrokken = meer impact' },
+    ],
+  },
+  'fast-fit-out': {
+    eigenaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 40, omschrijving: 'Waarom Ditt? — bewezen concept, snelle realisatie' },
+      { nr: 99, omschrijving: 'Planningsoverzicht — tijdlijn en mijlpalen' },
+      { nr: 20, omschrijving: 'B Corp 89,5 — duurzame materialen standaard' },
+    ],
+    huurder: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 31, omschrijving: 'Fast Fit-Out — vast concept, vaste prijs, vaste doorlooptijd' },
+      { nr: 99, omschrijving: 'Planningsoverzicht — geen verrassingen in de tijdlijn' },
+      { nr: 40, omschrijving: 'Waarom Ditt? — VCA, WELL, 65+ specialisten' },
+    ],
+  },
+  'detail-and-build': {
+    eigenaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 54, omschrijving: 'D&B organogram — architect ontwerpt, Ditt bouwt' },
+      { nr: 43, omschrijving: 'Samenwerking — van dag 1 betrokken bij het team' },
+      { nr: 40, omschrijving: 'Waarom Ditt? — VCA, WELL, betrouwbare uitvoering' },
+    ],
+    huurder: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 54, omschrijving: 'D&B organogram — Ditt als bouwpartner naast uw architect' },
+      { nr: 43, omschrijving: 'Samenwerking — prettige partner bij complexe opgaven' },
+      { nr: 40, omschrijving: 'Waarom Ditt? — VCA, WELL, betrouwbare oplevering' },
+    ],
+  },
+}
+
+function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
+  const [product,    setProduct]    = useState<F2Product>('design-and-build')
+  const [partijType, setPartijType] = useState<F4Partij>('eigenaar')
+  const [m2Input,    setM2Input]    = useState<string>('')
+  const [cfg,        setCfg]        = useState<StadConfig>({ ...DEFAULT_STAD_CONFIG })
+
+  const kanalen     = KANALEN_PER_STAD[stadNaam]
+  const stadContext = kanalen?.[partijType]
+  const protocol    = F4_PROTOCOL[product][partijType]
+  const slides      = F4_SLIDES[product][partijType]
+  const niveauOpties = ['Low', 'Mid', 'High']
+
+  const m2 = parseFloat(m2Input.replace(',', '.')) || 0
+  const calc = m2 > 0 ? calcBegroting(m2, cfg.type, cfg.fitout, cfg.furn, cfg.ident, cfg.mep) : null
+
+  const subLabel: React.CSSProperties = {
+    fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+    letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 10,
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+
+      {/* 1 · Contactprotocol */}
+      <div>
+        <div style={subLabel}>1 · Contactprotocol — eigenaren &amp; huurders</div>
+        <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden' }}>
+
+          {/* Header + partijtype selector */}
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--c-border)', background: '#faf9f7', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--c-subtle)' }}>Contactprotocol</div>
+              <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 3 }}>Gebouweigenaren &amp; huurders — {stadNaam}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {(['eigenaar', 'huurder'] as const).map((pt) => (
+                <button
+                  key={pt}
+                  onClick={() => setPartijType(pt)}
+                  style={{
+                    padding: '5px 12px', fontSize: 12,
+                    fontWeight: partijType === pt ? 700 : 500,
+                    borderRadius: 20, cursor: 'pointer',
+                    border: `1px solid ${partijType === pt ? '#1a1a1a' : 'var(--c-border)'}`,
+                    background: partijType === pt ? '#1a1a1a' : 'transparent',
+                    color: partijType === pt ? '#fff' : 'var(--c-muted)',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {pt === 'eigenaar' ? 'Eigenaar' : 'Huurder'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Product tabs */}
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--c-border)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {F2_PRODUCTEN.map(({ id, label }) => (
+              <button
+                key={id}
+                onClick={() => setProduct(id)}
+                style={{
+                  padding: '7px 14px', fontSize: 12,
+                  fontWeight: product === id ? 700 : 500,
+                  borderRadius: 8, cursor: 'pointer',
+                  border: `1px solid ${product === id ? 'var(--c-coral)' : 'var(--c-border)'}`,
+                  background: product === id ? 'var(--c-coral)' : 'var(--c-surface)',
+                  color: product === id ? '#fff' : 'var(--c-muted)',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Stad-specifieke context */}
+          {stadContext && (
+            <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--c-border)', background: '#fdf8f5' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-coral)', marginBottom: 4 }}>
+                {stadNaam} — marktcontext
+              </div>
+              <EditableText
+                storageKey={`fase4.${stadNaam.toLowerCase()}.${partijType}.context`}
+                defaultValue={stadContext.aanpak}
+                tag="div" multiline
+                style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}
+              />
+            </div>
+          )}
+
+          {/* Aanpak + kapstok + slides */}
+          <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>Aanpak</div>
+              <EditableText
+                storageKey={`fase4.proto.${product}.${partijType}.aanpak`}
+                defaultValue={protocol.aanpak}
+                tag="div" multiline
+                style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.7 }}
+              />
+            </div>
+            <div style={{ padding: '12px 16px', background: '#f5f3ff', borderRadius: 10, border: '1px solid #c4b5fd' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7c3aed', marginBottom: 6 }}>Kapstok-vraag</div>
+              <EditableText
+                storageKey={`fase4.proto.${product}.${partijType}.kapstok`}
+                defaultValue={protocol.kapstok}
+                tag="div" multiline
+                style={{ fontSize: 12, color: '#6d28d9', lineHeight: 1.6, fontStyle: 'italic' }}
+              />
+            </div>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 8 }}>Aanbevolen slides</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {slides.map((s) => (
+                  <div key={s.nr} style={{ display: 'flex', alignItems: 'baseline', gap: 8, fontSize: 12, color: 'var(--c-muted)' }}>
+                    <span style={{ fontWeight: 700, color: 'var(--c-coral)', minWidth: 28, flexShrink: 0 }}>#{s.nr}</span>
+                    <span>{s.omschrijving}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 2 · Begrotingsindicator */}
+      <div>
+        <div style={subLabel}>2 · Begrotingsindicator</div>
+        <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--c-border)', background: '#faf9f7' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>Begrotingsindicatie — per gesprek</div>
+            <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
+              Kwaliteitsniveau × m² opgave · op basis van Begrotingssheet 2026 Premium
+            </div>
+          </div>
+          <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+            {/* m² invoer */}
+            <div style={{ padding: '14px 16px', background: '#f0f4ff', borderRadius: 10, border: '1px solid #c7d7fd' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#3b4ac8', marginBottom: 6 }}>
+                Vul het aantal m² in waar het acquisitiegesprek over gaat voor een directe indicatie
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="bijv. 350"
+                  value={m2Input}
+                  onChange={(e) => setM2Input(e.target.value)}
+                  style={{
+                    fontSize: 20, fontWeight: 700, color: 'var(--c-text)',
+                    width: 120, padding: '6px 10px', borderRadius: 8,
+                    border: '1px solid #c7d7fd', background: '#fff',
+                    outline: 'none',
+                  }}
+                />
+                <span style={{ fontSize: 14, color: 'var(--c-muted)', fontWeight: 600 }}>m²</span>
+              </div>
+            </div>
+
+            {/* Kwaliteitsinstellingen */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, padding: '14px 16px', background: '#f8f7f5', borderRadius: 10, border: '1px solid var(--c-border)' }}>
+              <div style={{ width: '100%', fontSize: 11, fontWeight: 700, color: 'var(--c-subtle)', marginBottom: -4 }}>Kwaliteitsniveau</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Type project</span>
+                <select style={selectStyle} value={cfg.type} onChange={(e) => setCfg((c) => ({ ...c, type: e.target.value }))}>
+                  {['Open', 'Hybrid', 'Traditional'].map((t) => <option key={t}>{t}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Fitout</span>
+                <select style={selectStyle} value={cfg.fitout} onChange={(e) => setCfg((c) => ({ ...c, fitout: e.target.value }))}>
+                  {niveauOpties.map((n) => <option key={n}>{n}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Furniture</span>
+                <select style={selectStyle} value={cfg.furn} onChange={(e) => setCfg((c) => ({ ...c, furn: e.target.value }))}>
+                  {niveauOpties.map((n) => <option key={n}>{n}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Identity</span>
+                <select style={selectStyle} value={cfg.ident} onChange={(e) => setCfg((c) => ({ ...c, ident: e.target.value }))}>
+                  {niveauOpties.map((n) => <option key={n}>{n}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Installaties (€/m²)</span>
+                <select style={selectStyle} value={cfg.mep} onChange={(e) => setCfg((c) => ({ ...c, mep: Number(e.target.value) }))}>
+                  {MEP_OPTIES.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'flex-end' }}>
+                <span style={{ fontSize: 10, color: 'var(--c-subtle)' }}>Prijs/m² (all-in)</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text)' }}>
+                  € {(FITOUT_TABLE[cfg.type][cfg.fitout] + FURNITURE_TABLE[cfg.furn] + IDENTITY_TABLE[cfg.ident] + cfg.mep).toLocaleString('nl-NL')}/m²
+                </span>
+              </div>
+            </div>
+
+            {/* Resultaat */}
+            {calc ? (
+              <>
+                <div style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', borderRadius: 10, padding: '16px 20px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 4 }}>Investering ({m2.toLocaleString('nl-NL')} m²)</div>
+                    <div style={{ fontSize: 22, fontWeight: 700 }}>{fmEuro(calc.total)}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 4 }}>Inkoopprijs</div>
+                    <div style={{ fontSize: 22, fontWeight: 700, opacity: 0.85 }}>{fmEuro(calc.inkoop)}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 4 }}>Marge</div>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: '#4ade80' }}>{(calc.marge * 100).toFixed(1)}%</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {Object.entries(calc.details).map(([naam, d]) => (
+                    <div key={naam} style={{ fontSize: 10, color: 'var(--c-muted)', background: '#f8f7f5', borderRadius: 6, padding: '3px 8px', border: '1px solid var(--c-border)' }}>
+                      {naam} · € {Math.round(d.p)}/m²
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--c-subtle)' }}>
+                  Prijzen en marges op basis van Begrotingssheet 2026 Premium (intern). Bouwplaatsinrichting 4% inbegrepen. Installaties marge 10%, overige categorieën 35%. PM/ontwerp en overheads niet meegenomen.
+                </div>
+              </>
+            ) : (
+              <div style={{ fontSize: 12, color: 'var(--c-subtle)', fontStyle: 'italic', padding: '10px 0' }}>
+                Vul een m²-getal in om de begrotingsindicatie te berekenen.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  )
+}
+
 // ── FASE 2: Netwerk opbouwen ──────────────────────────────────────────────────
 
 function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
@@ -3781,6 +4107,8 @@ function ActieOverzichtView() {
                       <Fase2NetwerkContent stadNaam={stad.naam} />
                     ) : huidigeFase.nr === 3 ? (
                       <Fase3ProspectingContent stadNaam={stad.naam} />
+                    ) : huidigeFase.nr === 4 ? (
+                      <Fase4AcquisitieContent stadNaam={stad.naam} />
                     ) : (
                       <EditableText
                         storageKey={`actie.${stad.naam.toLowerCase()}.fase${huidigeFase.nr}.inhoud`}
