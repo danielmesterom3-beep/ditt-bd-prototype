@@ -2617,6 +2617,233 @@ function Checkbox({ checked, onChange }: { checked: boolean; onChange: () => voi
 
 // ── Vier-fase trechterstructuur ───────────────────────────────────────────────
 
+// Veldonderzoek-thema's die in Fase 1 worden getoond
+const ORIËNTATIE_VELD_THEMAS = ['marktomvang', 'huurcontractduren', 'turnkey', 'fitout']
+
+// ── Eindhoven gemeente-/marktstrategieblok ────────────────────────────────────
+
+function EindhovenGemeenteStrategiePanel() {
+  const [open, setOpen] = useState(false)
+
+  const kansen = [
+    {
+      id: 'brainport',
+      titel: 'Brainport Eindhoven — Technologieregio 2030',
+      context: 'Gemeente Eindhoven en de Brainport Development-agenda richten zich op behoud en groei van de hightech-maakindustrie rondom ASML, NXP en het HTC-ecosysteem. Dit genereert structurele vraag naar kantoor- en R&D-ruimte voor toeleveranciers die niet op de campus passen.',
+      kleur: '#f59e0b', bg: '#fffbeb', border: '#fcd34d',
+    },
+    {
+      id: 'fellenoord',
+      titel: 'Fellenoord-transformatie — verhuismoment 2026–2028',
+      context: 'De gemeente koopt actief panden terug op Fellenoord (Kennedyplein 100 + 300, ~€38–45M). Zittende kantoorhuurders worden gedwongen te verhuizen — directe stroom verhuisbewegingen richting centrum en Edge Eindhoven. Elk verhuismoment is een acquisitie-instappunt voor Ditt.',
+      kleur: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe',
+    },
+    {
+      id: 'stationsgebied',
+      titel: 'Stationsgebied — Flight to Quality',
+      context: 'Edge Eindhoven (35.351 m²) op Stationsweg 17 positioneert het stationsgebied als nieuwe prime-locatie voor zakelijke dienstverlening en advocatuur. Prime huurprijzen stijgen naar €265/m²/jr. Elk contract dat hier wordt gesloten genereert een inrichtingsvraag.',
+      kleur: '#8b5cf6', bg: '#f5f3ff', border: '#c4b5fd',
+    },
+    {
+      id: 'sweetspot',
+      titel: 'Sweetspot Eindhovense markt: 500–600 m²',
+      context: 'Circa 80 actieve zoekers zitten onder de 1.000 m². Slechts ~10 zoekers zijn actief boven die grens. Ditt\'s sweetspot (500–1.500 m²) sluit perfect aan op het dominante transactiesegment — verplaatsingen van MKB en zakelijke dienstverleners.',
+      kleur: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0',
+    },
+    {
+      id: 'concurrentie',
+      titel: 'Concurrentielandschap — gat in het premium D&B-segment',
+      context: 'HAL 2 B.V. domineert het MKB-segment (gem. ø 480 m²); Duotone Interior Concepts richt zich op enterprise (ø 970 m², HTC). Tussen beide partijen is ruimte voor Ditt. als kwalitatieve D&B-specialist voor zakelijke dienstverleners op A-locaties.',
+      kleur: '#0891b2', bg: '#f0f9ff', border: '#bae6fd',
+    },
+  ]
+
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+      >
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)' }}>
+            Eindhovense kantoormarkt — strategische context voor Ditt.
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
+            Brainport 2030 · Fellenoord-transformatie · Sweetspot analyse · Concurrentie
+          </div>
+        </div>
+        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+      </button>
+      {open && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {kansen.map((k) => (
+            <div key={k.id} style={{ background: k.bg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${k.border}` }}>
+              <EditableText
+                storageKey={`eind.strategie.${k.id}.titel`}
+                defaultValue={k.titel}
+                style={{ fontSize: 12, fontWeight: 700, color: k.kleur, marginBottom: 4, display: 'block' }}
+              />
+              <EditableText
+                storageKey={`eind.strategie.${k.id}.tekst`}
+                defaultValue={k.context}
+                tag="div"
+                multiline
+                style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.7 }}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Fase 1 Oriëntatie — samengestelde inhoud per stad ─────────────────────────
+
+function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
+  const stadId = stadNaam.toLowerCase() as 'eindhoven' | 'rotterdam'
+  const mc     = MARKTCAP_STEDEN.find((s) => s.naam === stadNaam)!
+  const jll    = JLL[stadId]
+  const stadVVO = STAD_KANTOOR_VVO[stadId] ?? 0
+
+  const inzichtFilter = (inzicht: VeldonderzoekInzicht) =>
+    !inzicht.stad || inzicht.stad === stadId || inzicht.stad === 'both'
+
+  const veldThemas = VELDONDERZOEK_THEMAS.filter((t) => ORIËNTATIE_VELD_THEMAS.includes(t.id))
+
+  const makelaarsQuotes = VELDONDERZOEK_THEMAS
+    .flatMap((t) => t.inzichten)
+    .filter((i) => i.citaat && inzichtFilter(i))
+
+  const subLabel: React.CSSProperties = {
+    fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+    letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 10,
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+
+      {/* 1 · Marktinfo */}
+      <div>
+        <div style={subLabel}>1 · Marktinfo {stadNaam}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
+          {[
+            { label: 'Totaal kantoor VVO',   value: fmM2(stadVVO) },
+            { label: 'Leegstand (m²)',        value: mc.leegstandM2.toLocaleString('nl-NL') + ' m²' },
+            { label: 'Vacancy rate (JLL)',    value: jll ? `${jll.vacancyRate}%` : '—' },
+            { label: 'Prime rent (JLL)',      value: jll ? `€${jll.primeRent}/m²` : '—' },
+            { label: 'Take-up 2025',          value: jll ? fmM2(jll.takeUp2025) : '—' },
+            { label: 'Pijplijn 2026–2030',   value: jll ? fmM2(jll.pipeline2030) : '—' },
+            { label: 'Ditt. doelregio (m²)', value: fmM2(mc.dittM2) },
+            { label: 'D&B-partijen actief',  value: `${mc.partijen}` },
+          ].map(({ label, value }) => (
+            <div key={label} style={{ background: '#f8f7f5', borderRadius: 8, padding: '10px 12px', border: '1px solid var(--c-border)' }}>
+              <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 3 }}>{label}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.2 }}>{value}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 8, fontSize: 11, color: 'var(--c-muted)' }}>
+          Concurrenten in scope: <span style={{ fontWeight: 600, color: 'var(--c-text)' }}>{mc.concurrenten}</span>
+        </div>
+      </div>
+
+      {/* 2 · Omgevingskenmerken */}
+      <div>
+        <div style={subLabel}>2 · Omgevingskenmerken — concurrentie &amp; D&amp;B-activiteit</div>
+        {stadNaam === 'Eindhoven' ? <OmgevingskenmerkenPanel /> : <RotterdamOmgevingskenmerkenPanel />}
+      </div>
+
+      {/* 3 · Gemeente- / marktstrategieblok */}
+      <div>
+        <div style={subLabel}>
+          3 · {stadNaam === 'Rotterdam' ? 'Kantorenstrategie 2025–2035 (MRDH)' : 'Markt- & stedelijke strategie'}
+        </div>
+        {stadNaam === 'Rotterdam' ? <RotterdamKantorenstrategiePanel /> : <EindhovenGemeenteStrategiePanel />}
+      </div>
+
+      {/* 4 · Veldonderzoek-inzichten (gefilterd) */}
+      <div>
+        <div style={subLabel}>4 · Veldonderzoek — markt, huurcontracten &amp; turn-key</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {veldThemas.map((thema) => {
+            const gefilterd = thema.inzichten.filter(inzichtFilter)
+            if (gefilterd.length === 0) return null
+            return (
+              <div key={thema.id} style={{ border: '1px solid var(--c-border)', borderRadius: 10, overflow: 'hidden' }}>
+                <div style={{ padding: '10px 14px', background: '#f8f7f5', borderBottom: '1px solid var(--c-border)' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }}>{thema.titel}</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>{thema.beschrijving}</div>
+                </div>
+                <div style={{ padding: '12px 14px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
+                  {gefilterd.map((inzicht, i) => {
+                    const badge = inzicht.stad ? VELDONDERZOEK_STAD_BADGE[inzicht.stad] : null
+                    return (
+                      <div key={i} style={{ background: '#fafaf9', border: '1px solid var(--c-border)', borderRadius: 8, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {badge && (
+                          <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: badge.bg, color: badge.text, border: `1px solid ${badge.border}`, alignSelf: 'flex-start' }}>
+                            {badge.label}
+                          </span>
+                        )}
+                        {inzicht.citaat && (
+                          <blockquote style={{ margin: 0, padding: '6px 10px', borderLeft: '3px solid #e2e8f0', background: '#fff', borderRadius: '0 6px 6px 0' }}>
+                            <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6, fontStyle: 'italic' }}>{inzicht.citaat}</div>
+                          </blockquote>
+                        )}
+                        {inzicht.toelichting && (
+                          <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}>{inzicht.toelichting}</div>
+                        )}
+                        <div style={{ marginTop: 'auto', paddingTop: 6, borderTop: '1px solid var(--c-border)' }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }}>{inzicht.persoon}</div>
+                          <div style={{ fontSize: 10, color: 'var(--c-muted)' }}>{inzicht.organisatie}</div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* 5 · Makelaars-quotes */}
+      {makelaarsQuotes.length > 0 && (
+        <div>
+          <div style={subLabel}>5 · Makelaars-quotes — directe uitspraken veldonderzoek</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {makelaarsQuotes.map((inzicht, i) => {
+              const badge = inzicht.stad ? VELDONDERZOEK_STAD_BADGE[inzicht.stad] : null
+              return (
+                <div key={i} style={{ background: '#fafaf9', border: '1px solid var(--c-border)', borderRadius: 10, padding: '14px 16px' }}>
+                  <blockquote style={{ margin: '0 0 10px', padding: '10px 14px', borderLeft: '3px solid #6366f1', background: '#fff', borderRadius: '0 8px 8px 0' }}>
+                    <div style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.7, fontStyle: 'italic' }}>{inzicht.citaat}</div>
+                  </blockquote>
+                  {inzicht.toelichting && (
+                    <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6, marginBottom: 8 }}>{inzicht.toelichting}</div>
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }}>{inzicht.persoon}</div>
+                      <div style={{ fontSize: 10, color: 'var(--c-muted)' }}>{inzicht.organisatie}</div>
+                    </div>
+                    {badge && (
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: badge.bg, color: badge.text, border: `1px solid ${badge.border}`, marginLeft: 'auto' }}>
+                        {badge.label}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+    </div>
+  )
+}
+
 const FASES = [
   {
     nr: 1,
@@ -2861,13 +3088,17 @@ function ActieOverzichtView() {
                   </div>
 
                   {/* Fase-inhoud */}
-                  <div style={{ background: huidigeFase.bg, padding: '20px 20px 4px' }}>
-                    <EditableText
-                      storageKey={`actie.${stad.naam.toLowerCase()}.fase${huidigeFase.nr}.inhoud`}
-                      defaultValue="Inhoud volgt in volgende prompt."
-                      tag="div"
-                      style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.6, fontStyle: 'italic' }}
-                    />
+                  <div style={{ background: huidigeFase.bg, padding: huidigeFase.nr === 1 ? '20px' : '20px 20px 4px' }}>
+                    {huidigeFase.nr === 1 ? (
+                      <Fase1OrientatieContent stadNaam={stad.naam} />
+                    ) : (
+                      <EditableText
+                        storageKey={`actie.${stad.naam.toLowerCase()}.fase${huidigeFase.nr}.inhoud`}
+                        defaultValue="Inhoud volgt in volgende prompt."
+                        tag="div"
+                        style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.6, fontStyle: 'italic' }}
+                      />
+                    )}
                   </div>
 
                   {/* Navigatie */}
