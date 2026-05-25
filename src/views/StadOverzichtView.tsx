@@ -2673,8 +2673,8 @@ function ActieOverzichtView() {
   const [openDrempel, setOpenDrempel] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, false]))
   )
-  const [openFases, setOpenFases] = useState<Record<string, Set<number>>>(() =>
-    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, new Set<number>([1])]))
+  const [actieveFase, setActieveFase] = useState<Record<string, number>>(() =>
+    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, 1]))
   )
 
   function toggleDrempel(stadNaam: string, idx: number) {
@@ -2682,15 +2682,6 @@ function ActieOverzichtView() {
       ...prev,
       [stadNaam]: prev[stadNaam].map((v, i) => (i === idx ? !v : v)),
     }))
-  }
-
-  function toggleFase(stadNaam: string, nr: number) {
-    setOpenFases((prev) => {
-      const next = new Set(prev[stadNaam])
-      if (next.has(nr)) next.delete(nr)
-      else next.add(nr)
-      return { ...prev, [stadNaam]: next }
-    })
   }
 
   const labelStyle: React.CSSProperties = {
@@ -2715,7 +2706,8 @@ function ActieOverzichtView() {
         const drempelLijst = drempel[stad.naam]
         const aantalKlaar  = drempelLijst.filter(Boolean).length
         const klaarVoorAcquisitie = aantalKlaar >= 4
-        const openFaseSet  = openFases[stad.naam] ?? new Set([1])
+        const huidigeFaseNr = actieveFase[stad.naam] ?? 1
+        const huidigeFase   = FASES[huidigeFaseNr - 1]
 
         return (
           <div key={stad.naam} style={{ border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden', background: 'var(--c-surface)' }}>
@@ -2788,64 +2780,135 @@ function ActieOverzichtView() {
                 )}
               </div>
 
-              {/* ── Vier-fase trechter ── */}
+              {/* ── Acquisitietrechter ── */}
               <div>
                 <div style={labelStyle}>Acquisitietrechter — 4 fases</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {FASES.map((fase) => {
-                    const isOpen = openFaseSet.has(fase.nr)
+
+                {/* ── Horizontale progress-stepper ── */}
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
+                  {FASES.map((fase, i) => {
+                    const isActive = fase.nr === huidigeFaseNr
+                    const isDone   = fase.nr < huidigeFaseNr
+                    const isLast   = i === FASES.length - 1
                     return (
-                      <div key={fase.nr} style={{ border: `1px solid ${fase.border}`, borderRadius: 10, overflow: 'hidden' }}>
+                      <div key={fase.nr} style={{ display: 'contents' }}>
                         <button
-                          onClick={() => toggleFase(stad.naam, fase.nr)}
+                          onClick={() => setActieveFase((prev) => ({ ...prev, [stad.naam]: fase.nr }))}
+                          title={fase.titel}
                           style={{
-                            width: '100%', padding: '12px 16px',
-                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                            background: isOpen ? fase.headerBg : fase.bg,
-                            border: 'none', cursor: 'pointer',
-                            borderBottom: isOpen ? `1px solid ${fase.border}` : 'none',
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
+                            background: 'none', border: 'none', cursor: 'pointer', padding: '0 6px',
+                            flexShrink: 0,
                           }}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                            {/* Nummer in gekleurd rondje */}
-                            <div style={{
-                              width: 28, height: 28, borderRadius: '50%',
-                              background: fase.kleur, color: 'white',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontSize: 13, fontWeight: 700, flexShrink: 0,
-                            }}>
-                              {fase.nr}
-                            </div>
-                            <div style={{ textAlign: 'left' }}>
-                              <div style={{ fontSize: 13, fontWeight: 700, color: fase.textColor, lineHeight: 1.2 }}>
-                                {fase.titel}
-                              </div>
-                              <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>
-                                {fase.vraag}
-                              </div>
-                            </div>
+                          <div style={{
+                            width: 34, height: 34, borderRadius: '50%',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: 13, fontWeight: 700, flexShrink: 0, transition: 'all 0.15s',
+                            background: isActive ? fase.kleur : isDone ? '#e5e7eb' : 'transparent',
+                            border: `2px solid ${isActive ? fase.kleur : isDone ? '#d1d5db' : '#d1d5db'}`,
+                            color: isActive ? 'white' : isDone ? '#6b7280' : '#9ca3af',
+                          }}>
+                            {isDone ? (
+                              <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+                                <path d="M1.5 5L5 8.5L11.5 1.5" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            ) : fase.nr}
                           </div>
-                          {/* Chevron */}
-                          <svg
-                            width="16" height="16" viewBox="0 0 16 16" fill="none"
-                            style={{ flexShrink: 0, transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
-                          >
-                            <path d="M4 6l4 4 4-4" stroke={fase.kleur} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
+                          <span style={{
+                            fontSize: 10, fontWeight: isActive ? 700 : 400, whiteSpace: 'nowrap',
+                            color: isActive ? fase.textColor : isDone ? '#6b7280' : '#9ca3af',
+                          }}>
+                            {fase.titel}
+                          </span>
                         </button>
-                        {isOpen && (
-                          <div style={{ background: fase.bg, padding: '16px 20px' }}>
-                            <EditableText
-                              storageKey={`actie.${stad.naam.toLowerCase()}.fase${fase.nr}.inhoud`}
-                              defaultValue="Inhoud volgt in volgende prompt."
-                              tag="div"
-                              style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.6, fontStyle: 'italic' }}
-                            />
-                          </div>
+                        {!isLast && (
+                          <div style={{
+                            flex: 1, height: 2, marginBottom: 18, marginLeft: 2, marginRight: 2,
+                            background: fase.nr < huidigeFaseNr ? '#d1d5db' : '#e5e7eb',
+                          }} />
                         )}
                       </div>
                     )
                   })}
+                </div>
+
+                {/* ── Actieve fase — fullwidth ── */}
+                <div style={{ border: `1px solid ${huidigeFase.border}`, borderRadius: 12, overflow: 'hidden' }}>
+
+                  {/* Fase-header */}
+                  <div style={{
+                    padding: '16px 20px', background: huidigeFase.headerBg,
+                    borderBottom: `1px solid ${huidigeFase.border}`,
+                    display: 'flex', alignItems: 'center', gap: 12,
+                  }}>
+                    <div style={{
+                      width: 34, height: 34, borderRadius: '50%',
+                      background: huidigeFase.kleur, color: 'white',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 14, fontWeight: 700, flexShrink: 0,
+                    }}>
+                      {huidigeFase.nr}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: huidigeFase.textColor, lineHeight: 1.2 }}>
+                        {huidigeFase.titel}
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>
+                        {huidigeFase.vraag}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Fase-inhoud */}
+                  <div style={{ background: huidigeFase.bg, padding: '20px 20px 4px' }}>
+                    <EditableText
+                      storageKey={`actie.${stad.naam.toLowerCase()}.fase${huidigeFase.nr}.inhoud`}
+                      defaultValue="Inhoud volgt in volgende prompt."
+                      tag="div"
+                      style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.6, fontStyle: 'italic' }}
+                    />
+                  </div>
+
+                  {/* Navigatie */}
+                  <div style={{
+                    padding: '14px 20px', background: huidigeFase.bg,
+                    borderTop: `1px solid ${huidigeFase.border}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  }}>
+                    {huidigeFaseNr > 1 ? (
+                      <button
+                        onClick={() => setActieveFase((prev) => ({ ...prev, [stad.naam]: huidigeFaseNr - 1 }))}
+                        style={{
+                          fontSize: 12, color: 'var(--c-subtle)', background: 'none',
+                          border: 'none', cursor: 'pointer', padding: '6px 0',
+                        }}
+                      >
+                        ← Vorige fase
+                      </button>
+                    ) : <div />}
+
+                    {huidigeFaseNr < FASES.length ? (
+                      <button
+                        onClick={() => setActieveFase((prev) => ({ ...prev, [stad.naam]: huidigeFaseNr + 1 }))}
+                        style={{
+                          fontSize: 12, fontWeight: 700, color: 'white',
+                          background: huidigeFase.kleur, border: 'none',
+                          borderRadius: 8, cursor: 'pointer', padding: '8px 18px',
+                        }}
+                      >
+                        Volgende fase →
+                      </button>
+                    ) : (
+                      <div style={{
+                        fontSize: 12, fontWeight: 700, color: huidigeFase.textColor,
+                        padding: '8px 16px', background: huidigeFase.headerBg,
+                        border: `1px solid ${huidigeFase.border}`, borderRadius: 8,
+                      }}>
+                        Acquisitiegesprek afgerond ✓
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
