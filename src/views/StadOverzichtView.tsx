@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Compass, Users, Target, Handshake } from 'lucide-react'
 import steden from '../data/steden'
 import type { Stad, Gebied, GebiedStatus, WarmContact } from '../data/types'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
@@ -3866,6 +3867,7 @@ const FASES = [
     border: '#bfdbfe',
     textColor: '#1e40af',
     headerBg: '#dbeafe',
+    Icon: Compass,
   },
   {
     nr: 2,
@@ -3876,6 +3878,7 @@ const FASES = [
     border: '#c4b5fd',
     textColor: '#6d28d9',
     headerBg: '#ede9fe',
+    Icon: Users,
   },
   {
     nr: 3,
@@ -3886,6 +3889,7 @@ const FASES = [
     border: '#fcd34d',
     textColor: '#92400e',
     headerBg: '#fef3c7',
+    Icon: Target,
   },
   {
     nr: 4,
@@ -3896,8 +3900,17 @@ const FASES = [
     border: '#bbf7d0',
     textColor: '#166534',
     headerBg: '#dcfce7',
+    Icon: Handshake,
   },
 ]
+
+// BD pipeline status → fase nummer mapping
+const BD_STATUS_TO_FASE: Record<BdStatus, number> = {
+  'Oriëntatie':          1,
+  'Netwerk opbouwen':    2,
+  'Actief prospecting':  3,
+  'Offerte uitgestuurd': 4,
+}
 
 function ActieOverzichtView() {
   const [statuses, setStatuses] = useState<Record<string, BdStatus>>(() =>
@@ -4023,12 +4036,73 @@ function ActieOverzichtView() {
               <div>
                 <div style={labelStyle}>Acquisitietrechter — 4 fases</div>
 
-                {/* ── Horizontale progress-stepper ── */}
+                {/* ── BD Pipeline progress indicator ── */}
+                {(() => {
+                  const bdFaseNr = BD_STATUS_TO_FASE[status]
+                  return (
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      padding: '8px 12px', marginBottom: 16,
+                      background: '#f8f7f5', borderRadius: 10, border: '1px solid var(--c-border)',
+                    }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em', flexShrink: 0 }}>
+                        BD Status
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', flex: 1, gap: 0 }}>
+                        {FASES.map((fase, i) => {
+                          const isCurrentBd = fase.nr === bdFaseNr
+                          const isDoneBd    = fase.nr < bdFaseNr
+                          const isLast      = i === FASES.length - 1
+                          const FaseIcon    = fase.Icon
+                          return (
+                            <div key={fase.nr} style={{ display: 'contents' }}>
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+                                <div style={{
+                                  width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  background: isCurrentBd ? fase.kleur : isDoneBd ? fase.kleur + '55' : '#e5e7eb',
+                                  border: `2px solid ${isCurrentBd ? fase.kleur : isDoneBd ? fase.kleur + '88' : '#d1d5db'}`,
+                                  boxShadow: isCurrentBd ? `0 0 0 3px ${fase.kleur}33` : 'none',
+                                  transition: 'all 0.15s',
+                                }}>
+                                  <FaseIcon size={13} color={isCurrentBd ? '#fff' : isDoneBd ? '#fff' : '#9ca3af'} strokeWidth={2.5} />
+                                </div>
+                                <span style={{
+                                  fontSize: 9, fontWeight: isCurrentBd ? 700 : 400, whiteSpace: 'nowrap',
+                                  color: isCurrentBd ? fase.textColor : isDoneBd ? 'var(--c-muted)' : '#9ca3af',
+                                }}>
+                                  {fase.titel}
+                                </span>
+                              </div>
+                              {!isLast && (
+                                <div style={{
+                                  flex: 1, height: 2, marginBottom: 14, minWidth: 16,
+                                  background: fase.nr < bdFaseNr ? fase.kleur + '66' : '#e5e7eb',
+                                }} />
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, padding: '2px 9px', borderRadius: 20, flexShrink: 0,
+                        background: STATUS_COLOR[status] + '18',
+                        color: STATUS_COLOR[status],
+                        border: `1px solid ${STATUS_COLOR[status]}44`,
+                      }}>
+                        {status}
+                      </span>
+                    </div>
+                  )
+                })()}
+
+                {/* ── Horizontale fase-stepper ── */}
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
                   {FASES.map((fase, i) => {
-                    const isActive = fase.nr === huidigeFaseNr
-                    const isDone   = fase.nr < huidigeFaseNr
-                    const isLast   = i === FASES.length - 1
+                    const isActive  = fase.nr === huidigeFaseNr
+                    const isDone    = fase.nr < huidigeFaseNr
+                    const isLast    = i === FASES.length - 1
+                    const FaseIcon  = fase.Icon
                     return (
                       <div key={fase.nr} style={{ display: 'contents' }}>
                         <button
@@ -4041,22 +4115,23 @@ function ActieOverzichtView() {
                           }}
                         >
                           <div style={{
-                            width: 34, height: 34, borderRadius: '50%',
+                            width: 36, height: 36, borderRadius: '50%',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 13, fontWeight: 700, flexShrink: 0, transition: 'all 0.15s',
-                            background: isActive ? fase.kleur : isDone ? '#e5e7eb' : 'transparent',
-                            border: `2px solid ${isActive ? fase.kleur : isDone ? '#d1d5db' : '#d1d5db'}`,
-                            color: isActive ? 'white' : isDone ? '#6b7280' : '#9ca3af',
+                            flexShrink: 0, transition: 'all 0.15s',
+                            background: isActive ? fase.kleur : isDone ? fase.kleur + '22' : 'transparent',
+                            border: `2px solid ${isActive ? fase.kleur : isDone ? fase.kleur + '88' : '#d1d5db'}`,
                           }}>
                             {isDone ? (
                               <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
-                                <path d="M1.5 5L5 8.5L11.5 1.5" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M1.5 5L5 8.5L11.5 1.5" stroke={fase.kleur} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                               </svg>
-                            ) : fase.nr}
+                            ) : (
+                              <FaseIcon size={15} color={isActive ? '#fff' : '#9ca3af'} strokeWidth={2.5} />
+                            )}
                           </div>
                           <span style={{
                             fontSize: 10, fontWeight: isActive ? 700 : 400, whiteSpace: 'nowrap',
-                            color: isActive ? fase.textColor : isDone ? '#6b7280' : '#9ca3af',
+                            color: isActive ? fase.textColor : isDone ? fase.kleur : '#9ca3af',
                           }}>
                             {fase.titel}
                           </span>
@@ -4064,7 +4139,7 @@ function ActieOverzichtView() {
                         {!isLast && (
                           <div style={{
                             flex: 1, height: 2, marginBottom: 18, marginLeft: 2, marginRight: 2,
-                            background: fase.nr < huidigeFaseNr ? '#d1d5db' : '#e5e7eb',
+                            background: fase.nr < huidigeFaseNr ? fase.kleur + '66' : '#e5e7eb',
                           }} />
                         )}
                       </div>
@@ -4077,26 +4152,34 @@ function ActieOverzichtView() {
 
                   {/* Fase-header */}
                   <div style={{
-                    padding: '16px 20px', background: huidigeFase.headerBg,
+                    padding: '14px 20px', background: huidigeFase.headerBg,
                     borderBottom: `1px solid ${huidigeFase.border}`,
                     display: 'flex', alignItems: 'center', gap: 12,
                   }}>
                     <div style={{
-                      width: 34, height: 34, borderRadius: '50%',
+                      width: 36, height: 36, borderRadius: 10,
                       background: huidigeFase.kleur, color: 'white',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 14, fontWeight: 700, flexShrink: 0,
+                      flexShrink: 0,
                     }}>
-                      {huidigeFase.nr}
+                      <huidigeFase.Icon size={18} color="white" strokeWidth={2.5} />
                     </div>
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 15, fontWeight: 700, color: huidigeFase.textColor, lineHeight: 1.2 }}>
-                        {huidigeFase.titel}
+                        Fase {huidigeFase.nr} · {huidigeFase.titel}
                       </div>
                       <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>
                         {huidigeFase.vraag}
                       </div>
                     </div>
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 20, flexShrink: 0,
+                      background: huidigeFase.kleur + '22',
+                      color: huidigeFase.textColor,
+                      border: `1px solid ${huidigeFase.border}`,
+                    }}>
+                      {huidigeFaseNr}/{FASES.length}
+                    </span>
                   </div>
 
                   {/* Fase-inhoud */}
