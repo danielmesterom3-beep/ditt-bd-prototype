@@ -2706,6 +2706,9 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
   const jll    = JLL[stadId]
   const stadVVO = STAD_KANTOOR_VVO[stadId] ?? 0
 
+  const [openVeld,    setOpenVeld]    = useState(false)
+  const [deletedVeld, setDeletedVeld] = useState<Set<string>>(new Set())
+
   const inzichtFilter = (inzicht: VeldonderzoekInzicht) =>
     !inzicht.stad || inzicht.stad === stadId || inzicht.stad === 'both'
 
@@ -2762,49 +2765,74 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
         {stadNaam === 'Rotterdam' ? <RotterdamKantorenstrategiePanel /> : <EindhovenGemeenteStrategiePanel />}
       </div>
 
-      {/* 4 · Veldonderzoek-inzichten (gefilterd) */}
+      {/* 4 · Veldonderzoek-inzichten — uitklapbaar */}
       <div>
-        <div style={subLabel}>4 · Veldonderzoek — markt, huurcontracten &amp; turn-key</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {veldThemas.map((thema) => {
-            const gefilterd = thema.inzichten.filter(inzichtFilter)
-            if (gefilterd.length === 0) return null
-            return (
-              <div key={thema.id} style={{ border: '1px solid var(--c-border)', borderRadius: 10, overflow: 'hidden' }}>
-                <div style={{ padding: '10px 14px', background: '#f8f7f5', borderBottom: '1px solid var(--c-border)' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }}>{thema.titel}</div>
-                  <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>{thema.beschrijving}</div>
-                </div>
-                <div style={{ padding: '12px 14px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
-                  {gefilterd.map((inzicht, i) => {
-                    const badge = inzicht.stad ? VELDONDERZOEK_STAD_BADGE[inzicht.stad] : null
-                    return (
-                      <div key={i} style={{ background: '#fafaf9', border: '1px solid var(--c-border)', borderRadius: 8, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        {badge && (
-                          <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: badge.bg, color: badge.text, border: `1px solid ${badge.border}`, alignSelf: 'flex-start' }}>
-                            {badge.label}
-                          </span>
-                        )}
-                        {inzicht.citaat && (
-                          <blockquote style={{ margin: 0, padding: '6px 10px', borderLeft: '3px solid #e2e8f0', background: '#fff', borderRadius: '0 6px 6px 0' }}>
-                            <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6, fontStyle: 'italic' }}>{inzicht.citaat}</div>
-                          </blockquote>
-                        )}
-                        {inzicht.toelichting && (
-                          <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}>{inzicht.toelichting}</div>
-                        )}
-                        <div style={{ marginTop: 'auto', paddingTop: 6, borderTop: '1px solid var(--c-border)' }}>
-                          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }}>{inzicht.persoon}</div>
-                          <div style={{ fontSize: 10, color: 'var(--c-muted)' }}>{inzicht.organisatie}</div>
+        <button
+          onClick={() => setOpenVeld((o) => !o)}
+          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', marginBottom: openVeld ? 10 : 0 }}
+        >
+          <div style={subLabel}>4 · Veldonderzoek — markt, huurcontracten &amp; turn-key</div>
+          <span style={{ fontSize: 14, color: 'var(--c-subtle)', transform: openVeld ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+        </button>
+        {openVeld && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {deletedVeld.size > 0 && (
+              <button
+                onClick={() => setDeletedVeld(new Set())}
+                style={{ fontSize: 11, color: 'var(--c-coral)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', alignSelf: 'flex-start', padding: 0 }}
+              >
+                {deletedVeld.size} kaart{deletedVeld.size > 1 ? 'en' : ''} verborgen — herstel alles
+              </button>
+            )}
+            {veldThemas.map((thema) => {
+              const gefilterd = thema.inzichten
+                .map((inzicht, allIdx) => ({ inzicht, allIdx }))
+                .filter(({ inzicht, allIdx }) => inzichtFilter(inzicht) && !deletedVeld.has(`${thema.id}_${allIdx}`))
+              if (gefilterd.length === 0) return null
+              return (
+                <div key={thema.id} style={{ border: '1px solid var(--c-border)', borderRadius: 10, overflow: 'hidden' }}>
+                  <div style={{ padding: '10px 14px', background: '#f8f7f5', borderBottom: '1px solid var(--c-border)' }}>
+                    <EditableText storageKey={`fase1.veld.${stadId}.${thema.id}.titel`} defaultValue={thema.titel} style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
+                    <EditableText storageKey={`fase1.veld.${stadId}.${thema.id}.beschr`} defaultValue={thema.beschrijving} style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2, display: 'block' }} />
+                  </div>
+                  <div style={{ padding: '12px 14px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
+                    {gefilterd.map(({ inzicht, allIdx }) => {
+                      const badge   = inzicht.stad ? VELDONDERZOEK_STAD_BADGE[inzicht.stad] : null
+                      const cardKey = `${thema.id}_${allIdx}`
+                      const sk      = `fase1.veld.${stadId}.${thema.id}.${allIdx}`
+                      return (
+                        <div key={allIdx} style={{ background: '#fafaf9', border: '1px solid var(--c-border)', borderRadius: 8, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6, position: 'relative' }}>
+                          <button
+                            onClick={() => setDeletedVeld((prev) => new Set([...prev, cardKey]))}
+                            title="Kaart verbergen"
+                            style={{ position: 'absolute', top: 8, right: 8, width: 20, height: 20, borderRadius: 4, background: 'none', border: '1px solid #e2e8f0', color: '#9ca3af', cursor: 'pointer', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fca5a5' }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.borderColor = '#e2e8f0' }}
+                          >×</button>
+                          {badge && (
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: badge.bg, color: badge.text, border: `1px solid ${badge.border}`, alignSelf: 'flex-start' }}>
+                              {badge.label}
+                            </span>
+                          )}
+                          {inzicht.citaat && (
+                            <blockquote style={{ margin: 0, padding: '6px 10px', borderLeft: '3px solid #e2e8f0', background: '#fff', borderRadius: '0 6px 6px 0' }}>
+                              <EditableText storageKey={`${sk}.citaat`} defaultValue={inzicht.citaat} multiline tag="div" style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6, fontStyle: 'italic' }} />
+                            </blockquote>
+                          )}
+                          <EditableText storageKey={`${sk}.toelichting`} defaultValue={inzicht.toelichting ?? ''} multiline tag="div" style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }} />
+                          <div style={{ marginTop: 'auto', paddingTop: 6, borderTop: '1px solid var(--c-border)' }}>
+                            <EditableText storageKey={`${sk}.persoon`} defaultValue={inzicht.persoon} style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)', display: 'block' }} />
+                            <EditableText storageKey={`${sk}.org`} defaultValue={inzicht.organisatie} style={{ fontSize: 10, color: 'var(--c-muted)', display: 'block' }} />
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* 5 · Makelaars-quotes */}
@@ -2965,26 +2993,115 @@ function Fase2WarmContactCard({ contact }: { contact: WarmContact }) {
   )
 }
 
+// Contactprotocol inhoud per product × partijtype (makelaars + eigenaren)
+type F2Product   = 'design-and-build' | 'fast-fit-out' | 'detail-and-build'
+type F2Partij    = 'makelaar' | 'eigenaar'
+
+interface F2ProtocolInhoud { aanpak: string; kapstok: string }
+
+const F2_PROTOCOL: Record<F2Product, Record<F2Partij, F2ProtocolInhoud>> = {
+  'design-and-build': {
+    makelaar: {
+      aanpak:   'Vraag naar panden in portefeuille met verhuurleegstand of aankomende mutaties. Positioneer D&B als compleet inrichtingsconcept voor nieuwe huurders — verhoogt aantrekkingskracht zonder risico voor de eigenaar.',
+      kapstok:  'Welke objecten in uw portefeuille hebben op dit moment een actieve verhuurvraag of aankomende huurdersmutatie?',
+    },
+    eigenaar: {
+      aanpak:   'Presenteer D&B als totaaloplossing bij herinrichting of renovatie. Nadruk op ontzorging: één aanspreekpunt van ontwerp tot oplevering, vaste prijs, bewezen proces.',
+      kapstok:  'Heeft u plannen voor renovatie of herinrichting van uw pand in de komende 12–24 maanden?',
+    },
+  },
+  'fast-fit-out': {
+    makelaar: {
+      aanpak:   'Uw sterkste troef bij huurkandidaten met tijdsdruk: vaste prijs, bewezen concept, snelle realisatie. Inzetbaar als doorslaggevend argument in concurrerende verhuursituaties.',
+      kapstok:  'Heeft u huurkandidaten met een strakke deadline die twijfelen vanwege de inrichtingstijd?',
+    },
+    eigenaar: {
+      aanpak:   'Verhoog bezettingsgraad door snel op te leveren. Geschikt voor objecten waar snelheid boven volledig maatwerk gaat. Beperkt risico, direct resultaat.',
+      kapstok:  'Hoe lang staat uw pand al leeg en hoe urgent is het om snel een huurder te huisvesten?',
+    },
+  },
+  'detail-and-build': {
+    makelaar: {
+      aanpak:   'Wanneer een huurkandidaat al een architect heeft geselecteerd, positioneer Ditt als de uitvoerende partner die het ontwerp naadloos vertaalt naar realisatie. De architect blijft verantwoordelijk voor het ontwerp, Ditt voor de oplevering.',
+      kapstok:  'Heeft u huurkandidaten die al met een eigen architect werken maar nog een betrouwbare uitvoerende partij zoeken?',
+    },
+    eigenaar: {
+      aanpak:   'Ideaal voor objecten waarbij de huurder of eigenaar al een architectenbureau heeft geselecteerd. Ditt treedt op als uitvoerend partner — één aanspreekpunt voor de volledige bouwfase, zonder vertraging en binnen budget.',
+      kapstok:  'Werkt de toekomstige gebruiker van uw pand al met een architect? Dan kan Ditt de uitvoering volledig overnemen.',
+    },
+  },
+}
+
+const F2_SLIDES: Record<F2Product, Record<F2Partij, { nr: number; omschrijving: string }[]>> = {
+  'design-and-build': {
+    makelaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 31, omschrijving: 'Dienstenoverzicht — D&B, Detail & Build, Consultancy' },
+      { nr: 43, omschrijving: 'Samenwerking — wij werken graag samen met makelaars' },
+      { nr: 45, omschrijving: 'The Office Lifecycle — vroeg betrokken = meer impact' },
+    ],
+    eigenaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 32, omschrijving: 'Design & Build Specialist — van schets tot sleuteloverdracht' },
+      { nr: 45, omschrijving: 'The Office Lifecycle — van consultancy tot oplevering' },
+      { nr: 49, omschrijving: 'Storytelling — een gebouw is meer dan een bouwproject' },
+      { nr: 20, omschrijving: 'B Corp 89,5 — duurzaamheid als verhuurargument' },
+    ],
+  },
+  'fast-fit-out': {
+    makelaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 31, omschrijving: 'Dienstenoverzicht — Fast Fit-Out als snel inzetbaar concept' },
+      { nr: 40, omschrijving: 'Waarom Ditt? — VCA, WELL, 65+ specialisten' },
+      { nr: 99, omschrijving: 'Planningsoverzicht — vaste doorlooptijd, geen verrassingen' },
+    ],
+    eigenaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 40, omschrijving: 'Waarom Ditt? — bewezen concept, snelle realisatie' },
+      { nr: 99, omschrijving: 'Planningsoverzicht — tijdlijn en mijlpalen' },
+      { nr: 20, omschrijving: 'B Corp 89,5 — duurzame materialen standaard' },
+    ],
+  },
+  'detail-and-build': {
+    makelaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 31, omschrijving: 'Dienstenoverzicht — Detail & Build als uitvoeringspartner' },
+      { nr: 54, omschrijving: 'D&B organogram — Ditt als bouwpartner naast architect' },
+      { nr: 43, omschrijving: 'Samenwerking — prettige partner bij complexe opgaven' },
+    ],
+    eigenaar: [
+      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
+      { nr: 54, omschrijving: 'D&B organogram — architect ontwerpt, Ditt bouwt' },
+      { nr: 43, omschrijving: 'Samenwerking — van dag 1 betrokken bij het team' },
+      { nr: 40, omschrijving: 'Waarom Ditt? — VCA, WELL, betrouwbare uitvoering' },
+    ],
+  },
+}
+
+const F2_PRODUCTEN: { id: F2Product; label: string }[] = [
+  { id: 'design-and-build',  label: 'Design & Build'  },
+  { id: 'fast-fit-out',      label: 'Fast Fit-Out'    },
+  { id: 'detail-and-build',  label: 'Detail & Build'  },
+]
+
 function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
   const stadId = stadNaam.toLowerCase() as 'eindhoven' | 'rotterdam'
-  const [partijType, setPartijType] = useState<'makelaar' | 'eigenaar' | 'huurder'>('makelaar')
+  const [product,    setProduct]    = useState<F2Product>('design-and-build')
+  const [partijType, setPartijType] = useState<F2Partij>('makelaar')
 
   const stad = steden.find((s) => s.naam === stadNaam)
   const alleWarmeContacten: WarmContact[] = stad?.gebieden.flatMap((g) => g.warmeContacten) ?? []
 
-  const kanalen = KANALEN_PER_STAD[stadNaam]
-  const huidigKanaal = kanalen?.[partijType]
+  const kanalen    = KANALEN_PER_STAD[stadNaam]
+  const stadContext = kanalen?.[partijType]
+
+  const protocol = F2_PROTOCOL[product][partijType]
+  const slides   = F2_SLIDES[product][partijType]
 
   const inzichtFilter = (inzicht: VeldonderzoekInzicht) =>
     !inzicht.stad || inzicht.stad === stadId || inzicht.stad === 'both'
 
   const veldThemas = VELDONDERZOEK_THEMAS.filter((t) => FASE2_VELD_THEMAS.includes(t.id))
-
-  const PARTIJ_LABEL: Record<'makelaar' | 'eigenaar' | 'huurder', string> = {
-    makelaar: 'Makelaars',
-    eigenaar: 'Gebouweigenaren',
-    huurder:  'Huurders',
-  }
 
   const subLabel: React.CSSProperties = {
     fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
@@ -2997,71 +3114,111 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
       {/* 1 · Contactprotocol */}
       <div>
         <div style={subLabel}>1 · Contactprotocol — aanpak per partijtype</div>
-        <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
-          <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--c-border)', display: 'flex', gap: 6, background: '#faf9f7' }}>
-            {(['makelaar', 'eigenaar', 'huurder'] as const).map((pt) => (
+        <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden' }}>
+
+          {/* Header + partijtype selector */}
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--c-border)', background: '#faf9f7', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--c-subtle)' }}>Contactprotocol</div>
+              <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 3 }}>Makelaars &amp; gebouweigenaren — {stadNaam}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {(['makelaar', 'eigenaar'] as const).map((pt) => (
+                <button
+                  key={pt}
+                  onClick={() => setPartijType(pt)}
+                  style={{
+                    padding: '5px 12px', fontSize: 12,
+                    fontWeight: partijType === pt ? 700 : 500,
+                    borderRadius: 20, cursor: 'pointer',
+                    border: `1px solid ${partijType === pt ? '#1a1a1a' : 'var(--c-border)'}`,
+                    background: partijType === pt ? '#1a1a1a' : 'transparent',
+                    color: partijType === pt ? '#fff' : 'var(--c-muted)',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {pt === 'makelaar' ? 'Makelaar' : 'Eigenaar'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Product tabs */}
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--c-border)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {F2_PRODUCTEN.map(({ id, label }) => (
               <button
-                key={pt}
-                onClick={() => setPartijType(pt)}
+                key={id}
+                onClick={() => setProduct(id)}
                 style={{
-                  padding: '6px 14px', fontSize: 12, fontWeight: partijType === pt ? 700 : 500,
-                  borderRadius: 20, cursor: 'pointer',
-                  border: `1px solid ${partijType === pt ? '#1a1a1a' : 'var(--c-border)'}`,
-                  background: partijType === pt ? '#1a1a1a' : 'transparent',
-                  color: partijType === pt ? '#fff' : 'var(--c-muted)',
+                  padding: '7px 14px', fontSize: 12,
+                  fontWeight: product === id ? 700 : 500,
+                  borderRadius: 8, cursor: 'pointer',
+                  border: `1px solid ${product === id ? 'var(--c-coral)' : 'var(--c-border)'}`,
+                  background: product === id ? 'var(--c-coral)' : 'var(--c-surface)',
+                  color: product === id ? '#fff' : 'var(--c-muted)',
                   transition: 'all 0.15s',
                 }}
               >
-                {PARTIJ_LABEL[pt]}
+                {label}
               </button>
             ))}
           </div>
-          {huidigKanaal && (
-            <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>Aanpak</div>
-                <EditableText
-                  storageKey={`fase2.${stadNaam.toLowerCase()}.${partijType}.aanpak`}
-                  defaultValue={huidigKanaal.aanpak}
-                  tag="div" multiline
-                  style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.7 }}
-                />
+
+          {/* Stad-specifieke context */}
+          {stadContext && (
+            <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--c-border)', background: '#fdf8f5' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-coral)', marginBottom: 4 }}>
+                {stadNaam} — marktcontext
               </div>
-              <div style={{ padding: '12px 16px', background: '#f5f3ff', borderRadius: 10, border: '1px solid #c4b5fd' }}>
-                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7c3aed', marginBottom: 6 }}>Kapstok-vraag</div>
-                <EditableText
-                  storageKey={`fase2.${stadNaam.toLowerCase()}.${partijType}.kapstok`}
-                  defaultValue={huidigKanaal.kapstok}
-                  tag="div" multiline
-                  style={{ fontSize: 12, color: '#6d28d9', lineHeight: 1.6, fontStyle: 'italic' }}
-                />
-              </div>
+              <EditableText
+                storageKey={`fase2.${stadNaam.toLowerCase()}.${partijType}.context`}
+                defaultValue={stadContext.aanpak}
+                tag="div" multiline
+                style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}
+              />
             </div>
           )}
+
+          {/* Generieke aanpak + kapstok */}
+          <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>Aanpak</div>
+              <EditableText
+                storageKey={`fase2.proto.${product}.${partijType}.aanpak`}
+                defaultValue={protocol.aanpak}
+                tag="div" multiline
+                style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.7 }}
+              />
+            </div>
+            <div style={{ padding: '12px 16px', background: '#f5f3ff', borderRadius: 10, border: '1px solid #c4b5fd' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7c3aed', marginBottom: 6 }}>Kapstok-vraag</div>
+              <EditableText
+                storageKey={`fase2.proto.${product}.${partijType}.kapstok`}
+                defaultValue={protocol.kapstok}
+                tag="div" multiline
+                style={{ fontSize: 12, color: '#6d28d9', lineHeight: 1.6, fontStyle: 'italic' }}
+              />
+            </div>
+
+            {/* Aanbevolen slides */}
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 8 }}>Aanbevolen slides</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {slides.map((s) => (
+                  <div key={s.nr} style={{ display: 'flex', alignItems: 'baseline', gap: 8, fontSize: 12, color: 'var(--c-muted)' }}>
+                    <span style={{ fontWeight: 700, color: 'var(--c-coral)', minWidth: 28, flexShrink: 0 }}>#{s.nr}</span>
+                    <span>{s.omschrijving}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* 2 · Warme ingangen */}
+      {/* 2 · Veldonderzoek — makelaarsrelaties & acquisitie */}
       <div>
-        <div style={subLabel}>
-          2 · Warme ingangen — {alleWarmeContacten.length} contact{alleWarmeContacten.length !== 1 ? 'en' : ''} in beeld
-        </div>
-        {alleWarmeContacten.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
-            {alleWarmeContacten.map((c) => (
-              <Fase2WarmContactCard key={c.id} contact={c} />
-            ))}
-          </div>
-        ) : (
-          <div style={{ fontSize: 12, color: 'var(--c-subtle)', fontStyle: 'italic' }}>
-            Geen warme contacten geregistreerd voor {stadNaam}.
-          </div>
-        )}
-      </div>
-
-      {/* 3 · Veldonderzoek — makelaarsrelaties & acquisitie */}
-      <div>
-        <div style={subLabel}>3 · Veldonderzoek — makelaarsrelaties, acquisitie &amp; toetreding</div>
+        <div style={subLabel}>2 · Veldonderzoek — makelaarsrelaties, acquisitie &amp; toetreding</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {veldThemas.map((thema) => {
             const gefilterd = thema.inzichten.filter(inzichtFilter)
@@ -3102,6 +3259,24 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
             )
           })}
         </div>
+      </div>
+
+      {/* 3 · Warme ingangen */}
+      <div>
+        <div style={subLabel}>
+          3 · Warme ingangen — {alleWarmeContacten.length} contact{alleWarmeContacten.length !== 1 ? 'en' : ''} in beeld
+        </div>
+        {alleWarmeContacten.length > 0 ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
+            {alleWarmeContacten.map((c) => (
+              <Fase2WarmContactCard key={c.id} contact={c} />
+            ))}
+          </div>
+        ) : (
+          <div style={{ fontSize: 12, color: 'var(--c-subtle)', fontStyle: 'italic' }}>
+            Geen warme contacten geregistreerd voor {stadNaam}.
+          </div>
+        )}
       </div>
 
     </div>
