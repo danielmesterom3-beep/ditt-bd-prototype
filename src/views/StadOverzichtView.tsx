@@ -2567,18 +2567,9 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
 
 // ── ActieOverzichtView ────────────────────────────────────────────────────────
 
-type BdStatus = 'Oriëntatie' | 'Netwerk opbouwen' | 'Actief prospecting' | 'Offerte uitgestuurd'
 type Prioriteit = 'Hoog' | 'Midden' | 'Laag'
 
-const BD_STATUSSEN: BdStatus[] = ['Oriëntatie', 'Netwerk opbouwen', 'Actief prospecting', 'Offerte uitgestuurd']
 const PRIORITEITEN: Prioriteit[] = ['Hoog', 'Midden', 'Laag']
-
-const STATUS_COLOR: Record<BdStatus, string> = {
-  'Oriëntatie':           '#6366f1',
-  'Netwerk opbouwen':     '#0ea5e9',
-  'Actief prospecting':   '#f59e0b',
-  'Offerte uitgestuurd':  '#16a34a',
-}
 const PRIORITEIT_COLOR: Record<Prioriteit, string> = {
   'Hoog':   '#dc2626',
   'Midden': '#d97706',
@@ -3904,18 +3895,7 @@ const FASES = [
   },
 ]
 
-// BD pipeline status → fase nummer mapping
-const BD_STATUS_TO_FASE: Record<BdStatus, number> = {
-  'Oriëntatie':          1,
-  'Netwerk opbouwen':    2,
-  'Actief prospecting':  3,
-  'Offerte uitgestuurd': 4,
-}
-
 function ActieOverzichtView() {
-  const [statuses, setStatuses] = useState<Record<string, BdStatus>>(() =>
-    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, 'Oriëntatie' as BdStatus]))
-  )
   const [prioriteiten, setPrioriteiten] = useState<Record<string, Prioriteit>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, 'Midden' as Prioriteit]))
   )
@@ -3953,7 +3933,6 @@ function ActieOverzichtView() {
       </div>
 
       {MARKTCAP_STEDEN.filter((s) => s.naam !== 'Amsterdam').map((stad) => {
-        const status       = statuses[stad.naam]
         const prioriteit   = prioriteiten[stad.naam]
         const drempelLijst = drempel[stad.naam]
         const aantalKlaar  = drempelLijst.filter(Boolean).length
@@ -3990,111 +3969,9 @@ function ActieOverzichtView() {
 
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-              {/* ── BD Status pipeline ── */}
-              <div>
-                <div style={labelStyle}>BD Status</div>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  {BD_STATUSSEN.map((s, i) => {
-                    const active = status === s
-                    const isPast = BD_STATUSSEN.indexOf(status) > i
-                    return (
-                      <button key={s} onClick={() => setStatuses((prev) => ({ ...prev, [stad.naam]: s }))}
-                        style={{ fontSize: 11, fontWeight: active ? 700 : 500, padding: '6px 12px', borderRadius: 8, cursor: 'pointer',
-                          border: `1px solid ${active ? STATUS_COLOR[s] : isPast ? '#bbf7d0' : 'var(--c-border)'}`,
-                          background: active ? STATUS_COLOR[s] : isPast ? '#f0fdf4' : 'transparent',
-                          color: active ? 'white' : isPast ? '#16a34a' : 'var(--c-muted)',
-                        }}
-                      >{i + 1}. {s}</button>
-                    )
-                  })}
-                </div>
-
-                {/* ── Touchpoint bij huidige status ── */}
-                {(status === 'Oriëntatie' || status === 'Netwerk opbouwen') && (
-                  <div style={{ marginTop: 10, padding: '10px 14px', borderRadius: 8,
-                    background: status === 'Oriëntatie' ? '#f5f3ff' : '#f0f9ff',
-                    border: `1px solid ${status === 'Oriëntatie' ? '#c4b5fd' : '#7dd3fc'}`,
-                  }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
-                      color: status === 'Oriëntatie' ? '#7c3aed' : '#0ea5e9', marginBottom: 4,
-                    }}>
-                      {status === 'Oriëntatie' ? 'Touchpoint 1 — PROVADA beursvloer · 9–11 juni 2026' : 'Touchpoint 2 — Netwerk activeren'}
-                    </div>
-                    <div style={{ fontSize: 11, lineHeight: 1.7,
-                      color: status === 'Oriëntatie' ? '#5b21b6' : '#0369a1',
-                    }}>
-                      {status === 'Oriëntatie'
-                        ? 'Gemeente Eindhoven (stand 12.32) → Gemeente Rotterdam (stand 12.06) → Dynamis (stand 10.31) → Individuele makelaars'
-                        : 'LinkedIn-verbinding leggen → Terugkoppeling per mail → Gesprek in stad → Zichtbaarheid verankeren'
-                      }
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {/* ── Acquisitietrechter ── */}
               <div>
                 <div style={labelStyle}>Acquisitietrechter — 4 fases</div>
-
-                {/* ── BD Pipeline progress indicator ── */}
-                {(() => {
-                  const bdFaseNr = BD_STATUS_TO_FASE[status]
-                  return (
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 8,
-                      padding: '8px 12px', marginBottom: 16,
-                      background: '#f8f7f5', borderRadius: 10, border: '1px solid var(--c-border)',
-                    }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em', flexShrink: 0 }}>
-                        BD Status
-                      </span>
-                      <div style={{ display: 'flex', alignItems: 'center', flex: 1, gap: 0 }}>
-                        {FASES.map((fase, i) => {
-                          const isCurrentBd = fase.nr === bdFaseNr
-                          const isDoneBd    = fase.nr < bdFaseNr
-                          const isLast      = i === FASES.length - 1
-                          const FaseIcon    = fase.Icon
-                          return (
-                            <div key={fase.nr} style={{ display: 'contents' }}>
-                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-                                <div style={{
-                                  width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                  background: isCurrentBd ? fase.kleur : isDoneBd ? fase.kleur + '55' : '#e5e7eb',
-                                  border: `2px solid ${isCurrentBd ? fase.kleur : isDoneBd ? fase.kleur + '88' : '#d1d5db'}`,
-                                  boxShadow: isCurrentBd ? `0 0 0 3px ${fase.kleur}33` : 'none',
-                                  transition: 'all 0.15s',
-                                }}>
-                                  <FaseIcon size={13} color={isCurrentBd ? '#fff' : isDoneBd ? '#fff' : '#9ca3af'} strokeWidth={2.5} />
-                                </div>
-                                <span style={{
-                                  fontSize: 9, fontWeight: isCurrentBd ? 700 : 400, whiteSpace: 'nowrap',
-                                  color: isCurrentBd ? fase.textColor : isDoneBd ? 'var(--c-muted)' : '#9ca3af',
-                                }}>
-                                  {fase.titel}
-                                </span>
-                              </div>
-                              {!isLast && (
-                                <div style={{
-                                  flex: 1, height: 2, marginBottom: 14, minWidth: 16,
-                                  background: fase.nr < bdFaseNr ? fase.kleur + '66' : '#e5e7eb',
-                                }} />
-                              )}
-                            </div>
-                          )
-                        })}
-                      </div>
-                      <span style={{
-                        fontSize: 10, fontWeight: 700, padding: '2px 9px', borderRadius: 20, flexShrink: 0,
-                        background: STATUS_COLOR[status] + '18',
-                        color: STATUS_COLOR[status],
-                        border: `1px solid ${STATUS_COLOR[status]}44`,
-                      }}>
-                        {status}
-                      </span>
-                    </div>
-                  )
-                })()}
 
                 {/* ── Horizontale fase-stepper ── */}
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
