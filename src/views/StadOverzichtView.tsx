@@ -2567,14 +2567,6 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
 
 // ── ActieOverzichtView ────────────────────────────────────────────────────────
 
-type Prioriteit = 'Hoog' | 'Midden' | 'Laag'
-
-const PRIORITEITEN: Prioriteit[] = ['Hoog', 'Midden', 'Laag']
-const PRIORITEIT_COLOR: Record<Prioriteit, string> = {
-  'Hoog':   '#dc2626',
-  'Midden': '#d97706',
-  'Laag':   '#16a34a',
-}
 
 // Drempelcriteria — minimale voorwaarden vóór acquisitie-inzet per stad
 const DREMPEL_ITEMS = [
@@ -3896,9 +3888,6 @@ const FASES = [
 ]
 
 function ActieOverzichtView() {
-  const [prioriteiten, setPrioriteiten] = useState<Record<string, Prioriteit>>(() =>
-    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, 'Midden' as Prioriteit]))
-  )
   const [drempel, setDrempel] = useState<Record<string, boolean[]>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, DREMPEL_ITEMS.map(() => false)]))
   )
@@ -3933,7 +3922,6 @@ function ActieOverzichtView() {
       </div>
 
       {MARKTCAP_STEDEN.filter((s) => s.naam !== 'Amsterdam').map((stad) => {
-        const prioriteit   = prioriteiten[stad.naam]
         const drempelLijst = drempel[stad.naam]
         const aantalKlaar  = drempelLijst.filter(Boolean).length
         const klaarVoorAcquisitie = aantalKlaar >= 4
@@ -3953,17 +3941,6 @@ function ActieOverzichtView() {
                     {klaarVoorAcquisitie ? 'Klaar voor acquisitie' : 'Nog niet startklaar'}
                   </span>
                 </div>
-              </div>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {PRIORITEITEN.map((p) => (
-                  <button key={p} onClick={() => setPrioriteiten((prev) => ({ ...prev, [stad.naam]: p }))}
-                    style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20, cursor: 'pointer',
-                      border: `1px solid ${prioriteit === p ? PRIORITEIT_COLOR[p] : 'var(--c-border)'}`,
-                      background: prioriteit === p ? PRIORITEIT_COLOR[p] : 'transparent',
-                      color: prioriteit === p ? 'white' : 'var(--c-muted)',
-                    }}
-                  >{p}</button>
-                ))}
               </div>
             </div>
 
