@@ -9,6 +9,7 @@ import StadOverzichtView from './views/StadOverzichtView'
 import GebiedDetailView from './views/GebiedDetailView'
 import BeheerView from './views/BeheerView'
 import Breadcrumb from './components/Breadcrumb'
+import NieuwsFeed from './components/NieuwsFeed'
 
 // ── EditModeButton ────────────────────────────────────────────────────────────
 
@@ -127,11 +128,12 @@ function EditModeButton() {
   )
 }
 
-type ViewMode = 'overzicht' | 'kaart'
+type ViewMode = 'overzicht' | 'kaart' | 'nieuws'
 
 const VIEW_TABS: { id: ViewMode; label: string }[] = [
   { id: 'overzicht', label: 'Stadsoverzicht' },
   { id: 'kaart',     label: 'Gebiedskaart'   },
+  { id: 'nieuws',    label: 'Nieuws'          },
 ]
 
 function AppContent() {
@@ -291,6 +293,14 @@ function AppContent() {
               <div className="p-6 max-w-7xl mx-auto">
                 {showMarkt  && viewMode === 'overzicht' && <StadOverzichtView />}
                 {showMarkt  && viewMode === 'kaart'     && <MarktDashboard />}
+                {showMarkt  && viewMode === 'nieuws'    && (
+                  <div>
+                    <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--c-text)', marginBottom: 16 }}>
+                      Marktnieuws
+                    </h2>
+                    <NieuwsFeed />
+                  </div>
+                )}
                 {showPartij && <GebiedDetailView />}
               </div>
             </main>
