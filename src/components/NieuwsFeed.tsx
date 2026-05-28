@@ -62,7 +62,7 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
 
     // Realtime subscription
     const channel = supabase
-      .channel('nieuws-live')
+      .channel(`nieuws-live-${Date.now()}`)
       .on(
         'postgres_changes',
         {
