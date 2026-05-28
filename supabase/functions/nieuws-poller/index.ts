@@ -4,7 +4,12 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const PROPERTYNL_RSS = 'https://servicemodule.propertynl.com/api/export/GetRSSArticles?newsChannel=NL&ignoreSticky=true'
+const BRONNEN: { naam: string; url: string }[] = [
+  { naam: 'PropertyNL',       url: 'https://servicemodule.propertynl.com/api/export/GetRSSArticles?newsChannel=NL&ignoreSticky=true' },
+  { naam: 'Vastgoedjournaal', url: 'https://vastgoedjournaal.nl/news/rss' },
+  { naam: 'Vastgoednieuws',   url: 'https://vastgoednieuws.nl/news/rss' },
+  { naam: 'NVM',              url: 'https://www.nvm.nl/rss/' },
+]
 
 const SUPABASE_URL     = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -118,47 +123,59 @@ function parseRss(xml: string): RssItem[] {
 Deno.serve(async () => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE)
 
-  const res = await fetch(PROPERTYNL_RSS)
-  if (!res.ok) {
-    return new Response(`RSS fetch mislukt: ${res.status}`, { status: 502 })
-  }
+  let totaalVerwerkt = 0
+  let totaalNieuw = 0
+  let totaalOvergeslagen = 0
 
-  const xml   = await res.text()
-  const items = parseRss(xml)
+  for (const bron of BRONNEN) {
+    let res: Response
+    try {
+      res = await fetch(bron.url)
+    } catch (e) {
+      console.error(`Fetch mislukt voor ${bron.naam}:`, e)
+      continue
+    }
 
-  let nieuw = 0
-  let overgeslagen = 0
+    if (!res.ok) {
+      console.error(`RSS fetch mislukt voor ${bron.naam}: ${res.status}`)
+      continue
+    }
 
-  for (const item of items) {
-    const zoektekst = `${item.titel} ${item.samenvatting}`
-    const relevant  = isRelevant(zoektekst)
-    const steden    = detecteerSteden(zoektekst)
-    const categorie = detecteerCategorie(zoektekst)
+    const xml   = await res.text()
+    const items = parseRss(xml)
+    totaalVerwerkt += items.length
 
-    const { error } = await supabase.from('nieuws_items').upsert(
-      {
-        guid:         item.guid,
-        titel:        item.titel,
-        url:          item.url,
-        samenvatting: item.samenvatting,
-        gepubliceerd: item.gepubliceerd ? new Date(item.gepubliceerd).toISOString() : new Date().toISOString(),
-        bron:         'PropertyNL',
-        categorie,
-        stad:         steden,
-        relevant,
-      },
-      { onConflict: 'guid', ignoreDuplicates: true }
-    )
+    for (const item of items) {
+      const zoektekst = `${item.titel} ${item.samenvatting}`
+      const relevant  = isRelevant(zoektekst)
+      const steden    = detecteerSteden(zoektekst)
+      const categorie = detecteerCategorie(zoektekst)
 
-    if (error) {
-      console.error('upsert fout:', error.message, item.guid)
-    } else {
-      relevant ? nieuw++ : overgeslagen++
+      const { error } = await supabase.from('nieuws_items').upsert(
+        {
+          guid:         item.guid,
+          titel:        item.titel,
+          url:          item.url,
+          samenvatting: item.samenvatting,
+          gepubliceerd: item.gepubliceerd ? new Date(item.gepubliceerd).toISOString() : new Date().toISOString(),
+          bron:         bron.naam,
+          categorie,
+          stad:         steden,
+          relevant,
+        },
+        { onConflict: 'guid', ignoreDuplicates: true }
+      )
+
+      if (error) {
+        console.error('upsert fout:', error.message, item.guid)
+      } else {
+        relevant ? totaalNieuw++ : totaalOvergeslagen++
+      }
     }
   }
 
   return new Response(
-    JSON.stringify({ verwerkt: items.length, relevant: nieuw, overgeslagen }),
+    JSON.stringify({ verwerkt: totaalVerwerkt, relevant: totaalNieuw, overgeslagen: totaalOvergeslagen }),
     { headers: { 'Content-Type': 'application/json' } }
   )
 })
