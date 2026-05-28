@@ -7,6 +7,7 @@ import BronTooltip from '../components/BronTooltip'
 import EditableText, { queueChange, STORAGE_PREFIX } from '../components/EditableText'
 import { useEditMode } from '../context/EditContext'
 import { useViewMode } from '../context/ViewModeContext'
+import NieuwsFeed from '../components/NieuwsFeed'
 
 const BRONNEN = {
   jll:      'Jones Lang LaSalle IP, Inc. (2026). Office market: Rotterdam & Eindhoven Q4 2025. JLL Research.',
@@ -4217,6 +4218,27 @@ export default function StadOverzichtView() {
 
       {/* Recente transacties */}
       <RecenteTransactiesPanel />
+
+      {/* Live marktnieuws feed */}
+      <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ padding: '14px 18px', background: 'var(--c-surface)', borderBottom: '1px solid var(--c-border)', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>Live marktnieuws</div>
+            <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>PropertyNL · Rotterdam &amp; Eindhoven · elke 30 min bijgewerkt</div>
+          </div>
+          <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0' }}>LIVE</span>
+        </div>
+        <div style={{ display: 'flex', gap: 0 }}>
+          <div style={{ flex: 1, padding: '16px', borderRight: '1px solid var(--c-border)' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-muted)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Rotterdam</div>
+            <NieuwsFeed stadFilter="rotterdam" />
+          </div>
+          <div style={{ flex: 1, padding: '16px' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-muted)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Eindhoven</div>
+            <NieuwsFeed stadFilter="eindhoven" />
+          </div>
+        </div>
+      </div>
 
       {/* Veldonderzoek trends & inzichten */}
       <VeldonderzoekPanel />
