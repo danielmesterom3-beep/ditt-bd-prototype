@@ -2650,10 +2650,10 @@ function EindhovenGemeenteStrategiePanel() {
       >
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)' }}>
-            Eindhovense kantoormarkt — strategische context voor Ditt.
+            <EditableText storageKey="fase1.eind.strategie.paneltitel" defaultValue="Eindhovense kantoormarkt — strategische context voor Ditt." />
           </div>
           <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
-            Brainport 2030 · Fellenoord-transformatie · Sweetspot analyse · Concurrentie
+            <EditableText storageKey="fase1.eind.strategie.panelsubtitel" defaultValue="Brainport 2030 · Fellenoord-transformatie · Sweetspot analyse · Concurrentie" />
           </div>
         </div>
         <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
@@ -2712,7 +2712,7 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
 
       {/* 1 · Marktinfo */}
       <div>
-        <div style={subLabel}>1 · Marktinfo {stadNaam}</div>
+        <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.1`} defaultValue={`1 · Marktinfo ${stadNaam}`} /></div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
           {[
             { label: 'Totaal kantoor VVO',   value: fmM2(stadVVO) },
@@ -2737,21 +2737,21 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
 
       {/* 2 · Omgevingskenmerken */}
       <div>
-        <div style={subLabel}>2 · Omgevingskenmerken — concurrentie &amp; D&amp;B-activiteit</div>
+        <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.2`} defaultValue="2 · Omgevingskenmerken — concurrentie & D&B-activiteit" /></div>
         {stadNaam === 'Eindhoven' ? <OmgevingskenmerkenPanel /> : <RotterdamOmgevingskenmerkenPanel />}
       </div>
 
       {/* 3 · Gemeente- / marktstrategieblok */}
       <div>
         <div style={subLabel}>
-          3 · {stadNaam === 'Rotterdam' ? 'Kantorenstrategie 2025–2035 (MRDH)' : 'Markt- & stedelijke strategie'}
+          <EditableText storageKey={`fase1.${stadId}.sublabel.3`} defaultValue={stadNaam === 'Rotterdam' ? '3 · Kantorenstrategie 2025–2035 (MRDH)' : '3 · Markt- & stedelijke strategie'} />
         </div>
         {stadNaam === 'Rotterdam' ? <RotterdamKantorenstrategiePanel /> : <EindhovenGemeenteStrategiePanel />}
       </div>
 
       {/* 4 · Veldonderzoek-inzichten — uitklapbaar */}
       <div>
-        <div style={subLabel}>4 · Veldonderzoek — markt, huurcontracten &amp; turn-key</div>
+        <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.4`} defaultValue="4 · Veldonderzoek — markt, huurcontracten & turn-key" /></div>
         <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
           <button
             onClick={() => setOpenVeld((o) => !o)}
@@ -2759,10 +2759,10 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
           >
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em' }}>
-                Veldonderzoek inzichten
+                <EditableText storageKey={`fase1.${stadId}.veld.paneltitel`} defaultValue="Veldonderzoek inzichten" />
               </div>
               <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
-                Marktomvang · Huurcontractduren · Turn-key vraag · Fitoutkosten
+                <EditableText storageKey={`fase1.${stadId}.veld.panelsubtitel`} defaultValue="Marktomvang · Huurcontractduren · Turn-key vraag · Fitoutkosten" />
               </div>
             </div>
             <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: openVeld ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
@@ -2832,7 +2832,7 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
       {/* 5 · Makelaars-quotes */}
       {makelaarsQuotes.length > 0 && (
         <div>
-          <div style={subLabel}>5 · Makelaars-quotes — directe uitspraken veldonderzoek</div>
+          <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.5`} defaultValue="5 · Makelaars-quotes — directe uitspraken veldonderzoek" /></div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {makelaarsQuotes.map((inzicht, i) => {
               const badge = inzicht.stad ? VELDONDERZOEK_STAD_BADGE[inzicht.stad] : null
@@ -3092,6 +3092,9 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   const stadId = stadNaam.toLowerCase() as 'eindhoven' | 'rotterdam'
   const colors = STAD_COLORS[stadId]
 
+  const [openRendabel, setOpenRendabel] = useState(false)
+  const [openPanden,   setOpenPanden]   = useState(false)
+
   // 1. Rendabelste gebouwen — gefilterd op stad
   const rendabeleGebouwen = RENDABELE_GEBOUWEN.filter(
     (g) => g.stad.toLowerCase() === stadId
@@ -3115,29 +3118,50 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-      {/* 1 · Rendabelste gebouwen */}
-      <div>
-        <div style={subLabel}>1 · Rendabelste gebouwen</div>
-        {rendabeleGebouwen.length === 0 ? (
-          <div style={{
-            border: '1px dashed var(--c-border)', borderRadius: 10, padding: '20px 16px',
-            fontSize: 12, color: 'var(--c-muted)', textAlign: 'center', fontStyle: 'italic',
-          }}>
-            {/* TODO: voeg Rotterdam-gebouwen toe aan RENDABELE_GEBOUWEN in StadOverzichtView.tsx */}
-            Nog geen rendabele gebouwen beschikbaar voor {stadNaam}.
+      {/* 1 · Rendabelste gebouwen — uitklapbaar */}
+      <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+        <button
+          onClick={() => setOpenRendabel((o) => !o)}
+          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+        >
+          <div style={subLabel} onClick={(e) => e.stopPropagation()}>
+            <EditableText storageKey={`fase3.${stadId}.sublabel.1`} defaultValue="1 · Rendabelste gebouwen" />
           </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {rendabeleGebouwen.map((geb) => (
-              <RendabelGebouwCard key={geb.id} geb={geb} />
-            ))}
+          <span style={{ fontSize: 16, color: 'var(--c-subtle)', transform: openRendabel ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+        </button>
+        {openRendabel && (
+          <div style={{ borderTop: '1px solid var(--c-border)', padding: '16px' }}>
+            {rendabeleGebouwen.length === 0 ? (
+              <div style={{
+                border: '1px dashed var(--c-border)', borderRadius: 10, padding: '20px 16px',
+                fontSize: 12, color: 'var(--c-muted)', textAlign: 'center', fontStyle: 'italic',
+              }}>
+                Nog geen rendabele gebouwen beschikbaar voor {stadNaam}.
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {rendabeleGebouwen.map((geb) => (
+                  <RendabelGebouwCard key={geb.id} geb={geb} />
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* 2 · Panden in ontwikkeling */}
-      <div>
-        <div style={subLabel}>2 · Panden in ontwikkeling</div>
+      {/* 2 · Panden in ontwikkeling — uitklapbaar */}
+      <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+        <button
+          onClick={() => setOpenPanden((o) => !o)}
+          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+        >
+          <div style={subLabel} onClick={(e) => e.stopPropagation()}>
+            <EditableText storageKey={`fase3.${stadId}.sublabel.2`} defaultValue="2 · Panden in ontwikkeling" />
+          </div>
+          <span style={{ fontSize: 16, color: 'var(--c-subtle)', transform: openPanden ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+        </button>
+        {openPanden && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: '16px' }}>
         {pandenInOntwikkeling.length === 0 ? (
           <div style={{
             border: '1px dashed var(--c-border)', borderRadius: 10, padding: '20px 16px',
@@ -3207,11 +3231,13 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
             })}
           </div>
         )}
+        </div>
+        )}
       </div>
 
       {/* 3 · Recente transacties */}
       <div>
-        <div style={subLabel}>3 · Recente transacties</div>
+        <div style={subLabel}><EditableText storageKey={`fase3.${stadId}.sublabel.3`} defaultValue="3 · Recente transacties" /></div>
         {transactiesVoorStad.length === 0 ? (
           <div style={{
             border: '1px dashed var(--c-border)', borderRadius: 10, padding: '20px 16px',
@@ -3285,7 +3311,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
 
       {/* 4 · Aflopende huurcontracten */}
       <div>
-        <div style={subLabel}>4 · Aflopende huurcontracten</div>
+        <div style={subLabel}><EditableText storageKey={`fase3.${stadId}.sublabel.4`} defaultValue="4 · Aflopende huurcontracten" /></div>
         {/* TODO: voeg AflopendeHuurcontract[] toe aan src/data/types.ts en per-stad data */}
         <div style={{
           border: '1px dashed var(--c-border)', borderRadius: 12,
@@ -3419,7 +3445,7 @@ function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
 
       {/* 1 · Contactprotocol */}
       <div>
-        <div style={subLabel}>1 · Contactprotocol — eigenaren &amp; huurders</div>
+        <div style={subLabel}><EditableText storageKey={`fase4.${stadNaam.toLowerCase()}.sublabel.1`} defaultValue="1 · Contactprotocol — eigenaren & huurders" /></div>
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden' }}>
 
           {/* Header + partijtype selector */}
@@ -3522,7 +3548,7 @@ function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
 
       {/* 2 · Begrotingsindicator */}
       <div>
-        <div style={subLabel}>2 · Begrotingsindicator</div>
+        <div style={subLabel}><EditableText storageKey={`fase4.${stadNaam.toLowerCase()}.sublabel.2`} defaultValue="2 · Begrotingsindicator" /></div>
         <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
           <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--c-border)', background: '#faf9f7' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>Begrotingsindicatie — per gesprek</div>
@@ -3668,7 +3694,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
 
       {/* 1 · Contactprotocol */}
       <div>
-        <div style={subLabel}>1 · Contactprotocol — aanpak per partijtype</div>
+        <div style={subLabel}><EditableText storageKey={`fase2.${stadId}.sublabel.1`} defaultValue="1 · Contactprotocol — aanpak per partijtype" /></div>
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden' }}>
 
           {/* Header + partijtype selector */}
@@ -3773,7 +3799,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
 
       {/* 2 · Veldonderzoek — makelaarsrelaties & acquisitie */}
       <div>
-        <div style={subLabel}>2 · Veldonderzoek — makelaarsrelaties, acquisitie &amp; toetreding</div>
+        <div style={subLabel}><EditableText storageKey={`fase2.${stadId}.sublabel.2`} defaultValue="2 · Veldonderzoek — makelaarsrelaties, acquisitie & toetreding" /></div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {veldThemas.map((thema) => {
             const gefilterd = thema.inzichten.filter(inzichtFilter)
@@ -3819,7 +3845,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
       {/* 3 · Warme ingangen */}
       <div>
         <div style={subLabel}>
-          3 · Warme ingangen — {alleWarmeContacten.length} contact{alleWarmeContacten.length !== 1 ? 'en' : ''} in beeld
+          <EditableText storageKey={`fase2.${stadId}.sublabel.3`} defaultValue={`3 · Warme ingangen — ${alleWarmeContacten.length} contact${alleWarmeContacten.length !== 1 ? 'en' : ''} in beeld`} />
         </div>
         {alleWarmeContacten.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
