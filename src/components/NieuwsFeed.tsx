@@ -37,10 +37,8 @@ function tijdGeleden(iso: string): string {
 export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
   const [items, setItems] = useState<NieuwsItem[]>([])
   const [loading, setLoading] = useState(true)
-  const [nieuw, setNieuw] = useState<string | null>(null)
 
   useEffect(() => {
-    // Initieel laden
     async function laad() {
       let query = supabase
         .from('nieuws_items')
@@ -59,29 +57,6 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
     }
 
     laad()
-
-    // Realtime subscription
-    const channel = supabase
-      .channel(`nieuws-live-${Date.now()}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'nieuws_items',
-          filter: 'relevant=eq.true',
-        },
-        (payload) => {
-          const item = payload.new as NieuwsItem
-          if (stadFilter && !item.stad?.includes(stadFilter.toLowerCase())) return
-          setItems((prev) => [item, ...prev.slice(0, 29)])
-          setNieuw(item.id)
-          setTimeout(() => setNieuw(null), 4000)
-        }
-      )
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
   }, [stadFilter])
 
   if (loading) {
@@ -108,7 +83,6 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       {items.map((item) => {
         const badge = CATEGORIE_BADGE[item.categorie ?? 'overig'] ?? CATEGORIE_BADGE.overig
-        const isNieuw = item.id === nieuw
 
         return (
           <a
@@ -118,24 +92,15 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
             rel="noreferrer"
             style={{
               display: 'block',
-              border: `1px solid ${isNieuw ? '#f97316' : 'var(--c-border)'}`,
+              border: '1px solid var(--c-border)',
               borderRadius: 10,
               padding: '12px 14px',
-              background: isNieuw ? '#fff7ed' : 'var(--c-surface)',
+              background: 'var(--c-surface)',
               textDecoration: 'none',
-              transition: 'border-color 0.3s, background 0.3s',
             }}
           >
             {/* Header rij */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, flexWrap: 'wrap' }}>
-              {isNieuw && (
-                <span style={{
-                  fontSize: 10, fontWeight: 800, padding: '1px 7px', borderRadius: 20,
-                  background: '#f97316', color: '#fff', letterSpacing: '0.05em',
-                }}>
-                  LIVE
-                </span>
-              )}
               <span style={{
                 fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20,
                 background: badge.bg, color: badge.text,
