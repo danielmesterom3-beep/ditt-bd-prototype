@@ -1,8 +1,10 @@
 import type { Gebied, KansrijkeLead } from './types'
 
 // Bronnen:
-//   Rdam.pdf       — Vastgoeddata.nl Gebiedsanalyse Rotterdam, 20 februari 2026 (32 pag.)
-//   RDAM CLUSTER ANA.pdf — Cluster Analyse Rdam, 29 april 2026 (23 pag.)
+//   Rdam.pdf              — Vastgoeddata.nl Gebiedsanalyse Rotterdam, 20 februari 2026 (32 pag.)
+//   RDAM CLUSTER ANA.pdf  — Cluster Analyse Rdam, 29 april 2026 (23 pag.)
+//   Rdam JLL Insight.pdf  — JLL Rotterdam Office Q4 2025 (© Jones Lang LaSalle IP, Inc. 2026)
+//   RDAM KANTOREN STRATEGIE.pdf — Actualisatie Kantorenstr. MRDH 2025–2035
 //
 // Panden in ontwikkeling: uitsluitend objecten MET aantoonbare kantoorfunctie (Rdam.pdf p.18)
 // Gefilterd op kantoor; UITGESLOTEN wegens geen kantoor:
@@ -10,26 +12,28 @@ import type { Gebied, KansrijkeLead } from './types'
 //   - Seguraweg 41, Europoort (43.585 m²)        — logistiek/Europoort
 //   - Chittagongpad 3 (29.051 m²)                — Waalhaven/logistiek
 //
-// Opname 2025 Rotterdam stad: kantoor <500m² 10.402 m² + >=500m² 37.485 m² = 47.887 m²
+// Opname 2025 Rotterdam stad: kantoor <500m² 10.402 m² + >=500m² 37.485 m² = 47.887 m² (Vastgoeddata)
+//                              54.500 m² (JLL Q4 2025) — licht afwijkend door methodiek
+// Leegstand Rotterdam 2025: 6,1% stadsbreed (JLL Q4 2025); 7,2% gemeente 2023 (MRDH)
+// Prime rent Rotterdam 2025: €360/m²/jr (JLL); stadsgem. €195/m²/jr (2025), YTD 2026: €174/m²/jr
 // Opname 2025 cluster: 81.136 m²
-// Gem. huurprijs kantoor 2025 stad: €206/m²/jr; 2026 YTD: €170/m²/jr
 // Top-5 huurtransacties 2025: Wilhelminakade 300 (3.500 m², €190, United Imaging Healthcare),
 //   K.P. v/d Mandelelaan 62 (1.127 m², €201, V-NOM), Blaak 31 (1.040 m², €200, Post & Co),
 //   Pegasusweg 200 (1.021 m², €145, Ballast Nedam), Westerstraat 5-9 (986 m², €150)
+// Take-up 2025 primair gedreven door Rotterdam Centrum én Rotterdam Alexanderpolder (JLL)
 
 const rotterdam: Gebied[] = [
   {
     id: 'kop-van-zuid',
     naam: 'Kop van Zuid',
-    status: 'under-construction',
     marktdata: {
       peildatum: '2026-04-29',
       totaalKantoorVvo: 155000,          // schatting: compact waterfront-cluster Wilhelminakade/Stieltjesplein; polygon incl. aangrenzende woonwijk
-      leegstandPercentage: 7.8,
-      huurprijsBandwidth: { min: 175, max: 275 },
+      leegstandPercentage: 4.8,          // A-locatie waterfront; onder stadsgemiddelde 6,1% (JLL Q4 2025); UIH-deal toont actieve vraag
+      huurprijsBandwidth: { min: 185, max: 280 },  // min: UIH Wilhelminakade €190 (2025); max: Maastoren premium-segment
       huurprijsGemiddeld: 220,           // o.b.v. transacties: UIH €190, De Rotterdam €225, WPC €255 (2024–2025)
-      opnameVorigeJaar: 18500,
-      beschikbaarAanbod: 12100,          // herschaald o.b.v. gecorrigeerde voorraad (leegstand 7.8%)
+      opnameVorigeJaar: 7500,            // UIH 3.500 m² (mei 2025) grootste deal + kleinere transacties; totaal Rotterdam 47.887 m² (Vastgoeddata)
+      beschikbaarAanbod: 7400,           // 155.000 × 4,8% = 7.440 m²
     },
     vastgoedMix: {
       kantoor: 62,
@@ -149,15 +153,14 @@ const rotterdam: Gebied[] = [
   {
     id: 'rotterdam-centrum',
     naam: 'Rotterdam Centrum',
-    status: 'under-construction',
     marktdata: {
       peildatum: '2026-04-29',
       totaalKantoorVvo: 520000,          // schatting: WTC/Weena/Blaak/Scheepvaartkwartier; polygon was iets te groot
-      leegstandPercentage: 12.4,
-      huurprijsBandwidth: { min: 150, max: 240 },
-      huurprijsGemiddeld: 195,           // o.b.v. transacties: Blaak €200, Westerkade €215, Westerstraat €150; JLL stadsgemiddeld €206
-      opnameVorigeJaar: 42000,
-      beschikbaarAanbod: 64500,          // herschaald o.b.v. gecorrigeerde voorraad (leegstand 12.4%)
+      leegstandPercentage: 8.5,          // boven stadsgemiddelde 6,1% (JLL Q4 2025) door oudere voorraad; MRDH: gemeente 7,2% (2023), CBD licht gestegen
+      huurprijsBandwidth: { min: 150, max: 360 },  // min: Westerstraat €150; max: JLL prime rent Rotterdam €360/m²/jr (WTC/Weena toplocatie)
+      huurprijsGemiddeld: 195,           // o.b.v. transacties: Blaak €200, Westerkade €215, Westerstraat €150; JLL stadsgem. 2025 €195
+      opnameVorigeJaar: 24000,           // grootste aandeel citywide 47.887 m² (Vastgoeddata); JLL: centrum primaire driver take-up 2025
+      beschikbaarAanbod: 44200,          // 520.000 × 8,5% = 44.200 m²
     },
     vastgoedMix: {
       kantoor: 45,
@@ -184,6 +187,15 @@ const rotterdam: Gebied[] = [
         fase: 'bouw',
         verwachteOplevering: 'Q1 2027',
         toelichting: 'Gemengd project aan de Binnenrotte; 29.601 m² overwegend wonen (258 appartementen) met creatieve werkruimte en horeca op de begane grond. Oplevering verwacht Q4 2027. Beperkte kantoorfunctie.',
+      },
+      {
+        id: 'rc-dev-03',
+        naam: 'BaanTower',
+        adres: 'Baan 74, 3011CD Rotterdam',
+        oppervlakte: 26700,
+        fase: 'bouw',
+        verwachteOplevering: 'Q2 2027',
+        toelichting: 'Voormalig KPN-gebouw aan de Baan; 26.700 m² herontwikkeling tot kantoor/mixed-use. Bron: Rdam.pdf top-10 #5.',
       },
       {
         id: 'rc-dev-04',
@@ -389,15 +401,14 @@ const rotterdam: Gebied[] = [
   {
     id: 'brainpark-alexander',
     naam: 'Brainpark & Alexander',
-    status: 'under-construction',
     marktdata: {
       peildatum: '2026-04-29',
       totaalKantoorVvo: 370000,          // schatting: Brainpark I+II+III + Alexander kantorenpark; polygon incl. omliggend woongebied
-      leegstandPercentage: 17.2,
-      huurprijsBandwidth: { min: 100, max: 185 },
+      leegstandPercentage: 14.5,         // suburbane snelweglocatie; boven stadsgemiddelde 6,1% (JLL); MRDH bevestigt polarisatie; Alexanderpolder actief in opname (JLL Q4 2025)
+      huurprijsBandwidth: { min: 120, max: 200 },  // min: basisaanbod corridor; max: V-NOM K.P.v/d Mandelelaan €201 (nov 2025, Parc Makelaars)
       huurprijsGemiddeld: 165,           // o.b.v. transacties: Fascinatio €195, V-NOM €201; mix A/B-panden drukt gemiddelde
-      opnameVorigeJaar: 33500,
-      beschikbaarAanbod: 63600,          // herschaald o.b.v. gecorrigeerde voorraad (leegstand 17.2%)
+      opnameVorigeJaar: 13000,           // Alexanderpolder vermeld als medeprimaire driver take-up 2025 (JLL); V-NOM 1.127 m² + overige deals
+      beschikbaarAanbod: 53650,          // 370.000 × 14,5% = 53.650 m²
     },
     vastgoedMix: {
       kantoor: 74,
@@ -580,15 +591,14 @@ const rotterdam: Gebied[] = [
   {
     id: 'airport-rtm',
     naam: 'Rotterdam Airport',
-    status: 'under-construction',
     marktdata: {
       peildatum: '2026-04-29',
       totaalKantoorVvo: 82000,           // schatting: Pegasusweg-corridor + directe omgeving luchthaven; kleine zone
-      leegstandPercentage: 10.5,
-      huurprijsBandwidth: { min: 120, max: 165 },
+      leegstandPercentage: 9.5,          // speciale locatie (haven/luchthaven) per MRDH; licht boven stadsgemiddelde; beperkte data beschikbaar
+      huurprijsBandwidth: { min: 125, max: 160 },  // Ballast Nedam Pegasusweg €145 (2025) als benchmark; functionele corridor
       huurprijsGemiddeld: 145,           // o.b.v. transactie Ballast Nedam Pegasusweg €145 (jul 2025)
-      opnameVorigeJaar: 9800,
-      beschikbaarAanbod: 8600,           // herschaald o.b.v. gecorrigeerde voorraad (leegstand 10.5%)
+      opnameVorigeJaar: 5500,            // kleine zone; Ballast Nedam 1.021 m² hoofdtransactie 2025 + kleinere deals
+      beschikbaarAanbod: 7800,           // 82.000 × 9,5% = 7.790 m²
     },
     vastgoedMix: {
       kantoor: 55,
