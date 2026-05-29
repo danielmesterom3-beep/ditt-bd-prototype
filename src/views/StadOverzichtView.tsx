@@ -1046,25 +1046,37 @@ function RotterdamOmgevingskenmerkenPanel() {
             </div>
             )}
 
-            {/* UP Projectinrichting */}
-            {!hiddenCards.has('up') && (
+            {/* Leidmotiv */}
+            {!hiddenCards.has('leidmotiv') && (
             <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                 <div>
-                  <EditableText storageKey="omgeving.up.naam" defaultValue="UP Projectinrichting" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
-                  <EditableText storageKey="omgeving.up.meta" defaultValue="upprojectinrichting.nl · Maasdijk · opgericht 2010" style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1, display: 'block' }} />
+                  <EditableText storageKey="omgeving.leidmotiv.naam" defaultValue="Leidmotiv" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
+                  <EditableText storageKey="omgeving.leidmotiv.meta" defaultValue="leidmotiv.com · Amsterdam · Design & Build" style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1, display: 'block' }} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <EditableText storageKey="omgeving.up.badge" defaultValue="Kleine speler" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }} />
-                  {deleteBtn('up')}
+                  <EditableText storageKey="omgeving.leidmotiv.badge" defaultValue="Design-gedreven" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#ede9fe', color: '#5b21b6', border: '1px solid #ddd6fe' }} />
+                  {deleteBtn('leidmotiv')}
                 </div>
               </div>
-              <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 10 }}>Bron: upprojectinrichting.nl/projecten</div>
-              <div style={{ padding: '8px 10px', background: '#f1f5f9', borderRadius: 6, marginBottom: 12 }}>
-                <span style={{ fontSize: 11, color: 'var(--c-subtle)' }}>Geen m²-groottes of locaties gepubliceerd op portfolio — geen projectgegevens verifieerbaar.</span>
+              <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 10 }}>Bron: leidmotiv.com/projecten</div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam (bevestigd)</div>
+                {[
+                  { naam: 'Rotterdam Partners', jaar: '2024', m2: null },
+                  { naam: 'Pentrade', jaar: '2023', m2: null },
+                  { naam: 'HDI', jaar: '2022', m2: 150 },
+                  { naam: 'Crowe Peak', jaar: '2021', m2: 400 },
+                  { naam: 'Carerix', jaar: '2018', m2: 600 },
+                ].map(({ naam, jaar, m2 }) => (
+                  <div key={naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)', padding: '3px 0', borderBottom: '1px solid var(--c-border)' }}>
+                    <span>{naam} ({jaar})</span>
+                    <span style={{ fontVariantNumeric: 'tabular-nums' }}>{m2 ? `${m2.toLocaleString('nl-NL')} m²` : '—'}</span>
+                  </div>
+                ))}
               </div>
               <div style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid #cbd5e1' }}>
-                <EditableText storageKey="omgeving.up.context" defaultValue="UP publiceert geen locaties of m²-groottes bij projecten. Geen duidelijke Rotterdam-focus zichtbaar in portfolio — beperkte capaciteit voor grote D&B-trajecten. Minder relevant als directe concurrent." tag="div" style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }} />
+                <EditableText storageKey="omgeving.leidmotiv.context" defaultValue="Leidmotiv is een design-gedreven D&B-studio met nationale uitstraling en sterke storytelling-aanpak. Actief in Rotterdam (Rotterdam Partners, Pentrade, HDI). Positioneren zich op merk en betekenis — directe concurrent voor kwalitatieve huurders die design hoog in het vaandel hebben. Kleinere projectomvang dan Ditt's focus, maar groeiend in het kantoorsegment." tag="div" style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }} />
               </div>
             </div>
             )}
@@ -2090,7 +2102,7 @@ const MARKTCAP_STEDEN: MarktCapStad[] = [
     penetratie:   0.40,
     dittM2:       23_394,
     defaultPrijs: 900,
-    concurrenten: 'Sprank Interieurprojecten, Plan@Office, UP Projectinrichting',
+    concurrenten: 'Sprank Interieurprojecten, Plan@Office, Leidmotiv',
   },
   {
     naam:         'Amsterdam',
