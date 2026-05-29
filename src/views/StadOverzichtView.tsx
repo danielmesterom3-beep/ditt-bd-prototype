@@ -998,12 +998,12 @@ function RotterdamOmgevingskenmerkenPanel() {
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam (bevestigde m²)</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 12 }}>
                 {[
-                  { naam: 'VTTI — The Mark (1e verdieping)', m2: 1239 },
-                  { naam: 'Hoge Erasmus — entree (Ooms Makelaars)', m2: 500 },
+                  { id: 'sprank-p1', naam: 'VTTI — The Mark (1e verdieping)', m2: '1.239 m²' },
+                  { id: 'sprank-p2', naam: 'Hoge Erasmus — entree (Ooms Makelaars)', m2: '500 m²' },
                 ].map((p) => (
-                  <div key={p.naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
-                    <span>{p.naam}</span>
-                    <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.m2.toLocaleString('nl-NL')} m²</span>
+                  <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
+                    <EditableText storageKey={`omgeving.${p.id}.naam`} defaultValue={p.naam} />
+                    <EditableText storageKey={`omgeving.${p.id}.m2`} defaultValue={p.m2} style={{ fontVariantNumeric: 'tabular-nums', flexShrink: 0, marginLeft: 8 }} />
                   </div>
                 ))}
               </div>
@@ -1030,13 +1030,13 @@ function RotterdamOmgevingskenmerkenPanel() {
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 12 }}>
                 {[
-                  { naam: 'Den Hartogh — Sluisjesdijk (campus)', m2: 24000 },
-                  { naam: 'EuroNordic — Waalhaven', m2: 1780 },
-                  { naam: '9Corporate — Weena', m2: 1000 },
+                  { id: 'planatoffice-p1', naam: 'Den Hartogh — Sluisjesdijk (campus)', m2: '24.000 m²' },
+                  { id: 'planatoffice-p2', naam: 'EuroNordic — Waalhaven', m2: '1.780 m²' },
+                  { id: 'planatoffice-p3', naam: '9Corporate — Weena', m2: '1.000 m²' },
                 ].map((p) => (
-                  <div key={p.naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
-                    <span>{p.naam}</span>
-                    <span style={{ fontVariantNumeric: 'tabular-nums' }}>{p.m2.toLocaleString('nl-NL')} m²</span>
+                  <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
+                    <EditableText storageKey={`omgeving.${p.id}.naam`} defaultValue={p.naam} />
+                    <EditableText storageKey={`omgeving.${p.id}.m2`} defaultValue={p.m2} style={{ fontVariantNumeric: 'tabular-nums', flexShrink: 0, marginLeft: 8 }} />
                   </div>
                 ))}
               </div>
@@ -1063,15 +1063,15 @@ function RotterdamOmgevingskenmerkenPanel() {
               <div style={{ marginBottom: 12 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam (bevestigd)</div>
                 {[
-                  { naam: 'Rotterdam Partners', jaar: '2024', m2: null },
-                  { naam: 'Pentrade', jaar: '2023', m2: null },
-                  { naam: 'HDI', jaar: '2022', m2: 150 },
-                  { naam: 'Crowe Peak', jaar: '2021', m2: 400 },
-                  { naam: 'Carerix', jaar: '2018', m2: 600 },
-                ].map(({ naam, jaar, m2 }) => (
-                  <div key={naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)', padding: '3px 0', borderBottom: '1px solid var(--c-border)' }}>
-                    <span>{naam} ({jaar})</span>
-                    <span style={{ fontVariantNumeric: 'tabular-nums' }}>{m2 ? `${m2.toLocaleString('nl-NL')} m²` : '—'}</span>
+                  { id: 'leidmotiv-p1', naam: 'Rotterdam Partners (2024)', m2: '—' },
+                  { id: 'leidmotiv-p2', naam: 'Pentrade (2023)', m2: '—' },
+                  { id: 'leidmotiv-p3', naam: 'HDI (2022)', m2: '150 m²' },
+                  { id: 'leidmotiv-p4', naam: 'Crowe Peak (2021)', m2: '400 m²' },
+                  { id: 'leidmotiv-p5', naam: 'Carerix (2018)', m2: '600 m²' },
+                ].map((p) => (
+                  <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)', padding: '3px 0', borderBottom: '1px solid var(--c-border)' }}>
+                    <EditableText storageKey={`omgeving.${p.id}.naam`} defaultValue={p.naam} />
+                    <EditableText storageKey={`omgeving.${p.id}.m2`} defaultValue={p.m2} style={{ fontVariantNumeric: 'tabular-nums', flexShrink: 0, marginLeft: 8 }} />
                   </div>
                 ))}
               </div>
