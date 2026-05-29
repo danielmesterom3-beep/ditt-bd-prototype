@@ -14,6 +14,36 @@ const BRONNEN = {
   huurprijs:'Vastgoeddata.nl. (2026, 29 april). Gebiedsanalyses kantoormarkten [Dataset]. Vastgoeddata.nl.',
 }
 
+const JLL_BRON_RDAM_Q4 = 'JLL. (2026). Rotterdam Office Market Update Q4 2025. Jones Lang LaSalle IP, Inc.'
+const JLL_BRON_RDAM_Q1 = 'JLL. (2026). Rotterdam Office Market Update Q1 2026. Jones Lang LaSalle IP, Inc.'
+const JLL_BRON_EIND_Q4 = 'JLL. (2026). Eindhoven Office Market Update Q4 2025. Jones Lang LaSalle IP, Inc.'
+const JLL_BRON_EIND_Q1 = 'JLL. (2026). Eindhoven Office Market Update Q1 2026. Jones Lang LaSalle IP, Inc.'
+
+const JLL_KWARTALEN = ['Q4 2025', 'Q1 2026'] as const
+type JllKwartaal = typeof JLL_KWARTALEN[number]
+
+type JllRecord = {
+  takeUp: string
+  takeUpLabel: string
+  vacancy: string
+  primeRent: string
+  investVolume: string
+  investLabel: string
+  primeNIY: string
+  bron: string
+}
+
+const JLL_DATA: Record<string, Record<JllKwartaal, JllRecord>> = {
+  eindhoven: {
+    'Q4 2025': { takeUp: '25.300 m²', takeUpLabel: '2025 take-up', vacancy: '6,7%', primeRent: '€265/m²/jr', investVolume: '€66,1 mln', investLabel: '2025 investering', primeNIY: '6,00%', bron: JLL_BRON_EIND_Q4 },
+    'Q1 2026': { takeUp: '3.300 m²',  takeUpLabel: 'YTD take-up',  vacancy: '6,8%', primeRent: '€265/m²/jr', investVolume: '€39,3 mln', investLabel: 'YTD investering',  primeNIY: '6,00%', bron: JLL_BRON_EIND_Q1 },
+  },
+  rotterdam: {
+    'Q4 2025': { takeUp: '54.500 m²', takeUpLabel: '2025 take-up', vacancy: '6,1%', primeRent: '€360/m²/jr', investVolume: '€276 mln',  investLabel: '2025 investering', primeNIY: '5,50%', bron: JLL_BRON_RDAM_Q4 },
+    'Q1 2026': { takeUp: '13.000 m²', takeUpLabel: 'YTD take-up',  vacancy: '5,8%', primeRent: '€360/m²/jr', investVolume: '€25,9 mln', investLabel: 'YTD investering',  primeNIY: '5,50%', bron: JLL_BRON_RDAM_Q1 },
+  },
+}
+
 const MARKT_STATUS_CFG: Record<GebiedStatus, { label: string; bg: string; text: string }> = {
   'under-construction': { label: 'Under construction', bg: '#fef3c7', text: '#92400e' },
   'in-progress':        { label: 'In progress',        bg: '#dbeafe', text: '#1d4ed8' },
@@ -330,6 +360,14 @@ export default function MarktDashboard() {
     (s, g) => s + g.pandenInOntwikkeling.length, 0
   )
 
+  const [jllKwartaal, setJllKwartaal] = useState<JllKwartaal>('Q1 2026')
+  const jllData = JLL_DATA[huidigStad.id]?.[jllKwartaal]
+
+  function cycleKwartaal(dir: 1 | -1) {
+    const idx = JLL_KWARTALEN.indexOf(jllKwartaal)
+    setJllKwartaal(JLL_KWARTALEN[(idx + dir + JLL_KWARTALEN.length) % JLL_KWARTALEN.length])
+  }
+
   return (
     <div className="flex flex-col gap-6">
 
@@ -385,6 +423,84 @@ export default function MarktDashboard() {
           ))}
         </div>
       </div>
+
+      {/* ── JLL Marktindicatoren ── */}
+      {jllData && (
+        <div
+          className="rounded-xl p-4"
+          style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)' }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-1.5">
+              <span
+                className="text-[11px] font-semibold uppercase tracking-widest"
+                style={{ color: 'var(--c-subtle)' }}
+              >
+                JLL Marktindicatoren
+              </span>
+              <BronTooltip bron={jllData.bron} />
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => cycleKwartaal(-1)}
+                className="w-6 h-6 flex items-center justify-center rounded text-sm font-bold"
+                style={{
+                  background: 'var(--c-surface)',
+                  border: '1px solid var(--c-border)',
+                  color: 'var(--c-muted)',
+                  cursor: 'pointer',
+                  lineHeight: 1,
+                }}
+              >
+                ‹
+              </button>
+              <span
+                className="text-xs font-semibold"
+                style={{ color: 'var(--c-text)', minWidth: 58, textAlign: 'center' }}
+              >
+                {jllKwartaal}
+              </span>
+              <button
+                onClick={() => cycleKwartaal(1)}
+                className="w-6 h-6 flex items-center justify-center rounded text-sm font-bold"
+                style={{
+                  background: 'var(--c-surface)',
+                  border: '1px solid var(--c-border)',
+                  color: 'var(--c-muted)',
+                  cursor: 'pointer',
+                  lineHeight: 1,
+                }}
+              >
+                ›
+              </button>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            {([
+              { labelDefault: jllData.takeUpLabel,  valueDefault: jllData.takeUp,      sk: 'takeup'  },
+              { labelDefault: 'Leegstand',           valueDefault: jllData.vacancy,     sk: 'vacancy' },
+              { labelDefault: 'Prime huur',          valueDefault: jllData.primeRent,   sk: 'prent'   },
+              { labelDefault: jllData.investLabel,   valueDefault: jllData.investVolume,sk: 'invest'  },
+              { labelDefault: 'Prime NIY',           valueDefault: jllData.primeNIY,    sk: 'niy'     },
+            ] as const).map(({ labelDefault, valueDefault, sk }) => {
+              const base = `jll.${huidigStad.id}.${jllKwartaal}.${sk}`
+              return (
+                <div key={base} className="rounded-lg px-3 py-2.5 text-center" style={{ background: '#f8f7f5' }}>
+                  <div
+                    className="text-[10px] font-semibold uppercase tracking-wide mb-1"
+                    style={{ color: 'var(--c-subtle)' }}
+                  >
+                    <EditableText storageKey={`${base}.label`} defaultValue={labelDefault} />
+                  </div>
+                  <div className="text-sm font-semibold" style={{ color: 'var(--c-text)' }}>
+                    <EditableText storageKey={base} defaultValue={valueDefault} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ── Kaart section header ── */}
       <div className="flex items-baseline justify-between">
