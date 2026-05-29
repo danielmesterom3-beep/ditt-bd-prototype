@@ -36,10 +36,10 @@ const rotterdam: Gebied[] = [
       beschikbaarAanbod: 7400,           // 155.000 × 4,8% = 7.440 m²
     },
     vastgoedMix: {
-      kantoor: 62,
-      retail: 8,
-      wonen: 22,
-      overig: 8,
+      kantoor: 32,
+      retail: 10,
+      wonen: 44,
+      overig: 14,
     },
     // Geen kantoorpanden in de top-10 panden-in-ontwikkeling (Rdam.pdf p.18) voor dit deelgebied.
     // Feijenoord-wijk (incl. Kop van Zuid) heeft 9 panden / 164.013 m² in ontwikkeling totaal
@@ -196,10 +196,10 @@ const rotterdam: Gebied[] = [
       beschikbaarAanbod: 44200,          // 520.000 × 8,5% = 44.200 m²
     },
     vastgoedMix: {
-      kantoor: 45,
+      kantoor: 28,
       retail: 22,
-      wonen: 24,
-      overig: 9,
+      wonen: 36,
+      overig: 14,
     },
     // Bron: Rdam.pdf p.18 — top-10 panden in ontwikkeling Rotterdam stad, gefilterd op kantoor
     pandenInOntwikkeling: [
@@ -497,10 +497,10 @@ const rotterdam: Gebied[] = [
       beschikbaarAanbod: 53650,          // 370.000 × 14,5% = 53.650 m²
     },
     vastgoedMix: {
-      kantoor: 74,
-      retail: 4,
-      wonen: 12,
-      overig: 10,
+      kantoor: 22,
+      retail: 5,
+      wonen: 58,
+      overig: 15,
     },
     // Bron: Rdam.pdf p.18 top-10 #2 en #9 — beide bevestigd kantoorgebied Brainpark
     pandenInOntwikkeling: [
@@ -641,10 +641,10 @@ const rotterdam: Gebied[] = [
       beschikbaarAanbod: 7800,           // 82.000 × 9,5% = 7.790 m²
     },
     vastgoedMix: {
-      kantoor: 55,
+      kantoor: 18,
       retail: 3,
-      wonen: 5,
-      overig: 37,   // logistiek, luchthavengerelateerd
+      wonen: 8,
+      overig: 71,   // logistiek, luchthavengerelateerd
     },
     // Geen kantoorpanden in de top-10 panden-in-ontwikkeling (Rdam.pdf p.18) voor dit deelgebied.
     // Pegasusweg 200 is een huurtransactie (Ballast Nedam, 1.021 m², €145, jul 2025),
