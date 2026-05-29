@@ -1099,235 +1099,6 @@ function RotterdamOmgevingskenmerkenPanel() {
   )
 }
 
-// ── VastgoedRendabelsteGebouwen ───────────────────────────────────────────────
-
-interface VastgoedTransactie {
-  huurder: string
-  m2: number
-  prijsM2: number
-  datum: string
-}
-
-interface VastgoedGebouw {
-  id: string
-  adres: string
-  postcode: string
-  stad: string
-  gebied: string
-  transacties: VastgoedTransactie[]
-}
-
-const RENDABELE_GEBOUWEN: VastgoedGebouw[] = [
-  {
-    id: 'bogert31',
-    adres: 'Bogert 31',
-    postcode: '5611 AK',
-    stad: 'Eindhoven',
-    gebied: 'Centrum Eindhoven',
-    transacties: [
-      { huurder: 'Mint Studios',             m2: 19,  prijsM2: 853, datum: '2025-01' },
-      { huurder: 'Schouten Legal Advocaten', m2: 17,  prijsM2: 716, datum: '2024-07' },
-      { huurder: 'FlowBridge',               m2: 30,  prijsM2: 540, datum: '2025-04' },
-      { huurder: 'Constructiehuis',          m2: 25,  prijsM2: 396, datum: '2022-10' },
-    ],
-  },
-  {
-    id: 'emmasingel33',
-    adres: 'Emmasingel 33',
-    postcode: '5611 AZ',
-    stad: 'Eindhoven',
-    gebied: 'Centrum Eindhoven',
-    transacties: [
-      { huurder: 'Codex Connectors',   m2: 30, prijsM2: 800, datum: '2025-05' },
-      { huurder: 'AOP',                m2: 56, prijsM2: 782, datum: '2024-09' },
-      { huurder: 'Merisa Investments', m2: 25, prijsM2: 422, datum: '2022-11' },
-    ],
-  },
-  {
-    id: 'parklaan54a',
-    adres: 'Parklaan 54A',
-    postcode: '5611 NJ',
-    stad: 'Eindhoven',
-    gebied: 'Centrum Eindhoven',
-    transacties: [
-      { huurder: 'Q-Concepts Accountancy',       m2: 60, prijsM2: 700, datum: '2024-11' },
-      { huurder: 'BeljonWesterterp',             m2: 20, prijsM2: 660, datum: '2022-02' },
-      { huurder: 'W&O Accountants en Adviseurs', m2: 86, prijsM2: 460, datum: '2025-03' },
-      { huurder: 'The Interim Company',          m2: 30, prijsM2: 400, datum: '2021-12' },
-    ],
-  },
-  {
-    id: 'kastanjelaan400',
-    adres: 'Kastanjelaan 400',
-    postcode: '5616 LZ',
-    stad: 'Eindhoven',
-    gebied: 'Strijp-S',
-    transacties: [
-      { huurder: 'Marlies & Barbara', m2: 20, prijsM2: 581, datum: '2022-06' },
-    ],
-  },
-  {
-    id: 'willemstraat1m',
-    adres: 'Willemstraat 1M',
-    postcode: '5611 HA',
-    stad: 'Eindhoven',
-    gebied: 'Centrum Eindhoven',
-    transacties: [
-      { huurder: 'Mignot & De Block', m2: 179, prijsM2: 523, datum: '2023-04' },
-    ],
-  },
-  {
-    id: 'achtseweg161b',
-    adres: 'Achtseweg Zuid 161B',
-    postcode: '5651 GW',
-    stad: 'Eindhoven',
-    gebied: 'Strijp / Achtseweg',
-    transacties: [
-      { huurder: 'PHC Telecom', m2: 180, prijsM2: 500, datum: '2025-03' },
-    ],
-  },
-  {
-    id: 'parklaan34b',
-    adres: 'Parklaan 34B',
-    postcode: '5611 NJ',
-    stad: 'Eindhoven',
-    gebied: 'Centrum Eindhoven',
-    transacties: [
-      { huurder: 'MOOT Real Estate', m2: 74, prijsM2: 405, datum: '2025-04' },
-    ],
-  },
-  {
-    id: 'hurksestraat60',
-    adres: 'Hurksestraat 60',
-    postcode: '5652 AK',
-    stad: 'Eindhoven',
-    gebied: 'Strijp-S',
-    transacties: [
-      { huurder: 'A.A. Sales and Promotions', m2: 24, prijsM2: 408, datum: '2023-07' },
-      { huurder: 'Reland Adviseurs',          m2: 40, prijsM2: 396, datum: '2023-03' },
-      { huurder: 'REBO Vastgoedmanagement',   m2: 57, prijsM2: 384, datum: '2023-01' },
-      { huurder: 'EU Trucking Service',       m2: 20, prijsM2: 376, datum: '2022-07' },
-    ],
-  },
-  {
-    id: 'htc10',
-    adres: 'High Tech Campus 10',
-    postcode: '5656 AE',
-    stad: 'Eindhoven',
-    gebied: 'HTC Eindhoven',
-    transacties: [
-      { huurder: 'Orgfit', m2: 39, prijsM2: 399, datum: '2024-06' },
-    ],
-  },
-  {
-    id: 'bogert1',
-    adres: 'Bogert 1',
-    postcode: '5611 AK',
-    stad: 'Eindhoven',
-    gebied: 'Centrum Eindhoven',
-    transacties: [
-      { huurder: 'Constructiehuis', m2: 25, prijsM2: 396, datum: '2022-10' },
-    ],
-  },
-]
-
-function RendabelGebouwCard({ geb }: { geb: VastgoedGebouw }) {
-  const [open, setOpen] = useState(false)
-  const maxPrijs = Math.max(...geb.transacties.map((t) => t.prijsM2))
-
-  return (
-    <div style={{ border: '1px solid var(--c-border)', borderRadius: 10, overflow: 'hidden', background: '#f8f7f5' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>{geb.adres}</div>
-            <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1 }}>{geb.postcode} · {geb.stad}</div>
-          </div>
-          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 8, background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa', flexShrink: 0 }}>
-            {geb.gebied}
-          </span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-coral)', fontVariantNumeric: 'tabular-nums' }}>max €{maxPrijs}/m²</span>
-          <button
-            onClick={() => setOpen((o) => !o)}
-            style={{ width: 26, height: 26, borderRadius: 6, background: open ? 'var(--c-coral)' : '#e5e7eb', border: 'none', cursor: 'pointer', fontSize: 18, color: open ? '#fff' : 'var(--c-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, lineHeight: 1 }}
-          >
-            {open ? '−' : '+'}
-          </button>
-        </div>
-      </div>
-
-      {open && (
-        <div style={{ borderTop: '1px solid var(--c-border)', padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {/* Transacties */}
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
-              <span>Huurder</span>
-              <span style={{ display: 'flex', gap: 20 }}><span>€/m²</span><span>m²</span><span>datum</span></span>
-            </div>
-            {geb.transacties.map((t) => (
-              <div key={t.huurder} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, padding: '5px 0', borderBottom: '1px solid #f0ede8' }}>
-                <span style={{ color: 'var(--c-text)' }}>{t.huurder}</span>
-                <span style={{ display: 'flex', gap: 16, fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
-                  <span style={{ color: 'var(--c-coral)', fontWeight: 700, minWidth: 52, textAlign: 'right' }}>€{t.prijsM2}</span>
-                  <span style={{ color: 'var(--c-muted)', minWidth: 44, textAlign: 'right' }}>{t.m2} m²</span>
-                  <span style={{ color: 'var(--c-subtle)', minWidth: 48 }}>{t.datum}</span>
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Omschrijving */}
-          <div style={{ padding: '10px 12px', background: '#fff', borderRadius: 8, border: '1px solid var(--c-border)' }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-subtle)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>Omschrijving</div>
-            <EditableText
-              storageKey={`vastgoed.${geb.id}.omschrijving`}
-              defaultValue="Omschrijving toevoegen..."
-              tag="div"
-              multiline
-              style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6 }}
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function VastgoedRendabelsteGebouwenPanel() {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
-      >
-        <div>
-          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em', display: 'block' }}>Rendabelste gebouwen — Eindhoven</span>
-          <span style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2, display: 'block' }}>
-            Vastgoeddata · {RENDABELE_GEBOUWEN.length} gebouwen · huurprijzen &gt; €230/m²
-          </span>
-        </div>
-        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
-      </button>
-
-      {open && (
-        <div style={{ borderTop: '1px solid var(--c-border)', padding: 20 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {RENDABELE_GEBOUWEN.map((geb) => (
-              <RendabelGebouwCard key={geb.id} geb={geb} />
-            ))}
-          </div>
-          <div style={{ marginTop: 12, fontSize: 10, color: 'var(--c-subtle)' }}>Bron: vastgoeddata.nl · export mei 2026</div>
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ── RecenteTransactiesPanel ───────────────────────────────────────────────────
 
 interface Transactie {
@@ -3105,15 +2876,9 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   const stadId = stadNaam.toLowerCase() as 'eindhoven' | 'rotterdam'
   const colors = STAD_COLORS[stadId]
 
-  const [openRendabel, setOpenRendabel] = useState(false)
-  const [openPanden,   setOpenPanden]   = useState(false)
+  const [openPanden, setOpenPanden] = useState(false)
 
-  // 1. Rendabelste gebouwen — gefilterd op stad
-  const rendabeleGebouwen = RENDABELE_GEBOUWEN.filter(
-    (g) => g.stad.toLowerCase() === stadId
-  )
-
-  // 2. Panden in ontwikkeling — aggregaat uit steden-data
+  // Panden in ontwikkeling — aggregaat uit steden-data
   const stadData = steden.find((s) => s.naam === stadNaam)
   const pandenInOntwikkeling = stadData?.gebieden.flatMap((g) =>
     g.pandenInOntwikkeling.map((p) => ({ ...p, gebiedNaam: g.naam }))
@@ -3131,36 +2896,6 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-      {/* 1 · Rendabelste gebouwen — uitklapbaar */}
-      <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
-        <button
-          onClick={() => setOpenRendabel((o) => !o)}
-          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
-        >
-          <div style={subLabel} onClick={(e) => e.stopPropagation()}>
-            <EditableText storageKey={`fase3.${stadId}.sublabel.1`} defaultValue="1 · Rendabelste gebouwen" />
-          </div>
-          <span style={{ fontSize: 16, color: 'var(--c-subtle)', transform: openRendabel ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
-        </button>
-        {openRendabel && (
-          <div style={{ borderTop: '1px solid var(--c-border)', padding: '16px' }}>
-            {rendabeleGebouwen.length === 0 ? (
-              <div style={{
-                border: '1px dashed var(--c-border)', borderRadius: 10, padding: '20px 16px',
-                fontSize: 12, color: 'var(--c-muted)', textAlign: 'center', fontStyle: 'italic',
-              }}>
-                Nog geen rendabele gebouwen beschikbaar voor {stadNaam}.
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {rendabeleGebouwen.map((geb) => (
-                  <RendabelGebouwCard key={geb.id} geb={geb} />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
 
       {/* 2 · Panden in ontwikkeling — uitklapbaar */}
       <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
@@ -4224,9 +3959,6 @@ export default function StadOverzichtView() {
 
       {/* Rotterdam kantorenstrategie MRDH */}
       <RotterdamKantorenstrategiePanel />
-
-      {/* Rendabelste gebouwen (Vastgoeddata) */}
-      <VastgoedRendabelsteGebouwenPanel />
 
       {/* Recente transacties */}
       <RecenteTransactiesPanel />
