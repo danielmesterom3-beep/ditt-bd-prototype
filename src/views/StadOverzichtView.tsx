@@ -923,6 +923,159 @@ function RotterdamKantorenstrategiePanel() {
   )
 }
 
+// ── Rotterdam Leegstand per pand ──────────────────────────────────────────────
+
+interface LeegstandVerdieping {
+  label: string   // bijv. 'V19' of 'V12 – Toren B/C'
+  m2: number | null
+  opmerking?: string  // bijv. 'volledig leeg', 'voor de helft'
+}
+
+interface LeegstandPand {
+  id: string
+  naam: string
+  adres: string
+  eigenaar: string
+  totaalLeeg: number      // m² totaal leeg
+  totaalPand?: number     // m² totale pandgrootte indien bekend
+  verdiepingen: LeegstandVerdieping[]
+}
+
+const LEEGSTAND_PANDEN: LeegstandPand[] = [
+  {
+    id: 'delftse-poort',
+    naam: 'Delftse Poort',
+    adres: 'Weena 70, Rotterdam',
+    eigenaar: 'CBRE Investment Management',
+    totaalLeeg: 8210,
+    totaalPand: 71916,
+    verdiepingen: [
+      { label: 'V19', m2: null, opmerking: 'volledig leeg' },
+      { label: 'V20', m2: null, opmerking: 'voor de helft leeg' },
+      { label: 'V18', m2: null, opmerking: 'voor de helft leeg' },
+      { label: 'V17', m2: null, opmerking: 'voor de helft leeg' },
+      { label: 'V16', m2: null, opmerking: 'voor een kwart leeg' },
+      { label: 'V7',  m2: null, opmerking: 'leegstand' },
+      { label: 'V6',  m2: null, opmerking: 'leegstand' },
+    ],
+  },
+  {
+    id: 'w200',
+    naam: 'W200',
+    adres: 'Weena 200, Rotterdam',
+    eigenaar: 'Neo-Capital',
+    totaalLeeg: 3412,
+    verdiepingen: [
+      { label: 'V12 – Toren A',   m2: 282 },
+      { label: 'V12 – Toren B/C', m2: 1273 },
+      { label: 'V6 – Toren A/C',  m2: 929 },
+      { label: 'V5 – Toren B',    m2: 464 },
+      { label: 'V3 – Toren B',    m2: 464 },
+    ],
+  },
+  {
+    id: 'weenatoren',
+    naam: 'Weenatoren',
+    adres: 'Weena 750, Rotterdam',
+    eigenaar: 'Dudok Real Estate',
+    totaalLeeg: 952,
+    verdiepingen: [
+      { label: 'V5', m2: 952 },
+    ],
+  },
+  {
+    id: 'first-rotterdam',
+    naam: 'First Rotterdam',
+    adres: 'Weena 70, Rotterdam',
+    eigenaar: 'Bouwinvest',
+    totaalLeeg: 210,
+    verdiepingen: [
+      { label: 'V30', m2: 210 },
+    ],
+  },
+  {
+    id: 'the-core',
+    naam: 'The Core',
+    adres: 'Weena 690, Rotterdam',
+    eigenaar: 'E&G Funds / Asset Management',
+    totaalLeeg: 1350,
+    verdiepingen: [
+      { label: 'V6', m2: 1350 },
+    ],
+  },
+]
+
+function RotterdamLeegstandPanel() {
+  const [open, setOpen] = useState(false)
+  const totaalLeeg = LEEGSTAND_PANDEN.reduce((s, p) => s + p.totaalLeeg, 0)
+
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+      >
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em' }}>
+            Beschikbaar aanbod — leegstand per pand
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
+            Rotterdam Centrum · {LEEGSTAND_PANDEN.length} panden · {totaalLeeg.toLocaleString('nl-NL')} m² beschikbaar
+          </div>
+        </div>
+        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+            {LEEGSTAND_PANDEN.map((pand) => (
+              <div key={pand.id} style={{ background: '#f8f7f5', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--c-border)' }}>
+                {/* Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                  <div>
+                    <EditableText storageKey={`leegstand.${pand.id}.naam`} defaultValue={pand.naam} style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
+                    <EditableText storageKey={`leegstand.${pand.id}.adres`} defaultValue={pand.adres} style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1, display: 'block' }} />
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#dbeafe', color: '#1e40af', border: '1px solid #bfdbfe', flexShrink: 0, marginLeft: 8 }}>
+                    <EditableText storageKey={`leegstand.${pand.id}.totaalLeeg`} defaultValue={`${pand.totaalLeeg.toLocaleString('nl-NL')} m²`} />
+                  </span>
+                </div>
+
+                {/* Eigenaar */}
+                <div style={{ fontSize: 11, color: 'var(--c-muted)', marginBottom: 10 }}>
+                  Eigenaar: <EditableText storageKey={`leegstand.${pand.id}.eigenaar`} defaultValue={pand.eigenaar} style={{ fontWeight: 600, color: 'var(--c-text)' }} />
+                  {pand.totaalPand && (
+                    <span style={{ color: 'var(--c-subtle)', marginLeft: 6 }}>· {pand.totaalPand.toLocaleString('nl-NL')} m² totaal</span>
+                  )}
+                </div>
+
+                {/* Verdiepingen */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {pand.verdiepingen.map((v, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, padding: '3px 6px', borderRadius: 5, background: 'var(--c-surface)' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--c-muted)', fontVariantNumeric: 'tabular-nums' }}>
+                        <EditableText storageKey={`leegstand.${pand.id}.v${i}.label`} defaultValue={v.label} />
+                      </span>
+                      <span style={{ color: 'var(--c-subtle)', fontVariantNumeric: 'tabular-nums' }}>
+                        <EditableText storageKey={`leegstand.${pand.id}.v${i}.waarde`} defaultValue={v.m2 ? `${v.m2.toLocaleString('nl-NL')} m²` : (v.opmerking ?? '—')} />
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 14, fontSize: 11, color: 'var(--c-subtle)' }}>
+            Bron: Vastgoeddata.nl verhuurmodule Rotterdam Centrum · mei 2026
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Rotterdam Omgevingskenmerken ───────────────────────────────────────────────
 
 function RotterdamOmgevingskenmerkenPanel() {
@@ -2533,6 +2686,14 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
         {stadNaam === 'Rotterdam' ? <RotterdamKantorenstrategiePanel /> : <EindhovenGemeenteStrategiePanel />}
       </div>
 
+      {/* 3b · Leegstand per pand (Rotterdam only) */}
+      {stadNaam === 'Rotterdam' && (
+        <div>
+          <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.3b`} defaultValue="3b · Beschikbaar aanbod — leegstand per pand" /></div>
+          <RotterdamLeegstandPanel />
+        </div>
+      )}
+
       {/* 4 · Veldonderzoek-inzichten — uitklapbaar */}
       <div>
         <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.4`} defaultValue="4 · Veldonderzoek — markt, huurcontracten & turn-key" /></div>
@@ -3959,6 +4120,9 @@ export default function StadOverzichtView() {
 
       {/* Rotterdam kantorenstrategie MRDH */}
       <RotterdamKantorenstrategiePanel />
+
+      {/* Rotterdam leegstand per pand */}
+      <RotterdamLeegstandPanel />
 
       {/* Recente transacties */}
       <RecenteTransactiesPanel />
