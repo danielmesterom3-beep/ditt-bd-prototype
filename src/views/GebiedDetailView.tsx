@@ -1460,19 +1460,26 @@ function LeadCard({ lead, stad, onDelete }: { lead: KansrijkeLead; stad?: string
             </span>
           </div>
         </div>
-        {/* Branche */}
-        <div
-          style={{
-            display: 'inline-block',
-            fontSize: 11,
-            fontWeight: 600,
-            padding: '2px 8px',
-            borderRadius: 6,
-            background: '#f1f5f9',
-            color: '#475569',
-          }}
-        >
-          <EditableText storageKey={`lead.${lead.id}.branche`} defaultValue={lead.branche} />
+        {/* Branche + MKB badge */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          <div
+            style={{
+              display: 'inline-block',
+              fontSize: 11,
+              fontWeight: 600,
+              padding: '2px 8px',
+              borderRadius: 6,
+              background: '#f1f5f9',
+              color: '#475569',
+            }}
+          >
+            <EditableText storageKey={`lead.${lead.id}.branche`} defaultValue={lead.branche} />
+          </div>
+          {lead.omvang < 500 && (
+            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: '#dbeafe', color: '#1e40af' }}>
+              MKB
+            </span>
+          )}
         </div>
       </div>
 
