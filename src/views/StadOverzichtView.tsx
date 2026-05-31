@@ -776,62 +776,80 @@ function OmgevingskenmerkenPanel() {
             {/* Gemiddeld projectformaat concurrenten — Eindhoven */}
             <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
               <EditableText storageKey="omgeving.concformaat.titel" defaultValue="Gemiddeld projectformaat — concurrenten Eindhoven" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', marginBottom: 4, display: 'block' }} />
-              <EditableText storageKey="omgeving.concformaat.meta" defaultValue="Op basis van gepubliceerde portfoliogegevens · duotone-interior.nl · hal2.nl" style={{ fontSize: 11, color: 'var(--c-subtle)', marginBottom: 14, display: 'block' }} />
+              <EditableText storageKey="omgeving.concformaat.meta" defaultValue="Op basis van gepubliceerde portfoliogegevens · duotone-interior.nl · hal2.nl · ininterieurs.nl" style={{ fontSize: 11, color: 'var(--c-subtle)', marginBottom: 14, display: 'block' }} />
 
-              {[
-                {
-                  id: 'duotone',
-                  naam: 'Duotone Interior Concepts',
-                  bron: 'duotone-interior.nl/projecten',
-                  projecten: [
-                    { naam: 'Molex BV — HTC', m2: 1800 },
-                    { naam: 'Marvell Technology — HTC', m2: 1500 },
-                    { naam: 'HTC Plantarium', m2: 800 },
-                    { naam: 'HTC Building 37 (renovatie)', m2: 550 },
-                    { naam: 'Maas Makelaars', m2: 200 },
-                  ],
-                  gem: 970,
-                  context: 'Actief op High Tech Campus voor zowel enterprise (Molex, Marvell) als kleinere ruimtes en gemeenschappelijke zones. Breed portfolio — van 200 m² tot 1.800 m².',
-                },
-                {
-                  id: 'hal2',
-                  naam: 'HAL 2 B.V.',
-                  bron: 'hal2.nl/projecten',
-                  projecten: [
-                    { naam: 'VdMeijs', m2: 1000 },
-                    { naam: 'Sweco — Eindhoven', m2: 1000 },
-                    { naam: 'Stuurmen', m2: 200 },
-                    { naam: 'ALX Studio', m2: 100 },
-                    { naam: 'BEECKK Ruimtemakers — Strijp-S', m2: 100 },
-                  ],
-                  gem: 480,
-                  context: 'Brede doelgroep: van 100 m² creatieve studios op Strijp-S tot 1.000 m² zakelijke dienstverleners. Gemiddeld formaat lager dan Duotone — minder enterprise, meer MKB.',
-                },
-              ].map((c) => (
-                <div key={c.id} style={{ marginBottom: 14, paddingBottom: 14, borderBottom: '1px solid var(--c-border)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <EditableText storageKey={`omgeving.concformaat.${c.id}.naam`} defaultValue={c.naam} style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-coral)', background: '#fff7f4', border: '1px solid #ffd4c2', borderRadius: 8, padding: '2px 8px' }}>
-                      ø {c.gem.toLocaleString('nl-NL')} m²
-                    </span>
-                  </div>
-                  <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 8 }}>Bron: {c.bron}</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 8 }}>
-                    {c.projecten.map((p) => (
-                      <div key={p.naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
-                        <span>{p.naam}</span>
-                        <span style={{ fontVariantNumeric: 'tabular-nums', color: p.m2 ? 'var(--c-muted)' : 'var(--c-subtle)' }}>
-                          {p.m2 ? `${p.m2.toLocaleString('nl-NL')} m²` : 'm² onbekend'}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 14 }}>
+                {[
+                  {
+                    id: 'duotone',
+                    naam: 'Duotone Interior Concepts',
+                    bron: 'duotone-interior.nl/projecten',
+                    projecten: [
+                      { naam: 'Molex BV — HTC', m2: 1800 },
+                      { naam: 'Marvell Technology — HTC', m2: 1500 },
+                      { naam: 'HTC Plantarium', m2: 800 },
+                      { naam: 'HTC Building 37 (renovatie)', m2: 550 },
+                      { naam: 'Maas Makelaars', m2: 200 },
+                    ],
+                    gem: 970,
+                    context: 'Actief op High Tech Campus voor zowel enterprise (Molex, Marvell) als kleinere ruimtes en gemeenschappelijke zones. Breed portfolio — van 200 m² tot 1.800 m².',
+                  },
+                  {
+                    id: 'hal2',
+                    naam: 'HAL 2 B.V.',
+                    bron: 'hal2.nl/projecten',
+                    projecten: [
+                      { naam: 'VdMeijs', m2: 1000 },
+                      { naam: 'Sweco — Eindhoven', m2: 1000 },
+                      { naam: 'Stuurmen', m2: 200 },
+                      { naam: 'ALX Studio', m2: 100 },
+                      { naam: 'BEECKK Ruimtemakers — Strijp-S', m2: 100 },
+                    ],
+                    gem: 480,
+                    context: 'Brede doelgroep: van 100 m² creatieve studios op Strijp-S tot 1.000 m² zakelijke dienstverleners. Gemiddeld formaat lager dan Duotone — minder enterprise, meer MKB.',
+                  },
+                  {
+                    id: 'ininterieurs',
+                    naam: 'INinterieurs',
+                    bron: 'ininterieurs.nl/projecten',
+                    projecten: [
+                      { naam: 'Strijp-S — project 1', m2: 0 },
+                      { naam: 'Strijp-S — project 2', m2: 0 },
+                      { naam: 'Strijp-S — project 3', m2: 0 },
+                      { naam: 'Strijp-S — project 4', m2: 0 },
+                      { naam: 'Strijp-S — project 5', m2: 0 },
+                    ],
+                    gem: 0,
+                    context: 'Sterk aanwezig op Strijp-S. Vergelijkbaar MKB-profiel als HAL 2 maar met focus op creatief en gemengd programma. Directe concurrent voor Ditt op Strijp-S.',
+                  },
+                ].map((c) => (
+                  <div key={c.id} style={{ background: '#fff', borderRadius: 8, padding: '12px', border: '1px solid var(--c-border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4, gap: 6 }}>
+                      <EditableText storageKey={`omgeving.concformaat.${c.id}.naam`} defaultValue={c.naam} style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }} />
+                      {c.gem > 0 && (
+                        <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--c-coral)', background: '#fff7f4', border: '1px solid #ffd4c2', borderRadius: 8, padding: '2px 6px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                          ø {c.gem.toLocaleString('nl-NL')} m²
                         </span>
-                      </div>
-                    ))}
+                      )}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 8 }}>Bron: {c.bron}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 8 }}>
+                      {c.projecten.map((p) => (
+                        <div key={p.naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
+                          <EditableText storageKey={`omgeving.concformaat.${c.id}.p.${p.naam.replace(/\s+/g, '_')}`} defaultValue={p.naam} />
+                          <span style={{ fontVariantNumeric: 'tabular-nums', color: p.m2 ? 'var(--c-muted)' : 'var(--c-subtle)', flexShrink: 0, marginLeft: 6 }}>
+                            {p.m2 ? `${p.m2.toLocaleString('nl-NL')} m²` : 'm² onbekend'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <EditableText storageKey={`omgeving.concformaat.${c.id}.context`} defaultValue={c.context} tag="div" style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }} />
                   </div>
-                  <EditableText storageKey={`omgeving.concformaat.${c.id}.context`} defaultValue={c.context} tag="div" style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }} />
-                </div>
-              ))}
+                ))}
+              </div>
 
-              <div style={{ padding: '10px 12px', background: '#fff7f4', borderRadius: 8, border: '1px solid #ffd4c2', marginTop: 4 }}>
-                <EditableText storageKey="omgeving.concformaat.conclusie" defaultValue="Gemiddeld projectformaat (Duotone ø 970 m², HAL 2 ø 480 m²). Duotone domineert het enterprise-segment op HTC; HAL 2 bedient een brede MKB-doelgroep. Ditt kan zich positioneren in het segment 500–1.500 m² op HTC en Strijp-S." tag="div" style={{ fontSize: 11, color: 'var(--c-coral)', lineHeight: 1.6, fontWeight: 600 }} />
+              <div style={{ padding: '10px 12px', background: '#fff7f4', borderRadius: 8, border: '1px solid #ffd4c2' }}>
+                <EditableText storageKey="omgeving.concformaat.conclusie" defaultValue="Duotone (ø 970 m²) domineert enterprise op HTC. HAL 2 (ø 480 m²) en INinterieurs bedienen MKB op Strijp-S. Ditt kan zich positioneren in het segment 500–1.500 m² op HTC en Strijp-S." tag="div" style={{ fontSize: 11, color: 'var(--c-coral)', lineHeight: 1.6, fontWeight: 600 }} />
               </div>
             </div>
 
