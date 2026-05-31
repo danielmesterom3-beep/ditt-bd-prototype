@@ -2849,6 +2849,93 @@ const KANALEN_PER_STAD: Record<string, Record<'makelaar' | 'eigenaar' | 'huurder
   },
 }
 
+function useLocalContacts(stadId: string) {
+  const key = `local_contacts_${stadId}`
+  const [contacts, setContacts] = useState<WarmContact[]>(() => {
+    try { return JSON.parse(localStorage.getItem(key) ?? '[]') } catch { return [] }
+  })
+  function addContact(contact: WarmContact) {
+    setContacts(prev => {
+      const next = [...prev, contact]
+      localStorage.setItem(key, JSON.stringify(next))
+      return next
+    })
+  }
+  function removeContact(id: string) {
+    setContacts(prev => {
+      const next = prev.filter(c => c.id !== id)
+      localStorage.setItem(key, JSON.stringify(next))
+      return next
+    })
+  }
+  return { contacts, addContact, removeContact }
+}
+
+function NieuwContactForm({ onSave, onCancel }: { onSave: (c: WarmContact) => void; onCancel: () => void }) {
+  const [form, setForm] = useState({ naam: '', organisatie: '', rol: '', email: '', telefoon: '', notitie: '' })
+  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm(prev => ({ ...prev, [field]: e.target.value }))
+  function submit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!form.naam.trim() || !form.organisatie.trim() || !form.rol.trim()) return
+    onSave({
+      id: `local_${Date.now()}`,
+      naam: form.naam.trim(),
+      organisatie: form.organisatie.trim(),
+      rol: form.rol.trim(),
+      email: form.email.trim(),
+      telefoon: form.telefoon.trim(),
+      notitie: form.notitie.trim(),
+      datumLaatsteContact: new Date().toISOString().slice(0, 10),
+    })
+  }
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '7px 10px', fontSize: 12, borderRadius: 7,
+    border: '1px solid #fcd34d', background: '#fffbeb', color: '#1a1a1a',
+    outline: 'none', boxSizing: 'border-box',
+  }
+  const labelStyle: React.CSSProperties = { fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#92400e', display: 'block', marginBottom: 4 }
+  return (
+    <form onSubmit={submit} style={{ background: 'linear-gradient(160deg,#fffbeb 0%,#fefce8 100%)', border: '2px dashed #fcd34d', borderRadius: 12, padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ fontWeight: 700, fontSize: 12, color: '#d97706', marginBottom: 4 }}>Nieuw warm contact</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <div>
+          <label style={labelStyle}>Naam *</label>
+          <input style={inputStyle} value={form.naam} onChange={set('naam')} placeholder="Volledige naam" required />
+        </div>
+        <div>
+          <label style={labelStyle}>Organisatie *</label>
+          <input style={inputStyle} value={form.organisatie} onChange={set('organisatie')} placeholder="Bedrijfsnaam" required />
+        </div>
+        <div>
+          <label style={labelStyle}>Rol *</label>
+          <input style={inputStyle} value={form.rol} onChange={set('rol')} placeholder="Functietitel" required />
+        </div>
+        <div>
+          <label style={labelStyle}>Telefoon</label>
+          <input style={inputStyle} value={form.telefoon} onChange={set('telefoon')} placeholder="+31..." />
+        </div>
+        <div style={{ gridColumn: '1 / -1' }}>
+          <label style={labelStyle}>E-mail</label>
+          <input style={inputStyle} type="email" value={form.email} onChange={set('email')} placeholder="naam@bedrijf.nl" />
+        </div>
+        <div style={{ gridColumn: '1 / -1' }}>
+          <label style={labelStyle}>Notitie</label>
+          <textarea style={{ ...inputStyle, minHeight: 60, resize: 'vertical' }} value={form.notitie} onChange={set('notitie')} placeholder="Context, reden van contact, ..." />
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+        <button type="button" onClick={onCancel} style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, borderRadius: 7, border: '1px solid #fcd34d', background: 'transparent', color: '#92400e', cursor: 'pointer' }}>
+          Annuleren
+        </button>
+        <button type="submit" style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, borderRadius: 7, border: 'none', background: '#d97706', color: '#fff', cursor: 'pointer' }}>
+          Opslaan
+        </button>
+      </div>
+    </form>
+  )
+}
+
 function useDeletedItemsFase2(storageKey: string) {
   const [deleted, setDeleted] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem(storageKey) ?? '[]')) } catch { return new Set() }
@@ -3636,6 +3723,8 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
   const [partijType, setPartijType] = useState<F2Partij>('makelaar')
 
   const { deleted: deletedWc, deleteItem: deleteWc } = useDeletedItemsFase2(`deleted_wc_fase2_${stadId}`)
+  const { contacts: localContacts, addContact, removeContact } = useLocalContacts(stadId)
+  const [showNieuwForm, setShowNieuwForm] = useState(false)
 
   const stad = steden.find((s) => s.naam === stadNaam)
   const alleWarmeContacten: WarmContact[] = (() => {
@@ -3815,16 +3904,38 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
 
       {/* 3 · Warme ingangen */}
       <div>
-        <div style={subLabel}>
-          <EditableText storageKey={`fase2.${stadId}.sublabel.3`} defaultValue={`3 · Warme ingangen — ${alleWarmeContacten.length} contact${alleWarmeContacten.length !== 1 ? 'en' : ''} in beeld`} />
-        </div>
-        {alleWarmeContacten.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
-            {alleWarmeContacten.map((c) => (
-              <Fase2WarmContactCard key={c.id} contact={c} onDelete={() => deleteWc(c.id)} />
-            ))}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div style={subLabel}>
+            <EditableText storageKey={`fase2.${stadId}.sublabel.3`} defaultValue={`3 · Warme ingangen — ${alleWarmeContacten.length + localContacts.length} contact${(alleWarmeContacten.length + localContacts.length) !== 1 ? 'en' : ''} in beeld`} />
           </div>
-        ) : (
+          <button
+            onClick={() => setShowNieuwForm((v) => !v)}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 12px',
+              fontSize: 12, fontWeight: 600, borderRadius: 8, cursor: 'pointer',
+              border: '1px solid #fcd34d', background: showNieuwForm ? '#d97706' : '#fffbeb',
+              color: showNieuwForm ? '#fff' : '#92400e', transition: 'all 0.15s', flexShrink: 0,
+            }}
+          >
+            <span style={{ fontSize: 14, lineHeight: 1 }}>{showNieuwForm ? '×' : '+'}</span>
+            {showNieuwForm ? 'Sluiten' : 'Nieuw contact'}
+          </button>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
+          {alleWarmeContacten.map((c) => (
+            <Fase2WarmContactCard key={c.id} contact={c} onDelete={() => deleteWc(c.id)} />
+          ))}
+          {localContacts.map((c) => (
+            <Fase2WarmContactCard key={c.id} contact={c} onDelete={() => removeContact(c.id)} />
+          ))}
+          {showNieuwForm && (
+            <NieuwContactForm
+              onSave={(c) => { addContact(c); setShowNieuwForm(false) }}
+              onCancel={() => setShowNieuwForm(false)}
+            />
+          )}
+        </div>
+        {alleWarmeContacten.length === 0 && localContacts.length === 0 && !showNieuwForm && (
           <div style={{ fontSize: 12, color: 'var(--c-subtle)', fontStyle: 'italic' }}>
             Geen warme contacten geregistreerd voor {stadNaam}.
           </div>
