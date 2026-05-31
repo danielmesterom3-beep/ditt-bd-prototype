@@ -2655,18 +2655,18 @@ function EindhovenGemeenteStrategiePanel() {
       {open && (
         <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           {kansen.map((k) => (
-            <div key={k.id} style={{ background: k.bg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${k.border}` }}>
+            <div key={k.id} style={{ background: '#f8f7f5', borderRadius: 10, padding: '12px 14px', border: '1px solid var(--c-border)' }}>
               <EditableText
                 storageKey={`eind.strategie.${k.id}.titel`}
                 defaultValue={k.titel}
-                style={{ fontSize: 12, fontWeight: 700, color: k.kleur, marginBottom: 4, display: 'block' }}
+                style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', marginBottom: 4, display: 'block' }}
               />
               <EditableText
                 storageKey={`eind.strategie.${k.id}.tekst`}
                 defaultValue={k.context}
                 tag="div"
                 multiline
-                style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.7 }}
+                style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.7 }}
               />
             </div>
           ))}
@@ -4170,6 +4170,7 @@ const FASES = [
 function ActieOverzichtView() {
   const beschikbareSteden = MARKTCAP_STEDEN.filter((s) => s.naam !== 'Amsterdam')
   const [geselecteerdeStad, setGeselecteerdeStad] = useState<string>(beschikbareSteden[0]?.naam ?? '')
+  const { isEditMode } = useEditMode()
 
   const [drempel, setDrempel] = useState<Record<string, boolean[]>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, DREMPEL_ITEMS.map(() => false)]))
@@ -4180,12 +4181,26 @@ function ActieOverzichtView() {
   const [actieveFase, setActieveFase] = useState<Record<string, number>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, 1]))
   )
+  const [deletedDrempel, setDeletedDrempel] = useState<Set<number>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('deleted_drempel') ?? '[]')) } catch { return new Set() }
+  })
 
   function toggleDrempel(stadNaam: string, idx: number) {
     setDrempel((prev) => ({
       ...prev,
       [stadNaam]: prev[stadNaam].map((v, i) => (i === idx ? !v : v)),
     }))
+  }
+
+  function deleteDrempelItem(idx: number) {
+    setDeletedDrempel((prev) => {
+      const next = new Set(prev)
+      next.add(idx)
+      const json = JSON.stringify([...next])
+      localStorage.setItem('deleted_drempel', json)
+      queueChange('deleted_drempel', json)
+      return next
+    })
   }
 
   const labelStyle: React.CSSProperties = {
@@ -4409,35 +4424,44 @@ function ActieOverzichtView() {
               </div>
 
               {/* ── Drempelcriteria ── */}
-              <div style={{ border: '1px solid var(--c-border)', borderRadius: 8, overflow: 'hidden' }}>
-                <button
-                  onClick={() => setOpenDrempel((prev) => ({ ...prev, [stad.naam]: !prev[stad.naam] }))}
-                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ ...labelStyle, margin: 0 }}><EditableText storageKey="drempel.sectie.titel" defaultValue="Drempelcriteria — minimale startvoorwaarden" /></span>
-                    <span style={{ fontSize: 11, fontWeight: 600, padding: '1px 7px', borderRadius: 8, background: klaarVoorAcquisitie ? '#dcfce7' : '#fef9c3', color: klaarVoorAcquisitie ? '#16a34a' : '#854d0e' }}>
-                      {aantalKlaar}/{DREMPEL_ITEMS.length}
-                    </span>
+              {(() => {
+                const visibleItems = DREMPEL_ITEMS.map((item, idx) => ({ item, idx })).filter(({ idx }) => !deletedDrempel.has(idx))
+                const aantalKlaarVisible = visibleItems.filter(({ idx }) => drempelLijst[idx]).length
+                return (
+                  <div style={{ border: '1px solid var(--c-border)', borderRadius: 8, overflow: 'hidden' }}>
+                    <button
+                      onClick={() => setOpenDrempel((prev) => ({ ...prev, [stad.naam]: !prev[stad.naam] }))}
+                      style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ ...labelStyle, margin: 0 }}><EditableText storageKey="drempel.sectie.titel" defaultValue="Drempelcriteria — naar actief prospecting" /></span>
+                        <span style={{ fontSize: 11, fontWeight: 600, padding: '1px 7px', borderRadius: 8, background: aantalKlaarVisible === visibleItems.length ? '#dcfce7' : '#fef9c3', color: aantalKlaarVisible === visibleItems.length ? '#16a34a' : '#854d0e' }}>
+                          {aantalKlaarVisible}/{visibleItems.length}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: 14, color: 'var(--c-subtle)', transform: openDrempel[stad.naam] ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+                    </button>
+                    {openDrempel[stad.naam] && (
+                      <div style={{ borderTop: '1px solid var(--c-border)', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {visibleItems.map(({ item, idx }) => {
+                          const checked = drempelLijst[idx]
+                          return (
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <Checkbox checked={checked} onChange={() => toggleDrempel(stad.naam, idx)} />
+                              <span style={{ flex: 1, fontSize: 12, color: checked ? '#16a34a' : 'var(--c-text)', textDecoration: checked ? 'line-through' : 'none', cursor: 'pointer' }} onClick={() => toggleDrempel(stad.naam, idx)}>
+                                <EditableText storageKey={`drempel.item.${idx}`} defaultValue={item} />
+                              </span>
+                              {isEditMode && (
+                                <button onClick={() => deleteDrempelItem(idx)} style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#d1d5db', padding: '0 2px' }} title="Verwijder">✕</button>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
                   </div>
-                  <span style={{ fontSize: 14, color: 'var(--c-subtle)', transform: openDrempel[stad.naam] ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
-                </button>
-                {openDrempel[stad.naam] && (
-                  <div style={{ borderTop: '1px solid var(--c-border)', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {DREMPEL_ITEMS.map((item, idx) => {
-                      const checked = drempelLijst[idx]
-                      return (
-                        <label key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => toggleDrempel(stad.naam, idx)}>
-                          <Checkbox checked={checked} onChange={() => toggleDrempel(stad.naam, idx)} />
-                          <span style={{ fontSize: 12, color: checked ? '#16a34a' : 'var(--c-text)', textDecoration: checked ? 'line-through' : 'none' }}>
-                            <EditableText storageKey={`drempel.item.${idx}`} defaultValue={item} />
-                          </span>
-                        </label>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
+                )
+              })()}
 
             </div>
           </div>
