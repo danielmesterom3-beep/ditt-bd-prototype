@@ -2849,7 +2849,46 @@ const KANALEN_PER_STAD: Record<string, Record<'makelaar' | 'eigenaar' | 'huurder
   },
 }
 
-function Fase2WarmContactCard({ contact }: { contact: WarmContact }) {
+function useDeletedItemsFase2(storageKey: string) {
+  const [deleted, setDeleted] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem(storageKey) ?? '[]')) } catch { return new Set() }
+  })
+  function deleteItem(id: string) {
+    setDeleted(prev => {
+      const next = new Set(prev)
+      next.add(id)
+      localStorage.setItem(storageKey, JSON.stringify([...next]))
+      queueChange(storageKey, JSON.stringify([...next]))
+      return next
+    })
+  }
+  return { deleted, deleteItem }
+}
+
+function F2DeleteBtn({ onDelete }: { onDelete: () => void }) {
+  const { isEditMode } = useEditMode()
+  if (!isEditMode) return null
+  return (
+    <button
+      onClick={onDelete}
+      title="Kaart verwijderen"
+      style={{
+        position: 'absolute', top: 8, right: 8,
+        width: 20, height: 20, borderRadius: 4,
+        background: 'none', border: '1px solid #e2e8f0',
+        color: '#9ca3af', cursor: 'pointer', fontSize: 11,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        lineHeight: 1,
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fca5a5' }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.borderColor = '#e2e8f0' }}
+    >
+      ×
+    </button>
+  )
+}
+
+function Fase2WarmContactCard({ contact, onDelete }: { contact: WarmContact; onDelete: () => void }) {
   const [showNote, setShowNote] = useState(false)
   const heeftEmail    = !!contact.email
   const heeftTelefoon = !!contact.telefoon
@@ -2868,19 +2907,21 @@ function Fase2WarmContactCard({ contact }: { contact: WarmContact }) {
       borderRadius: 12,
       overflow: 'hidden',
       boxShadow: '0 2px 8px rgba(217,119,6,0.08)',
+      position: 'relative',
     }}>
+      <F2DeleteBtn onDelete={onDelete} />
       <div style={{ padding: '14px 16px 12px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
           <div>
-            <div style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a' }}>{contact.naam}</div>
-            <div style={{ fontSize: 12, color: '#78716c', marginTop: 2 }}>{contact.organisatie}</div>
+            <EditableText storageKey={`wc.${contact.id}.naam`} defaultValue={contact.naam} style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a' }} />
+            <EditableText storageKey={`wc.${contact.id}.organisatie`} defaultValue={contact.organisatie} style={{ fontSize: 12, color: '#78716c', marginTop: 2, display: 'block' }} />
           </div>
           <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: 20, background: '#d97706', color: '#fff', flexShrink: 0 }}>
             Warm contact
           </span>
         </div>
         <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}>
-          {contact.rol}
+          <EditableText storageKey={`wc.${contact.id}.rol`} defaultValue={contact.rol} />
         </span>
         {contact.datumLaatsteContact && (
           <span style={{ display: 'inline-block', marginLeft: 8, fontSize: 10, color: '#a8a29e' }}>
@@ -2890,6 +2931,7 @@ function Fase2WarmContactCard({ contact }: { contact: WarmContact }) {
       </div>
 
       <div style={{ padding: '10px 16px', borderTop: '1px solid #fde68a', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* E-mail knop */}
         <a
           href={heeftEmail ? `mailto:${contact.email}` : undefined}
           onClick={(e) => { if (!heeftEmail) e.preventDefault(); e.stopPropagation() }}
@@ -2908,10 +2950,26 @@ function Fase2WarmContactCard({ contact }: { contact: WarmContact }) {
             <polyline points="2,4 12,13 22,4"/>
           </svg>
         </a>
+        {/* Bel knop */}
+        <a
+          href={heeftTelefoon ? `tel:${contact.telefoon}` : undefined}
+          onClick={(e) => { if (!heeftTelefoon) e.preventDefault(); e.stopPropagation() }}
+          title={heeftTelefoon ? contact.telefoon : 'Telefoon onbekend'}
+          style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: 34, height: 34, borderRadius: 8, textDecoration: 'none', transition: 'opacity 0.15s',
+            background: heeftTelefoon ? 'var(--c-coral)' : '#fef3c7',
+            border: heeftTelefoon ? 'none' : '1px solid #fcd34d',
+            cursor: heeftTelefoon ? 'pointer' : 'default',
+            opacity: heeftTelefoon ? 1 : 0.5, flexShrink: 0,
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={heeftTelefoon ? '#fff' : '#92400e'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+        </a>
         {heeftTelefoon && (
-          <a href={`tel:${contact.telefoon}`} style={{ fontSize: 11, fontWeight: 500, color: '#92400e', textDecoration: 'none', padding: '4px 0' }}>
-            {contact.telefoon}
-          </a>
+          <span style={{ fontSize: 11, fontWeight: 500, color: '#92400e' }}>{contact.telefoon}</span>
         )}
         {heeftNotitie && (
           <button
@@ -3580,8 +3638,14 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
   const [product,    setProduct]    = useState<F2Product>('design-and-build')
   const [partijType, setPartijType] = useState<F2Partij>('makelaar')
 
+  const { deleted: deletedWc, deleteItem: deleteWc } = useDeletedItemsFase2(`deleted_wc_fase2_${stadId}`)
+
   const stad = steden.find((s) => s.naam === stadNaam)
-  const alleWarmeContacten: WarmContact[] = stad?.gebieden.flatMap((g) => g.warmeContacten) ?? []
+  const alleWarmeContacten: WarmContact[] = (() => {
+    const raw = stad?.gebieden.flatMap((g) => g.warmeContacten) ?? []
+    const seen = new Set<string>()
+    return raw.filter((c) => { if (seen.has(c.id)) return false; seen.add(c.id); return true })
+  })().filter((c) => !deletedWc.has(c.id))
 
   const kanalen    = KANALEN_PER_STAD[stadNaam]
   const stadContext = kanalen?.[partijType]
@@ -3760,7 +3824,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
         {alleWarmeContacten.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
             {alleWarmeContacten.map((c) => (
-              <Fase2WarmContactCard key={c.id} contact={c} />
+              <Fase2WarmContactCard key={c.id} contact={c} onDelete={() => deleteWc(c.id)} />
             ))}
           </div>
         ) : (
