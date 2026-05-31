@@ -4000,6 +4000,86 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
         </div>
       </div>
 
+      {/* Aanbevolen actie — makelaars Eindhoven */}
+      {stadNaam === 'Eindhoven' && (
+        <div style={{ border: '1px solid #bfdbfe', borderRadius: 12, overflow: 'hidden', background: '#eff6ff' }}>
+          <div style={{ padding: '14px 18px', borderBottom: '1px solid #bfdbfe', background: '#dbeafe' }}>
+            <EditableText
+              storageKey="fase2.eind.makelaars.titel"
+              defaultValue="Aanbevolen actie: oriënterend gesprek inplannen"
+              style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'block' }}
+            />
+            <EditableText
+              storageKey="fase2.eind.makelaars.sub"
+              defaultValue="Vier lokale bedrijfsmakelaars — direct benaderen voor relatieopbouw"
+              style={{ fontSize: 11, color: '#3b82f6', marginTop: 2, display: 'block' }}
+            />
+          </div>
+          <div style={{ padding: '14px 18px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+            {[
+              {
+                id: 'vs',
+                naam: 'Verschuuren & Schreppers',
+                sub: 'Bedrijfsmakelaars — Eindhoven',
+                beschrijving: 'Dominante lokale makelaar in Eindhoven. Al gesproken in ontwerpfase (Dirk Verberne, 6 mrt 2026). Call gepland. Status: warm, relatie in opbouw.',
+                email: 'info@verschuurenschreppers.nl',
+                badge: 'Warm contact',
+                badgeBg: '#d97706', badgeText: '#fff',
+              },
+              {
+                id: 'bf',
+                naam: 'Bossers & Fitters',
+                sub: 'Bedrijfshuisvesting — Eindhoven',
+                beschrijving: 'NVM-kantoor in Eindhoven. Persoonlijke aanpak, actief in verhuur en verkoop van kantoor- en bedrijfsruimte. Vergelijkbaar profiel als Schaub & Partners in Rotterdam.',
+                email: 'info@bossersfitters.nl',
+                badge: null,
+                badgeBg: '', badgeText: '',
+              },
+              {
+                id: 'kb',
+                naam: 'Kolsteren Bedrijfshuisvesting',
+                sub: 'Bedrijfsmakelaardij — Eindhoven',
+                beschrijving: 'Meer dan 25 jaar actief in regio Eindhoven. Bewust klein en onafhankelijk team met accent op commercieel vastgoed.',
+                email: 'info@kolsterenbedrijfshuisvesting.nl',
+                badge: null,
+                badgeBg: '', badgeText: '',
+              },
+              {
+                id: 'avh',
+                naam: 'Adriaan van den Heuvel',
+                sub: 'Bedrijfsmakelaardij — Eindhoven & Helmond',
+                beschrijving: 'Regionaal kantoor voor Eindhoven en Helmond. Breed pakket commercieel vastgoed, actief in aan- en verhuur.',
+                email: 'info@heuvel.nl',
+                badge: null,
+                badgeBg: '', badgeText: '',
+              },
+            ].map((m) => (
+              <div key={m.id} style={{ background: '#fff', borderRadius: 10, padding: '14px', border: '1px solid #bfdbfe', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 6 }}>
+                  <EditableText storageKey={`fase2.eind.mkl.${m.id}.naam`} defaultValue={m.naam} style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.3 }} />
+                  {m.badge && (
+                    <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 10, background: m.badgeBg, color: m.badgeText, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                      {m.badge}
+                    </span>
+                  )}
+                </div>
+                <EditableText storageKey={`fase2.eind.mkl.${m.id}.sub`} defaultValue={m.sub} style={{ fontSize: 10, color: 'var(--c-subtle)', lineHeight: 1.3 }} />
+                <EditableText storageKey={`fase2.eind.mkl.${m.id}.beschr`} defaultValue={m.beschrijving} tag="div" multiline style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6, flex: 1 }} />
+                <a
+                  href={`mailto:${m.email}`}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 4, fontSize: 11, fontWeight: 600, color: '#1e40af', textDecoration: 'none' }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/>
+                  </svg>
+                  <EditableText storageKey={`fase2.eind.mkl.${m.id}.email`} defaultValue={m.email} style={{ fontSize: 11 }} />
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 3 · Warme ingangen */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
