@@ -3067,8 +3067,8 @@ function Fase2WarmContactCard({ contact, onDelete }: { contact: WarmContact; onD
       </div>
 
       {showNote && heeftNotitie && (
-        <div style={{ padding: '12px 16px 16px', borderTop: '1px solid #fde68a', fontSize: 12, color: '#78716c', lineHeight: 1.75, background: 'rgba(255,255,255,0.6)' }}>
-          {contact.notitie}
+        <div style={{ padding: '12px 16px 16px', borderTop: '1px solid #fde68a', background: 'rgba(255,255,255,0.6)' }}>
+          <EditableText storageKey={`wc.${contact.id}.notitie`} defaultValue={contact.notitie} multiline tag="div" style={{ fontSize: 12, color: '#78716c', lineHeight: 1.75 }} />
         </div>
       )}
     </div>
