@@ -367,22 +367,14 @@ export default function MarktDashboard() {
 
         {/* ── Aggregate stats ── */}
         <div className="flex items-center gap-5">
-          {[
-            { key: 'totaalvvo',     label: 'Totaal VVO',     value: formatVVO(totaalVVO) },
-            { key: 'ontwikkeling',  label: 'In ontwikkeling',value: `${totaalOntwikkeling} panden` },
-          ].map(({ key, label, value }) => (
-            <div key={key} className="text-right">
-              <div
-                className="text-[10px] font-semibold uppercase tracking-wide"
-                style={{ color: 'var(--c-subtle)' }}
-              >
-                <EditableText storageKey={`stats.${huidigStad.id}.${key}.label`} defaultValue={label} />
-              </div>
-              <div className="text-sm font-semibold mt-0.5" style={{ color: 'var(--c-text)' }}>
-                <EditableText storageKey={`stats.${huidigStad.id}.${key}.value`} defaultValue={value} />
-              </div>
+          <div className="text-right">
+            <div className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--c-subtle)' }}>
+              <EditableText key={`stats.${huidigStad.id}.totaalvvo.label`} storageKey={`stats.${huidigStad.id}.totaalvvo.label`} defaultValue="Totaal VVO" />
             </div>
-          ))}
+            <div className="text-sm font-semibold mt-0.5" style={{ color: 'var(--c-text)' }}>
+              <EditableText key={`stats.${huidigStad.id}.totaalvvo.value`} storageKey={`stats.${huidigStad.id}.totaalvvo.value`} defaultValue={formatVVO(totaalVVO)} />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -390,6 +382,7 @@ export default function MarktDashboard() {
       <div className="flex items-baseline justify-between">
         <div>
           <EditableText
+            key={`header.${huidigStad.id}.titel`}
             tag="h1"
             storageKey={`header.${huidigStad.id}.titel`}
             defaultValue={`${huidigStad.naam} — Gebiedskaart`}
