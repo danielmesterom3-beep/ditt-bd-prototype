@@ -4236,10 +4236,10 @@ function ActieOverzichtView() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 15, fontWeight: 700, color: huidigeFase.textColor, lineHeight: 1.2 }}>
-                        Fase {huidigeFase.nr} · <EditableText storageKey={`fase.${huidigeFase.nr}.titel`} defaultValue={huidigeFase.titel} />
+                        Fase {huidigeFase.nr} · <EditableText key={`fase.${huidigeFase.nr}.titel`} storageKey={`fase.${huidigeFase.nr}.titel`} defaultValue={huidigeFase.titel} />
                       </div>
                       <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>
-                        <EditableText storageKey={`fase.${huidigeFase.nr}.vraag`} defaultValue={huidigeFase.vraag} />
+                        <EditableText key={`fase.${huidigeFase.nr}.vraag`} storageKey={`fase.${huidigeFase.nr}.vraag`} defaultValue={huidigeFase.vraag} />
                       </div>
                     </div>
                     <span style={{
