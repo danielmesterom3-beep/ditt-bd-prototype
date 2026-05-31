@@ -61,7 +61,8 @@ export function getEditableText(storageKey: string, defaultValue: string): strin
   }
 }
 
-// Load all edits from Supabase into localStorage on app start
+// Load all edits from Supabase into localStorage on app start.
+// Only write keys that don't already exist locally — preserves unsaved local edits.
 let loaded = false
 export async function loadRemoteEdits() {
   if (loaded) return
@@ -70,7 +71,10 @@ export async function loadRemoteEdits() {
     const { data } = await supabase.from('edits').select('key, value')
     if (data) {
       data.forEach(({ key, value }) => {
-        localStorage.setItem(STORAGE_PREFIX + key, value)
+        const localKey = STORAGE_PREFIX + key
+        if (!localStorage.getItem(localKey)) {
+          localStorage.setItem(localKey, value)
+        }
       })
     }
   } catch {
