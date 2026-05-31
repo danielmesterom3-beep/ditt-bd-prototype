@@ -4,7 +4,7 @@ import steden from '../data/steden'
 import type { Stad, Gebied, GebiedStatus, WarmContact } from '../data/types'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
 import BronTooltip from '../components/BronTooltip'
-import EditableText, { queueChange, STORAGE_PREFIX } from '../components/EditableText'
+import EditableText, { queueChange, STORAGE_PREFIX, getEditableText } from '../components/EditableText'
 import { useEditMode } from '../context/EditContext'
 import { useViewMode } from '../context/ViewModeContext'
 import NieuwsFeed from '../components/NieuwsFeed'
@@ -3017,9 +3017,27 @@ function F2DeleteBtn({ onDelete }: { onDelete: () => void }) {
 
 function Fase2WarmContactCard({ contact, onDelete }: { contact: WarmContact; onDelete: () => void }) {
   const [showNote, setShowNote] = useState(false)
-  const heeftEmail    = !!contact.email
-  const heeftTelefoon = !!contact.telefoon
-  const heeftNotitie  = !!contact.notitie
+  const { isEditMode } = useEditMode()
+  const sk = `wc.${contact.id}`
+
+  // Read live values (localStorage overrides original contact data)
+  const [email, setEmail]     = useState(() => getEditableText(`${sk}.email`, contact.email ?? ''))
+  const [telefoon, setTelefoon] = useState(() => getEditableText(`${sk}.telefoon`, contact.telefoon ?? ''))
+
+  const heeftEmail    = !!email
+  const heeftTelefoon = !!telefoon
+  const heeftNotitie  = !!(contact.notitie || getEditableText(`${sk}.notitie`, contact.notitie ?? ''))
+
+  function saveField(field: string, value: string) {
+    const key = `${sk}.${field}`
+    if (value.trim()) {
+      localStorage.setItem(STORAGE_PREFIX + key, value.trim())
+      queueChange(key, value.trim())
+    } else {
+      localStorage.removeItem(STORAGE_PREFIX + key)
+      queueChange(key, null)
+    }
+  }
 
   function nlDatum(iso: string) {
     const p = iso.split('-')
@@ -3040,15 +3058,15 @@ function Fase2WarmContactCard({ contact, onDelete }: { contact: WarmContact; onD
       <div style={{ padding: '14px 16px 12px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
           <div>
-            <EditableText storageKey={`wc.${contact.id}.naam`} defaultValue={contact.naam} style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a' }} />
-            <EditableText storageKey={`wc.${contact.id}.organisatie`} defaultValue={contact.organisatie} style={{ fontSize: 12, color: '#78716c', marginTop: 2, display: 'block' }} />
+            <EditableText storageKey={`${sk}.naam`} defaultValue={contact.naam} style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a' }} />
+            <EditableText storageKey={`${sk}.organisatie`} defaultValue={contact.organisatie} style={{ fontSize: 12, color: '#78716c', marginTop: 2, display: 'block' }} />
           </div>
           <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: 20, background: '#d97706', color: '#fff', flexShrink: 0 }}>
             Warm contact
           </span>
         </div>
         <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}>
-          <EditableText storageKey={`wc.${contact.id}.rol`} defaultValue={contact.rol} />
+          <EditableText storageKey={`${sk}.rol`} defaultValue={contact.rol} />
         </span>
         {contact.datumLaatsteContact && (
           <span style={{ display: 'inline-block', marginLeft: 8, fontSize: 10, color: '#a8a29e' }}>
@@ -3057,12 +3075,32 @@ function Fase2WarmContactCard({ contact, onDelete }: { contact: WarmContact; onD
         )}
       </div>
 
+      {/* Edit mode: inline email + telefoon inputs */}
+      {isEditMode && (
+        <div style={{ padding: '8px 16px', borderTop: '1px solid #fde68a', background: 'rgba(255,255,255,0.5)', display: 'flex', gap: 8 }}>
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={(e) => saveField('email', e.target.value)}
+            placeholder="E-mailadres"
+            style={{ flex: 1, fontSize: 11, padding: '4px 8px', borderRadius: 6, border: '1px solid #fcd34d', background: '#fffbeb', color: '#1a1a1a', outline: 'none' }}
+          />
+          <input
+            value={telefoon}
+            onChange={(e) => setTelefoon(e.target.value)}
+            onBlur={(e) => saveField('telefoon', e.target.value)}
+            placeholder="Telefoonnummer"
+            style={{ flex: 1, fontSize: 11, padding: '4px 8px', borderRadius: 6, border: '1px solid #fcd34d', background: '#fffbeb', color: '#1a1a1a', outline: 'none' }}
+          />
+        </div>
+      )}
+
       <div style={{ padding: '10px 16px', borderTop: '1px solid #fde68a', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
         {/* E-mail knop */}
         <a
-          href={heeftEmail ? `mailto:${contact.email}` : undefined}
+          href={heeftEmail ? `mailto:${email}` : undefined}
           onClick={(e) => { if (!heeftEmail) e.preventDefault(); e.stopPropagation() }}
-          title={heeftEmail ? contact.email : 'E-mail onbekend'}
+          title={heeftEmail ? email : 'E-mail onbekend'}
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: 34, height: 34, borderRadius: 8, textDecoration: 'none', transition: 'opacity 0.15s',
@@ -3079,9 +3117,9 @@ function Fase2WarmContactCard({ contact, onDelete }: { contact: WarmContact; onD
         </a>
         {/* Bel knop */}
         <a
-          href={heeftTelefoon ? `tel:${contact.telefoon}` : undefined}
+          href={heeftTelefoon ? `tel:${telefoon}` : undefined}
           onClick={(e) => { if (!heeftTelefoon) e.preventDefault(); e.stopPropagation() }}
-          title={heeftTelefoon ? contact.telefoon : 'Telefoon onbekend'}
+          title={heeftTelefoon ? telefoon : 'Telefoon onbekend'}
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: 34, height: 34, borderRadius: 8, textDecoration: 'none', transition: 'opacity 0.15s',
@@ -3106,9 +3144,9 @@ function Fase2WarmContactCard({ contact, onDelete }: { contact: WarmContact; onD
         )}
       </div>
 
-      {showNote && heeftNotitie && (
+      {showNote && (
         <div style={{ padding: '12px 16px 16px', borderTop: '1px solid #fde68a', background: 'rgba(255,255,255,0.6)' }}>
-          <EditableText storageKey={`wc.${contact.id}.notitie`} defaultValue={contact.notitie} multiline tag="div" style={{ fontSize: 12, color: '#78716c', lineHeight: 1.75 }} />
+          <EditableText storageKey={`${sk}.notitie`} defaultValue={contact.notitie ?? ''} multiline tag="div" style={{ fontSize: 12, color: '#78716c', lineHeight: 1.75 }} />
         </div>
       )}
     </div>
