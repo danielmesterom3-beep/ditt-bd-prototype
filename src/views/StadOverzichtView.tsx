@@ -4023,8 +4023,8 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
                 sub: 'Bedrijfsmakelaars — Eindhoven',
                 beschrijving: 'Dominante lokale makelaar in Eindhoven. Al gesproken in ontwerpfase (Dirk Verberne, 6 mrt 2026). Call gepland. Status: warm, relatie in opbouw.',
                 email: 'info@verschuurenschreppers.nl',
-                badge: 'Warm contact',
-                badgeBg: '#d97706', badgeText: '#fff',
+                badge: null,
+                badgeBg: '', badgeText: '',
               },
               {
                 id: 'bf',
@@ -4065,15 +4065,18 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
                 </div>
                 <EditableText storageKey={`fase2.eind.mkl.${m.id}.sub`} defaultValue={m.sub} style={{ fontSize: 10, color: 'var(--c-subtle)', lineHeight: 1.3 }} />
                 <EditableText storageKey={`fase2.eind.mkl.${m.id}.beschr`} defaultValue={m.beschrijving} tag="div" multiline style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6, flex: 1 }} />
-                <a
-                  href={`mailto:${m.email}`}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 4, fontSize: 11, fontWeight: 600, color: '#1e40af', textDecoration: 'none' }}
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/>
-                  </svg>
-                  <EditableText storageKey={`fase2.eind.mkl.${m.id}.email`} defaultValue={m.email} style={{ fontSize: 11 }} />
-                </a>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                  <a
+                    href={`mailto:${getEditableText(`fase2.eind.mkl.${m.id}.email`, m.email)}`}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 7, background: '#1e40af', textDecoration: 'none', flexShrink: 0 }}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/>
+                    </svg>
+                  </a>
+                  <EditableText storageKey={`fase2.eind.mkl.${m.id}.email`} defaultValue={m.email} style={{ fontSize: 11, color: '#3b82f6' }} />
+                </div>
               </div>
             ))}
           </div>
