@@ -4023,8 +4023,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
                 sub: 'Bedrijfsmakelaars — Eindhoven',
                 beschrijving: 'Dominante lokale makelaar in Eindhoven. Al gesproken in ontwerpfase (Dirk Verberne, 6 mrt 2026). Call gepland. Status: warm, relatie in opbouw.',
                 email: 'info@verschuurenschreppers.nl',
-                badge: null,
-                badgeBg: '', badgeText: '',
+                website: 'verschuurenschreppers.nl',
               },
               {
                 id: 'bf',
@@ -4032,8 +4031,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
                 sub: 'Bedrijfshuisvesting — Eindhoven',
                 beschrijving: 'NVM-kantoor in Eindhoven. Persoonlijke aanpak, actief in verhuur en verkoop van kantoor- en bedrijfsruimte. Vergelijkbaar profiel als Schaub & Partners in Rotterdam.',
                 email: 'info@bossersfitters.nl',
-                badge: null,
-                badgeBg: '', badgeText: '',
+                website: 'bossersfitters.nl',
               },
               {
                 id: 'kb',
@@ -4041,8 +4039,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
                 sub: 'Bedrijfsmakelaardij — Eindhoven',
                 beschrijving: 'Meer dan 25 jaar actief in regio Eindhoven. Bewust klein en onafhankelijk team met accent op commercieel vastgoed.',
                 email: 'info@kolsterenbedrijfshuisvesting.nl',
-                badge: null,
-                badgeBg: '', badgeText: '',
+                website: 'kolsterenbedrijfshuisvesting.nl',
               },
               {
                 id: 'avh',
@@ -4050,19 +4047,11 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
                 sub: 'Bedrijfsmakelaardij — Eindhoven & Helmond',
                 beschrijving: 'Regionaal kantoor voor Eindhoven en Helmond. Breed pakket commercieel vastgoed, actief in aan- en verhuur.',
                 email: 'info@heuvel.nl',
-                badge: null,
-                badgeBg: '', badgeText: '',
+                website: 'heuvel.nl',
               },
             ].map((m) => (
               <div key={m.id} style={{ background: '#fff', borderRadius: 10, padding: '14px', border: '1px solid #bfdbfe', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 6 }}>
-                  <EditableText storageKey={`fase2.eind.mkl.${m.id}.naam`} defaultValue={m.naam} style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.3 }} />
-                  {m.badge && (
-                    <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 10, background: m.badgeBg, color: m.badgeText, flexShrink: 0, whiteSpace: 'nowrap' }}>
-                      {m.badge}
-                    </span>
-                  )}
-                </div>
+                <EditableText storageKey={`fase2.eind.mkl.${m.id}.naam`} defaultValue={m.naam} style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.3 }} />
                 <EditableText storageKey={`fase2.eind.mkl.${m.id}.sub`} defaultValue={m.sub} style={{ fontSize: 10, color: 'var(--c-subtle)', lineHeight: 1.3 }} />
                 <EditableText storageKey={`fase2.eind.mkl.${m.id}.beschr`} defaultValue={m.beschrijving} tag="div" multiline style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6, flex: 1 }} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
@@ -4075,7 +4064,9 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
                       <rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/>
                     </svg>
                   </a>
-                  <EditableText storageKey={`fase2.eind.mkl.${m.id}.email`} defaultValue={m.email} style={{ fontSize: 11, color: '#3b82f6' }} />
+                  <a href={`https://${getEditableText(`fase2.eind.mkl.${m.id}.website`, m.website)}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: '#3b82f6', textDecoration: 'none' }} onClick={(e) => e.stopPropagation()}>
+                    <EditableText storageKey={`fase2.eind.mkl.${m.id}.website`} defaultValue={m.website} style={{ fontSize: 11, color: '#3b82f6' }} />
+                  </a>
                 </div>
               </div>
             ))}
