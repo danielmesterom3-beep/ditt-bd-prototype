@@ -774,7 +774,7 @@ function OmgevingskenmerkenPanel() {
             </div>
 
             {/* Gemiddeld projectformaat concurrenten — Eindhoven */}
-            <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+            <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)', gridColumn: '1 / -1' }}>
               <EditableText storageKey="omgeving.concformaat.titel" defaultValue="Gemiddeld projectformaat — concurrenten Eindhoven" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', marginBottom: 4, display: 'block' }} />
               <EditableText storageKey="omgeving.concformaat.meta" defaultValue="Op basis van gepubliceerde portfoliogegevens · duotone-interior.nl · hal2.nl · ininterieurs.nl" style={{ fontSize: 11, color: 'var(--c-subtle)', marginBottom: 14, display: 'block' }} />
 
@@ -837,9 +837,11 @@ function OmgevingskenmerkenPanel() {
                       {c.projecten.map((p) => (
                         <div key={p.naam} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
                           <EditableText storageKey={`omgeving.concformaat.${c.id}.p.${p.naam.replace(/\s+/g, '_')}`} defaultValue={p.naam} />
-                          <span style={{ fontVariantNumeric: 'tabular-nums', color: p.m2 ? 'var(--c-muted)' : 'var(--c-subtle)', flexShrink: 0, marginLeft: 6 }}>
-                            {p.m2 ? `${p.m2.toLocaleString('nl-NL')} m²` : 'm² onbekend'}
-                          </span>
+                          {p.m2 > 0 && (
+                            <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--c-muted)', flexShrink: 0, marginLeft: 6 }}>
+                              {p.m2.toLocaleString('nl-NL')} m²
+                            </span>
+                          )}
                         </div>
                       ))}
                     </div>
