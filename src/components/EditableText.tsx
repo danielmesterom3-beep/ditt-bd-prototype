@@ -22,9 +22,20 @@ function notifyListeners() {
   changeListeners.forEach(fn => fn())
 }
 
+// Auto-flush: sync to Supabase 3s after last edit (no manual save needed)
+let autoFlushTimer: ReturnType<typeof setTimeout> | null = null
+function scheduleAutoFlush() {
+  if (autoFlushTimer) clearTimeout(autoFlushTimer)
+  autoFlushTimer = setTimeout(() => {
+    autoFlushTimer = null
+    flushPendingChanges()
+  }, 3000)
+}
+
 export function queueChange(key: string, value: string | null) {
   pendingChanges.set(key, value)
   notifyListeners()
+  scheduleAutoFlush()
 }
 
 export function subscribeToPending(fn: () => void): () => void {
