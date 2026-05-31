@@ -3824,6 +3824,9 @@ const FASES = [
 ]
 
 function ActieOverzichtView() {
+  const beschikbareSteden = MARKTCAP_STEDEN.filter((s) => s.naam !== 'Amsterdam')
+  const [geselecteerdeStad, setGeselecteerdeStad] = useState<string>(beschikbareSteden[0]?.naam ?? '')
+
   const [drempel, setDrempel] = useState<Record<string, boolean[]>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, DREMPEL_ITEMS.map(() => false)]))
   )
@@ -3848,16 +3851,43 @@ function ActieOverzichtView() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.02em', margin: 0 }}>
-          Acquisitie-instrument BD
-        </h1>
-        <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '4px 0 0' }}>
-          Vier-fase trechter per stad · BD-status · drempelcriteria — Eindhoven &amp; Rotterdam
-        </p>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.02em', margin: 0 }}>
+            Acquisitie-instrument BD
+          </h1>
+          <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '4px 0 0' }}>
+            Vier-fase trechter per stad · BD-status · drempelcriteria
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {beschikbareSteden.map((s) => {
+            const active = s.naam === geselecteerdeStad
+            return (
+              <button
+                key={s.naam}
+                onClick={() => setGeselecteerdeStad(s.naam)}
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  background: active ? 'var(--c-coral)' : 'var(--c-surface)',
+                  color: active ? '#fff' : 'var(--c-muted)',
+                  border: `1px solid ${active ? 'var(--c-coral)' : 'var(--c-border)'}`,
+                  boxShadow: active ? '0 2px 8px rgba(255,127,80,0.3)' : 'none',
+                }}
+              >
+                {s.naam}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
-      {MARKTCAP_STEDEN.filter((s) => s.naam !== 'Amsterdam').map((stad) => {
+      {beschikbareSteden.filter((s) => s.naam === geselecteerdeStad).map((stad) => {
         const drempelLijst = drempel[stad.naam]
         const aantalKlaar  = drempelLijst.filter(Boolean).length
         const klaarVoorAcquisitie = aantalKlaar >= 4
