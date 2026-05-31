@@ -2893,14 +2893,18 @@ function useLocalContacts(stadId: string) {
   function addContact(contact: WarmContact) {
     setContacts(prev => {
       const next = [...prev, contact]
-      localStorage.setItem(key, JSON.stringify(next))
+      const json = JSON.stringify(next)
+      localStorage.setItem(key, json)
+      queueChange(key, json)
       return next
     })
   }
   function removeContact(id: string) {
     setContacts(prev => {
       const next = prev.filter(c => c.id !== id)
-      localStorage.setItem(key, JSON.stringify(next))
+      const json = JSON.stringify(next)
+      localStorage.setItem(key, json)
+      queueChange(key, json)
       return next
     })
   }

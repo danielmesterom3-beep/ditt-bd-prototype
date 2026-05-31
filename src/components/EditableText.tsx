@@ -74,6 +74,7 @@ export function getEditableText(storageKey: string, defaultValue: string): strin
 
 // Load all edits from Supabase into localStorage on app start.
 // Only write keys that don't already exist locally — preserves unsaved local edits.
+// Writes both prefixed (for EditableText) and raw (for hooks like useDeletedItems, useLocalContacts).
 let loaded = false
 export async function loadRemoteEdits() {
   if (loaded) return
@@ -85,6 +86,10 @@ export async function loadRemoteEdits() {
         const localKey = STORAGE_PREFIX + key
         if (!localStorage.getItem(localKey)) {
           localStorage.setItem(localKey, value)
+        }
+        // Also write raw key for hooks that read localStorage without prefix
+        if (!localStorage.getItem(key)) {
+          localStorage.setItem(key, value)
         }
       })
     }
