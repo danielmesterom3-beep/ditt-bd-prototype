@@ -326,9 +326,6 @@ export default function MarktDashboard() {
   })
 
   const totaalVVO = huidigStad.gebieden.reduce((s, g) => s + g.marktdata.totaalKantoorVvo, 0)
-  const totaalOntwikkeling = huidigStad.gebieden.reduce(
-    (s, g) => s + g.pandenInOntwikkeling.length, 0
-  )
 
   return (
     <div className="flex flex-col gap-6">
