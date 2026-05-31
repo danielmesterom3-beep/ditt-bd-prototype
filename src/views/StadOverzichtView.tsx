@@ -3566,7 +3566,7 @@ function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
           {/* Aanpak + kapstok + slides */}
           <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>Aanpak</div>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}><EditableText storageKey="fase2.proto.label.aanpak" defaultValue="Aanpak" /></div>
               <EditableText
                 storageKey={`fase4.proto.${product}.${partijType}.aanpak`}
                 defaultValue={protocol.aanpak}
@@ -3575,7 +3575,7 @@ function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
               />
             </div>
             <div style={{ padding: '12px 16px', background: '#f5f3ff', borderRadius: 10, border: '1px solid #c4b5fd' }}>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7c3aed', marginBottom: 6 }}>Kapstok-vraag</div>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7c3aed', marginBottom: 6 }}><EditableText storageKey="fase2.proto.label.kapstok" defaultValue="Kapstok-vraag" /></div>
               <EditableText
                 storageKey={`fase4.proto.${product}.${partijType}.kapstok`}
                 defaultValue={protocol.kapstok}
@@ -3584,12 +3584,12 @@ function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
               />
             </div>
             <div>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 8 }}>Aanbevolen slides</div>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 8 }}><EditableText storageKey="fase2.proto.label.slides" defaultValue="Aanbevolen slides" /></div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {slides.map((s) => (
                   <div key={s.nr} style={{ display: 'flex', alignItems: 'baseline', gap: 8, fontSize: 12, color: 'var(--c-muted)' }}>
                     <span style={{ fontWeight: 700, color: 'var(--c-coral)', minWidth: 28, flexShrink: 0 }}>#{s.nr}</span>
-                    <span>{s.omschrijving}</span>
+                    <EditableText storageKey={`fase2.slides.${product}.${partijType}.${s.nr}`} defaultValue={s.omschrijving} />
                   </div>
                 ))}
               </div>
@@ -3760,8 +3760,8 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
           {/* Header + partijtype selector */}
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--c-border)', background: '#faf9f7', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--c-subtle)' }}>Contactprotocol</div>
-              <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 3 }}>Makelaars &amp; gebouweigenaren — {stadNaam}</div>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--c-subtle)' }}><EditableText storageKey="fase2.proto.header.titel" defaultValue="Contactprotocol" /></div>
+              <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 3 }}><EditableText storageKey={`fase2.proto.header.sub.${stadNaam.toLowerCase()}`} defaultValue={`Makelaars & gebouweigenaren — ${stadNaam}`} /></div>
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
               {(['makelaar', 'eigenaar'] as const).map((pt) => (
@@ -3823,7 +3823,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
           {/* Generieke aanpak + kapstok */}
           <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>Aanpak</div>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}><EditableText storageKey="fase2.proto.label.aanpak" defaultValue="Aanpak" /></div>
               <EditableText
                 storageKey={`fase2.proto.${product}.${partijType}.aanpak`}
                 defaultValue={protocol.aanpak}
@@ -3832,7 +3832,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
               />
             </div>
             <div style={{ padding: '12px 16px', background: '#f5f3ff', borderRadius: 10, border: '1px solid #c4b5fd' }}>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7c3aed', marginBottom: 6 }}>Kapstok-vraag</div>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#7c3aed', marginBottom: 6 }}><EditableText storageKey="fase2.proto.label.kapstok" defaultValue="Kapstok-vraag" /></div>
               <EditableText
                 storageKey={`fase2.proto.${product}.${partijType}.kapstok`}
                 defaultValue={protocol.kapstok}
@@ -3843,12 +3843,12 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
 
             {/* Aanbevolen slides */}
             <div>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 8 }}>Aanbevolen slides</div>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 8 }}><EditableText storageKey="fase2.proto.label.slides" defaultValue="Aanbevolen slides" /></div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {slides.map((s) => (
                   <div key={s.nr} style={{ display: 'flex', alignItems: 'baseline', gap: 8, fontSize: 12, color: 'var(--c-muted)' }}>
                     <span style={{ fontWeight: 700, color: 'var(--c-coral)', minWidth: 28, flexShrink: 0 }}>#{s.nr}</span>
-                    <span>{s.omschrijving}</span>
+                    <EditableText storageKey={`fase2.slides.${product}.${partijType}.${s.nr}`} defaultValue={s.omschrijving} />
                   </div>
                 ))}
               </div>
@@ -4086,7 +4086,7 @@ function ActieOverzichtView() {
 
               {/* ── Acquisitietrechter ── */}
               <div>
-                <div style={labelStyle}>Acquisitietrechter — 4 fases</div>
+                <div style={labelStyle}><EditableText storageKey="trechter.label" defaultValue="Acquisitietrechter — 4 fases" /></div>
 
                 {/* ── Horizontale fase-stepper ── */}
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
@@ -4125,7 +4125,7 @@ function ActieOverzichtView() {
                             fontSize: 10, fontWeight: isActive ? 700 : 400, whiteSpace: 'nowrap',
                             color: isActive ? fase.textColor : isDone ? fase.kleur : '#9ca3af',
                           }}>
-                            {fase.titel}
+                            <EditableText storageKey={`fase.${fase.nr}.titel`} defaultValue={fase.titel} />
                           </span>
                         </button>
                         {!isLast && (
@@ -4158,10 +4158,10 @@ function ActieOverzichtView() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 15, fontWeight: 700, color: huidigeFase.textColor, lineHeight: 1.2 }}>
-                        Fase {huidigeFase.nr} · {huidigeFase.titel}
+                        Fase {huidigeFase.nr} · <EditableText storageKey={`fase.${huidigeFase.nr}.titel`} defaultValue={huidigeFase.titel} />
                       </div>
                       <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>
-                        {huidigeFase.vraag}
+                        <EditableText storageKey={`fase.${huidigeFase.nr}.vraag`} defaultValue={huidigeFase.vraag} />
                       </div>
                     </div>
                     <span style={{
@@ -4243,7 +4243,7 @@ function ActieOverzichtView() {
                   style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ ...labelStyle, margin: 0 }}>Drempelcriteria — minimale startvoorwaarden</span>
+                    <span style={{ ...labelStyle, margin: 0 }}><EditableText storageKey="drempel.sectie.titel" defaultValue="Drempelcriteria — minimale startvoorwaarden" /></span>
                     <span style={{ fontSize: 11, fontWeight: 600, padding: '1px 7px', borderRadius: 8, background: klaarVoorAcquisitie ? '#dcfce7' : '#fef9c3', color: klaarVoorAcquisitie ? '#16a34a' : '#854d0e' }}>
                       {aantalKlaar}/{DREMPEL_ITEMS.length}
                     </span>
@@ -4258,7 +4258,7 @@ function ActieOverzichtView() {
                         <label key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => toggleDrempel(stad.naam, idx)}>
                           <Checkbox checked={checked} onChange={() => toggleDrempel(stad.naam, idx)} />
                           <span style={{ fontSize: 12, color: checked ? '#16a34a' : 'var(--c-text)', textDecoration: checked ? 'line-through' : 'none' }}>
-                            {item}
+                            <EditableText storageKey={`drempel.item.${idx}`} defaultValue={item} />
                           </span>
                         </label>
                       )
