@@ -1,7 +1,8 @@
 import type { Gebied } from './types'
 
-// Bronnen: Gebiedsanalyses Vastgoeddata.nl (29 april 2026)
-// Peildatum gebiedskenmerken: 29 april 2026 | Huurprijzen: gemiddelde afgelopen 2 jaar
+// Bronnen: Gebiedsanalyses Vastgoeddata.nl (29 april 2026); JLL Eindhoven Office Q1 2026 (© Jones Lang LaSalle IP, Inc. 2026)
+// Peildatum gebiedskenmerken: 31 maart 2026 | Huurprijzen: gemiddelde afgelopen 2 jaar
+// JLL Q1 2026 Eindhoven stadsbreed: leegstand 6,8% (↑ van 6,7%), prime rent €265/m²/jr (stabiel), YTD opname 3.300 m², aanbod 114.800 m²
 
 const eindhoven: Gebied[] = [
   // ─────────────────────────────────────────────────────────────────
@@ -11,7 +12,7 @@ const eindhoven: Gebied[] = [
     id: 'centrum-eindhoven',
     naam: 'Centrum Eindhoven',
     marktdata: {
-      peildatum: '2026-04-29',
+      peildatum: '2026-03-31',
       totaalKantoorVvo: 265000,          // schatting: stationsgebied + Vestdijk + Oude Stad; polygon was te groot
       leegstandPercentage: 6.5,
       huurprijsBandwidth: { min: 125, max: 320 },
@@ -334,7 +335,7 @@ const eindhoven: Gebied[] = [
     id: 'strijp-s',
     naam: 'Strijp-S',
     marktdata: {
-      peildatum: '2026-04-29',
+      peildatum: '2026-03-31',
       totaalKantoorVvo: 46000,           // schatting: creatief district, 75% wonen — beperkt kantooraanbod (Bold, Ketelhuis e.o.); polygon was te groot
       leegstandPercentage: 4.2,
       huurprijsBandwidth: { min: 130, max: 270 },
@@ -508,7 +509,7 @@ const eindhoven: Gebied[] = [
     id: 'airport-ehv',
     naam: 'Airport / Flight Forum',
     marktdata: {
-      peildatum: '2026-04-29',
+      peildatum: '2026-03-31',
       totaalKantoorVvo: 205000,          // schatting: Flight Forum + Park Forum businesspark; polygon iets te groot (incl. omliggend industriegebied)
       leegstandPercentage: 11.5,
       huurprijsBandwidth: { min: 80, max: 175 },
@@ -668,7 +669,7 @@ const eindhoven: Gebied[] = [
     id: 'high-tech-campus',
     naam: 'High Tech Campus / ASML',
     marktdata: {
-      peildatum: '2026-04-29',
+      peildatum: '2026-03-31',
       totaalKantoorVvo: 115000,          // schatting: extern toegankelijk kantooraandeel HTC + Veldhoven-cluster; campus intern veel groter maar gesloten; polygon incl. Veldhoven woonwijken
       leegstandPercentage: 2.5,           // campus-managed; vrijwel geen vrije leegstand
       huurprijsBandwidth: { min: 175, max: 325 },
