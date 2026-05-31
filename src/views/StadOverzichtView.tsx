@@ -2634,6 +2634,12 @@ function EindhovenGemeenteStrategiePanel() {
       context: 'HAL 2 B.V. domineert het MKB-segment (gem. ø 480 m²); Duotone Interior Concepts richt zich op enterprise (ø 970 m², HTC). Tussen beide partijen is ruimte voor Ditt. als kwalitatieve D&B-specialist voor zakelijke dienstverleners op A-locaties.',
       kleur: '#0891b2', bg: '#f0f9ff', border: '#bae6fd',
     },
+    {
+      id: 'flightforum',
+      titel: 'Flight Forum — hoogste aanbodsdynamiek in Eindhoven',
+      context: 'Flight Forum kent het hoogste aantal actief aangeboden kantoorobjecten van alle Eindhovense gebieden: 32 van de 205 objecten op Funda in Business, circa 16% van het totale aanbod. Dit duidt op hoge marktdynamiek en beschikbaarheid, wat acquisitiepotentieel oplevert voor renovatie- en herinrichtingsopdrachten.',
+      kleur: '#0891b2', bg: '#f0f9ff', border: '#bae6fd',
+    },
   ]
 
   return (
