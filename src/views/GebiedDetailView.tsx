@@ -1033,16 +1033,25 @@ function ContactProtocol({ klasse, gebiedId, stadNaam }: { klasse: LocatieKlasse
         <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)' }}>
           Gebiedsprofiel — {stadNaam}
         </div>
-        <p style={{ fontSize: 12, color: 'var(--c-muted)', margin: 0, lineHeight: 1.65, maxWidth: 560 }}>
-          {insteek.karakter}
-        </p>
+        <EditableText
+          storageKey={`insteek.${prefix}.karakter`}
+          defaultValue={insteek.karakter}
+          tag="div"
+          multiline
+          style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.65, maxWidth: 560 }}
+        />
         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 2 }}>
           <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--c-coral)', whiteSpace: 'nowrap', paddingTop: 1 }}>
             Tip →
           </span>
-          <p style={{ fontSize: 12, color: 'var(--c-text)', margin: 0, lineHeight: 1.65, maxWidth: 520 }}>
-            {partijTip ?? insteek.kansen}
-          </p>
+          <EditableText
+            key={`insteek.${prefix}.tip.${partijType}`}
+            storageKey={`insteek.${prefix}.tip.${partijType}`}
+            defaultValue={partijTip ?? insteek.kansen}
+            tag="div"
+            multiline
+            style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.65, maxWidth: 520 }}
+          />
         </div>
       </div>
 
