@@ -667,7 +667,7 @@ const eindhoven: Gebied[] = [
   // ─────────────────────────────────────────────────────────────────
   {
     id: 'high-tech-campus',
-    naam: 'High Tech Campus / ASML',
+    naam: 'High Tech Campus',
     marktdata: {
       peildatum: '2026-03-31',
       totaalKantoorVvo: 115000,          // schatting: extern toegankelijk kantooraandeel HTC + Veldhoven-cluster; campus intern veel groter maar gesloten; polygon incl. Veldhoven woonwijken
