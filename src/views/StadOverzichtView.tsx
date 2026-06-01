@@ -2751,50 +2751,6 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
         </div>
       )}
 
-      {/* 3c · Marktpotentieel berekening */}
-      <div>
-        <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.3c`} defaultValue="3c · Marktpotentieel — TAM / SAM / SOM voor Ditt." /></div>
-        <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
-          <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--c-border)', background: '#f8f7f5' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', marginBottom: 2 }}>Marktpotentieel berekening — {stadNaam}</div>
-            <div style={{ fontSize: 11, color: 'var(--c-subtle)' }}>
-              Op basis van JLL take-up, leegstandsdata en Ditt.\'s sweetspot (500–2.500 m²)
-            </div>
-          </div>
-          <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {/* Marktpotentieel = leegstand sweetspot × fit-out prijs */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>
-                  {(mc.leegstandM2 / 1000).toFixed(0)}k m² × €{mc.defaultPrijs}/m²
-                </div>
-                <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>
-                  Leegstand in Ditt.'s sweetspot × gem. fit-out benchmark
-                </div>
-              </div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--c-coral)', whiteSpace: 'nowrap' }}>
-                {fmEuro(mc.leegstandM2 * mc.defaultPrijs)}
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: 'var(--c-subtle)', paddingTop: 8, borderTop: '1px solid var(--c-border)' }}>
-              <span>Bij {Math.round(mc.penetratie * 100)}% penetratie →</span>
-              <span style={{ fontWeight: 700, color: 'var(--c-text)' }}>
-                {fmEuro(mc.leegstandM2 * mc.penetratie * mc.defaultPrijs)}
-              </span>
-              <span>· {(mc.dittM2 / 1000).toFixed(1)}k m² doelregio</span>
-            </div>
-            <div style={{ paddingTop: 8, borderTop: '1px solid var(--c-border)' }}>
-              <EditableText
-                storageKey={`fase1.${stadId}.marktcap.noot`}
-                defaultValue={`Fit-out benchmark: €${mc.defaultPrijs}/m² (Ditt. Begrotingssheet 2026, Hybrid Mid). Concurrenten in scope: ${mc.concurrenten}.`}
-                tag="div"
-                multiline
-                style={{ fontSize: 11, color: 'var(--c-subtle)', lineHeight: 1.6 }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* 4 · Veldonderzoek-inzichten — uitklapbaar */}
       <div>
