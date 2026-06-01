@@ -3279,12 +3279,15 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   const colors = STAD_COLORS[stadId]
 
   const [openPanden, setOpenPanden] = useState(false)
+  const [openTransacties, setOpenTransacties] = useState(false)
+
+  const { deleted: deletedPanden, deleteItem: deletePand } = useDeletedItemsFase2(`deleted_panden_fase3_${stadId}`)
 
   // Panden in ontwikkeling — aggregaat uit steden-data
   const stadData = steden.find((s) => s.naam === stadNaam)
-  const pandenInOntwikkeling = stadData?.gebieden.flatMap((g) =>
+  const pandenInOntwikkeling = (stadData?.gebieden.flatMap((g) =>
     g.pandenInOntwikkeling.map((p) => ({ ...p, gebiedNaam: g.naam }))
-  ) ?? []
+  ) ?? []).filter((p) => !deletedPanden.has(p.id))
 
   // 3. Recente transacties — gefilterd op stad
   const transactiesVoorStad = TRANSACTIES_DATA.filter((g) => g.stad === stadId)
@@ -3327,10 +3330,12 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
                 <div
                   key={pand.id}
                   style={{
+                    position: 'relative',
                     border: '1px solid var(--c-border)', borderRadius: 10,
                     padding: '14px 16px', background: 'var(--c-surface)',
                   }}
                 >
+                  <F2DeleteBtn onDelete={() => deletePand(pand.id)} />
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 6 }}>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>
@@ -3384,9 +3389,26 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
         )}
       </div>
 
-      {/* 3 · Recente transacties */}
-      <div>
-        <div style={subLabel}><EditableText storageKey={`fase3.${stadId}.sublabel.3`} defaultValue="3 · Recente transacties" /></div>
+      {/* 3 · Recente transacties — uitklapbaar */}
+      <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+        <button
+          onClick={() => setOpenTransacties((o) => !o)}
+          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} onClick={(e) => e.stopPropagation()}>
+            <div style={subLabel}>
+              <EditableText storageKey={`fase3.${stadId}.sublabel.3`} defaultValue="3 · Recente transacties" />
+            </div>
+            {transactiesVoorStad.length > 0 && (
+              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#f1f5f9', color: '#475569', marginBottom: 8 }}>
+                {totalTransacties} · {transactiesVoorStad.length} gebieden
+              </span>
+            )}
+          </div>
+          <span style={{ fontSize: 16, color: 'var(--c-subtle)', transform: openTransacties ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+        </button>
+        {openTransacties && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: '16px' }}>
         {transactiesVoorStad.length === 0 ? (
           <div style={{
             border: '1px dashed var(--c-border)', borderRadius: 10, padding: '20px 16px',
@@ -3395,15 +3417,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
             Nog geen transacties beschikbaar voor {stadNaam}.
           </div>
         ) : (
-          <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
-            <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--c-border)', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>Recente transacties</span>
-              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#f1f5f9', color: '#475569' }}>
-                {totalTransacties} transacties · {transactiesVoorStad.length} gebieden
-              </span>
-              <span style={{ fontSize: 10, color: 'var(--c-subtle)' }}>bron: Vastgoeddata.nl</span>
-            </div>
-            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               {transactiesVoorStad.map((gebied) => (
                 <div key={gebied.id}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
@@ -3453,8 +3467,9 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
                   </div>
                 </div>
               ))}
-            </div>
           </div>
+        )}
+        </div>
         )}
       </div>
 
