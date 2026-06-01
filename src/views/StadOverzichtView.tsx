@@ -1324,7 +1324,7 @@ interface GebiedTransacties {
 const TRANSACTIES_DATA: GebiedTransacties[] = [
   {
     id: 'htc-asml',
-    naam: 'HTC-ASML (Veldhoven)',
+    naam: 'High Tech Campus',
     stad: 'eindhoven',
     transacties: [
       {
@@ -1339,7 +1339,7 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
   },
   {
     id: 'eindhoven-centrum',
-    naam: 'Eindhoven Centrum',
+    naam: 'Centrum Eindhoven',
     stad: 'eindhoven',
     transacties: [
       {
@@ -1370,7 +1370,7 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
   },
   {
     id: 'eindhoven-airport',
-    naam: 'Eindhoven Airport / Flight Forum',
+    naam: 'Airport / Flight Forum',
     stad: 'eindhoven',
     transacties: [
       {
@@ -2751,6 +2751,65 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
         </div>
       )}
 
+      {/* 3c · Marktpotentieel berekening */}
+      <div>
+        <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.3c`} defaultValue="3c · Marktpotentieel — TAM / SAM / SOM voor Ditt." /></div>
+        <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+          <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--c-border)', background: '#f8f7f5' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', marginBottom: 2 }}>Marktpotentieel berekening — {stadNaam}</div>
+            <div style={{ fontSize: 11, color: 'var(--c-subtle)' }}>
+              Op basis van JLL take-up, leegstandsdata en Ditt.\'s sweetspot (500–2.500 m²)
+            </div>
+          </div>
+          <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {[
+              {
+                label: 'TAM — Totale markt',
+                sub: `Jaarlijkse kantooropname ${stadNaam} × gem. fit-out`,
+                value: fmEuro((jll?.takeUp ?? 0) * mc.defaultPrijs),
+                detail: `${((jll?.takeUp ?? 0) / 1000).toFixed(1)}k m² × €${mc.defaultPrijs}/m²`,
+                color: '#6366f1',
+                bg: '#f0f0ff',
+              },
+              {
+                label: 'SAM — Adresseerbare markt',
+                sub: `Leegstand in Ditt.'s sweetspot × gem. fit-out`,
+                value: fmEuro(mc.leegstandM2 * mc.defaultPrijs),
+                detail: `${(mc.leegstandM2 / 1000).toFixed(0)}k m² × €${mc.defaultPrijs}/m²`,
+                color: 'var(--c-coral)',
+                bg: '#fff7f4',
+              },
+              {
+                label: 'SOM — Realistisch potentieel',
+                sub: `Ditt.'s doelregio × penetratiescenario (${Math.round(mc.penetratie * 100)}%)`,
+                value: fmEuro(mc.dittM2 * mc.penetratie * mc.defaultPrijs),
+                detail: `${(mc.dittM2 / 1000).toFixed(1)}k m² × ${Math.round(mc.penetratie * 100)}% × €${mc.defaultPrijs}/m²`,
+                color: '#16a34a',
+                bg: '#f0fdf4',
+              },
+            ].map(({ label, sub, value, detail, color, bg }) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', background: bg, borderRadius: 8, border: `1px solid ${color}22` }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }}>{label}</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>{sub}</div>
+                  <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginTop: 2 }}>{detail}</div>
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 800, color, whiteSpace: 'nowrap' }}>{value}</div>
+              </div>
+            ))}
+            <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 4, paddingTop: 10, borderTop: '1px solid var(--c-border)' }}>
+              <EditableText
+                storageKey={`fase1.${stadId}.marktcap.noot`}
+                defaultValue={`Fit-out benchmark: €${mc.defaultPrijs}/m² (Ditt. Begrotingssheet 2026, Hybrid Mid). Concurrenten in scope: ${mc.concurrenten}.`}
+                tag="div"
+                multiline
+                style={{ fontSize: 11, color: 'var(--c-subtle)', lineHeight: 1.6 }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* 4 · Veldonderzoek-inzichten — uitklapbaar */}
       <div>
         <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.4`} defaultValue="4 · Veldonderzoek — markt, huurcontracten & turn-key" /></div>
@@ -3280,14 +3339,19 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
 
   const [openPanden, setOpenPanden] = useState(false)
   const [openTransacties, setOpenTransacties] = useState(false)
+  const [openHuurcontracten, setOpenHuurcontracten] = useState(false)
 
-  const { deleted: deletedPanden, deleteItem: deletePand } = useDeletedItemsFase2(`deleted_panden_fase3_${stadId}`)
+  const { deleted: deletedPanden,      deleteItem: deletePand }      = useDeletedItemsFase2(`deleted_panden_fase3_${stadId}`)
+  const { deleted: deletedTransacties, deleteItem: deleteTransactie } = useDeletedItemsFase2(`deleted_transacties_fase3_${stadId}`)
 
   // Panden in ontwikkeling — aggregaat uit steden-data
   const stadData = steden.find((s) => s.naam === stadNaam)
   const pandenInOntwikkeling = (stadData?.gebieden.flatMap((g) =>
     g.pandenInOntwikkeling.map((p) => ({ ...p, gebiedNaam: g.naam }))
-  ) ?? []).filter((p) => !deletedPanden.has(p.id))
+  ) ?? []).filter((p) =>
+    !deletedPanden.has(p.id) &&
+    !/afgerond|opgeleverd|in gebruik/i.test(p.verwachteOplevering)
+  )
 
   // 3. Recente transacties — gefilterd op stad
   const transactiesVoorStad = TRANSACTIES_DATA.filter((g) => g.stad === stadId)
@@ -3422,20 +3486,25 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
                 <div key={gebied.id}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                     <div style={{ width: 3, height: 16, borderRadius: 2, background: colors.accent, flexShrink: 0 }} />
-                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }}>{gebied.naam}</span>
+                    <EditableText storageKey={`transactie.${gebied.id}.naam`} defaultValue={gebied.naam} style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }} />
                     <BronTooltip bron={BRONNEN.transacties} />
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10 }}>
-                    {gebied.transacties.map((t, i) => (
+                    {gebied.transacties.map((t, i) => {
+                      const tKey = `${gebied.id}.${i}`
+                      if (deletedTransacties.has(tKey)) return null
+                      return (
                       <div
                         key={i}
                         style={{
+                          position: 'relative',
                           background: colors.accentLight,
                           border: `1px solid ${colors.accentBorder}`,
                           borderRadius: 10,
                           padding: '12px 14px',
                         }}
                       >
+                        <F2DeleteBtn onDelete={() => deleteTransactie(tKey)} />
                         <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>
                           <EditableText storageKey={`transactie.${gebied.id}.${i}.adres`} defaultValue={t.adres} />
                         </div>
@@ -3463,7 +3532,8 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
                           style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}
                         />
                       </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               ))}
@@ -3473,28 +3543,31 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
         )}
       </div>
 
-      {/* 4 · Aflopende huurcontracten */}
-      <div>
-        <div style={subLabel}><EditableText storageKey={`fase3.${stadId}.sublabel.4`} defaultValue="4 · Aflopende huurcontracten" /></div>
-        {/* TODO: voeg AflopendeHuurcontract[] toe aan src/data/types.ts en per-stad data */}
-        <div style={{
-          border: '1px dashed var(--c-border)', borderRadius: 12,
-          padding: '20px 16px', background: 'var(--c-surface)',
-        }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>
-            Aflopende huurcontracten — {stadNaam}
+      {/* 4 · Aflopende huurcontracten — uitklapbaar */}
+      <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+        <button
+          onClick={() => setOpenHuurcontracten((o) => !o)}
+          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+        >
+          <div style={subLabel} onClick={(e) => e.stopPropagation()}>
+            <EditableText storageKey={`fase3.${stadId}.sublabel.4`} defaultValue="4 · Aflopende huurcontracten" />
           </div>
-          <div style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 12 }}>
-            Huurcontracten met verwachte einddatum binnen 12–24 maanden. Bron: NVM/CBRE lease-data of directe navraag bij makelaars.
+          <span style={{ fontSize: 16, color: 'var(--c-subtle)', transform: openHuurcontracten ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+        </button>
+        {openHuurcontracten && (
+          <div style={{ borderTop: '1px solid var(--c-border)', padding: '16px' }}>
+            <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 12 }}>
+              Huurcontracten met verwachte einddatum binnen 12–24 maanden. Bron: NVM/CBRE lease-data of directe navraag bij makelaars.
+            </div>
+            <EditableText
+              storageKey={`fase3.${stadId}.huurcontracten.placeholder`}
+              defaultValue={`Voeg hier aflopende huurcontracten in voor ${stadNaam}. Format: pandnaam · huurder · m² · einddatum contract.`}
+              tag="div"
+              multiline
+              style={{ fontSize: 12, color: 'var(--c-subtle)', lineHeight: 1.6, padding: '12px 14px', background: '#f8f7f5', borderRadius: 8, border: '1px solid var(--c-border)' }}
+            />
           </div>
-          <EditableText
-            storageKey={`fase3.${stadId}.huurcontracten.placeholder`}
-            defaultValue={`Placeholder — voeg hier aflopende huurcontracten in voor ${stadNaam}. Format: pandnaam · huurder · m² · einddatum contract.`}
-            tag="div"
-            multiline
-            style={{ fontSize: 12, color: 'var(--c-subtle)', lineHeight: 1.6, padding: '12px 14px', background: '#f8f7f5', borderRadius: 8, border: '1px solid var(--c-border)' }}
-          />
-        </div>
+        )}
       </div>
 
       {/* Aanbevolen actie — Eindhoven */}
