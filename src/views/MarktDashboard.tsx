@@ -7,7 +7,8 @@ import steden from '../data/steden'
 import type { Gebied, LocatieKlasse, GebiedStatus } from '../data/types'
 import BronTooltip from '../components/BronTooltip'
 import InlineEdit from '../components/InlineEdit'
-import EditableText from '../components/EditableText'
+import EditableText, { getEditableText } from '../components/EditableText'
+import { useEditMode } from '../context/EditContext'
 
 const BRONNEN = {
   vvo:      'Vastgoeddata.nl. (2026, 29 april). Gebiedsanalyses kantoormarkten [Dataset]. Vastgoeddata.nl.',
@@ -59,10 +60,13 @@ function pandJaar(s: string): number {
 
 // ── GebiedCard ────────────────────────────────────────────────────────────────
 
+const PROFIEL_DEFAULT = 'Voeg een gebiedsprofiel toe...'
+
 function GebiedCard({ gebied }: { gebied: Gebied }) {
   const { setGebied } = useNavigation()
   const { getStatus } = useGebiedStatus()
   const { getMarktdata, setField } = useDataOverride()
+  const { isEditMode } = useEditMode()
   const klasse = klasseVanGebied(gebied)
   const ks = klasse ? KLASSE_STYLE[klasse] : null
   const { pandenInOntwikkeling, trends, warmeContacten } = gebied
@@ -140,6 +144,26 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
           )}
         </div>
       </div>
+
+      {/* ── Gebiedsprofiel ── */}
+      {(isEditMode || getEditableText(`gebied.${gebied.id}.profiel`, PROFIEL_DEFAULT) !== PROFIEL_DEFAULT) && (
+        <EditableText
+          storageKey={`gebied.${gebied.id}.profiel`}
+          defaultValue={PROFIEL_DEFAULT}
+          tag="div"
+          multiline
+          style={{
+            fontSize: 11,
+            color: isEditMode ? 'var(--c-muted)' : 'var(--c-text)',
+            lineHeight: 1.6,
+            minHeight: isEditMode ? '3em' : undefined,
+            padding: isEditMode ? '6px 8px' : undefined,
+            background: isEditMode ? '#fafafa' : undefined,
+            borderRadius: isEditMode ? 6 : undefined,
+            border: isEditMode ? '1px dashed var(--c-border)' : undefined,
+          }}
+        />
+      )}
 
       {/* ── Marktdata grid ── */}
       <div className="grid grid-cols-2 gap-2">
