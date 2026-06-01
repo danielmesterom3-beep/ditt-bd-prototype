@@ -812,15 +812,9 @@ function OmgevingskenmerkenPanel() {
                     id: 'ininterieurs',
                     naam: 'INinterieurs',
                     bron: 'ininterieurs.nl/projecten',
-                    projecten: [
-                      { naam: 'Strijp-S — project 1', m2: 0 },
-                      { naam: 'Strijp-S — project 2', m2: 0 },
-                      { naam: 'Strijp-S — project 3', m2: 0 },
-                      { naam: 'Strijp-S — project 4', m2: 0 },
-                      { naam: 'Strijp-S — project 5', m2: 0 },
-                    ],
+                    projecten: [],
                     gem: 0,
-                    context: 'Sterk aanwezig op Strijp-S. Vergelijkbaar MKB-profiel als HAL 2 maar met focus op creatief en gemengd programma. Directe concurrent voor Ditt op Strijp-S.',
+                    context: 'Schrijf hier je eigen notities over INinterieurs — projecten, formaat, positionering, contacten.',
                   },
                 ].map((c) => (
                   <div key={c.id} style={{ background: '#fff', borderRadius: 8, padding: '12px', border: '1px solid var(--c-border)' }}>
@@ -845,7 +839,7 @@ function OmgevingskenmerkenPanel() {
                         </div>
                       ))}
                     </div>
-                    <EditableText storageKey={`omgeving.concformaat.${c.id}.context`} defaultValue={c.context} tag="div" style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }} />
+                    <EditableText storageKey={`omgeving.concformaat.${c.id}.context`} defaultValue={c.context} tag="div" multiline={c.id === 'ininterieurs'} style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6, minHeight: c.id === 'ininterieurs' ? '6em' : undefined }} />
                   </div>
                 ))}
               </div>
