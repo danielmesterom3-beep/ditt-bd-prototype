@@ -765,6 +765,8 @@ function gebiedPrefix(id: string): string {
   if (id.startsWith('ss-')  || id === 'strijp-s')           return 'strijp-s'
   if (id.startsWith('kvz')  || id === 'kop-van-zuid')       return 'kop-van-Zuid'
   if (id.startsWith('rc-')  || id === 'rotterdam-centrum')  return 'rotterdam-centrum'
+  if (id === 'high-tech-campus')                             return 'high-tech-campus'
+  if (id === 'airport-ehv')                                  return 'airport-ehv'
   return 'generiek'
 }
 
@@ -812,6 +814,24 @@ const GEBIED_INSTEEK: Record<string, GebiedInsteek> = {
       makelaar: 'Brainpark-huurders zitten in een transitiegebied — veel kantoorgebruikers heroriënteren zich. Dat is het moment om met D&B in gesprek te komen over de volgende stap.',
       eigenaar: 'Met Brainpark 1 die transformeert naar wonen wordt Brainpark 2 schaarser en waardevoller. Investeer nu in kwaliteit om de juiste huurders te trekken.',
       huurder:  'Vraag of ze al nagedacht hebben over hun plek in het veranderende Brainpark. Ditt kan helpen om hun kantoor klaar te maken voor de komende jaren.',
+    },
+  },
+  'high-tech-campus': {
+    karakter: 'Kantoorlocatie in actieve markt — verhuisbewegingen door flight to quality en hybride werken creëren instapkansen voor Ditt.',
+    kansen:   'Elk verhuismoment is een acquisitie-instapmoment. Zorg dat je vroeg in het proces zit — vóórdat een formeel selectietraject start.',
+    tipPerPartij: {
+      makelaar: 'Vraag actief naar aankomende mutaties en aflopende contracten in je portefeuille.',
+      eigenaar: 'Positioneer kwaliteitsverbetering als middel om de juiste huurders te trekken en te behouden.',
+      huurder:  'Vraag hoe hun kantoor hun groei en cultuur weerspiegelt — dat is het instapmoment.',
+    },
+  },
+  'airport-ehv': {
+    karakter: 'Kantoorlocatie in actieve markt — verhuisbewegingen door flight to quality en hybride werken creëren instapkansen voor Ditt.',
+    kansen:   'Elk verhuismoment is een acquisitie-instapmoment. Zorg dat je vroeg in het proces zit — vóórdat een formeel selectietraject start.',
+    tipPerPartij: {
+      makelaar: 'Vraag actief naar aankomende mutaties en aflopende contracten in je portefeuille.',
+      eigenaar: 'Positioneer kwaliteitsverbetering als middel om de juiste huurders te trekken en te behouden.',
+      huurder:  'Vraag hoe hun kantoor hun groei en cultuur weerspiegelt — dat is het instapmoment.',
     },
   },
   'generiek': {
