@@ -1038,7 +1038,7 @@ function ContactProtocol({ klasse, gebiedId, stadNaam }: { klasse: LocatieKlasse
           defaultValue={insteek.karakter}
           tag="div"
           multiline
-          style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.65, maxWidth: 560 }}
+          style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.65 }}
         />
         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 2 }}>
           <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--c-coral)', whiteSpace: 'nowrap', paddingTop: 1 }}>
@@ -1050,7 +1050,7 @@ function ContactProtocol({ klasse, gebiedId, stadNaam }: { klasse: LocatieKlasse
             defaultValue={partijTip ?? insteek.kansen}
             tag="div"
             multiline
-            style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.65, maxWidth: 520 }}
+            style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.65 }}
           />
         </div>
       </div>
