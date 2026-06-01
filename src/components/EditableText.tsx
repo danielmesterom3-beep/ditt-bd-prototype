@@ -22,14 +22,23 @@ function notifyListeners() {
   changeListeners.forEach(fn => fn())
 }
 
-// Auto-flush: sync to Supabase 3s after last edit (no manual save needed)
+// Auto-flush: sync to Supabase 500ms after last edit
 let autoFlushTimer: ReturnType<typeof setTimeout> | null = null
 function scheduleAutoFlush() {
   if (autoFlushTimer) clearTimeout(autoFlushTimer)
   autoFlushTimer = setTimeout(() => {
     autoFlushTimer = null
     flushPendingChanges()
-  }, 3000)
+  }, 500)
+}
+
+// Also flush when tab loses focus or user navigates away
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && pendingChanges.size > 0) {
+      flushPendingChanges()
+    }
+  })
 }
 
 export function queueChange(key: string, value: string | null) {
