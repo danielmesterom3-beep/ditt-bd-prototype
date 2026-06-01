@@ -360,10 +360,10 @@ function StadPanel({ stad }: { stad: Stad }) {
         >
           {jll && (
             <>
-              <KpiItem isFirst storageKey={`kpi.${stad.id}.${kwartaal}.takeup`} label={jll.takeUpLabel} value={`${(jll.takeUp / 1000).toFixed(1)}k m²`} sub={`JLL ${kwartaal}`} bron={jll.bron} />
-              <KpiItem isFirst={false} storageKey={`kpi.${stad.id}.${kwartaal}.vacancy`} label="Vacancy rate" value={`${jll.vacancyRate}%`} sub={`JLL ${kwartaal}`} bron={jll.bron} />
-              <KpiItem isFirst={false} storageKey={`kpi.${stad.id}.${kwartaal}.primerent`} label="Prime rent" value={`€${jll.primeRent}/m²`} sub="per jaar" bron={jll.bron} />
-              <KpiItem isFirst={false} storageKey={`kpi.${stad.id}.${kwartaal}.investvol`} label="Investment vol." value={`€${jll.investmentVolume}M`} sub={jll.investSub} bron={jll.bron} />
+              <KpiItem key={`kpi.${stad.id}.${kwartaal}.takeup`} isFirst storageKey={`kpi.${stad.id}.${kwartaal}.takeup`} label={jll.takeUpLabel} value={`${(jll.takeUp / 1000).toFixed(1)}k m²`} sub={`JLL ${kwartaal}`} bron={jll.bron} />
+              <KpiItem key={`kpi.${stad.id}.${kwartaal}.vacancy`} isFirst={false} storageKey={`kpi.${stad.id}.${kwartaal}.vacancy`} label="Vacancy rate" value={`${jll.vacancyRate}%`} sub={`JLL ${kwartaal}`} bron={jll.bron} />
+              <KpiItem key={`kpi.${stad.id}.${kwartaal}.primerent`} isFirst={false} storageKey={`kpi.${stad.id}.${kwartaal}.primerent`} label="Prime rent" value={`€${jll.primeRent}/m²`} sub="per jaar" bron={jll.bron} />
+              <KpiItem key={`kpi.${stad.id}.${kwartaal}.investvol`} isFirst={false} storageKey={`kpi.${stad.id}.${kwartaal}.investvol`} label="Investment vol." value={`€${jll.investmentVolume}M`} sub={jll.investSub} bron={jll.bron} />
             </>
           )}
         </div>
