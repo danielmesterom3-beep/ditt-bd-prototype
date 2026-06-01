@@ -284,6 +284,16 @@ export default function EditableText({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Multiline: re-populate when edit mode turns on (ref is newly attached to DOM)
+  useEffect(() => {
+    if (!multiline || !isEditMode) return
+    if (ref.current) {
+      const stored = localStorage.getItem(fullKey)
+      ref.current.innerHTML = stored ?? defaultValue
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode])
+
   function handleFocus(e: React.FocusEvent<HTMLElement>) {
     setFocused(true)
     e.currentTarget.style.background = 'rgba(255,127,80,0.07)'
@@ -307,6 +317,7 @@ export default function EditableText({
         localStorage.setItem(fullKey, html)
         pendingChanges.set(storageKey, html)
       }
+      scheduleAutoFlush()
     } else {
       const text = e.currentTarget.textContent?.trim() ?? ''
       if (!text) {
