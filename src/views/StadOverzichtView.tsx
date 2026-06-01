@@ -3298,6 +3298,32 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
+      {/* Aanbevolen actie — Eindhoven */}
+      {stadNaam === 'Eindhoven' && (
+        <div style={{ border: '1px solid #bfdbfe', borderRadius: 12, overflow: 'hidden', background: '#eff6ff' }}>
+          <div style={{ padding: '14px 18px', borderBottom: '1px solid #bfdbfe', background: '#dbeafe' }}>
+            <EditableText
+              storageKey="fase3.eind.aanbevolen.titel"
+              defaultValue="Aanbevolen actie: prioriteer Flight Forum & Centrum Eindhoven"
+              style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'block' }}
+            />
+            <EditableText
+              storageKey="fase3.eind.aanbevolen.sub"
+              defaultValue="Bouw eerst referentieprojecten op toegankelijke locaties — gebruik die als sleutel naar Strijp-S en High Tech Campus"
+              style={{ fontSize: 11, color: '#3b82f6', marginTop: 2, display: 'block' }}
+            />
+          </div>
+          <div style={{ padding: '14px 18px' }}>
+            <EditableText
+              storageKey="fase3.eind.aanbevolen.body"
+              defaultValue="Prioriteer Flight Forum en Centrum Eindhoven als eerste acquisitiedoelen. Samen met het Carglass-project op Science Park vormen deze de referentiebase die nodig is om toegang te krijgen tot Strijp-S en High Tech Campus — gebieden waar opdrachtgevers bewijs van track record verwachten vóórdat ze een gesprek aangaan. Zet Flight Forum en Centrum bewust in als portfolio-opbouw, niet alleen als omzetdoelstelling."
+              tag="div"
+              multiline
+              style={{ fontSize: 12, color: '#1e3a8a', lineHeight: 1.7 }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* 2 · Panden in ontwikkeling — uitklapbaar */}
       <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
