@@ -2716,13 +2716,18 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
             { label: 'Take-up 2025',          value: jll ? fmM2(jll.takeUp) : '—' },
             { label: 'Pijplijn 2026–2030',   value: jll ? fmM2(jll.pipeline2030) : '—' },
             { label: 'Ditt. doelregio (m²)', value: fmM2(mc.dittM2) },
-            { label: 'D&B-partijen actief',  value: `${mc.partijen}` },
           ].map(({ label, value }) => (
             <div key={label} style={{ background: '#f8f7f5', borderRadius: 8, padding: '10px 12px', border: '1px solid var(--c-border)' }}>
               <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 3 }}>{label}</div>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.2 }}>{value}</div>
             </div>
           ))}
+          <div style={{ background: '#f8f7f5', borderRadius: 8, padding: '10px 12px', border: '1px solid var(--c-border)' }}>
+            <div style={{ fontSize: 10, color: 'var(--c-subtle)', marginBottom: 3 }}>D&B-partijen actief</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.2 }}>
+              <EditableText storageKey={`fase1.${stadId}.marktinfo.dbpartijen`} defaultValue={`${mc.partijen}`} />
+            </div>
+          </div>
         </div>
         <div style={{ marginTop: 8, fontSize: 11, color: 'var(--c-muted)' }}>
           Concurrenten in scope: <span style={{ fontWeight: 600, color: 'var(--c-text)' }}>{mc.concurrenten}</span>
