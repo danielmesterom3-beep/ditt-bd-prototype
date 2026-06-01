@@ -236,7 +236,8 @@ function StadPanel({ stad }: { stad: Stad }) {
   // ── Aggregate marktdata ────
   const totaalVVO         = stad.gebieden.reduce((s, g) => s + g.marktdata.totaalKantoorVvo, 0)
   const opname            = stad.gebieden.reduce((s, g) => s + g.marktdata.opnameVorigeJaar, 0)
-  const aantalOntwikkeling = stad.gebieden.reduce((s, g) => s + g.pandenInOntwikkeling.length, 0)
+  const aantalOntwikkeling = stad.gebieden.reduce((s, g) =>
+    s + g.pandenInOntwikkeling.filter(p => !/afgerond|opgeleverd|in gebruik/i.test(p.verwachteOplevering)).length, 0)
 
 
   return (
@@ -1495,7 +1496,7 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
   },
   {
     id: 'fellenoord',
-    naam: 'Fellenoord',
+    naam: 'Centrum Eindhoven — Fellenoord',
     stad: 'eindhoven',
     transacties: [
       {
@@ -3288,7 +3289,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   const [openTransacties, setOpenTransacties] = useState(false)
   const [openHuurcontracten, setOpenHuurcontracten] = useState(false)
 
-  const { deleted: deletedPanden,      deleteItem: deletePand }      = useDeletedItemsFase2(`deleted_panden_fase3_${stadId}`)
+  const { deleted: deletedPanden,      deleteItem: deletePand }      = useDeletedItemsFase2(`deleted_panden_fase3_v2_${stadId}`)
   const { deleted: deletedTransacties, deleteItem: deleteTransactie } = useDeletedItemsFase2(`deleted_transacties_fase3_${stadId}`)
 
   // Panden in ontwikkeling — aggregaat uit steden-data
