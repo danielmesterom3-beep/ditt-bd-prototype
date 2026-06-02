@@ -4612,7 +4612,9 @@ export default function StadOverzichtView() {
     setHiddenPanels((prev) => {
       const next = new Set(prev)
       next.add(id)
-      localStorage.setItem('hidden_panels', JSON.stringify([...next]))
+      const json = JSON.stringify([...next])
+      localStorage.setItem('hidden_panels', json)
+      queueChange('hidden_panels', json)
       return next
     })
   }
