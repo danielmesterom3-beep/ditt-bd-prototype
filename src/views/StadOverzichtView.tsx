@@ -4264,7 +4264,12 @@ function ActieOverzichtView() {
   const { isEditMode } = useEditMode()
 
   const [drempel, setDrempel] = useState<Record<string, boolean[]>>(() =>
-    Object.fromEntries(beschikbareSteden.map((s) => [s.naam, DREMPEL_ITEMS.map(() => false)]))
+    Object.fromEntries(beschikbareSteden.map((s) => {
+      try {
+        const saved = localStorage.getItem(`drempel_checks_${s.naam}`)
+        return [s.naam, saved ? JSON.parse(saved) : DREMPEL_ITEMS.map(() => false)]
+      } catch { return [s.naam, DREMPEL_ITEMS.map(() => false)] }
+    }))
   )
   const [openDrempel, setOpenDrempel] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(beschikbareSteden.map((s) => [s.naam, false]))
@@ -4277,10 +4282,11 @@ function ActieOverzichtView() {
   })
 
   function toggleDrempel(stadNaam: string, idx: number) {
-    setDrempel((prev) => ({
-      ...prev,
-      [stadNaam]: prev[stadNaam].map((v, i) => (i === idx ? !v : v)),
-    }))
+    setDrempel((prev) => {
+      const next = { ...prev, [stadNaam]: prev[stadNaam].map((v, i) => (i === idx ? !v : v)) }
+      localStorage.setItem(`drempel_checks_${stadNaam}`, JSON.stringify(next[stadNaam]))
+      return next
+    })
   }
 
   function deleteDrempelItem(idx: number) {
