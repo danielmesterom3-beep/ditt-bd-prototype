@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigation } from './context/NavigationContext'
-import { loadRemoteEdits, SaveButton } from './components/EditableText'
+import { loadRemoteEdits, setupRealtimeEdits, SaveButton } from './components/EditableText'
 import { GebiedStatusProvider } from './context/GebiedStatusContext'
+import { CustomStedenProvider } from './context/CustomStedenContext'
 import { EditProvider, useEditMode } from './context/EditContext'
 import ViewModeSidebar from './components/ViewModeSidebar'
 import MarktDashboard from './views/MarktDashboard'
@@ -314,13 +315,16 @@ function AppContent() {
 export default function App() {
   useEffect(() => {
     loadRemoteEdits()
+    setupRealtimeEdits()
   }, [])
 
   return (
     <EditProvider>
       <GebiedStatusProvider>
-        <AppContent />
-        <SaveButton />
+        <CustomStedenProvider>
+          <AppContent />
+          <SaveButton />
+        </CustomStedenProvider>
       </GebiedStatusProvider>
     </EditProvider>
   )

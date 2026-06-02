@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import steden from '../data/steden'
 import { useNavigation } from '../context/NavigationContext'
+import { useAllSteden } from '../context/CustomStedenContext'
 import type { Stad } from '../data/types'
 import BronTooltip from '../components/BronTooltip'
 import EditableText from '../components/EditableText'
@@ -171,6 +171,7 @@ function StadCard({
 }
 
 export default function DashboardView() {
+  const { allSteden: steden } = useAllSteden()
   const allePartijen = steden.flatMap((s) => s.gebieden.flatMap((g) => g.partijen))
   const totaalKPIs = {
     totaal: allePartijen.length,

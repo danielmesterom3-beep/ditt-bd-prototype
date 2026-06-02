@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import steden from '../data/steden'
+import { useAllSteden } from '../context/CustomStedenContext'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
 import type { GebiedStatus } from '../data/types'
 
@@ -166,8 +166,21 @@ function CodeBlock({ code }: { code: string }) {
 // ── BeheerView ────────────────────────────────────────────────────────────────
 
 export default function BeheerView() {
+  const { allSteden: steden, customSteden, addStad, removeStad } = useAllSteden()
   const { getStatus, setStatus, overrides } = useGebiedStatus()
   const [templateOpen, setTemplateOpen] = useState(false)
+  const [stadAanmakenOpen, setStadAanmakenOpen] = useState(false)
+  const [nieuwStadNaam, setNieuwStadNaam] = useState('')
+  const [bezig, setBezig] = useState(false)
+
+  async function handleStadAanmaken() {
+    const naam = nieuwStadNaam.trim()
+    if (!naam) return
+    setBezig(true)
+    await addStad(naam)
+    setNieuwStadNaam('')
+    setBezig(false)
+  }
 
   const shareUrl = `${window.location.origin}${window.location.pathname}#beheer`
 
@@ -455,6 +468,136 @@ export default function BeheerView() {
                   )
                 })}
               </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Sectie 3: Stad aanmaken ── */}
+      <div>
+        <button
+          onClick={() => setStadAanmakenOpen((o) => !o)}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '14px 18px',
+            background: 'var(--c-surface)',
+            border: '1px solid var(--c-border)',
+            borderRadius: stadAanmakenOpen ? '12px 12px 0 0' : 12,
+            cursor: 'pointer',
+          }}
+        >
+          <div style={{ textAlign: 'left' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)' }}>
+              Stad aanmaken
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
+              Voeg een nieuwe stad toe met een leeg template — zichtbaar voor alle gebruikers
+            </div>
+          </div>
+          <span style={{ fontSize: 16, color: 'var(--c-subtle)', transform: stadAanmakenOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
+            ↓
+          </span>
+        </button>
+
+        {stadAanmakenOpen && (
+          <div
+            style={{
+              border: '1px solid var(--c-border)',
+              borderTop: 'none',
+              borderRadius: '0 0 12px 12px',
+              padding: '20px 18px',
+              background: 'var(--c-surface)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
+            {/* Invoer nieuwe stad */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                type="text"
+                value={nieuwStadNaam}
+                onChange={(e) => setNieuwStadNaam(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleStadAanmaken() }}
+                placeholder="Stadsnaam, bijv. Utrecht"
+                style={{
+                  flex: 1,
+                  padding: '9px 12px',
+                  borderRadius: 8,
+                  border: '1px solid var(--c-border)',
+                  background: '#faf9f7',
+                  fontSize: 13,
+                  color: 'var(--c-text)',
+                  outline: 'none',
+                }}
+              />
+              <button
+                onClick={handleStadAanmaken}
+                disabled={!nieuwStadNaam.trim() || bezig}
+                style={{
+                  padding: '9px 18px',
+                  borderRadius: 8,
+                  background: nieuwStadNaam.trim() ? '#ff7f50' : '#e5e7eb',
+                  color: nieuwStadNaam.trim() ? '#fff' : '#9ca3af',
+                  border: 'none',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: nieuwStadNaam.trim() ? 'pointer' : 'default',
+                  transition: 'background 0.15s',
+                }}
+              >
+                {bezig ? 'Aanmaken...' : 'Aanmaken'}
+              </button>
+            </div>
+
+            {/* Lijst custom steden */}
+            {customSteden.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)' }}>
+                  Aangemaakte steden
+                </div>
+                {customSteden.map((stad) => (
+                  <div
+                    key={stad.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '10px 14px',
+                      background: '#faf9f7',
+                      border: '1px solid var(--c-border)',
+                      borderRadius: 8,
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-text)' }}>{stad.naam}</div>
+                      <div style={{ fontSize: 11, color: 'var(--c-subtle)', fontFamily: 'ui-monospace, monospace' }}>{stad.id} · {stad.gebieden.length} gebied{stad.gebieden.length !== 1 ? 'en' : ''}</div>
+                    </div>
+                    <button
+                      onClick={() => removeStad(stad.id)}
+                      style={{
+                        fontSize: 11,
+                        padding: '3px 10px',
+                        borderRadius: 20,
+                        background: 'transparent',
+                        color: '#dc2626',
+                        border: '1px solid #fca5a5',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Verwijderen
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.6 }}>
+              Nieuwe stad start met status <strong>Under construction</strong> en één leeg gebied "Centrum [Stadsnaam]".
+              Bewerk daarna de inhoud via bewerkingsmodus.
             </div>
           </div>
         )}

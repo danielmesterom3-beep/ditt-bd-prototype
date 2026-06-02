@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { supabase } from '../lib/supabase'
 import type { GebiedStatus } from '../data/types'
 
 const STORAGE_KEY = 'ditt-gebied-status-overrides'
@@ -13,7 +14,7 @@ interface GebiedStatusContextValue {
 
 const GebiedStatusContext = createContext<GebiedStatusContextValue | null>(null)
 
-function loadOverrides(): Overrides {
+function loadLocal(): Overrides {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')
   } catch {
@@ -21,8 +22,44 @@ function loadOverrides(): Overrides {
   }
 }
 
+async function fetchRemoteOverrides(): Promise<Overrides> {
+  try {
+    const { data } = await supabase
+      .from('edits')
+      .select('value')
+      .eq('key', STORAGE_KEY)
+      .maybeSingle()
+    if (data?.value) return JSON.parse(data.value) as Overrides
+  } catch { /* ignore */ }
+  return {}
+}
+
 export function GebiedStatusProvider({ children }: { children: ReactNode }) {
-  const [overrides, setOverrides] = useState<Overrides>(loadOverrides)
+  const [overrides, setOverrides] = useState<Overrides>(loadLocal)
+
+  useEffect(() => {
+    fetchRemoteOverrides().then((remote) => {
+      if (Object.keys(remote).length > 0) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(remote))
+        setOverrides(remote)
+      }
+    })
+
+    const channel = supabase
+      .channel('gebied-status-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'edits' }, (payload) => {
+        const key = (payload.new as Record<string, string>)?.key ?? (payload.old as Record<string, string>)?.key
+        if (key === STORAGE_KEY) {
+          fetchRemoteOverrides().then((remote) => {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(remote))
+            setOverrides(remote)
+          })
+        }
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [])
 
   function getStatus(gebiedId: string, defaultStatus: GebiedStatus = 'live'): GebiedStatus {
     return overrides[gebiedId] ?? defaultStatus
@@ -32,6 +69,11 @@ export function GebiedStatusProvider({ children }: { children: ReactNode }) {
     setOverrides((prev) => {
       const next = { ...prev, [gebiedId]: status }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      void supabase.from('edits').upsert({
+        key: STORAGE_KEY,
+        value: JSON.stringify(next),
+        updated_at: new Date().toISOString(),
+      })
       return next
     })
   }

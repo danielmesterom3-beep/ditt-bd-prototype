@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Compass, Users, Target, Handshake } from 'lucide-react'
-import steden from '../data/steden'
+import { useAllSteden } from '../context/CustomStedenContext'
 import type { Stad, Gebied, GebiedStatus, WarmContact } from '../data/types'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
 import BronTooltip from '../components/BronTooltip'
@@ -3282,6 +3282,7 @@ const FASE_BADGE: Record<string, OntwikkelingFaseBadge> = {
 }
 
 function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
+  const { allSteden: steden } = useAllSteden()
   const stadId = stadNaam.toLowerCase() as 'eindhoven' | 'rotterdam'
   const colors = STAD_COLORS[stadId]
 
@@ -3878,6 +3879,7 @@ function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
 // ── FASE 2: Netwerk opbouwen ──────────────────────────────────────────────────
 
 function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
+  const { allSteden: steden } = useAllSteden()
   const stadId = stadNaam.toLowerCase() as 'eindhoven' | 'rotterdam'
   const [product,    setProduct]    = useState<F2Product>('design-and-build')
   const [partijType, setPartijType] = useState<F2Partij>('makelaar')
@@ -4536,6 +4538,7 @@ function ActieOverzichtView() {
 // ── StadOverzichtView ─────────────────────────────────────────────────────────
 
 export default function StadOverzichtView() {
+  const { allSteden } = useAllSteden()
   const { viewMode } = useViewMode()
   const [partijOverrides, setPartijOverrides] = useState<Record<string, number>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, s.partijen]))
@@ -4565,7 +4568,7 @@ export default function StadOverzichtView() {
 
       {/* Stad panels */}
       <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        {steden.map((stad) => (
+        {allSteden.map((stad) => (
           <StadPanel key={stad.id} stad={stad} />
         ))}
       </div>

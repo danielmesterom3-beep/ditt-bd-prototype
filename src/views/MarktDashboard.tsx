@@ -3,7 +3,7 @@ import { useNavigation } from '../context/NavigationContext'
 import { useFilters } from '../context/FilterContext'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
 import { useDataOverride } from '../context/DataOverrideContext'
-import steden from '../data/steden'
+import { useAllSteden } from '../context/CustomStedenContext'
 import type { Gebied, LocatieKlasse, GebiedStatus } from '../data/types'
 import BronTooltip from '../components/BronTooltip'
 import InlineEdit from '../components/InlineEdit'
@@ -311,6 +311,7 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
 // ── MarktDashboard ────────────────────────────────────────────────────────────
 
 export default function MarktDashboard() {
+  const { allSteden: steden } = useAllSteden()
   const { geselecteerdeStad, setStad } = useNavigation()
   const { filters } = useFilters()
 

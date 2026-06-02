@@ -82,7 +82,7 @@ export function getEditableText(storageKey: string, defaultValue: string): strin
 }
 
 // Load all edits from Supabase into localStorage on app start.
-// Only write keys that don't already exist locally — preserves unsaved local edits.
+// Always overwrites local values so multi-user edits are synced on page load.
 // Writes both prefixed (for EditableText) and raw (for hooks like useDeletedItems, useLocalContacts).
 let loaded = false
 export async function loadRemoteEdits() {
@@ -92,19 +92,36 @@ export async function loadRemoteEdits() {
     const { data } = await supabase.from('edits').select('key, value')
     if (data) {
       data.forEach(({ key, value }) => {
-        const localKey = STORAGE_PREFIX + key
-        if (!localStorage.getItem(localKey)) {
-          localStorage.setItem(localKey, value)
-        }
-        // Also write raw key for hooks that read localStorage without prefix
-        if (!localStorage.getItem(key)) {
-          localStorage.setItem(key, value)
-        }
+        localStorage.setItem(STORAGE_PREFIX + key, value)
+        localStorage.setItem(key, value)
       })
     }
   } catch {
     // Supabase not available, fall back to localStorage only
   }
+}
+
+// Realtime: push remote edits to localStorage + notify mounted EditableText components.
+let realtimeSetup = false
+export function setupRealtimeEdits() {
+  if (realtimeSetup) return
+  realtimeSetup = true
+  supabase
+    .channel('edits-realtime')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'edits' }, (payload) => {
+      const key = (payload.new as Record<string, string>)?.key ?? (payload.old as Record<string, string>)?.key
+      if (!key) return
+      const value: string | null = (payload.new as Record<string, string>)?.value ?? null
+      if (value !== null) {
+        localStorage.setItem(STORAGE_PREFIX + key, value)
+        localStorage.setItem(key, value)
+      } else {
+        localStorage.removeItem(STORAGE_PREFIX + key)
+        localStorage.removeItem(key)
+      }
+      window.dispatchEvent(new CustomEvent('ditt-remote-edit', { detail: { key, value } }))
+    })
+    .subscribe()
 }
 
 // ── Rich text toolbar ─────────────────────────────────────────────────────────
@@ -283,6 +300,23 @@ export default function EditableText({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Listen for remote edits pushed by the realtime subscription
+  useEffect(() => {
+    function handleRemoteEdit(e: Event) {
+      const { key, value } = (e as CustomEvent<{ key: string; value: string | null }>).detail
+      if (key !== storageKey) return
+      if (!ref.current || focused) return
+      const content = value ?? defaultValue
+      if (multiline) {
+        ref.current.innerHTML = content
+      } else {
+        ref.current.textContent = content
+      }
+    }
+    window.addEventListener('ditt-remote-edit', handleRemoteEdit)
+    return () => window.removeEventListener('ditt-remote-edit', handleRemoteEdit)
+  }, [storageKey, defaultValue, multiline, focused])
 
   // Multiline: re-populate when edit mode turns on (ref is newly attached to DOM)
   useEffect(() => {
