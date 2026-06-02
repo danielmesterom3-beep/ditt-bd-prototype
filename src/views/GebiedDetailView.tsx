@@ -1766,11 +1766,13 @@ export default function GebiedDetailView() {
   const { items: addedTrends,    addItem: addTrend }   = useAddedItems<Trend>(`added_trends_${gebied.id}`)
   const { items: addedContacten, addItem: addContact } = useAddedItems<WarmContact>(`added_wc_${gebied.id}`)
   const { items: addedLeads,     addItem: addLead }    = useAddedItems<KansrijkeLead>(`added_leads_${gebied.id}`)
-  const alleLeads = [...(gebied.kansrijkeLeads ?? []), ...addedLeads]
+  const { items: addedOg,        addItem: addOg }      = useAddedItems<InteressanteOpdrachtgever>(`added_og_${gebied.id}`)
+  const { items: addedPanden,    addItem: addPand }    = useAddedItems<PandInOntwikkeling>(`added_panden_${gebied.id}`)
+  const alleLeads  = [...(gebied.kansrijkeLeads ?? []), ...addedLeads]
 
-  const zichtbarePanden    = gebied.pandenInOntwikkeling.filter((p) => !deletedPanden.has(p.id))
+  const zichtbarePanden    = [...gebied.pandenInOntwikkeling, ...addedPanden].filter((p) => !deletedPanden.has(p.id))
   const zichtbareTrends    = [...gebied.trends, ...addedTrends].filter((t) => !deletedTrends.has(t.id))
-  const zichtbareOg        = gebied.interessanteOpdrachtgevers.filter((o) => !deletedOg.has(o.id))
+  const zichtbareOg        = [...gebied.interessanteOpdrachtgevers, ...addedOg].filter((o) => !deletedOg.has(o.id))
   const zichtbareContacten = [...gebied.warmeContacten, ...addedContacten].filter((c) => !deletedContacten.has(c.id))
 
   const heeftPanden    = zichtbarePanden.length > 0
@@ -1896,7 +1898,7 @@ export default function GebiedDetailView() {
       {viewMode === 'informatie' && (
         <>
           {/* Kansrijke leads / Aflopende contracten */}
-          {(alleLeads.length > 0 || isEditMode) && effectiveStatus !== 'under-construction' && (
+          {(alleLeads.length > 0 || isEditMode) && (effectiveStatus !== 'under-construction' || isEditMode) && (
             <Section title={`Aflopende contracten — ${alleLeads.length} pand${alleLeads.length !== 1 ? 'en' : ''}`}>
               <KansrijkeLeadsSection leads={alleLeads} stad={geselecteerdeStad?.naam} />
               {isEditMode && (
@@ -1925,12 +1927,30 @@ export default function GebiedDetailView() {
           </Section>
 
           {/* Panden in ontwikkeling */}
-          {heeftPanden && (
+          {(heeftPanden || isEditMode) && (
             <Section title={`Panden in ontwikkeling met kantoorfunctie — ${zichtbarePanden.length} object${zichtbarePanden.length !== 1 ? 'en' : ''}`}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
                 {zichtbarePanden.map((pand) => (
                   <PandCard key={pand.id} pand={pand} onDelete={() => deletePand(pand.id)} />
                 ))}
+                {isEditMode && (
+                  <button
+                    onClick={() => addPand({
+                      id: `pand-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                      naam: 'Pandnaam...', adres: 'Adres...', oppervlakte: 0,
+                      fase: 'planfase', verwachteOplevering: 'Q4 2026',
+                      toelichting: 'Toelichting...',
+                    })}
+                    style={{
+                      minHeight: 120, borderRadius: 12, border: '1px dashed var(--c-border)',
+                      background: '#faf9f7', color: 'var(--c-muted)',
+                      fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >
+                    + Pand toevoegen
+                  </button>
+                )}
               </div>
             </Section>
           )}
@@ -1984,6 +2004,23 @@ export default function GebiedDetailView() {
                   <div style={{ padding: '20px', background: '#faf9f7', borderRadius: 10, fontSize: 12, color: 'var(--c-subtle)', textAlign: 'center', border: '1px dashed var(--c-border)' }}>
                     Geen opdrachtgevers vastgelegd
                   </div>
+                )}
+                {isEditMode && (
+                  <button
+                    onClick={() => addOg({
+                      id: `og-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                      naam: 'Bedrijfsnaam...', sector: 'Sector...',
+                      profiel: 'Profiel...', reden: 'Waarom interessant voor Ditt...',
+                      status: 'prospect',
+                    })}
+                    style={{
+                      padding: '8px 16px', borderRadius: 8, border: '1px dashed var(--c-border)',
+                      background: 'transparent', color: 'var(--c-muted)', fontSize: 12,
+                      fontWeight: 600, cursor: 'pointer', width: '100%',
+                    }}
+                  >
+                    + Opdrachtgever toevoegen
+                  </button>
                 )}
               </div>
             </Section>
