@@ -141,7 +141,8 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
         </div>
       </div>
 
-      {/* ── Marktdata grid ── */}
+      {/* ── Marktdata grid — verborgen als geen data ── */}
+      {(marktdata.totaalKantoorVvo > 0 || marktdata.huurprijsBandwidth.min > 0 || marktdata.huurprijsBandwidth.max > 0) && (
       <div className="grid grid-cols-2 gap-2">
         <div className="rounded-lg px-3 py-2.5" style={{ background: '#f8f7f5' }}>
           <div
@@ -192,6 +193,7 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
           </div>
         </div>
       </div>
+      )}
 
       {/* ── Panden in ontwikkeling ── */}
       {activePanden.length > 0 && (
