@@ -4553,14 +4553,11 @@ function ActieOverzichtView() {
 // ── StadOverzichtView ─────────────────────────────────────────────────────────
 
 export default function StadOverzichtView() {
-  const { allSteden } = useAllSteden()
+  const { allSteden, customSteden } = useAllSteden()
   const { viewMode } = useViewMode()
-  const [selectedStadId, setSelectedStadId] = useState<string | null>(null)
   const [partijOverrides, setPartijOverrides] = useState<Record<string, number>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, s.partijen]))
   )
-
-  const geselecteerdStad = allSteden.find(s => s.id === (selectedStadId ?? allSteden[0]?.id)) ?? allSteden[0]
 
   if (viewMode === 'actie') return <ActieOverzichtView />
 
@@ -4584,31 +4581,38 @@ export default function StadOverzichtView() {
         </p>
       </div>
 
-      {/* Stad tabs + panel */}
-      <div>
-        <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
-          {allSteden.map((stad) => {
-            const active = stad.id === (geselecteerdStad?.id)
-            return (
-              <button
-                key={stad.id}
-                onClick={() => setSelectedStadId(stad.id)}
-                style={{
-                  padding: '6px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-                  cursor: 'pointer', transition: 'all 0.15s',
-                  background: active ? 'var(--c-coral)' : 'var(--c-surface)',
-                  color: active ? '#fff' : 'var(--c-muted)',
-                  border: `1px solid ${active ? 'var(--c-coral)' : 'var(--c-border)'}`,
-                  boxShadow: active ? '0 2px 8px rgba(255,127,80,0.25)' : 'none',
-                }}
-              >
-                {stad.naam}
-              </button>
-            )
-          })}
-        </div>
-        {geselecteerdStad && <StadPanel stad={geselecteerdStad} />}
+      {/* Eindhoven + Rotterdam altijd naast elkaar */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        {allSteden.filter(s => !customSteden.find(c => c.id === s.id)).map((stad) => (
+          <StadPanel key={stad.id} stad={stad} />
+        ))}
       </div>
+
+      {/* Custom steden per rij van 2, met balanskolom als oneven */}
+      {customSteden.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+          {customSteden.map((stad) => (
+            <StadPanel key={stad.id} stad={stad} />
+          ))}
+          {customSteden.length % 2 !== 0 && (
+            <div
+              style={{
+                border: '1px dashed var(--c-border)',
+                borderRadius: 16,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: 220,
+                opacity: 0.45,
+              }}
+            >
+              <span style={{ fontSize: 12, color: 'var(--c-subtle)', letterSpacing: '0.04em' }}>
+                Volgende stad
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Testvalidatie */}
       <TestvalidatiePanel />
