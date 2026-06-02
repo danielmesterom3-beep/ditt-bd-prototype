@@ -4277,9 +4277,12 @@ function ActieOverzichtView() {
   const [actieveFase, setActieveFase] = useState<Record<string, number>>(() =>
     Object.fromEntries(beschikbareSteden.map((s) => [s.naam, 1]))
   )
-  const [deletedDrempel, setDeletedDrempel] = useState<Set<number>>(() => {
-    try { return new Set(JSON.parse(localStorage.getItem('deleted_drempel') ?? '[]')) } catch { return new Set() }
-  })
+  const [deletedDrempel, setDeletedDrempel] = useState<Record<string, Set<number>>>(() =>
+    Object.fromEntries(beschikbareSteden.map((s) => {
+      try { return [s.naam, new Set<number>(JSON.parse(localStorage.getItem(`deleted_drempel_${s.naam}`) ?? '[]'))] }
+      catch { return [s.naam, new Set<number>()] }
+    }))
+  )
 
   function toggleDrempel(stadNaam: string, idx: number) {
     setDrempel((prev) => {
@@ -4289,14 +4292,12 @@ function ActieOverzichtView() {
     })
   }
 
-  function deleteDrempelItem(idx: number) {
+  function deleteDrempelItem(stadNaam: string, idx: number) {
     setDeletedDrempel((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev[stadNaam])
       next.add(idx)
-      const json = JSON.stringify([...next])
-      localStorage.setItem('deleted_drempel', json)
-      queueChange('deleted_drempel', json)
-      return next
+      localStorage.setItem(`deleted_drempel_${stadNaam}`, JSON.stringify([...next]))
+      return { ...prev, [stadNaam]: next }
     })
   }
 
@@ -4522,7 +4523,8 @@ function ActieOverzichtView() {
 
               {/* ── Drempelcriteria ── */}
               {(() => {
-                const visibleItems = DREMPEL_ITEMS.map((item, idx) => ({ item, idx })).filter(({ idx }) => !deletedDrempel.has(idx))
+                const stadDeleted = deletedDrempel[stad.naam] ?? new Set<number>()
+                const visibleItems = DREMPEL_ITEMS.map((item, idx) => ({ item, idx })).filter(({ idx }) => !stadDeleted.has(idx))
                 const aantalKlaarVisible = visibleItems.filter(({ idx }) => drempelLijst[idx]).length
                 return (
                   <div style={{ border: '1px solid var(--c-border)', borderRadius: 8, overflow: 'hidden' }}>
@@ -4549,7 +4551,7 @@ function ActieOverzichtView() {
                                 <EditableText storageKey={`drempel.item.${idx}`} defaultValue={item} />
                               </span>
                               {isEditMode && (
-                                <button onClick={() => deleteDrempelItem(idx)} style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#d1d5db', padding: '0 2px' }} title="Verwijder">✕</button>
+                                <button onClick={() => deleteDrempelItem(stad.naam, idx)} style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#d1d5db', padding: '0 2px' }} title="Verwijder">✕</button>
                               )}
                             </div>
                           )
