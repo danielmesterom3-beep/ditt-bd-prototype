@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; max-width: 800px; margin: 40px auto; color: #1a1a1a; line-height: 1.6; }
+  h1 { font-size: 20pt; color: #ff7f50; border-bottom: 2px solid #ff7f50; padding-bottom: 8px; }
+  h2 { font-size: 13pt; color: #1a1a1a; margin-top: 28px; border-left: 4px solid #ff7f50; padding-left: 10px; }
+  .meta { color: #666; font-size: 10pt; margin-bottom: 24px; }
+  .box { background: #fff8f5; border: 1px solid #ffd4c2; border-radius: 6px; padding: 14px 18px; margin: 12px 0; }
+  .box.groen { background: #f0fdf4; border-color: #86efac; }
+  .box.grijs { background: #f8f9fa; border-color: #dee2e6; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 10.5pt; }
+  td, th { border: 1px solid #dee2e6; padding: 7px 12px; }
+  th { background: #f1f5f9; font-weight: 600; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 3px; font-family: Consolas, monospace; font-size: 10pt; }
+  .stap { display: flex; gap: 12px; margin: 8px 0; }
+  .stap .nr { background: #ff7f50; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10pt; flex-shrink: 0; margin-top: 1px; }
+  ul { margin: 6px 0; padding-left: 20px; }
+  li { margin: 4px 0; }
+  .belangrijk { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 6px; padding: 10px 14px; margin: 10px 0; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<h1>Overdrachtshandleiding — Ditt. BD Dashboard</h1>
+
+<div class="meta">
+  Gemaakt door: Daniel Mesterom (stagiair BD, 2025–2026)<br>
+  Overgedragen aan: <strong>[naam invullen]</strong><br>
+  Datum: <strong>[datum invullen]</strong>
+</div>
+
+<h2>Wat is dit dashboard?</h2>
+
+<div class="box">
+  Dit is een intern overzicht voor het Business Development-team van Ditt. Officemakers. Je kunt er in zien welke gebieden in Rotterdam en Eindhoven interessant zijn, wie de warme contacten zijn, welke huurcontracten aflopen en wat de markttrends zijn. Alles wat je aanpast, ziet een collega meteen — live.
+</div>
+
+<h2>Hoe kom je erbij?</h2>
+
+<table>
+  <tr><th>Wat</th><th>Adres / info</th></tr>
+  <tr><td>Het dashboard zelf</td><td>https://ditt-bd-prototype.vercel.app</td></tr>
+  <tr><td>Code (voor aanpassingen)</td><td>https://github.com/danielmesterom3-beep/ditt-bd-prototype</td></tr>
+  <tr><td>Hosting (Vercel)</td><td>vercel.com — inloggen met GitHub-account van Daniel</td></tr>
+  <tr><td>Database (Supabase)</td><td>supabase.com — project: [projectnaam invullen]</td></tr>
+  <tr><td>Nieuws-automatisering</td><td>make.com — scenario: Gmail → Dashboard</td></tr>
+</table>
+
+<h2>Dagelijks gebruik — tekst aanpassen</h2>
+
+<p>Het dashboard heeft een bewerkingsmodus. Zo werkt het:</p>
+
+<div class="stap"><div class="nr">1</div><div>Open het dashboard op https://ditt-bd-prototype.vercel.app</div></div>
+<div class="stap"><div class="nr">2</div><div>Klik rechtsboven op de knop <strong>"Vergrendeld"</strong></div></div>
+<div class="stap"><div class="nr">3</div><div>Vul het wachtwoord in: <strong>[PIN invullen]</strong></div></div>
+<div class="stap"><div class="nr">4</div><div>De knop wordt groen en zegt <strong>"Bewerken aan"</strong> — je kunt nu alles aanpassen</div></div>
+<div class="stap"><div class="nr">5</div><div>Klik op een tekst om hem te bewerken. Klik erbuiten als je klaar bent.</div></div>
+<div class="stap"><div class="nr">6</div><div>Klik op de oranje knop rechtsonder: <strong>"Aanpassingen opslaan"</strong></div></div>
+
+<div class="belangrijk">Vergeet niet op "Opslaan" te klikken! Anders verdwijnen je aanpassingen.</div>
+
+<h2>Dingen toevoegen en verwijderen</h2>
+
+<p>In bewerkingsmodus verschijnen overal + knoppen en × knoppen:</p>
+
+<table>
+  <tr><th>Wat</th><th>Hoe</th></tr>
+  <tr><td>Trend toevoegen</td><td>Ga naar een gebied → Informatie-tab → klik "+ Positief", "+ Neutraal" of "+ Negatief"</td></tr>
+  <tr><td>Warm contact toevoegen</td><td>Ga naar een gebied → Actie-tab → klik "+ Warm contact toevoegen"</td></tr>
+  <tr><td>Aflopend huurcontract toevoegen</td><td>Ga naar een gebied → Informatie-tab → klik "+ Aflopend contract toevoegen"</td></tr>
+  <tr><td>Pand toevoegen</td><td>Ga naar een gebied → Informatie-tab → klik "+ Pand toevoegen"</td></tr>
+  <tr><td>Opdrachtgever toevoegen</td><td>Ga naar een gebied → Informatie-tab → klik "+ Opdrachtgever toevoegen"</td></tr>
+  <tr><td>Iets verwijderen</td><td>In bewerkingsmodus: klik op het kleine × dat verschijnt op kaarten</td></tr>
+  <tr><td>Laatste wijziging terugdraaien</td><td>Klik op "↩ Ongedaan" in de header (verschijnt automatisch)</td></tr>
+</table>
+
+<h2>Een nieuwe stad toevoegen</h2>
+
+<div class="stap"><div class="nr">1</div><div>Klik rechtsboven op <strong>"Beheer"</strong></div></div>
+<div class="stap"><div class="nr">2</div><div>Klik op <strong>"Stad aanmaken"</strong> om het formulier te openen</div></div>
+<div class="stap"><div class="nr">3</div><div>Typ de naam van de stad en klik op <strong>"Aanmaken"</strong></div></div>
+<div class="stap"><div class="nr">4</div><div>De stad verschijnt meteen in het dashboard. Vul de gebiedsnamen en inhoud in via bewerkingsmodus.</div></div>
+
+<h2>Een stad verwijderen</h2>
+
+<p>Ga naar <strong>"Beheer"</strong> → onder "Aangemaakte steden" staat een rode <strong>"Verwijderen"</strong> knop. Rotterdam en Eindhoven kunnen niet verwijderd worden.</p>
+
+<h2>Nieuws automatisch doorsturen</h2>
+
+<p>Relevante nieuwsberichten komen automatisch binnen via Make.com. Stuur een e-mail door naar het Make.com-adres en het verschijnt in de Nieuws-tab. Als dat stopt met werken: inloggen op make.com en het scenario heractiveren.</p>
+
+<h2>Wat als er iets stukgaat?</h2>
+
+<div class="box grijs">
+  <strong>Dashboard laadt niet:</strong> Controleer of Vercel nog actief is op vercel.com.<br><br>
+  <strong>Aanpassingen worden niet opgeslagen:</strong> Controleer of Supabase nog actief is op supabase.com. Free tier gaat na 1 week inactiviteit in slaapstand — klik op "Restore project".<br><br>
+  <strong>Nieuws komt niet binnen:</strong> Controleer het scenario op make.com — heractiveer indien nodig.<br><br>
+  <strong>Iets in de code aanpassen:</strong> Zie het hoofdstuk hieronder.
+</div>
+
+<h2>Code aanpassen (voor als het echt nodig is)</h2>
+
+<p>Je hebt hiervoor nodig: een laptop met Node.js, een GitHub-account, en Claude Code (claude.ai/code — eigen abonnement).</p>
+
+<div class="stap"><div class="nr">1</div><div>Installeer Node.js via nodejs.org</div></div>
+<div class="stap"><div class="nr">2</div><div>Maak een GitHub-account en vraag toegang tot de repo</div></div>
+<div class="stap"><div class="nr">3</div><div>Download de code: open Terminal en typ <code>git clone https://github.com/danielmesterom3-beep/ditt-bd-prototype</code></div></div>
+<div class="stap"><div class="nr">4</div><div>Ga naar de map: <code>cd ditt-bd-prototype</code> en installeer: <code>npm install</code></div></div>
+<div class="stap"><div class="nr">5</div><div>Start Claude Code: typ <code>claude</code> in de projectmap en beschrijf wat je wilt aanpassen in gewone taal</div></div>
+<div class="stap"><div class="nr">6</div><div>Als alles werkt: <code>npm run build</code> (controleren) → <code>git push</code> → Vercel deployt automatisch</div></div>
+
+<h2>Technische achtergrond (kort)</h2>
+
+<table>
+  <tr><th>Onderdeel</th><th>Wat het doet</th></tr>
+  <tr><td>React + TypeScript</td><td>De code van het dashboard zelf</td></tr>
+  <tr><td>Vercel</td><td>Maakt het dashboard online beschikbaar</td></tr>
+  <tr><td>Supabase</td><td>Slaat alle bewerkingen op en synchroniseert live</td></tr>
+  <tr><td>Make.com</td><td>Stuurt nieuwsberichten automatisch door</td></tr>
+  <tr><td>GitHub</td><td>Bewaart de code en triggert automatisch een nieuwe versie op Vercel</td></tr>
+</table>
+
+<div class="box groen" style="margin-top: 32px;">
+  <strong>Samenvatting in één zin:</strong> Voor dagelijks gebruik heb je alleen het dashboard-adres en het wachtwoord nodig. Voor structurele aanpassingen heb je Claude Code en GitHub nodig.
+</div>
+
+</body>
+</html>
