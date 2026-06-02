@@ -2576,6 +2576,32 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
   )
 }
 
+// ── PanelWrapper — verberg paneel met × knop ──────────────────────────────────
+
+function PanelWrapper({ hidden, onHide, editMode, children }: { hidden: boolean; onHide: () => void; editMode: boolean; children: React.ReactNode }) {
+  if (hidden) return null
+  return (
+    <div style={{ position: 'relative' }}>
+      {editMode && (
+        <button
+          onClick={onHide}
+          title="Verberg dit paneel"
+          style={{
+            position: 'absolute', top: 10, right: 10, zIndex: 10,
+            width: 22, height: 22, borderRadius: 4,
+            background: 'none', border: '1px solid #e2e8f0',
+            color: '#9ca3af', cursor: 'pointer', fontSize: 13,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fca5a5' }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.borderColor = '#e2e8f0' }}
+        >×</button>
+      )}
+      {children}
+    </div>
+  )
+}
+
 // ── ActieOverzichtView ────────────────────────────────────────────────────────
 
 
@@ -4575,9 +4601,21 @@ function ActieOverzichtView() {
 export default function StadOverzichtView() {
   const { allSteden, customSteden, removeStad } = useAllSteden()
   const { viewMode } = useViewMode()
+  const { isEditMode } = useEditMode()
   const [partijOverrides, setPartijOverrides] = useState<Record<string, number>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, s.partijen]))
   )
+  const [hiddenPanels, setHiddenPanels] = useState<Set<string>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('hidden_panels') ?? '[]')) } catch { return new Set() }
+  })
+  function hidePanel(id: string) {
+    setHiddenPanels((prev) => {
+      const next = new Set(prev)
+      next.add(id)
+      localStorage.setItem('hidden_panels', JSON.stringify([...next]))
+      return next
+    })
+  }
 
   if (viewMode === 'actie') return <ActieOverzichtView />
 
@@ -4635,22 +4673,22 @@ export default function StadOverzichtView() {
       )}
 
       {/* Testvalidatie */}
-      <TestvalidatiePanel />
+      <PanelWrapper hidden={hiddenPanels.has('testvalidatie')} onHide={() => hidePanel('testvalidatie')} editMode={isEditMode}><TestvalidatiePanel /></PanelWrapper>
 
       {/* Omgevingskenmerken Eindhoven */}
-      <OmgevingskenmerkenPanel />
+      <PanelWrapper hidden={hiddenPanels.has('omgeving-eindhoven')} onHide={() => hidePanel('omgeving-eindhoven')} editMode={isEditMode}><OmgevingskenmerkenPanel /></PanelWrapper>
 
       {/* Omgevingskenmerken Rotterdam */}
-      <RotterdamOmgevingskenmerkenPanel />
+      <PanelWrapper hidden={hiddenPanels.has('omgeving-rotterdam')} onHide={() => hidePanel('omgeving-rotterdam')} editMode={isEditMode}><RotterdamOmgevingskenmerkenPanel /></PanelWrapper>
 
       {/* Rotterdam kantorenstrategie MRDH */}
-      <RotterdamKantorenstrategiePanel />
+      <PanelWrapper hidden={hiddenPanels.has('strategie-rotterdam')} onHide={() => hidePanel('strategie-rotterdam')} editMode={isEditMode}><RotterdamKantorenstrategiePanel /></PanelWrapper>
 
       {/* Rotterdam leegstand per pand */}
-      <RotterdamLeegstandPanel />
+      <PanelWrapper hidden={hiddenPanels.has('leegstand-rotterdam')} onHide={() => hidePanel('leegstand-rotterdam')} editMode={isEditMode}><RotterdamLeegstandPanel /></PanelWrapper>
 
       {/* Recente transacties */}
-      <RecenteTransactiesPanel />
+      <PanelWrapper hidden={hiddenPanels.has('recente-transacties')} onHide={() => hidePanel('recente-transacties')} editMode={isEditMode}><RecenteTransactiesPanel /></PanelWrapper>
 
       {/* Live marktnieuws feed */}
       <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden' }}>
