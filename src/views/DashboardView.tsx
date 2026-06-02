@@ -7,7 +7,7 @@ import EditableText from '../components/EditableText'
 
 // ── JLL data ─────────────────────────────────────────────────────────────────
 
-const JLL_KWARTALEN = ['Q4 2025', 'Q1 2026'] as const
+const JLL_KWARTALEN = ['Q4 2025', 'Q1 2026', 'Q2 2026', 'Q3 2026', 'Q4 2026', 'Q1 2027', 'Q2 2027', 'Q3 2027', 'Q4 2027'] as const
 type JllKwartaal = typeof JLL_KWARTALEN[number]
 
 type JllRecord = {
@@ -21,14 +21,20 @@ type JllRecord = {
   bron: string
 }
 
+const BLANK: JllRecord = { takeUp: '—', takeUpSub: '', vacancy: '—', vacancySub: '', primeRent: '—', investVolume: '—', investSub: '', bron: '' }
+
 const JLL_DATA: Record<string, Record<JllKwartaal, JllRecord>> = {
   eindhoven: {
     'Q4 2025': { takeUp: '25,3k m²', takeUpSub: 'JLL Q4 2025', vacancy: '6,7%', vacancySub: 'JLL Q4 2025', primeRent: '€265/m²', investVolume: '€66,1M',  investSub: '2025 totaal', bron: 'JLL. (2026). Eindhoven Office Market Update Q4 2025. Jones Lang LaSalle IP, Inc.' },
     'Q1 2026': { takeUp: '3,3k m²',  takeUpSub: 'JLL Q1 2026', vacancy: '6,8%', vacancySub: 'JLL Q1 2026', primeRent: '€265/m²', investVolume: '€39,3M',  investSub: 'YTD 2026',    bron: 'JLL. (2026). Eindhoven Office Market Update Q1 2026. Jones Lang LaSalle IP, Inc.' },
+    'Q2 2026': BLANK, 'Q3 2026': BLANK, 'Q4 2026': BLANK,
+    'Q1 2027': BLANK, 'Q2 2027': BLANK, 'Q3 2027': BLANK, 'Q4 2027': BLANK,
   },
   rotterdam: {
     'Q4 2025': { takeUp: '54,5k m²', takeUpSub: 'JLL Q4 2025', vacancy: '6,1%', vacancySub: 'JLL Q4 2025', primeRent: '€360/m²', investVolume: '€276M',   investSub: '2025 totaal', bron: 'JLL. (2026). Rotterdam Office Market Update Q4 2025. Jones Lang LaSalle IP, Inc.' },
     'Q1 2026': { takeUp: '13,0k m²', takeUpSub: 'JLL Q1 2026', vacancy: '5,8%', vacancySub: 'JLL Q1 2026', primeRent: '€360/m²', investVolume: '€25,9M',  investSub: 'YTD 2026',    bron: 'JLL. (2026). Rotterdam Office Market Update Q1 2026. Jones Lang LaSalle IP, Inc.' },
+    'Q2 2026': BLANK, 'Q3 2026': BLANK, 'Q4 2026': BLANK,
+    'Q1 2027': BLANK, 'Q2 2027': BLANK, 'Q3 2027': BLANK, 'Q4 2027': BLANK,
   },
 }
 

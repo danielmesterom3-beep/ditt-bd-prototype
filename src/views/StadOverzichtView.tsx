@@ -31,7 +31,7 @@ const STAD_KANTOOR_VVO: Record<string, number> = {
 
 // ── JLL Office — hardcoded source data ───────────────────────────────────────
 
-const JLL_KWARTALEN = ['Q4 2025', 'Q1 2026'] as const
+const JLL_KWARTALEN = ['Q4 2025', 'Q1 2026', 'Q2 2026', 'Q3 2026', 'Q4 2026', 'Q1 2027', 'Q2 2027', 'Q3 2027', 'Q4 2027'] as const
 type JllKwartaal = typeof JLL_KWARTALEN[number]
 
 interface JllData {
@@ -45,6 +45,8 @@ interface JllData {
   investSub:       string
   bron:            string
 }
+
+const BLANK_JLL: JllData = { takeUp: 0, vacancyRate: 0, primeRent: 0, investmentVolume: 0, primeNIY: 0, pipeline2030: 0, takeUpLabel: 'Take-up', investSub: '', bron: '' }
 
 const JLL: Record<string, Record<JllKwartaal, JllData>> = {
   eindhoven: {
@@ -60,6 +62,8 @@ const JLL: Record<string, Record<JllKwartaal, JllData>> = {
       takeUpLabel: 'Take-up YTD', investSub: 'YTD 2026',
       bron: 'JLL. (2026). Eindhoven Office Market Update Q1 2026. Jones Lang LaSalle IP, Inc.',
     },
+    'Q2 2026': BLANK_JLL, 'Q3 2026': BLANK_JLL, 'Q4 2026': BLANK_JLL,
+    'Q1 2027': BLANK_JLL, 'Q2 2027': BLANK_JLL, 'Q3 2027': BLANK_JLL, 'Q4 2027': BLANK_JLL,
   },
   rotterdam: {
     'Q4 2025': {
@@ -74,7 +78,13 @@ const JLL: Record<string, Record<JllKwartaal, JllData>> = {
       takeUpLabel: 'Take-up YTD', investSub: 'YTD 2026',
       bron: 'JLL. (2026). Rotterdam Office Market Update Q1 2026. Jones Lang LaSalle IP, Inc.',
     },
+    'Q2 2026': BLANK_JLL, 'Q3 2026': BLANK_JLL, 'Q4 2026': BLANK_JLL,
+    'Q1 2027': BLANK_JLL, 'Q2 2027': BLANK_JLL, 'Q3 2027': BLANK_JLL, 'Q4 2027': BLANK_JLL,
   },
+}
+
+function fmJll(n: number, format: (v: number) => string): string {
+  return n > 0 ? format(n) : '—'
 }
 
 // ── Formatting ────────────────────────────────────────────────────────────────
@@ -361,10 +371,10 @@ function StadPanel({ stad }: { stad: Stad }) {
         >
           {jll && (
             <>
-              <KpiItem key={`kpi.${stad.id}.${kwartaal}.takeup`} isFirst storageKey={`kpi.${stad.id}.${kwartaal}.takeup`} label={jll.takeUpLabel} value={`${(jll.takeUp / 1000).toFixed(1)}k m²`} sub={`JLL ${kwartaal}`} bron={jll.bron} />
-              <KpiItem key={`kpi.${stad.id}.${kwartaal}.vacancy`} isFirst={false} storageKey={`kpi.${stad.id}.${kwartaal}.vacancy`} label="Vacancy rate" value={`${jll.vacancyRate}%`} sub={`JLL ${kwartaal}`} bron={jll.bron} />
-              <KpiItem key={`kpi.${stad.id}.${kwartaal}.primerent`} isFirst={false} storageKey={`kpi.${stad.id}.${kwartaal}.primerent`} label="Prime rent" value={`€${jll.primeRent}/m²`} sub="per jaar" bron={jll.bron} />
-              <KpiItem key={`kpi.${stad.id}.${kwartaal}.investvol`} isFirst={false} storageKey={`kpi.${stad.id}.${kwartaal}.investvol`} label="Investment vol." value={`€${jll.investmentVolume}M`} sub={jll.investSub} bron={jll.bron} />
+              <KpiItem key={`kpi.${stad.id}.${kwartaal}.takeup`} isFirst storageKey={`kpi.${stad.id}.${kwartaal}.takeup`} label={jll.takeUpLabel} value={fmJll(jll.takeUp, (v) => `${(v / 1000).toFixed(1)}k m²`)} sub={`JLL ${kwartaal}`} bron={jll.bron} />
+              <KpiItem key={`kpi.${stad.id}.${kwartaal}.vacancy`} isFirst={false} storageKey={`kpi.${stad.id}.${kwartaal}.vacancy`} label="Vacancy rate" value={fmJll(jll.vacancyRate, (v) => `${v}%`)} sub={`JLL ${kwartaal}`} bron={jll.bron} />
+              <KpiItem key={`kpi.${stad.id}.${kwartaal}.primerent`} isFirst={false} storageKey={`kpi.${stad.id}.${kwartaal}.primerent`} label="Prime rent" value={fmJll(jll.primeRent, (v) => `€${v}/m²`)} sub="per jaar" bron={jll.bron} />
+              <KpiItem key={`kpi.${stad.id}.${kwartaal}.investvol`} isFirst={false} storageKey={`kpi.${stad.id}.${kwartaal}.investvol`} label="Investment vol." value={fmJll(jll.investmentVolume, (v) => `€${v}M`)} sub={jll.investSub} bron={jll.bron} />
             </>
           )}
         </div>
@@ -388,10 +398,10 @@ function StadPanel({ stad }: { stad: Stad }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
                 {[
                   { label: 'Totaal kantoor VVO',       value: fmM2(STAD_KANTOOR_VVO[stad.id] ?? totaalVVO), bron: BRONNEN.vvoStad },
-                  { label: `Vacancy rate (JLL ${kwartaal})`, value: `${jll?.vacancyRate}%`,     bron: jll?.bron ?? BRONNEN.jll },
-                  { label: 'Opname 2025 (gebieden)',    value: fmM2(opname),                     bron: BRONNEN.opname },
-                  { label: `Take-up (JLL ${kwartaal})`, value: fmM2(jll?.takeUp ?? 0),           bron: jll?.bron ?? BRONNEN.jll },
-                  { label: 'Pijplijn 2026–2030 (JLL)', value: fmM2(jll?.pipeline2030 ?? 0),     bron: BRONNEN.jll },
+                  { label: `Vacancy rate (JLL ${kwartaal})`, value: jll?.vacancyRate ? `${jll.vacancyRate}%` : '—', bron: jll?.bron ?? BRONNEN.jll },
+                  { label: 'Opname 2025 (gebieden)',    value: fmM2(opname),                      bron: BRONNEN.opname },
+                  { label: `Take-up (JLL ${kwartaal})`, value: jll?.takeUp ? fmM2(jll.takeUp) : '—', bron: jll?.bron ?? BRONNEN.jll },
+                  { label: 'Pijplijn 2026–2030 (JLL)', value: jll?.pipeline2030 ? fmM2(jll.pipeline2030) : '—', bron: BRONNEN.jll },
                   { label: 'Panden in ontwikkeling',   value: `${aantalOntwikkeling}`,           bron: BRONNEN.vvo },
                 ].map(({ label, value, bron }) => (
                   <div
