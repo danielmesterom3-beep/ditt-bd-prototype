@@ -2612,7 +2612,6 @@ const DREMPEL_ITEMS = [
   'Bestaande Ditt-relatie(s) als warme ingang geactiveerd',
   'Concurrenten en hun makelaarskanalen in kaart',
   'Doelregio en sweetspot m² vastgesteld',
-  'Begroting beschikbaar voor BD-gesprek',
 ]
 
 

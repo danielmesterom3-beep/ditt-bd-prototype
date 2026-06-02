@@ -399,6 +399,7 @@ export default function EditableText({
         localStorage.removeItem(fullKey)
         pendingChanges.set(storageKey, null)
       }
+      scheduleAutoFlush()
     }
     notifyListeners()
     // Push to undo stack if value actually changed
@@ -537,8 +538,9 @@ export function SaveButton() {
     setSaving(true)
     await flushPendingChanges()
     setSaving(false)
-    setDirty(false)
     setSaved(true)
+    // Alleen dirty resetten als er geen nieuwe wijzigingen binnenkwamen tijdens opslaan
+    if (!hasPendingChanges()) setDirty(false)
     setTimeout(() => setSaved(false), 2500)
   }
 
