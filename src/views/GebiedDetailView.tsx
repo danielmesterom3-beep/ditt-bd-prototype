@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useEditMode } from '../context/EditContext'
 import { queueChange } from '../components/EditableText'
 import type {
@@ -39,6 +39,31 @@ function useDeletedItems(storageKey: string) {
     })
   }
   return { deleted, deleteItem }
+}
+
+function useAddedItems<T>(storageKey: string) {
+  const [items, setItems] = useState<T[]>(() => {
+    try { return JSON.parse(localStorage.getItem(storageKey) ?? '[]') } catch { return [] }
+  })
+  useEffect(() => {
+    function handler(e: Event) {
+      const { key, value } = (e as CustomEvent<{ key: string; value: string | null }>).detail
+      if (key !== storageKey) return
+      try { setItems(value ? JSON.parse(value) : []) } catch {}
+    }
+    window.addEventListener('ditt-remote-edit', handler)
+    return () => window.removeEventListener('ditt-remote-edit', handler)
+  }, [storageKey])
+  function addItem(item: T) {
+    setItems(prev => {
+      const next = [...prev, item]
+      const json = JSON.stringify(next)
+      localStorage.setItem(storageKey, json)
+      queueChange(storageKey, json)
+      return next
+    })
+  }
+  return { items, addItem }
 }
 
 function DeleteBtn({ onDelete }: { onDelete: () => void }) {
@@ -1725,6 +1750,7 @@ export default function GebiedDetailView() {
   const { geselecteerdGebied, geselecteerdeStad, terug } = useNavigation()
   const { getStatus } = useGebiedStatus()
   const { viewMode } = useViewMode()
+  const { isEditMode } = useEditMode()
 
   if (!geselecteerdGebied) return null
 
@@ -1737,11 +1763,15 @@ export default function GebiedDetailView() {
   const { deleted: deletedTrends,    deleteItem: deleteTrend }   = useDeletedItems('deleted_trends')
   const { deleted: deletedOg,        deleteItem: deleteOg }      = useDeletedItems('deleted_og')
   const { deleted: deletedContacten, deleteItem: deleteContact } = useDeletedItems('deleted_wc')
+  const { items: addedTrends,    addItem: addTrend }   = useAddedItems<Trend>(`added_trends_${gebied.id}`)
+  const { items: addedContacten, addItem: addContact } = useAddedItems<WarmContact>(`added_wc_${gebied.id}`)
+  const { items: addedLeads,     addItem: addLead }    = useAddedItems<KansrijkeLead>(`added_leads_${gebied.id}`)
+  const alleLeads = [...(gebied.kansrijkeLeads ?? []), ...addedLeads]
 
   const zichtbarePanden    = gebied.pandenInOntwikkeling.filter((p) => !deletedPanden.has(p.id))
-  const zichtbareTrends    = gebied.trends.filter((t) => !deletedTrends.has(t.id))
+  const zichtbareTrends    = [...gebied.trends, ...addedTrends].filter((t) => !deletedTrends.has(t.id))
   const zichtbareOg        = gebied.interessanteOpdrachtgevers.filter((o) => !deletedOg.has(o.id))
-  const zichtbareContacten = gebied.warmeContacten.filter((c) => !deletedContacten.has(c.id))
+  const zichtbareContacten = [...gebied.warmeContacten, ...addedContacten].filter((c) => !deletedContacten.has(c.id))
 
   const heeftPanden    = zichtbarePanden.length > 0
   const heeftContacten = zichtbareContacten.length > 0
@@ -1865,10 +1895,27 @@ export default function GebiedDetailView() {
       {/* ── INFORMATIE weergave ── */}
       {viewMode === 'informatie' && (
         <>
-          {/* Kansrijke leads */}
-          {gebied.kansrijkeLeads && gebied.kansrijkeLeads.length > 0 && effectiveStatus !== 'under-construction' && (
-            <Section title={`Aflopende contracten — ${gebied.kansrijkeLeads.length} geselecteerde panden`}>
-              <KansrijkeLeadsSection leads={gebied.kansrijkeLeads} stad={geselecteerdeStad?.naam} />
+          {/* Kansrijke leads / Aflopende contracten */}
+          {(alleLeads.length > 0 || isEditMode) && effectiveStatus !== 'under-construction' && (
+            <Section title={`Aflopende contracten — ${alleLeads.length} pand${alleLeads.length !== 1 ? 'en' : ''}`}>
+              <KansrijkeLeadsSection leads={alleLeads} stad={geselecteerdeStad?.naam} />
+              {isEditMode && (
+                <button
+                  onClick={() => addLead({
+                    id: `lead-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                    pandnaam: 'Pandnaam...', adres: 'Adres...', huurder: 'Huurder...',
+                    branche: 'Branche...', omvang: 0, contractBegin: new Date().toISOString().slice(0, 7),
+                    motivatie: 'Motivatie...',
+                  })}
+                  style={{
+                    marginTop: 12, padding: '8px 16px', borderRadius: 8, border: '1px dashed var(--c-border)',
+                    background: 'transparent', color: 'var(--c-muted)', fontSize: 12, fontWeight: 600,
+                    cursor: 'pointer', width: '100%',
+                  }}
+                >
+                  + Aflopend contract toevoegen
+                </button>
+              )}
             </Section>
           )}
 
@@ -1900,6 +1947,31 @@ export default function GebiedDetailView() {
                     Geen trends beschikbaar
                   </div>
                 )}
+                {isEditMode && (
+                  <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                    {([
+                      { r: 'positief' as TrendRichting, label: '+ Positief', color: '#059669', bg: '#d1fae5', border: '#6ee7b7' },
+                      { r: 'neutraal' as TrendRichting, label: '+ Neutraal', color: '#475569', bg: '#f1f5f9', border: '#cbd5e1' },
+                      { r: 'negatief' as TrendRichting, label: '+ Negatief', color: '#dc2626', bg: '#fee2e2', border: '#fca5a5' },
+                    ]).map(({ r, label, color, bg, border }) => (
+                      <button
+                        key={r}
+                        onClick={() => addTrend({
+                          id: `trend-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                          richting: r,
+                          omschrijving: 'Nieuwe trend...',
+                        })}
+                        style={{
+                          flex: 1, padding: '6px 10px', borderRadius: 7,
+                          border: `1px dashed ${border}`, background: bg,
+                          color, fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                        }}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </Section>
 
@@ -1926,12 +1998,29 @@ export default function GebiedDetailView() {
           <ContactProtocol klasse={klasse} gebiedId={gebied.id} stadNaam={geselecteerdeStad?.naam ?? ''} />
 
           {/* Warme contacten */}
-          {heeftContacten && (
+          {(heeftContacten || isEditMode) && (
             <Section title={`Warme contacten — ${zichtbareContacten.length}`}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
                 {zichtbareContacten.map((contact) => (
                   <WarmContactCard key={contact.id} contact={contact} onDelete={() => deleteContact(contact.id)} />
                 ))}
+                {isEditMode && (
+                  <button
+                    onClick={() => addContact({
+                      id: `wc-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                      naam: 'Naam...', organisatie: 'Organisatie...', rol: 'Rol...',
+                      email: '', telefoon: '', datumLaatsteContact: '', notitie: '',
+                    })}
+                    style={{
+                      minHeight: 120, borderRadius: 12, border: '1px dashed #fcd34d',
+                      background: 'rgba(253,211,77,0.07)', color: '#d97706',
+                      fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex',
+                      alignItems: 'center', justifyContent: 'center', gap: 6,
+                    }}
+                  >
+                    + Warm contact toevoegen
+                  </button>
+                )}
               </div>
             </Section>
           )}

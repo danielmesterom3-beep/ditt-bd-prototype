@@ -227,11 +227,12 @@ function KpiItem({
   )
 }
 
-function StadPanel({ stad }: { stad: Stad }) {
+function StadPanel({ stad, onDelete }: { stad: Stad; onDelete?: () => void }) {
   const [kwartaal, setKwartaal] = useState<JllKwartaal>('Q4 2025')
   const jllAll = JLL[stad.id]
-  const jll = jllAll?.[kwartaal]
+  const jll = jllAll?.[kwartaal] ?? BLANK_JLL
   const { getStatus } = useGebiedStatus()
+  const { isEditMode } = useEditMode()
 
   function cycleKwartaal(dir: 1 | -1) {
     setKwartaal((prev) => {
@@ -326,36 +327,47 @@ function StadPanel({ stad }: { stad: Stad }) {
               </div>
             </div>
 
-            {allUnderConstruction && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  padding: '5px 12px',
-                  background: '#fef3c7',
-                  border: '1px solid #fcd34d',
-                  borderRadius: 20,
-                  flexShrink: 0,
-                }}
-              >
-                {/* Warning icon */}
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                  <path
-                    d="M6.5 1.5L12 11.5H1L6.5 1.5Z"
-                    stroke="#d97706"
-                    strokeWidth="1.3"
-                    fill="rgba(217,119,6,0.12)"
-                    strokeLinejoin="round"
-                  />
-                  <line x1="6.5" y1="5.5" x2="6.5" y2="8.5" stroke="#d97706" strokeWidth="1.3" strokeLinecap="round" />
-                  <circle cx="6.5" cy="10" r="0.7" fill="#d97706" />
-                </svg>
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#92400e' }}>
-                  Data in opbouw
-                </span>
-              </div>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+              {allUnderConstruction && (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '5px 12px',
+                    background: '#fef3c7',
+                    border: '1px solid #fcd34d',
+                    borderRadius: 20,
+                  }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                    <path d="M6.5 1.5L12 11.5H1L6.5 1.5Z" stroke="#d97706" strokeWidth="1.3" fill="rgba(217,119,6,0.12)" strokeLinejoin="round" />
+                    <line x1="6.5" y1="5.5" x2="6.5" y2="8.5" stroke="#d97706" strokeWidth="1.3" strokeLinecap="round" />
+                    <circle cx="6.5" cy="10" r="0.7" fill="#d97706" />
+                  </svg>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#92400e' }}>
+                    Data in opbouw
+                  </span>
+                </div>
+              )}
+              {onDelete && isEditMode && (
+                <button
+                  onClick={() => { if (window.confirm(`Stad "${stad.naam}" definitief verwijderen?`)) onDelete() }}
+                  title="Stad verwijderen"
+                  style={{
+                    width: 28, height: 28, borderRadius: 6,
+                    background: 'none', border: '1px solid #e2e8f0',
+                    color: '#9ca3af', cursor: 'pointer', fontSize: 14,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fca5a5' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.borderColor = '#e2e8f0' }}
+                >
+                  ×
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -4553,7 +4565,7 @@ function ActieOverzichtView() {
 // ── StadOverzichtView ─────────────────────────────────────────────────────────
 
 export default function StadOverzichtView() {
-  const { allSteden, customSteden } = useAllSteden()
+  const { allSteden, customSteden, removeStad } = useAllSteden()
   const { viewMode } = useViewMode()
   const [partijOverrides, setPartijOverrides] = useState<Record<string, number>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, s.partijen]))
@@ -4592,7 +4604,7 @@ export default function StadOverzichtView() {
       {customSteden.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
           {customSteden.map((stad) => (
-            <StadPanel key={stad.id} stad={stad} />
+            <StadPanel key={stad.id} stad={stad} onDelete={() => removeStad(stad.id)} />
           ))}
           {customSteden.length % 2 !== 0 && (
             <div

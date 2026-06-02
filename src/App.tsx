@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigation } from './context/NavigationContext'
-import { loadRemoteEdits, setupRealtimeEdits, SaveButton } from './components/EditableText'
+import { loadRemoteEdits, setupRealtimeEdits, SaveButton, canUndo, undo, subscribeToUndo } from './components/EditableText'
 import { GebiedStatusProvider } from './context/GebiedStatusContext'
 import { CustomStedenProvider } from './context/CustomStedenContext'
 import { EditProvider, useEditMode } from './context/EditContext'
@@ -11,6 +11,36 @@ import GebiedDetailView from './views/GebiedDetailView'
 import BeheerView from './views/BeheerView'
 import Breadcrumb from './components/Breadcrumb'
 import NieuwsFeed from './components/NieuwsFeed'
+
+// ── UndoButton ────────────────────────────────────────────────────────────────
+
+function UndoButton() {
+  const { isEditMode } = useEditMode()
+  const [hasUndo, setHasUndo] = useState(false)
+
+  useEffect(() => {
+    setHasUndo(canUndo())
+    return subscribeToUndo(() => setHasUndo(canUndo()))
+  }, [])
+
+  if (!isEditMode || !hasUndo) return null
+
+  return (
+    <button
+      onClick={undo}
+      title="Ongedaan maken (laatste tekstwijziging)"
+      style={{
+        fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 6,
+        background: '#1c1c1c', color: '#9ca3af',
+        border: '1px solid #2a2a2a',
+        cursor: 'pointer', letterSpacing: '0.03em',
+        display: 'flex', alignItems: 'center', gap: 5,
+      }}
+    >
+      <span style={{ fontSize: 13 }}>↩</span> Ongedaan
+    </button>
+  )
+}
 
 // ── EditModeButton ────────────────────────────────────────────────────────────
 
@@ -197,6 +227,8 @@ function AppContent() {
               year: 'numeric',
             })}
           </span>
+          {/* Undo button */}
+          <UndoButton />
           {/* Edit mode toggle */}
           <EditModeButton />
 

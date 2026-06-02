@@ -56,6 +56,38 @@ export function hasPendingChanges() {
   return pendingChanges.size > 0
 }
 
+// ── Undo stack ────────────────────────────────────────────────────────────────
+
+interface UndoEntry { key: string; oldValue: string | null }
+const undoStack: UndoEntry[] = []
+const undoListeners = new Set<() => void>()
+
+function notifyUndoListeners() {
+  undoListeners.forEach(fn => fn())
+}
+
+export function subscribeToUndo(fn: () => void): () => void {
+  undoListeners.add(fn)
+  return () => { undoListeners.delete(fn) }
+}
+
+export function canUndo() { return undoStack.length > 0 }
+
+export function undo() {
+  const entry = undoStack.pop()
+  notifyUndoListeners()
+  if (!entry) return
+  const { key, oldValue } = entry
+  const fullKey = STORAGE_PREFIX + key
+  if (oldValue === null) {
+    localStorage.removeItem(fullKey)
+  } else {
+    localStorage.setItem(fullKey, oldValue)
+  }
+  queueChange(key, oldValue)
+  window.dispatchEvent(new CustomEvent('ditt-remote-edit', { detail: { key, value: oldValue } }))
+}
+
 export async function flushPendingChanges() {
   const entries = [...pendingChanges.entries()]
   pendingChanges.clear()
@@ -288,6 +320,7 @@ export default function EditableText({
   const fullKey = STORAGE_PREFIX + storageKey
   const [focused, setFocused] = useState(false)
   const { isEditMode } = useEditMode()
+  const valueBeforeEdit = useRef<string | null>(null)
 
   useEffect(() => {
     if (ref.current) {
@@ -330,6 +363,7 @@ export default function EditableText({
 
   function handleFocus(e: React.FocusEvent<HTMLElement>) {
     setFocused(true)
+    valueBeforeEdit.current = localStorage.getItem(fullKey) ?? null
     e.currentTarget.style.background = 'rgba(255,127,80,0.07)'
     e.currentTarget.style.outline = '1px solid rgba(255,127,80,0.35)'
     e.currentTarget.style.borderRadius = '3px'
@@ -367,6 +401,12 @@ export default function EditableText({
       }
     }
     notifyListeners()
+    // Push to undo stack if value actually changed
+    const newValue = localStorage.getItem(fullKey) ?? null
+    if (newValue !== valueBeforeEdit.current) {
+      undoStack.push({ key: storageKey, oldValue: valueBeforeEdit.current })
+      notifyUndoListeners()
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
