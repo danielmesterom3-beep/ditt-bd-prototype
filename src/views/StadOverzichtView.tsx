@@ -4242,18 +4242,23 @@ const FASES = [
 ]
 
 function ActieOverzichtView() {
-  const beschikbareSteden = MARKTCAP_STEDEN.filter((s) => s.naam !== 'Amsterdam')
+  const { customSteden } = useAllSteden()
+  const marktcapSteden = MARKTCAP_STEDEN.filter((s) => s.naam !== 'Amsterdam')
+  const customAlsFunnel: MarktCapStad[] = customSteden.map((s) => ({
+    naam: s.naam, leegstandM2: 0, partijen: 0, penetratie: 0, dittM2: 0, defaultPrijs: 0, concurrenten: '',
+  }))
+  const beschikbareSteden = [...marktcapSteden, ...customAlsFunnel]
   const [geselecteerdeStad, setGeselecteerdeStad] = useState<string>(beschikbareSteden[0]?.naam ?? '')
   const { isEditMode } = useEditMode()
 
   const [drempel, setDrempel] = useState<Record<string, boolean[]>>(() =>
-    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, DREMPEL_ITEMS.map(() => false)]))
+    Object.fromEntries(beschikbareSteden.map((s) => [s.naam, DREMPEL_ITEMS.map(() => false)]))
   )
   const [openDrempel, setOpenDrempel] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, false]))
+    Object.fromEntries(beschikbareSteden.map((s) => [s.naam, false]))
   )
   const [actieveFase, setActieveFase] = useState<Record<string, number>>(() =>
-    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, 1]))
+    Object.fromEntries(beschikbareSteden.map((s) => [s.naam, 1]))
   )
   const [deletedDrempel, setDeletedDrempel] = useState<Set<number>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem('deleted_drempel') ?? '[]')) } catch { return new Set() }
@@ -4321,7 +4326,7 @@ function ActieOverzichtView() {
       </div>
 
       {beschikbareSteden.filter((s) => s.naam === geselecteerdeStad).map((stad) => {
-        const drempelLijst = drempel[stad.naam]
+        const drempelLijst = drempel[stad.naam] ?? DREMPEL_ITEMS.map(() => false)
         const aantalKlaar  = drempelLijst.filter(Boolean).length
         const klaarVoorAcquisitie = aantalKlaar >= 4
         const huidigeFaseNr = actieveFase[stad.naam] ?? 1
@@ -4335,7 +4340,7 @@ function ActieOverzichtView() {
               <div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text)' }}>{stad.naam}</div>
                 <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
-                  {stad.dittM2.toLocaleString('nl-NL')} m² doelregio · {aantalKlaar}/{DREMPEL_ITEMS.length} drempelcriteria ·{' '}
+                  {stad.dittM2 > 0 ? `${stad.dittM2.toLocaleString('nl-NL')} m² doelregio · ` : ''}{aantalKlaar}/{DREMPEL_ITEMS.length} drempelcriteria ·{' '}
                   <span style={{ fontWeight: 700, color: klaarVoorAcquisitie ? '#16a34a' : '#d97706' }}>
                     {klaarVoorAcquisitie ? 'Klaar voor acquisitie' : 'Nog niet startklaar'}
                   </span>
@@ -4550,9 +4555,12 @@ function ActieOverzichtView() {
 export default function StadOverzichtView() {
   const { allSteden } = useAllSteden()
   const { viewMode } = useViewMode()
+  const [selectedStadId, setSelectedStadId] = useState<string | null>(null)
   const [partijOverrides, setPartijOverrides] = useState<Record<string, number>>(() =>
     Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, s.partijen]))
   )
+
+  const geselecteerdStad = allSteden.find(s => s.id === (selectedStadId ?? allSteden[0]?.id)) ?? allSteden[0]
 
   if (viewMode === 'actie') return <ActieOverzichtView />
 
@@ -4576,11 +4584,30 @@ export default function StadOverzichtView() {
         </p>
       </div>
 
-      {/* Stad panels */}
-      <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        {allSteden.map((stad) => (
-          <StadPanel key={stad.id} stad={stad} />
-        ))}
+      {/* Stad tabs + panel */}
+      <div>
+        <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
+          {allSteden.map((stad) => {
+            const active = stad.id === (geselecteerdStad?.id)
+            return (
+              <button
+                key={stad.id}
+                onClick={() => setSelectedStadId(stad.id)}
+                style={{
+                  padding: '6px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  cursor: 'pointer', transition: 'all 0.15s',
+                  background: active ? 'var(--c-coral)' : 'var(--c-surface)',
+                  color: active ? '#fff' : 'var(--c-muted)',
+                  border: `1px solid ${active ? 'var(--c-coral)' : 'var(--c-border)'}`,
+                  boxShadow: active ? '0 2px 8px rgba(255,127,80,0.25)' : 'none',
+                }}
+              >
+                {stad.naam}
+              </button>
+            )
+          })}
+        </div>
+        {geselecteerdStad && <StadPanel stad={geselecteerdStad} />}
       </div>
 
       {/* Testvalidatie */}

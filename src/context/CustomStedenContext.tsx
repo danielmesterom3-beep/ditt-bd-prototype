@@ -5,17 +5,10 @@ import type { Stad, Gebied } from '../data/types'
 
 const CUSTOM_STEDEN_KEY = 'custom_steden'
 
-function createBlankStad(naam: string): Stad {
-  const id = naam
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
-
-  const gebied: Gebied = {
-    id: `${id}-centrum`,
-    naam: `Centrum ${naam}`,
+function blankGebied(id: string, naam: string): Gebied {
+  return {
+    id,
+    naam,
     status: 'under-construction',
     marktdata: {
       peildatum: '',
@@ -33,8 +26,26 @@ function createBlankStad(naam: string): Stad {
     inzichten: [],
     partijen: [],
   }
+}
 
-  return { id, naam, gebieden: [gebied] }
+function createBlankStad(naam: string): Stad {
+  const id = naam
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+
+  return {
+    id,
+    naam,
+    gebieden: [
+      blankGebied(`${id}-centrum`,        `Centrum ${naam}`),
+      blankGebied(`${id}-stationsgebied`, `Stationsgebied ${naam}`),
+      blankGebied(`${id}-kantorenpark`,   `Kantorenpark ${naam}`),
+      blankGebied(`${id}-bedrijvenpark`,  `Bedrijvenpark ${naam}`),
+    ],
+  }
 }
 
 interface CustomStedenContextValue {
