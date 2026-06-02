@@ -553,48 +553,6 @@ export default function BeheerView() {
               </button>
             </div>
 
-            {/* Lijst custom steden */}
-            {customSteden.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)' }}>
-                  Aangemaakte steden
-                </div>
-                {customSteden.map((stad) => (
-                  <div
-                    key={stad.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '10px 14px',
-                      background: '#faf9f7',
-                      border: '1px solid var(--c-border)',
-                      borderRadius: 8,
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-text)' }}>{stad.naam}</div>
-                      <div style={{ fontSize: 11, color: 'var(--c-subtle)', fontFamily: 'ui-monospace, monospace' }}>{stad.id} · {stad.gebieden.length} gebied{stad.gebieden.length !== 1 ? 'en' : ''}</div>
-                    </div>
-                    <button
-                      onClick={() => removeStad(stad.id)}
-                      style={{
-                        fontSize: 11,
-                        padding: '3px 10px',
-                        borderRadius: 20,
-                        background: 'transparent',
-                        color: '#dc2626',
-                        border: '1px solid #fca5a5',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Verwijderen
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
             <div style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.6 }}>
               Nieuwe stad start met status <strong>Under construction</strong> en één leeg gebied "Centrum [Stadsnaam]".
               Bewerk daarna de inhoud via bewerkingsmodus.
@@ -602,6 +560,55 @@ export default function BeheerView() {
           </div>
         )}
       </div>
+
+      {/* ── Aangemaakte steden — altijd zichtbaar ── */}
+      {customSteden.length > 0 && (
+        <div
+          style={{
+            border: '1px solid var(--c-border)',
+            borderRadius: 12,
+            background: 'var(--c-surface)',
+            overflow: 'hidden',
+          }}
+        >
+          <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--c-border)', background: '#faf9f7' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)' }}>
+              Aangemaakte steden
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {customSteden.map((stad, i) => (
+              <div
+                key={stad.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 18px',
+                  borderTop: i > 0 ? '1px solid var(--c-border)' : 'none',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-text)' }}>{stad.naam}</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-subtle)' }}>{stad.gebieden.length} gebied{stad.gebieden.length !== 1 ? 'en' : ''}</div>
+                </div>
+                <button
+                  onClick={() => { if (window.confirm(`Stad "${stad.naam}" definitief verwijderen?`)) removeStad(stad.id) }}
+                  style={{
+                    fontSize: 11, padding: '4px 12px', borderRadius: 20,
+                    background: 'transparent', color: '#dc2626',
+                    border: '1px solid #fca5a5', cursor: 'pointer',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#fee2e2' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+                >
+                  Verwijderen
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Footer ── */}
       <div
