@@ -13,45 +13,6 @@ const STATUS_CONFIG: Record<GebiedStatus, { label: string; bg: string; text: str
 
 const STATUS_ORDER: GebiedStatus[] = ['under-construction', 'in-progress', 'live']
 
-const STAD_TEMPLATE = `{
-  id: 'nieuw-stad-id',          // unieke slug, bijv. 'utrecht'
-  naam: 'Stad Naam',
-  gebieden: nieuwStadGebieden,  // importeer uit nieuw-stad.ts
-}`
-
-const GEBIED_TEMPLATE = `{
-  id: 'gebied-id',              // bijv. 'utrecht-centrum'
-  naam: 'Gebiedsnaam',
-  status: 'under-construction', // start altijd hier
-
-  marktdata: {
-    peildatum: '',              // ISO-datum, bijv. '2026-01-01'
-    totaalKantoorVvo: 0,        // m² verhuurbaar vloeroppervlak
-    leegstandPercentage: 0,     // bijv. 12.5
-    huurprijsBandwidth: { min: 0, max: 0 },  // EUR/m²/jaar
-    opnameVorigeJaar: 0,        // m² opgenomen vorig jaar
-    beschikbaarAanbod: 0,       // m² direct beschikbaar
-  },
-
-  vastgoedMix: {
-    kantoor: 0,   // percentages, moeten optellen tot 100
-    retail: 0,
-    wonen: 0,
-    overig: 0,
-  },
-
-  pandenInOntwikkeling: [],   // zie PandInOntwikkeling type
-
-  trends: [],                 // zie Trend type (id, omschrijving, richting)
-
-  warmeContacten: [],         // zie WarmContact type
-
-  interessanteOpdrachtgevers: [],  // zie InteressanteOpdrachtgever type
-
-  inzichten: [],              // zie InterviewInzicht type
-
-  partijen: [],               // zie Partij type
-}`
 
 // ── Components ────────────────────────────────────────────────────────────────
 
@@ -112,63 +73,12 @@ function StatusCycleButton({
   )
 }
 
-function CodeBlock({ code }: { code: string }) {
-  const [copied, setCopied] = useState(false)
-
-  function handleCopy() {
-    navigator.clipboard.writeText(code).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
-    })
-  }
-
-  return (
-    <div style={{ position: 'relative' }}>
-      <pre
-        style={{
-          background: '#1a1a1a',
-          color: '#e5e7eb',
-          borderRadius: 10,
-          padding: '16px 20px',
-          fontSize: 12,
-          lineHeight: 1.7,
-          overflow: 'auto',
-          margin: 0,
-          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-          border: '1px solid #2a2a2a',
-        }}
-      >
-        {code}
-      </pre>
-      <button
-        onClick={handleCopy}
-        style={{
-          position: 'absolute',
-          top: 10,
-          right: 10,
-          fontSize: 11,
-          fontWeight: 600,
-          padding: '3px 10px',
-          borderRadius: 6,
-          background: copied ? '#065f46' : '#2a2a2a',
-          color: copied ? '#d1fae5' : '#9ca3af',
-          border: '1px solid #3a3a3a',
-          cursor: 'pointer',
-          transition: 'background 0.15s, color 0.15s',
-        }}
-      >
-        {copied ? 'Gekopieerd' : 'Kopieer'}
-      </button>
-    </div>
-  )
-}
 
 // ── BeheerView ────────────────────────────────────────────────────────────────
 
 export default function BeheerView() {
   const { allSteden: steden, customSteden, addStad, removeStad } = useAllSteden()
   const { getStatus, setStatus, overrides } = useGebiedStatus()
-  const [templateOpen, setTemplateOpen] = useState(false)
   const [stadAanmakenOpen, setStadAanmakenOpen] = useState(false)
   const [nieuwStadNaam, setNieuwStadNaam] = useState('')
   const [bezig, setBezig] = useState(false)
@@ -352,125 +262,6 @@ export default function BeheerView() {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* ── Sectie 2: Nieuwe stad toevoegen ── */}
-      <div>
-        <button
-          onClick={() => setTemplateOpen((o) => !o)}
-          style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '14px 18px',
-            background: 'var(--c-surface)',
-            border: '1px solid var(--c-border)',
-            borderRadius: templateOpen ? '12px 12px 0 0' : 12,
-            cursor: 'pointer',
-            marginBottom: 0,
-          }}
-        >
-          <div style={{ textAlign: 'left' }}>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                color: 'var(--c-subtle)',
-              }}
-            >
-              Nieuwe stad toevoegen
-            </div>
-            <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
-              Structuur en templates voor het aanmaken van een nieuwe stad
-            </div>
-          </div>
-          <span style={{ fontSize: 16, color: 'var(--c-subtle)', transform: templateOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
-            ↓
-          </span>
-        </button>
-
-        {templateOpen && (
-          <div
-            style={{
-              border: '1px solid var(--c-border)',
-              borderTop: 'none',
-              borderRadius: '0 0 12px 12px',
-              padding: '20px 18px',
-              background: 'var(--c-surface)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 20,
-            }}
-          >
-            {/* Instructies */}
-            <div
-              style={{
-                padding: '14px 16px',
-                background: '#f0f9ff',
-                border: '1px solid #bae6fd',
-                borderRadius: 10,
-              }}
-            >
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#0c4a6e', marginBottom: 8 }}>
-                Hoe een nieuwe stad toevoegen
-              </div>
-              <ol style={{ fontSize: 12, color: '#075985', margin: 0, paddingLeft: 18, lineHeight: 2 }}>
-                <li>Maak een nieuw bestand aan: <code style={{ fontFamily: 'ui-monospace, monospace', background: '#e0f2fe', padding: '1px 4px', borderRadius: 3 }}>src/data/[stad-id].ts</code></li>
-                <li>Kopieer de gebiedtemplate hieronder en vul de velden in</li>
-                <li>Importeer het bestand in <code style={{ fontFamily: 'ui-monospace, monospace', background: '#e0f2fe', padding: '1px 4px', borderRadius: 3 }}>src/data/steden.ts</code></li>
-                <li>Voeg de stad toe aan de <code style={{ fontFamily: 'ui-monospace, monospace', background: '#e0f2fe', padding: '1px 4px', borderRadius: 3 }}>steden</code> array met het stadtemplate</li>
-                <li>Voeg indien gewenst JLL-data toe in <code style={{ fontFamily: 'ui-monospace, monospace', background: '#e0f2fe', padding: '1px 4px', borderRadius: 3 }}>StadOverzichtView.tsx</code> (JLL Record)</li>
-              </ol>
-            </div>
-
-            {/* Stad template */}
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-muted)', marginBottom: 8 }}>
-                1. Toevoegen aan <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>steden.ts</code>
-              </div>
-              <CodeBlock code={STAD_TEMPLATE} />
-            </div>
-
-            {/* Gebied template */}
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-muted)', marginBottom: 8 }}>
-                2. Gebiedstructuur template — kopieer per gebied in <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>[stad-id].ts</code>
-              </div>
-              <CodeBlock code={GEBIED_TEMPLATE} />
-            </div>
-
-            {/* Statusuitleg */}
-            <div
-              style={{
-                padding: '14px 16px',
-                background: '#faf9f7',
-                border: '1px solid var(--c-border)',
-                borderRadius: 10,
-              }}
-            >
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-muted)', marginBottom: 10 }}>
-                Statusuitleg per gebied
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {STATUS_ORDER.map((s) => {
-                  return (
-                    <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <StatusBadge status={s} />
-                      <span style={{ fontSize: 12, color: 'var(--c-muted)' }}>
-                        {s === 'under-construction' && 'Data nog niet beschikbaar. Structuur aangemaakt, velden zijn lege placeholders.'}
-                        {s === 'in-progress'        && 'Data wordt stapsgewijs aangevuld. Gedeeltelijk zichtbaar in het dashboard.'}
-                        {s === 'live'               && 'Data compleet en volledig zichtbaar. Geen statusbadge in het dashboard.'}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* ── Sectie 3: Stad aanmaken ── */}
