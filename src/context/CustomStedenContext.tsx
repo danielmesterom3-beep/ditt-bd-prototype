@@ -40,10 +40,10 @@ function createBlankStad(naam: string): Stad {
     id,
     naam,
     gebieden: [
-      blankGebied(`${id}-centrum`,        `Centrum ${naam}`),
-      blankGebied(`${id}-stationsgebied`, `Stationsgebied ${naam}`),
-      blankGebied(`${id}-kantorenpark`,   `Kantorenpark ${naam}`),
-      blankGebied(`${id}-bedrijvenpark`,  `Bedrijvenpark ${naam}`),
+      blankGebied(`${id}-centrum`,        'Centrum'),
+      blankGebied(`${id}-stationsgebied`, 'Stationsgebied'),
+      blankGebied(`${id}-kantorenpark`,   'Kantorenpark'),
+      blankGebied(`${id}-bedrijvenpark`,  'Bedrijvenpark'),
     ],
   }
 }
