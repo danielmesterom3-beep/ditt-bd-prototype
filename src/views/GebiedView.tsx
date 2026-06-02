@@ -1,5 +1,6 @@
 import type { Gebied, LocatieKlasse } from '../data/types'
 import { useNavigation } from '../context/NavigationContext'
+import EditableText, { getEditableText } from '../components/EditableText'
 
 const KLASSE_STYLE: Record<NonNullable<LocatieKlasse>, string> = {
   A: 'bg-emerald-100 text-emerald-700',
@@ -61,7 +62,10 @@ export default function GebiedView() {
             >
               <div className="flex items-start justify-between mb-4">
                 <h2 className="font-semibold text-slate-800 text-base leading-tight pr-2 group-hover:text-indigo-700 transition-colors">
-                  {gebied.naam}
+                  <EditableText
+                    storageKey={`gebied.${gebied.id}.naam`}
+                    defaultValue={getEditableText(`gebied.${gebied.id}.naam`, gebied.naam) || 'Naamloos gebied'}
+                  />
                 </h2>
                 {klasse ? (
                   <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${KLASSE_STYLE[klasse]}`}>

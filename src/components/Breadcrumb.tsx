@@ -1,4 +1,5 @@
 import { useNavigation } from '../context/NavigationContext'
+import { getEditableText } from './EditableText'
 
 export default function Breadcrumb() {
   const { geselecteerdeStad, geselecteerdGebied, terug } = useNavigation()
@@ -16,7 +17,7 @@ export default function Breadcrumb() {
       </button>
       <span style={{ color: '#333' }}>/</span>
       <span className="font-medium" style={{ color: '#ffffff' }}>
-        {geselecteerdGebied.naam}
+        {getEditableText(`gebied.${geselecteerdGebied.id}.naam`, geselecteerdGebied.naam) || 'Naamloos gebied'}
       </span>
     </nav>
   )

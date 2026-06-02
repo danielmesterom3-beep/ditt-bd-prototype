@@ -1775,7 +1775,9 @@ export default function GebiedDetailView() {
           ← {geselecteerdeStad?.naam ?? 'Overzicht'}
         </button>
         <span style={{ color: 'var(--c-border)', fontSize: 16 }}>/</span>
-        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-text)' }}>{gebied.naam}</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-text)' }}>
+          <EditableText storageKey={`gebied.${gebied.id}.naam`} defaultValue={gebied.naam || 'Naamloos gebied'} />
+        </span>
       </div>
 
       {/* ── Gebied header ── */}
@@ -1802,7 +1804,7 @@ export default function GebiedDetailView() {
                 margin: 0,
               }}
             >
-              {gebied.naam}
+              <EditableText storageKey={`gebied.${gebied.id}.naam`} defaultValue={gebied.naam || 'Naamloos gebied'} />
             </h1>
             {ks && (
               <span
