@@ -1180,9 +1180,13 @@ function ContactProtocol({ klasse, gebiedId, stadNaam }: { klasse: LocatieKlasse
             Elevator pitch {toonPitch ? '▲' : '▼'}
           </button>
           {toonPitch && (
-            <p style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.7, margin: 0 }}>
-              {ELEVATOR_PITCH}
-            </p>
+            <EditableText
+              storageKey="elevator_pitch"
+              defaultValue={ELEVATOR_PITCH}
+              tag="p"
+              multiline
+              style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.7, margin: 0 }}
+            />
           )}
           {!toonPitch && (
             <p style={{ fontSize: 12, color: 'var(--c-subtle)', margin: 0, fontStyle: 'italic' }}>
