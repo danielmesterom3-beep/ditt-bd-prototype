@@ -542,7 +542,10 @@ export function SaveButton() {
     setTimeout(() => setSaved(false), 2500)
   }
 
-  if (!isEditMode || (!pending && !saved)) return null
+  if (!isEditMode) return null
+
+  const bg = saved ? '#16a34a' : pending ? '#ff7f50' : '#374151'
+  const label = saving ? 'Opslaan...' : saved ? '✓ Opgeslagen' : pending ? 'Aanpassingen opslaan' : 'Geen wijzigingen'
 
   return (
     <div
@@ -554,25 +557,27 @@ export function SaveButton() {
         display: 'flex',
         alignItems: 'center',
         gap: 10,
-        background: saved ? '#16a34a' : '#ff7f50',
+        background: bg,
         color: '#fff',
         borderRadius: 10,
-        padding: '10px 20px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
+        padding: '11px 22px',
+        boxShadow: pending ? '0 4px 24px rgba(255,127,80,0.5)' : '0 4px 16px rgba(0,0,0,0.25)',
         fontSize: 13,
         fontWeight: 600,
-        cursor: saved ? 'default' : 'pointer',
-        transition: 'background 0.2s',
+        cursor: pending ? 'pointer' : 'default',
+        transition: 'background 0.2s, box-shadow 0.2s',
         userSelect: 'none',
+        outline: pending ? '2px solid rgba(255,127,80,0.4)' : 'none',
+        outlineOffset: 2,
       }}
-      onClick={saved ? undefined : handleSave}
+      onClick={pending ? handleSave : undefined}
     >
       {saving && (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: 'spin 0.8s linear infinite' }}>
           <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
         </svg>
       )}
-      {saved ? 'Opgeslagen' : saving ? 'Opslaan...' : 'Aanpassingen opslaan'}
+      {label}
     </div>
   )
 }
