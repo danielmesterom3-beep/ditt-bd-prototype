@@ -3318,6 +3318,120 @@ const F2_PRODUCTEN: { id: F2Product; label: string }[] = [
   { id: 'detail-and-build',  label: 'Detail & Build'  },
 ]
 
+// ── Warm contact card voor gekoppelde prioriteitsgebieden ────────────────────
+
+interface GebiedBadge { label: string; bg: string; text: string; border: string }
+
+function PrioriteitWarmContactCard({ contact, gebiedBadge }: { contact: WarmContact & { gebiedNaam: string }; gebiedBadge: GebiedBadge }) {
+  const sk = `wc.${contact.id}`
+  const [email,    setEmail]    = useState(() => getEditableText(`${sk}.email`,    contact.email    ?? ''))
+  const [telefoon, setTelefoon] = useState(() => getEditableText(`${sk}.telefoon`, contact.telefoon ?? ''))
+  const [showNote, setShowNote] = useState(false)
+  const { isEditMode } = useEditMode()
+
+  const heeftEmail    = !!email
+  const heeftTelefoon = !!telefoon
+  const heeftNotitie  = !!(contact.notitie || getEditableText(`${sk}.notitie`, contact.notitie ?? ''))
+
+  function saveField(field: string, value: string) {
+    const key = `${sk}.${field}`
+    if (value.trim()) {
+      localStorage.setItem(STORAGE_PREFIX + key, value.trim())
+      queueChange(key, value.trim())
+    } else {
+      localStorage.removeItem(STORAGE_PREFIX + key)
+      queueChange(key, null)
+    }
+  }
+
+  return (
+    <div style={{ background: 'linear-gradient(160deg, #fffbeb 0%, #fefce8 100%)', border: '1px solid #fcd34d', borderLeft: '4px solid #d97706', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(217,119,6,0.08)' }}>
+      <div style={{ padding: '14px 16px 10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10, gap: 8 }}>
+          <div style={{ minWidth: 0 }}>
+            <EditableText storageKey={`${sk}.naam`} defaultValue={contact.naam || '—'} style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a' }} />
+            <EditableText storageKey={`${sk}.organisatie`} defaultValue={contact.organisatie} style={{ fontSize: 12, color: '#78716c', marginTop: 2, display: 'block' }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+            <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: 20, background: '#d97706', color: '#fff' }}>
+              Warm contact
+            </span>
+            <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: gebiedBadge.bg, color: gebiedBadge.text, border: `1px solid ${gebiedBadge.border}` }}>
+              {gebiedBadge.label}
+            </span>
+          </div>
+        </div>
+        <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}>
+          <EditableText storageKey={`${sk}.rol`} defaultValue={contact.rol} />
+        </span>
+      </div>
+
+      {/* Edit mode: e-mail + telefoon invoer */}
+      {isEditMode && (
+        <div style={{ padding: '8px 16px', borderTop: '1px solid #fde68a', background: 'rgba(255,255,255,0.5)', display: 'flex', gap: 8 }}>
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={(e) => saveField('email', e.target.value)}
+            placeholder="E-mailadres"
+            style={{ flex: 1, fontSize: 11, padding: '4px 8px', borderRadius: 6, border: '1px solid #fcd34d', background: '#fffbeb', color: '#1a1a1a', outline: 'none' }}
+          />
+          <input
+            value={telefoon}
+            onChange={(e) => setTelefoon(e.target.value)}
+            onBlur={(e) => saveField('telefoon', e.target.value)}
+            placeholder="Telefoonnummer"
+            style={{ flex: 1, fontSize: 11, padding: '4px 8px', borderRadius: 6, border: '1px solid #fcd34d', background: '#fffbeb', color: '#1a1a1a', outline: 'none' }}
+          />
+        </div>
+      )}
+
+      {/* Actieknoppen */}
+      <div style={{ padding: '10px 16px', borderTop: '1px solid #fde68a', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* E-mail */}
+        <a
+          href={heeftEmail ? `mailto:${email}` : undefined}
+          onClick={(e) => { if (!heeftEmail) e.preventDefault() }}
+          title={heeftEmail ? email : 'E-mail onbekend'}
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, textDecoration: 'none', background: heeftEmail ? 'var(--c-coral)' : '#fef3c7', border: heeftEmail ? 'none' : '1px solid #fcd34d', cursor: heeftEmail ? 'pointer' : 'default', opacity: heeftEmail ? 1 : 0.5, flexShrink: 0 }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={heeftEmail ? '#fff' : '#92400e'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/>
+          </svg>
+        </a>
+        {/* Bellen */}
+        <a
+          href={heeftTelefoon ? `tel:${telefoon}` : undefined}
+          onClick={(e) => { if (!heeftTelefoon) e.preventDefault() }}
+          title={heeftTelefoon ? telefoon : 'Telefoon onbekend'}
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 8, textDecoration: 'none', background: heeftTelefoon ? 'var(--c-coral)' : '#fef3c7', border: heeftTelefoon ? 'none' : '1px solid #fcd34d', cursor: heeftTelefoon ? 'pointer' : 'default', opacity: heeftTelefoon ? 1 : 0.5, flexShrink: 0 }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={heeftTelefoon ? '#fff' : '#92400e'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+        </a>
+        {/* Notitie toggle */}
+        {heeftNotitie && (
+          <button
+            onClick={() => setShowNote((s) => !s)}
+            style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 500, color: '#92400e', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', display: 'flex', alignItems: 'center', gap: 4 }}
+          >
+            <span style={{ fontSize: 12, transition: 'transform 0.15s', display: 'inline-block', transform: showNote ? 'rotate(90deg)' : 'none' }}>›</span>
+            {showNote ? 'Verberg notitie' : 'Toon notitie'}
+          </button>
+        )}
+      </div>
+
+      {/* Notitie */}
+      {showNote && (
+        <div style={{ padding: '10px 16px 14px', borderTop: '1px solid #fde68a', background: 'rgba(255,255,255,0.6)' }}>
+          <EditableText storageKey={`${sk}.notitie`} defaultValue={contact.notitie ?? ''} tag="div" multiline style={{ fontSize: 11, color: '#78716c', lineHeight: 1.6, fontStyle: 'italic' }} />
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── FASE-FASE 3: Actief prospecting ──────────────────────────────────────────
 
 type OntwikkelingFaseBadge = { label: string; bg: string; text: string }
@@ -3336,6 +3450,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   const [openPanden, setOpenPanden] = useState(false)
   const [openTransacties, setOpenTransacties] = useState(false)
   const [openHuurcontracten, setOpenHuurcontracten] = useState(false)
+  const [openGekoppeld, setOpenGekoppeld] = useState(true)
 
   const { deleted: deletedPanden,      deleteItem: deletePand }      = useDeletedItemsFase2(`deleted_panden_fase3_v2_${stadId}`)
   const { deleted: deletedTransacties, deleteItem: deleteTransactie } = useDeletedItemsFase2(`deleted_transacties_fase3_${stadId}`)
@@ -3617,126 +3732,100 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
 
       {/* Gekoppelde kansen — warme contacten + aflopende contracten in prioriteitsgebieden */}
       {stadNaam === 'Eindhoven' && (prioriteitContacten.length > 0 || prioriteitLeads.length > 0) && (
-        <div style={{
-          border: '1px solid #bfdbfe',
-          borderLeft: '4px solid #3b82f6',
-          borderRadius: 12,
-          overflow: 'hidden',
-          background: '#f8faff',
-        }}>
-          {/* Header */}
-          <div style={{ padding: '10px 16px 8px', background: '#eff6ff', borderBottom: '1px solid #dbeafe', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', flexShrink: 0 }} />
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#3b82f6' }}>
-                <EditableText storageKey="fase3.eind.gekoppeld.label" defaultValue="Gekoppeld aan aanbevolen actie" />
-              </div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a8a', marginTop: 1 }}>
-                <EditableText storageKey="fase3.eind.gekoppeld.titel" defaultValue="Actieve kansen in Flight Forum & Centrum Eindhoven" />
+        <div style={{ border: '1px solid #bfdbfe', borderLeft: '4px solid #3b82f6', borderRadius: 12, overflow: 'hidden', background: '#f8faff' }}>
+
+          {/* Header — klikbaar voor uitklappen */}
+          <button
+            onClick={() => setOpenGekoppeld((o) => !o)}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px 10px 14px', background: '#eff6ff', border: 'none', cursor: 'pointer', textAlign: 'left', gap: 10 }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', flexShrink: 0 }} />
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#3b82f6' }}>
+                  Gekoppeld aan aanbevolen actie
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a8a', marginTop: 1 }}>
+                  {prioriteitContacten.length} warme contact{prioriteitContacten.length !== 1 ? 'en' : ''} · {prioriteitLeads.length} aflopend{prioriteitLeads.length !== 1 ? 'e contracten' : ' contract'} — Flight Forum & Centrum Eindhoven
+                </div>
               </div>
             </div>
-          </div>
+            <span style={{ fontSize: 16, color: '#3b82f6', transform: openGekoppeld ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+          </button>
 
-          {/* Warme contacten */}
-          {prioriteitContacten.length > 0 && (
-            <div style={{ padding: '14px 16px', borderBottom: prioriteitLeads.length > 0 ? '1px solid #dbeafe' : 'none' }}>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 10 }}>
-                Warme contacten — in prioriteitsgebied
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 10 }}>
-                {prioriteitContacten.map((c) => (
-                  <div
-                    key={c.id}
-                    style={{
-                      background: 'linear-gradient(160deg, #fffbeb 0%, #fefce8 100%)',
-                      border: '1px solid #fcd34d',
-                      borderLeft: '4px solid #d97706',
-                      borderRadius: 12,
-                      padding: '12px 14px',
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6, gap: 8 }}>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontWeight: 700, fontSize: 12, color: '#1a1a1a' }}>
-                          <EditableText storageKey={`wc.${c.id}.naam`} defaultValue={c.naam || '—'} />
-                        </div>
-                        <div style={{ fontSize: 11, color: '#78716c', marginTop: 1 }}>
-                          <EditableText storageKey={`wc.${c.id}.organisatie`} defaultValue={c.organisatie} />
-                        </div>
-                      </div>
-                      <span style={{
-                        fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, flexShrink: 0,
-                        background: c.gebiedNaam.toLowerCase().includes('airport') ? '#fff7ed' : '#eff6ff',
-                        color:      c.gebiedNaam.toLowerCase().includes('airport') ? '#9a3412'  : '#1e40af',
-                        border: `1px solid ${c.gebiedNaam.toLowerCase().includes('airport') ? '#fdba74' : '#bfdbfe'}`,
-                      }}>
-                        {c.gebiedNaam.toLowerCase().includes('airport') ? 'Flight Forum' : 'Centrum · Fellenoord'}
-                      </span>
-                    </div>
-                    <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}>
-                      <EditableText storageKey={`wc.${c.id}.rol`} defaultValue={c.rol} />
-                    </span>
-                    {c.notitie && (
-                      <div style={{ marginTop: 8, fontSize: 11, color: '#78716c', lineHeight: 1.5 }}>
-                        <EditableText storageKey={`wc.${c.id}.notitie`} defaultValue={c.notitie} tag="div" multiline />
-                      </div>
-                    )}
+          {openGekoppeld && (
+            <>
+              {/* Warme contacten */}
+              {prioriteitContacten.length > 0 && (
+                <div style={{ padding: '14px 16px', borderTop: '1px solid #dbeafe', borderBottom: prioriteitLeads.length > 0 ? '1px solid #dbeafe' : 'none' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 10 }}>
+                    Warme contacten — in prioriteitsgebied
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
+                    {prioriteitContacten.map((c) => {
+                      const isAirport = c.gebiedNaam.toLowerCase().includes('airport')
+                      const gebiedBadge = isAirport
+                        ? { label: 'Flight Forum',       bg: '#fff7ed', text: '#9a3412', border: '#fdba74' }
+                        : { label: 'Centrum · Fellenoord', bg: '#eff6ff', text: '#1e40af', border: '#bfdbfe' }
+                      return (
+                        <PrioriteitWarmContactCard
+                          key={c.id}
+                          contact={c}
+                          gebiedBadge={gebiedBadge}
+                        />
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
-          {/* Aflopende contracten */}
-          {prioriteitLeads.length > 0 && (
-            <div style={{ padding: '14px 16px' }}>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 10 }}>
-                Aflopende contracten — in prioriteitsgebied
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {prioriteitLeads.map((l) => {
-                  const u = urgentieLabel(l.contractBegin)
-                  const [jaar, maand] = l.contractBegin.split('-')
-                  const maandNamen = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec']
-                  const eindJaar = parseInt(jaar) + 5
-                  const eindLabel = `${maandNamen[parseInt(maand) - 1]} ${eindJaar}`
-                  return (
-                    <div
-                      key={l.id}
-                      style={{
-                        display: 'flex', alignItems: 'flex-start', gap: 12,
-                        border: '1px solid var(--c-border)', borderRadius: 10,
-                        padding: '10px 14px', background: 'var(--c-surface)',
-                      }}
-                    >
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
-                          <span style={{ fontWeight: 700, fontSize: 12, color: 'var(--c-text)' }}>{l.huurder}</span>
-                          <span style={{
-                            fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, flexShrink: 0,
-                            background: l.gebiedNaam.toLowerCase().includes('airport') ? '#fff7ed' : '#eff6ff',
-                            color:      l.gebiedNaam.toLowerCase().includes('airport') ? '#9a3412'  : '#1e40af',
-                            border: `1px solid ${l.gebiedNaam.toLowerCase().includes('airport') ? '#fdba74' : '#bfdbfe'}`,
-                          }}>
-                            {l.gebiedNaam.toLowerCase().includes('airport') ? 'Flight Forum' : 'Centrum · Fellenoord'}
-                          </span>
-                          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: u.bg, color: u.text }}>
-                            {u.label}
-                          </span>
+              {/* Aflopende contracten */}
+              {prioriteitLeads.length > 0 && (
+                <div style={{ padding: '14px 16px', borderTop: prioriteitContacten.length > 0 ? 'none' : '1px solid #dbeafe' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 10 }}>
+                    Aflopende contracten — in prioriteitsgebied
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {prioriteitLeads.map((l) => {
+                      const u = urgentieLabel(l.contractBegin)
+                      const [jaar, maand] = l.contractBegin.split('-')
+                      const maandNamen = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec']
+                      const eindJaar = parseInt(jaar) + 5
+                      const eindLabel = `${maandNamen[parseInt(maand) - 1]} ${eindJaar}`
+                      const isAirport = l.gebiedNaam.toLowerCase().includes('airport')
+                      const gebiedBadge = isAirport
+                        ? { label: 'Flight Forum',         bg: '#fff7ed', text: '#9a3412', border: '#fdba74' }
+                        : { label: 'Centrum · Fellenoord', bg: '#eff6ff', text: '#1e40af', border: '#bfdbfe' }
+                      return (
+                        <div
+                          key={l.id}
+                          style={{ display: 'flex', alignItems: 'flex-start', gap: 12, border: '1px solid var(--c-border)', borderRadius: 10, padding: '10px 14px', background: 'var(--c-surface)' }}
+                        >
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
+                              <span style={{ fontWeight: 700, fontSize: 12, color: 'var(--c-text)' }}>{l.huurder}</span>
+                              <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, flexShrink: 0, background: gebiedBadge.bg, color: gebiedBadge.text, border: `1px solid ${gebiedBadge.border}` }}>
+                                {gebiedBadge.label}
+                              </span>
+                              <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: u.bg, color: u.text }}>
+                                {u.label}
+                              </span>
+                            </div>
+                            <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>
+                              {l.pandnaam} · {l.omvang.toLocaleString('nl-NL')} m² · {l.branche}
+                            </div>
+                            <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
+                              Contract eindigt ~{eindLabel}
+                              {l.huurprijsPerM2 && <span style={{ marginLeft: 8 }}>€{l.huurprijsPerM2}/m²/jr</span>}
+                            </div>
+                          </div>
                         </div>
-                        <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>
-                          {l.pandnaam} · {l.omvang.toLocaleString('nl-NL')} m² · {l.branche}
-                        </div>
-                        <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
-                          Contract eindigt ~{eindLabel}
-                          {l.huurprijsPerM2 && <span style={{ marginLeft: 8 }}>€{l.huurprijsPerM2}/m²/jr</span>}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
