@@ -3432,6 +3432,116 @@ function PrioriteitWarmContactCard({ contact, gebiedBadge }: { contact: WarmCont
   )
 }
 
+// ── Lead card voor gekoppelde prioriteitsgebieden ────────────────────────────
+
+function PrioriteitLeadCard({ lead, gebiedBadge }: { lead: KansrijkeLead & { gebiedNaam: string }; gebiedBadge: GebiedBadge }) {
+  const [showBegroting, setShowBegroting] = useState(false)
+  const sk = `prioriteit.lead.${lead.id}`
+
+  const [jaar, maand] = lead.contractBegin.split('-')
+  const maandNamen = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec']
+  const eindJaar  = parseInt(jaar) + 5
+  const eindLabel = `${maandNamen[parseInt(maand) - 1]} ${eindJaar}`
+
+  const [year, month] = lead.contractBegin.split('-').map(Number)
+  const afloop  = new Date(year + 5, month - 1, 1)
+  const now     = new Date()
+  const maanden = (afloop.getFullYear() - now.getFullYear()) * 12 + (afloop.getMonth() - now.getMonth())
+  const u = maanden < 12
+    ? { label: '< 1 jaar',   bg: '#fef2f2', text: '#991b1b', dot: '#ef4444' }
+    : maanden < 24
+    ? { label: '1 – 2 jaar', bg: '#fff7ed', text: '#9a3412', dot: '#f97316' }
+    : { label: '> 2 jaar',   bg: '#f0fdf4', text: '#166534', dot: '#22c55e' }
+
+  const calcLow  = calcBegroting(lead.omvang, 'Hybrid', 'Low',  'Low',  'Low',  250)
+  const calcMid  = calcBegroting(lead.omvang, 'Hybrid', 'Mid',  'Mid',  'Mid',  350)
+  const calcHigh = calcBegroting(lead.omvang, 'Hybrid', 'High', 'High', 'High', 500)
+
+  const fmt = (n: number) => `€${(n / 1000).toFixed(0)}k`
+
+  return (
+    <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderLeft: '4px solid var(--c-coral)', borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+      <div style={{ padding: '14px 16px 10px' }}>
+        {/* Badges rij */}
+        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 8 }}>
+          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: gebiedBadge.bg, color: gebiedBadge.text, border: `1px solid ${gebiedBadge.border}` }}>
+            <EditableText storageKey={`${sk}.gebiedbadge`} defaultValue={gebiedBadge.label} />
+          </span>
+          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: u.bg, color: u.text }}>
+            <EditableText storageKey={`${sk}.urgentie`} defaultValue={u.label} />
+          </span>
+        </div>
+
+        {/* Huurder */}
+        <EditableText
+          storageKey={`${sk}.huurder`}
+          defaultValue={lead.huurder}
+          style={{ fontWeight: 700, fontSize: 13, color: 'var(--c-text)', display: 'block' }}
+        />
+        <EditableText
+          storageKey={`${sk}.branche`}
+          defaultValue={lead.branche}
+          style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2, display: 'block' }}
+        />
+
+        {/* Pand + m² */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+          <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#f8f7f5', border: '1px solid var(--c-border)', color: 'var(--c-muted)' }}>
+            <EditableText storageKey={`${sk}.pandnaam`} defaultValue={lead.pandnaam} />
+          </span>
+          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: '#f8f7f5', border: '1px solid var(--c-border)', color: 'var(--c-text)' }}>
+            <EditableText storageKey={`${sk}.omvang`} defaultValue={`${lead.omvang.toLocaleString('nl-NL')} m²`} />
+          </span>
+          {lead.huurprijsPerM2 && (
+            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534' }}>
+              <EditableText storageKey={`${sk}.huurprijs`} defaultValue={`€${lead.huurprijsPerM2}/m²/jr`} />
+            </span>
+          )}
+        </div>
+
+        {/* Contract einddatum */}
+        <div style={{ marginTop: 8, fontSize: 11, color: 'var(--c-subtle)', display: 'flex', alignItems: 'center', gap: 5 }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: u.dot, flexShrink: 0, display: 'inline-block' }} />
+          <EditableText storageKey={`${sk}.eindlabel.prefix`} defaultValue="Contract eindigt ~" />
+          <EditableText storageKey={`${sk}.eindlabel`} defaultValue={eindLabel} style={{ fontWeight: 600, color: 'var(--c-text)' }} />
+        </div>
+      </div>
+
+      {/* Begrotingindicator toggle */}
+      <div style={{ borderTop: '1px solid var(--c-border)' }}>
+        <button
+          onClick={() => setShowBegroting((s) => !s)}
+          style={{ width: '100%', padding: '8px 16px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11, fontWeight: 600, color: 'var(--c-coral)' }}
+        >
+          <EditableText storageKey={`${sk}.begroting.label`} defaultValue="Begrotingsindicatie" style={{ pointerEvents: 'none' }} />
+          <span style={{ fontSize: 12, transform: showBegroting ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>›</span>
+        </button>
+        {showBegroting && (
+          <div style={{ padding: '0 16px 14px', display: 'flex', gap: 6 }}>
+            {[
+              { key: 'low',  label: 'Low',  calc: calcLow,  bg: '#f0fdf4', text: '#166534', border: '#bbf7d0' },
+              { key: 'mid',  label: 'Mid',  calc: calcMid,  bg: '#fefce8', text: '#854d0e', border: '#fde68a' },
+              { key: 'high', label: 'High', calc: calcHigh, bg: '#fff1f2', text: '#9f1239', border: '#fecdd3' },
+            ].map(({ key, label, calc, bg, text, border }) => (
+              <div key={key} style={{ flex: 1, background: bg, border: `1px solid ${border}`, borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
+                <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: text, marginBottom: 3 }}>
+                  <EditableText storageKey={`${sk}.begroting.${key}.label`} defaultValue={label} />
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: text }}>
+                  <EditableText storageKey={`${sk}.begroting.${key}.totaal`} defaultValue={fmt(calc.total)} />
+                </div>
+                <div style={{ fontSize: 9, color: text, opacity: 0.75, marginTop: 1 }}>
+                  <EditableText storageKey={`${sk}.begroting.${key}.pm2`} defaultValue={`€${Math.round(calc.prijs_per_m2)}/m²`} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── FASE-FASE 3: Actief prospecting ──────────────────────────────────────────
 
 type OntwikkelingFaseBadge = { label: string; bg: string; text: string }
@@ -3484,16 +3594,6 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   const prioriteitLeads: (KansrijkeLead & { gebiedNaam: string })[] = prioriteitGebieden.flatMap((g) =>
     (g.kansrijkeLeads ?? []).map((l) => ({ ...l, gebiedNaam: g.naam }))
   )
-
-  function urgentieLabel(contractBegin: string): { label: string; bg: string; text: string } {
-    const [year, month] = contractBegin.split('-').map(Number)
-    const afloop = new Date(year + 5, month - 1, 1)
-    const now    = new Date()
-    const maanden = (afloop.getFullYear() - now.getFullYear()) * 12 + (afloop.getMonth() - now.getMonth())
-    if (maanden < 12) return { label: '< 1 jaar',   bg: '#fef2f2', text: '#991b1b' }
-    if (maanden < 24) return { label: '1 – 2 jaar', bg: '#fff7ed', text: '#9a3412' }
-    return                    { label: '> 2 jaar',   bg: '#f0fdf4', text: '#166534' }
-  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -3743,10 +3843,13 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', flexShrink: 0 }} />
               <div>
                 <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#3b82f6' }}>
-                  Gekoppeld aan aanbevolen actie
+                  <EditableText storageKey="fase3.eind.gekoppeld.overkoepelend" defaultValue="Gekoppeld aan aanbevolen actie" />
                 </div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a8a', marginTop: 1 }}>
-                  {prioriteitContacten.length} warme contact{prioriteitContacten.length !== 1 ? 'en' : ''} · {prioriteitLeads.length} aflopend{prioriteitLeads.length !== 1 ? 'e contracten' : ' contract'} — Flight Forum & Centrum Eindhoven
+                  <EditableText
+                    storageKey="fase3.eind.gekoppeld.header"
+                    defaultValue={`${prioriteitContacten.length} warme contacten · ${prioriteitLeads.filter((l) => l.huurprijsPerM2).length} aflopende contracten — Flight Forum & Centrum Eindhoven`}
+                  />
                 </div>
               </div>
             </div>
@@ -3759,7 +3862,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
               {prioriteitContacten.length > 0 && (
                 <div style={{ padding: '14px 16px', borderTop: '1px solid #dbeafe', borderBottom: prioriteitLeads.length > 0 ? '1px solid #dbeafe' : 'none' }}>
                   <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 10 }}>
-                    Warme contacten — in prioriteitsgebied
+                    <EditableText storageKey="fase3.eind.contacten.sublabel" defaultValue="Warme contacten — in prioriteitsgebied" />
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
                     {prioriteitContacten.map((c) => {
@@ -3780,47 +3883,18 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
               )}
 
               {/* Aflopende contracten */}
-              {prioriteitLeads.length > 0 && (
+              {prioriteitLeads.filter((l) => l.huurprijsPerM2).length > 0 && (
                 <div style={{ padding: '14px 16px', borderTop: prioriteitContacten.length > 0 ? 'none' : '1px solid #dbeafe' }}>
                   <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 10 }}>
-                    Aflopende contracten — in prioriteitsgebied
+                    <EditableText storageKey="fase3.eind.leads.sublabel" defaultValue="Aflopende contracten — in prioriteitsgebied" />
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {prioriteitLeads.map((l) => {
-                      const u = urgentieLabel(l.contractBegin)
-                      const [jaar, maand] = l.contractBegin.split('-')
-                      const maandNamen = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec']
-                      const eindJaar = parseInt(jaar) + 5
-                      const eindLabel = `${maandNamen[parseInt(maand) - 1]} ${eindJaar}`
-                      const isAirport = l.gebiedNaam.toLowerCase().includes('airport')
-                      const gebiedBadge = isAirport
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                    {prioriteitLeads.filter((l) => l.huurprijsPerM2).map((l) => {
+                      const isAirport  = l.gebiedNaam.toLowerCase().includes('airport')
+                      const gebiedBadge: GebiedBadge = isAirport
                         ? { label: 'Flight Forum',         bg: '#fff7ed', text: '#9a3412', border: '#fdba74' }
                         : { label: 'Centrum · Fellenoord', bg: '#eff6ff', text: '#1e40af', border: '#bfdbfe' }
-                      return (
-                        <div
-                          key={l.id}
-                          style={{ display: 'flex', alignItems: 'flex-start', gap: 12, border: '1px solid var(--c-border)', borderRadius: 10, padding: '10px 14px', background: 'var(--c-surface)' }}
-                        >
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
-                              <span style={{ fontWeight: 700, fontSize: 12, color: 'var(--c-text)' }}>{l.huurder}</span>
-                              <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, flexShrink: 0, background: gebiedBadge.bg, color: gebiedBadge.text, border: `1px solid ${gebiedBadge.border}` }}>
-                                {gebiedBadge.label}
-                              </span>
-                              <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: u.bg, color: u.text }}>
-                                {u.label}
-                              </span>
-                            </div>
-                            <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>
-                              {l.pandnaam} · {l.omvang.toLocaleString('nl-NL')} m² · {l.branche}
-                            </div>
-                            <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
-                              Contract eindigt ~{eindLabel}
-                              {l.huurprijsPerM2 && <span style={{ marginLeft: 8 }}>€{l.huurprijsPerM2}/m²/jr</span>}
-                            </div>
-                          </div>
-                        </div>
-                      )
+                      return <PrioriteitLeadCard key={l.id} lead={l} gebiedBadge={gebiedBadge} />
                     })}
                   </div>
                 </div>
