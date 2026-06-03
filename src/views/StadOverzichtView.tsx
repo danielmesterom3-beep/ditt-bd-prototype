@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Compass, Users, Target, Handshake } from 'lucide-react'
 import { useAllSteden } from '../context/CustomStedenContext'
-import type { Stad, Gebied, GebiedStatus, WarmContact } from '../data/types'
+import type { Stad, Gebied, GebiedStatus, WarmContact, KansrijkeLead } from '../data/types'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
 import BronTooltip from '../components/BronTooltip'
 import EditableText, { queueChange, STORAGE_PREFIX, getEditableText } from '../components/EditableText'
@@ -3358,6 +3358,28 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
     textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8,
   }
 
+  // Prioriteitsgebieden Eindhoven — gekoppeld aan aanbevolen actie
+  const PRIORITEIT_GEBIED_IDS = ['centrum-eindhoven', 'airport-ehv']
+  const prioriteitGebieden = stadNaam === 'Eindhoven'
+    ? (stadData?.gebieden.filter((g) => PRIORITEIT_GEBIED_IDS.includes(g.id)) ?? [])
+    : []
+  const prioriteitContacten: (WarmContact & { gebiedNaam: string })[] = prioriteitGebieden.flatMap((g) =>
+    g.warmeContacten.map((c) => ({ ...c, gebiedNaam: g.naam }))
+  )
+  const prioriteitLeads: (KansrijkeLead & { gebiedNaam: string })[] = prioriteitGebieden.flatMap((g) =>
+    (g.kansrijkeLeads ?? []).map((l) => ({ ...l, gebiedNaam: g.naam }))
+  )
+
+  function urgentieLabel(contractBegin: string): { label: string; bg: string; text: string } {
+    const [year, month] = contractBegin.split('-').map(Number)
+    const afloop = new Date(year + 5, month - 1, 1)
+    const now    = new Date()
+    const maanden = (afloop.getFullYear() - now.getFullYear()) * 12 + (afloop.getMonth() - now.getMonth())
+    if (maanden < 12) return { label: '< 1 jaar',   bg: '#fef2f2', text: '#991b1b' }
+    if (maanden < 24) return { label: '1 – 2 jaar', bg: '#fff7ed', text: '#9a3412' }
+    return                    { label: '> 2 jaar',   bg: '#f0fdf4', text: '#166534' }
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
@@ -3590,6 +3612,132 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
               style={{ fontSize: 12, color: '#1e3a8a', lineHeight: 1.7 }}
             />
           </div>
+        </div>
+      )}
+
+      {/* Gekoppelde kansen — warme contacten + aflopende contracten in prioriteitsgebieden */}
+      {stadNaam === 'Eindhoven' && (prioriteitContacten.length > 0 || prioriteitLeads.length > 0) && (
+        <div style={{
+          border: '1px solid #bfdbfe',
+          borderLeft: '4px solid #3b82f6',
+          borderRadius: 12,
+          overflow: 'hidden',
+          background: '#f8faff',
+        }}>
+          {/* Header */}
+          <div style={{ padding: '10px 16px 8px', background: '#eff6ff', borderBottom: '1px solid #dbeafe', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#3b82f6' }}>
+                <EditableText storageKey="fase3.eind.gekoppeld.label" defaultValue="Gekoppeld aan aanbevolen actie" />
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a8a', marginTop: 1 }}>
+                <EditableText storageKey="fase3.eind.gekoppeld.titel" defaultValue="Actieve kansen in Flight Forum & Centrum Eindhoven" />
+              </div>
+            </div>
+          </div>
+
+          {/* Warme contacten */}
+          {prioriteitContacten.length > 0 && (
+            <div style={{ padding: '14px 16px', borderBottom: prioriteitLeads.length > 0 ? '1px solid #dbeafe' : 'none' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 10 }}>
+                Warme contacten — in prioriteitsgebied
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 10 }}>
+                {prioriteitContacten.map((c) => (
+                  <div
+                    key={c.id}
+                    style={{
+                      background: 'linear-gradient(160deg, #fffbeb 0%, #fefce8 100%)',
+                      border: '1px solid #fcd34d',
+                      borderLeft: '4px solid #d97706',
+                      borderRadius: 12,
+                      padding: '12px 14px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6, gap: 8 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: 12, color: '#1a1a1a' }}>
+                          <EditableText storageKey={`wc.${c.id}.naam`} defaultValue={c.naam || '—'} />
+                        </div>
+                        <div style={{ fontSize: 11, color: '#78716c', marginTop: 1 }}>
+                          <EditableText storageKey={`wc.${c.id}.organisatie`} defaultValue={c.organisatie} />
+                        </div>
+                      </div>
+                      <span style={{
+                        fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, flexShrink: 0,
+                        background: c.gebiedNaam.toLowerCase().includes('airport') ? '#fff7ed' : '#eff6ff',
+                        color:      c.gebiedNaam.toLowerCase().includes('airport') ? '#9a3412'  : '#1e40af',
+                        border: `1px solid ${c.gebiedNaam.toLowerCase().includes('airport') ? '#fdba74' : '#bfdbfe'}`,
+                      }}>
+                        {c.gebiedNaam.toLowerCase().includes('airport') ? 'Flight Forum' : 'Centrum · Fellenoord'}
+                      </span>
+                    </div>
+                    <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d' }}>
+                      <EditableText storageKey={`wc.${c.id}.rol`} defaultValue={c.rol} />
+                    </span>
+                    {c.notitie && (
+                      <div style={{ marginTop: 8, fontSize: 11, color: '#78716c', lineHeight: 1.5 }}>
+                        <EditableText storageKey={`wc.${c.id}.notitie`} defaultValue={c.notitie} tag="div" multiline />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Aflopende contracten */}
+          {prioriteitLeads.length > 0 && (
+            <div style={{ padding: '14px 16px' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 10 }}>
+                Aflopende contracten — in prioriteitsgebied
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {prioriteitLeads.map((l) => {
+                  const u = urgentieLabel(l.contractBegin)
+                  const [jaar, maand] = l.contractBegin.split('-')
+                  const maandNamen = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec']
+                  const eindJaar = parseInt(jaar) + 5
+                  const eindLabel = `${maandNamen[parseInt(maand) - 1]} ${eindJaar}`
+                  return (
+                    <div
+                      key={l.id}
+                      style={{
+                        display: 'flex', alignItems: 'flex-start', gap: 12,
+                        border: '1px solid var(--c-border)', borderRadius: 10,
+                        padding: '10px 14px', background: 'var(--c-surface)',
+                      }}
+                    >
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
+                          <span style={{ fontWeight: 700, fontSize: 12, color: 'var(--c-text)' }}>{l.huurder}</span>
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, flexShrink: 0,
+                            background: l.gebiedNaam.toLowerCase().includes('airport') ? '#fff7ed' : '#eff6ff',
+                            color:      l.gebiedNaam.toLowerCase().includes('airport') ? '#9a3412'  : '#1e40af',
+                            border: `1px solid ${l.gebiedNaam.toLowerCase().includes('airport') ? '#fdba74' : '#bfdbfe'}`,
+                          }}>
+                            {l.gebiedNaam.toLowerCase().includes('airport') ? 'Flight Forum' : 'Centrum · Fellenoord'}
+                          </span>
+                          <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: u.bg, color: u.text }}>
+                            {u.label}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--c-muted)' }}>
+                          {l.pandnaam} · {l.omvang.toLocaleString('nl-NL')} m² · {l.branche}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
+                          Contract eindigt ~{eindLabel}
+                          {l.huurprijsPerM2 && <span style={{ marginLeft: 8 }}>€{l.huurprijsPerM2}/m²/jr</span>}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
