@@ -3453,10 +3453,13 @@ function PrioriteitLeadCard({ lead, gebiedBadge }: { lead: KansrijkeLead & { geb
     ? { label: '1 – 2 jaar', bg: '#fff7ed', text: '#9a3412', dot: '#f97316' }
     : { label: '> 2 jaar',   bg: '#f0fdf4', text: '#166534', dot: '#22c55e' }
 
-  const calcLow  = calcBegroting(lead.omvang, 'Hybrid', 'Low',  'Low',  'Low',  250)
-  const calcMid  = calcBegroting(lead.omvang, 'Hybrid', 'Mid',  'Mid',  'Mid',  350)
-  const calcHigh = calcBegroting(lead.omvang, 'Hybrid', 'High', 'High', 'High', 500)
+  const [begType,      setBegType]      = useState('Hybrid')
+  const [begFitout,    setBegFitout]    = useState('Mid')
+  const [begFurniture, setBegFurniture] = useState('Mid')
+  const [begIdentity,  setBegIdentity]  = useState('Mid')
+  const [begMep,       setBegMep]       = useState(350)
 
+  const beg = calcBegroting(lead.omvang, begType, begFitout, begFurniture, begIdentity, begMep)
   const fmt = (n: number) => `€${(n / 1000).toFixed(0)}k`
 
   return (
@@ -3511,30 +3514,77 @@ function PrioriteitLeadCard({ lead, gebiedBadge }: { lead: KansrijkeLead & { geb
       <div style={{ borderTop: '1px solid var(--c-border)' }}>
         <button
           onClick={() => setShowBegroting((s) => !s)}
-          style={{ width: '100%', padding: '8px 16px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11, fontWeight: 600, color: 'var(--c-coral)' }}
+          style={{ width: '100%', padding: '8px 16px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11, fontWeight: 600, color: '#60a5fa' }}
         >
           <EditableText storageKey={`${sk}.begroting.label`} defaultValue="Begrotingsindicatie" style={{ pointerEvents: 'none' }} />
-          <span style={{ fontSize: 12, transform: showBegroting ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>›</span>
+          <span style={{ fontSize: 12, transform: showBegroting ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}>›</span>
         </button>
         {showBegroting && (
-          <div style={{ padding: '0 16px 14px', display: 'flex', gap: 6 }}>
-            {[
-              { key: 'low',  label: 'Low',  calc: calcLow,  bg: '#f0fdf4', text: '#166534', border: '#bbf7d0' },
-              { key: 'mid',  label: 'Mid',  calc: calcMid,  bg: '#fefce8', text: '#854d0e', border: '#fde68a' },
-              { key: 'high', label: 'High', calc: calcHigh, bg: '#fff1f2', text: '#9f1239', border: '#fecdd3' },
-            ].map(({ key, label, calc, bg, text, border }) => (
-              <div key={key} style={{ flex: 1, background: bg, border: `1px solid ${border}`, borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
-                <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: text, marginBottom: 3 }}>
-                  <EditableText storageKey={`${sk}.begroting.${key}.label`} defaultValue={label} />
-                </div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: text }}>
-                  <EditableText storageKey={`${sk}.begroting.${key}.totaal`} defaultValue={fmt(calc.total)} />
-                </div>
-                <div style={{ fontSize: 9, color: text, opacity: 0.75, marginTop: 1 }}>
-                  <EditableText storageKey={`${sk}.begroting.${key}.pm2`} defaultValue={`€${Math.round(calc.prijs_per_m2)}/m²`} />
-                </div>
+          <div style={{ margin: '0 16px 14px', background: '#0f172a', borderRadius: 10, overflow: 'hidden', border: '1px solid #1e293b' }}>
+            {/* Header */}
+            <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid #1e293b' }}>
+              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', color: '#60a5fa', textTransform: 'uppercase' }}>
+                Begrotingsindicatie
+              </span>
+            </div>
+
+            {/* Dropdowns */}
+            <div style={{ padding: '10px 14px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 10px' }}>
+              <div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Type</div>
+                <select value={begType} onChange={e => setBegType(e.target.value)} style={{ ...selectStyle, width: '100%', background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' }}>
+                  {['Open','Hybrid','Traditional'].map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
               </div>
-            ))}
+              <div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Fitout</div>
+                <select value={begFitout} onChange={e => setBegFitout(e.target.value)} style={{ ...selectStyle, width: '100%', background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' }}>
+                  {['Low','Mid','High'].map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+              <div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Furniture</div>
+                <select value={begFurniture} onChange={e => setBegFurniture(e.target.value)} style={{ ...selectStyle, width: '100%', background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' }}>
+                  {['Low','Mid','High'].map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+              <div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Identity</div>
+                <select value={begIdentity} onChange={e => setBegIdentity(e.target.value)} style={{ ...selectStyle, width: '100%', background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' }}>
+                  {['Low','Mid','High'].map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Installaties</div>
+                <select value={begMep} onChange={e => setBegMep(Number(e.target.value))} style={{ ...selectStyle, width: '100%', background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' }}>
+                  {MEP_OPTIES.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Result panel */}
+            <div style={{ margin: '0 14px 12px', background: '#1e293b', borderRadius: 8, padding: '12px 14px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 0 }}>
+              <div style={{ textAlign: 'center', borderRight: '1px solid #334155' }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Investering</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9' }}>{fmt(beg.total)}</div>
+                <div style={{ fontSize: 9, color: '#60a5fa', marginTop: 2 }}>€{Math.round(beg.prijs_per_m2)}/m²</div>
+              </div>
+              <div style={{ textAlign: 'center', borderRight: '1px solid #334155' }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Inkoop</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#f1f5f9' }}>{fmt(beg.inkoop)}</div>
+                <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>&nbsp;</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Marge</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#34d399' }}>{(beg.marge * 100).toFixed(1)}%</div>
+                <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>&nbsp;</div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div style={{ padding: '0 14px 10px', fontSize: 9, color: '#475569', textAlign: 'center' }}>
+              {lead.omvang.toLocaleString('nl-NL')} m² · Begrotingssheet 2026 Premium · bouwplaats 4% inbegrepen
+            </div>
           </div>
         )}
       </div>
