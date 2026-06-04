@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { unzip } from 'fflate'
 import { supabase } from '../lib/supabase'
 import { useAllSteden } from '../context/CustomStedenContext'
 
@@ -205,6 +206,132 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
+// ── AI extractie ─────────────────────────────────────────────────────────────
+
+function fileExt(file: File) {
+  return file.name.split('.').pop()?.toLowerCase() ?? ''
+}
+
+function extractDocxText(buffer: ArrayBuffer): Promise<string | null> {
+  return new Promise((resolve) => {
+    unzip(new Uint8Array(buffer), (err, files) => {
+      if (err || !files['word/document.xml']) return resolve(null)
+      const xml = new TextDecoder().decode(files['word/document.xml'])
+      const text = xml
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+        .replace(/&apos;/g, "'").replace(/&quot;/g, '"')
+        .replace(/\s+/g, ' ').trim()
+      resolve(text.length > 30 ? text : null)
+    })
+  })
+}
+
+async function extractText(file: File): Promise<string | null> {
+  const ext = fileExt(file)
+  if (['txt', 'md', 'csv'].includes(ext)) {
+    return new Promise((resolve) => {
+      const r = new FileReader()
+      r.onload = (e) => resolve((e.target?.result as string) ?? null)
+      r.onerror = () => resolve(null)
+      r.readAsText(file)
+    })
+  }
+  if (ext === 'docx') {
+    return new Promise((resolve) => {
+      const r = new FileReader()
+      r.onload = (e) => {
+        const buf = e.target?.result as ArrayBuffer
+        if (!buf) return resolve(null)
+        extractDocxText(buf).then(resolve)
+      }
+      r.onerror = () => resolve(null)
+      r.readAsArrayBuffer(file)
+    })
+  }
+  return null
+}
+
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    const r = new FileReader()
+    r.onload = (e) => resolve(((e.target?.result as string) ?? '').split(',')[1] ?? '')
+    r.readAsDataURL(file)
+  })
+}
+
+async function callClaude(
+  file: File,
+  text: string | null,
+  fields: EntityTypeDef['fields'],
+): Promise<Record<string, string>> {
+  const apiKey = (import.meta.env as Record<string, string>).VITE_ANTHROPIC_API_KEY
+  if (!apiKey) return {}
+
+  const ext = fileExt(file)
+  const fieldList = fields
+    .map((f) =>
+      f.type === 'select'
+        ? `- ${f.key}: ${f.label} (kies uit: ${f.options?.join('/')})`
+        : `- ${f.key}: ${f.label}${f.type === 'number' ? ' (getal)' : ''}${f.type === 'month' ? ' (YYYY-MM)' : ''}`,
+    )
+    .join('\n')
+
+  const userPrompt = `Analyseer dit document en extraheer de volgende velden als JSON object.
+Voeg alleen velden toe die duidelijk in het document staan. Lege/onzekere velden weglaten.
+Geef ALLEEN geldige JSON terug, geen uitleg.
+
+Te extraheren velden:
+${fieldList}
+
+Voorbeeld output: {"naam": "Jan de Vries", "organisatie": "ACME B.V."}`
+
+  let content: unknown[]
+
+  if (ext === 'pdf') {
+    const b64 = await fileToBase64(file)
+    content = [
+      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } },
+      { type: 'text', text: userPrompt },
+    ]
+  } else if (text) {
+    content = [{ type: 'text', text: `${userPrompt}\n\nDocumentinhoud:\n${text.slice(0, 6000)}` }]
+  } else {
+    return {}
+  }
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 600,
+        system: 'Je bent een data-extractie assistent voor een vastgoed BD tool. Geef alleen JSON terug.',
+        messages: [{ role: 'user', content }],
+      }),
+    })
+    if (!res.ok) return {}
+    const data = await res.json()
+    const raw: string = data.content?.[0]?.text ?? ''
+    const match = raw.match(/\{[\s\S]*\}/)
+    if (!match) return {}
+    const parsed = JSON.parse(match[0]) as Record<string, unknown>
+    const result: Record<string, string> = {}
+    for (const [k, v] of Object.entries(parsed)) {
+      if (v !== null && v !== undefined && v !== '') result[k] = String(v)
+    }
+    return result
+  } catch {
+    return {}
+  }
+}
+
 // ── Styles ────────────────────────────────────────────────────────────────────
 
 const labelStyle: React.CSSProperties = {
@@ -240,7 +367,10 @@ export default function DocumentDropzone() {
   const [formData, setFormData]         = useState<Record<string, string>>({})
   const [stad, setStad]                 = useState('')
   const [saved, setSaved]               = useState(false)
+  const [analyzing, setAnalyzing]       = useState(false)
   const { allSteden }                   = useAllSteden()
+
+  const hasApiKey = !!(import.meta.env as Record<string, string>).VITE_ANTHROPIC_API_KEY
 
   const isDragging = dragDepth > 0
   const isOpen     = droppedFile !== null
@@ -287,7 +417,7 @@ export default function DocumentDropzone() {
     setSaved(false)
   }
 
-  function pickType(def: EntityTypeDef) {
+  async function pickType(def: EntityTypeDef) {
     setSelectedType(def)
     const initial: Record<string, string> = {}
     def.fields.forEach((f) => {
@@ -295,6 +425,18 @@ export default function DocumentDropzone() {
     })
     setFormData(initial)
     setStep('form')
+
+    if (hasApiKey && droppedFile) {
+      setAnalyzing(true)
+      try {
+        const text = await extractText(droppedFile)
+        const extracted = await callClaude(droppedFile, text, def.fields)
+        if (Object.keys(extracted).length > 0) {
+          setFormData((prev) => ({ ...prev, ...extracted }))
+        }
+      } catch { /* ignore, user fills manually */ }
+      setAnalyzing(false)
+    }
   }
 
   async function handleSubmit() {
@@ -325,6 +467,7 @@ export default function DocumentDropzone() {
 
   return (
     <>
+      <style>{`@keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }`}</style>
       {/* ── Drag overlay ───────────────────────────────────────────────────── */}
       {isDragging && !isOpen && (
         <div
@@ -483,17 +626,30 @@ export default function DocumentDropzone() {
             {step === 'form' && selectedType && (
               <>
                 <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px' }}>
-                  {/* Back */}
-                  <button
-                    onClick={() => setStep('pick')}
-                    style={{
-                      background: 'none', border: 'none', color: '#60a5fa',
-                      fontSize: 12, cursor: 'pointer', padding: 0,
-                      marginBottom: 14, display: 'flex', alignItems: 'center', gap: 4,
-                    }}
-                  >
-                    ← Terug
-                  </button>
+                  {/* Back + analyze status */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                    <button
+                      onClick={() => setStep('pick')}
+                      style={{
+                        background: 'none', border: 'none', color: '#60a5fa',
+                        fontSize: 12, cursor: 'pointer', padding: 0,
+                        display: 'flex', alignItems: 'center', gap: 4,
+                      }}
+                    >
+                      ← Terug
+                    </button>
+                    {analyzing && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#60a5fa' }}>
+                        <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span>
+                        Document analyseren...
+                      </div>
+                    )}
+                    {!analyzing && hasApiKey && (
+                      <div style={{ fontSize: 10, color: '#34d399', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span>✓</span> AI-extractie actief
+                      </div>
+                    )}
+                  </div>
 
                   {/* Stad */}
                   <div style={{ marginBottom: 12 }}>
