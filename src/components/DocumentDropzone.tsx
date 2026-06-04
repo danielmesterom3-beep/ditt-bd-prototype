@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 import { useAllSteden } from '../context/CustomStedenContext'
 
 // ── Entity type config ────────────────────────────────────────────────────────
@@ -155,20 +156,34 @@ export interface ImportedItem {
 
 const IMPORT_KEY = 'document_imports'
 
+// Local cache so UI stays snappy; Supabase is source of truth
+let _cache: ImportedItem[] | null = null
+
 export function getImportedItems(): ImportedItem[] {
+  if (_cache !== null) return _cache
   try { return JSON.parse(localStorage.getItem(IMPORT_KEY) || '[]') } catch { return [] }
 }
 
-export function deleteImportedItem(id: string) {
-  const next = getImportedItems().filter((i) => i.id !== id)
-  localStorage.setItem(IMPORT_KEY, JSON.stringify(next))
+async function persistToSupabase(items: ImportedItem[]) {
+  const value = JSON.stringify(items)
+  localStorage.setItem(IMPORT_KEY, value)   // local cache
+  _cache = items
+  try {
+    await supabase
+      .from('edits')
+      .upsert({ key: IMPORT_KEY, value, updated_at: new Date().toISOString() })
+  } catch { /* ignore */ }
   window.dispatchEvent(new CustomEvent('document:import'))
 }
 
-function saveItem(item: ImportedItem) {
-  const items = getImportedItems()
-  localStorage.setItem(IMPORT_KEY, JSON.stringify([item, ...items]))
-  window.dispatchEvent(new CustomEvent('document:import'))
+export async function deleteImportedItem(id: string) {
+  const items = getImportedItems().filter((i) => i.id !== id)
+  await persistToSupabase(items)
+}
+
+async function saveItem(item: ImportedItem) {
+  const items = [item, ...getImportedItems()]
+  await persistToSupabase(items)
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -282,7 +297,7 @@ export default function DocumentDropzone() {
     setStep('form')
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!selectedType || !droppedFile) return
     const titleField = selectedType.fields.find((f) => f.required)
     const title = titleField ? (formData[titleField.key] || '(ongetiteld)') : '(ongetiteld)'
@@ -297,7 +312,7 @@ export default function DocumentDropzone() {
       data:      formData,
       title,
     }
-    saveItem(item)
+    await saveItem(item)
     setSaved(true)
     setTimeout(close, 1400)
   }

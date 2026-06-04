@@ -9,6 +9,7 @@ import { useEditMode } from '../context/EditContext'
 import { useViewMode } from '../context/ViewModeContext'
 import NieuwsFeed from '../components/NieuwsFeed'
 import { getImportedItems, deleteImportedItem, type ImportedItem } from '../components/DocumentDropzone'
+import { supabase } from '../lib/supabase'
 
 const BRONNEN = {
   jll:      'Jones Lang LaSalle IP, Inc. (2026). Office market: Rotterdam & Eindhoven Q4 2025. JLL Research.',
@@ -4963,9 +4964,34 @@ function RecenteImportsPanel() {
   const [items, setItems] = useState<ImportedItem[]>(() => getImportedItems())
 
   useEffect(() => {
+    // Local event (same tab)
     const handler = () => setItems(getImportedItems())
     window.addEventListener('document:import', handler)
-    return () => window.removeEventListener('document:import', handler)
+
+    // Supabase realtime (other tabs/users)
+    const channel = supabase
+      .channel('document-imports-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'edits' }, (payload) => {
+        const key = (payload.new as Record<string, string>)?.key ?? (payload.old as Record<string, string>)?.key
+        if (key === 'document_imports') handler()
+      })
+      .subscribe()
+
+    // Initial fetch from Supabase (in case localStorage is stale)
+    supabase.from('edits').select('value').eq('key', 'document_imports').maybeSingle().then(({ data }) => {
+      if (data?.value) {
+        try {
+          const remote = JSON.parse(data.value) as ImportedItem[]
+          setItems(remote)
+          localStorage.setItem('document_imports', data.value)
+        } catch { /* ignore */ }
+      }
+    })
+
+    return () => {
+      window.removeEventListener('document:import', handler)
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   if (items.length === 0) return null
