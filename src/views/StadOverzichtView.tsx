@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Compass, Users, Target, Handshake } from 'lucide-react'
 import { useAllSteden } from '../context/CustomStedenContext'
 import type { Stad, Gebied, GebiedStatus, WarmContact, KansrijkeLead } from '../data/types'
@@ -8,6 +8,7 @@ import EditableText, { queueChange, STORAGE_PREFIX, getEditableText } from '../c
 import { useEditMode } from '../context/EditContext'
 import { useViewMode } from '../context/ViewModeContext'
 import NieuwsFeed from '../components/NieuwsFeed'
+import { getImportedItems, deleteImportedItem, type ImportedItem } from '../components/DocumentDropzone'
 
 const BRONNEN = {
   jll:      'Jones Lang LaSalle IP, Inc. (2026). Office market: Rotterdam & Eindhoven Q4 2025. JLL Research.',
@@ -4956,6 +4957,139 @@ function ActieOverzichtView() {
   )
 }
 
+// ── RecenteImportsPanel ───────────────────────────────────────────────────────
+
+function RecenteImportsPanel() {
+  const [items, setItems] = useState<ImportedItem[]>(() => getImportedItems())
+
+  useEffect(() => {
+    const handler = () => setItems(getImportedItems())
+    window.addEventListener('document:import', handler)
+    return () => window.removeEventListener('document:import', handler)
+  }, [])
+
+  if (items.length === 0) return null
+
+  function fmt(iso: string) {
+    return new Date(iso).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })
+  }
+
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden' }}>
+      <div
+        style={{
+          padding: '12px 18px',
+          background: 'var(--c-surface)',
+          borderBottom: '1px solid var(--c-border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>
+            Geïmporteerde items
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 1 }}>
+            Aangemaakt via document drag &amp; drop — {items.length} item{items.length !== 1 ? 's' : ''}
+          </div>
+        </div>
+        <div
+          style={{
+            fontSize: 10,
+            fontWeight: 700,
+            color: '#64748b',
+            textTransform: 'uppercase',
+            letterSpacing: '0.07em',
+          }}
+        >
+          Sleep bestand op dit scherm om toe te voegen
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        {items.map((item, i) => (
+          <div
+            key={item.id}
+            style={{
+              padding: '10px 18px',
+              borderBottom: i < items.length - 1 ? '1px solid var(--c-border)' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              background: 'var(--c-surface)',
+            }}
+          >
+            {/* Type badge */}
+            <div
+              style={{
+                flexShrink: 0,
+                padding: '3px 8px',
+                borderRadius: 6,
+                background: item.typeColor + '18',
+                border: `1px solid ${item.typeColor}40`,
+                color: item.typeColor,
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: '0.04em',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {item.typeLabel}
+            </div>
+
+            {/* Title + meta */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: 'var(--c-text)',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {item.title}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 1, display: 'flex', gap: 8 }}>
+                {item.stad && <span>{item.stad}</span>}
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>
+                  {item.sourceFile}
+                </span>
+              </div>
+            </div>
+
+            {/* Date */}
+            <div style={{ fontSize: 11, color: 'var(--c-subtle)', flexShrink: 0 }}>
+              {fmt(item.createdAt)}
+            </div>
+
+            {/* Delete */}
+            <button
+              onClick={() => deleteImportedItem(item.id)}
+              title="Verwijderen"
+              style={{
+                flexShrink: 0,
+                background: 'none',
+                border: 'none',
+                color: 'var(--c-subtle)',
+                cursor: 'pointer',
+                fontSize: 14,
+                padding: '2px 4px',
+                borderRadius: 4,
+                lineHeight: 1,
+              }}
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ── StadOverzichtView ─────────────────────────────────────────────────────────
 
 export default function StadOverzichtView() {
@@ -5033,6 +5167,9 @@ export default function StadOverzichtView() {
           )}
         </div>
       )}
+
+      {/* Geïmporteerde items */}
+      <RecenteImportsPanel />
 
       {/* Testvalidatie */}
       <PanelWrapper hidden={hiddenPanels.has('testvalidatie')} onHide={() => hidePanel('testvalidatie')} editMode={isEditMode}><TestvalidatiePanel /></PanelWrapper>

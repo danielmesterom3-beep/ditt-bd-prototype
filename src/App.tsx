@@ -5,6 +5,7 @@ import { GebiedStatusProvider } from './context/GebiedStatusContext'
 import { CustomStedenProvider } from './context/CustomStedenContext'
 import { EditProvider, useEditMode } from './context/EditContext'
 import ViewModeSidebar from './components/ViewModeSidebar'
+import DocumentDropzone from './components/DocumentDropzone'
 import MarktDashboard from './views/MarktDashboard'
 import StadOverzichtView from './views/StadOverzichtView'
 import GebiedDetailView from './views/GebiedDetailView'
@@ -356,6 +357,7 @@ export default function App() {
         <CustomStedenProvider>
           <AppContent />
           <SaveButton />
+          <DocumentDropzone />
         </CustomStedenProvider>
       </GebiedStatusProvider>
     </EditProvider>
