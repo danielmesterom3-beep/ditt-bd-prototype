@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { unzip } from 'fflate'
 import { supabase } from '../lib/supabase'
 import { useAllSteden } from '../context/CustomStedenContext'
+import { queueChange } from './EditableText'
+import type { WarmContact, KansrijkeLead, Trend, InteressanteOpdrachtgever, PandInOntwikkeling } from '../data/types'
 
 // ── Entity type config ────────────────────────────────────────────────────────
 
@@ -187,6 +189,83 @@ async function saveItem(item: ImportedItem) {
   await persistToSupabase(items)
 }
 
+// ── Directe opslag in gebied-sectie ──────────────────────────────────────────
+
+const GEBIED_KEY_MAP: Partial<Record<EntityType, string>> = {
+  'warm-contact':   'added_wc_',
+  'kansrijke-lead': 'added_leads_',
+  'trend':          'added_trends_',
+  'opdrachtgever':  'added_og_',
+  'pand':           'added_panden_',
+}
+
+function saveToGebied(
+  entityType: EntityType,
+  formData: Record<string, string>,
+  gebiedId: string,
+): boolean {
+  const prefix = GEBIED_KEY_MAP[entityType]
+  if (!prefix) return false
+  const storageKey = prefix + gebiedId
+  const id = `imported-${Date.now()}`
+
+  let item: unknown
+  switch (entityType) {
+    case 'warm-contact':
+      item = {
+        id, naam: formData.naam ?? '', organisatie: formData.organisatie ?? '',
+        rol: formData.rol ?? '', email: formData.email ?? '', telefoon: formData.telefoon ?? '',
+        datumLaatsteContact: formData.datumLaatsteContact || new Date().toISOString().slice(0, 10),
+        notitie: formData.notitie ?? '',
+      } satisfies WarmContact
+      break
+    case 'kansrijke-lead':
+      item = {
+        id, pandnaam: formData.pandnaam ?? '', adres: formData.adres ?? '',
+        huurder: formData.huurder ?? '', branche: formData.branche ?? '',
+        omvang: Number(formData.omvang) || 0,
+        ...(formData.huurprijsPerM2 ? { huurprijsPerM2: Number(formData.huurprijsPerM2) } : {}),
+        contractBegin: formData.contractBegin || new Date().toISOString().slice(0, 7),
+        ...(formData.eigenaar ? { eigenaar: formData.eigenaar } : {}),
+        motivatie: formData.motivatie ?? '',
+      } satisfies KansrijkeLead
+      break
+    case 'trend':
+      item = {
+        id, omschrijving: formData.omschrijving ?? '',
+        richting: (formData.richting as Trend['richting']) || 'neutraal',
+      } satisfies Trend
+      break
+    case 'opdrachtgever':
+      item = {
+        id, naam: formData.naam ?? '', sector: formData.sector ?? '',
+        profiel: formData.profiel ?? '', reden: formData.reden ?? '',
+        status: (formData.status as InteressanteOpdrachtgever['status']) || 'prospect',
+      } satisfies InteressanteOpdrachtgever
+      break
+    case 'pand':
+      item = {
+        id, naam: formData.naam ?? '', adres: formData.adres ?? '',
+        oppervlakte: Number(formData.oppervlakte) || 0,
+        fase: (formData.fase as PandInOntwikkeling['fase']) || 'planfase',
+        verwachteOplevering: formData.verwachteOplevering ?? '',
+        ...(formData.ontwikkelaar ? { ontwikkelaar: formData.ontwikkelaar } : {}),
+        toelichting: formData.toelichting ?? '',
+      } satisfies PandInOntwikkeling
+      break
+    default:
+      return false
+  }
+
+  const existing: unknown[] = JSON.parse(localStorage.getItem(storageKey) ?? '[]')
+  const next = [...existing, item]
+  const json = JSON.stringify(next)
+  localStorage.setItem(storageKey, json)
+  window.dispatchEvent(new CustomEvent('ditt-remote-edit', { detail: { key: storageKey, value: json } }))
+  queueChange(storageKey, json)
+  return true
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getFileTag(filename: string): { tag: string; bg: string; color: string } {
@@ -365,10 +444,14 @@ export default function DocumentDropzone() {
   const [step, setStep]                 = useState<'pick' | 'form'>('pick')
   const [selectedType, setSelectedType] = useState<EntityTypeDef | null>(null)
   const [formData, setFormData]         = useState<Record<string, string>>({})
-  const [stad, setStad]                 = useState('')
   const [saved, setSaved]               = useState(false)
   const [analyzing, setAnalyzing]       = useState(false)
+  const [stadId, setStadId]             = useState('')
+  const [gebiedId, setGebiedId]         = useState('')
   const { allSteden }                   = useAllSteden()
+
+  const geselecteerdeStad = allSteden.find((s) => s.id === stadId)
+  const gebieden = geselecteerdeStad?.gebieden ?? []
 
   const hasApiKey = !!(import.meta.env as Record<string, string>).VITE_ANTHROPIC_API_KEY
 
@@ -392,7 +475,8 @@ export default function DocumentDropzone() {
         setStep('pick')
         setSelectedType(null)
         setFormData({})
-        setStad('')
+        setStadId('')
+        setGebiedId('')
         setSaved(false)
       }
     }
@@ -415,6 +499,8 @@ export default function DocumentDropzone() {
     setSelectedType(null)
     setFormData({})
     setSaved(false)
+    setStadId('')
+    setGebiedId('')
   }
 
   async function pickType(def: EntityTypeDef) {
@@ -443,18 +529,28 @@ export default function DocumentDropzone() {
     if (!selectedType || !droppedFile) return
     const titleField = selectedType.fields.find((f) => f.required)
     const title = titleField ? (formData[titleField.key] || '(ongetiteld)') : '(ongetiteld)'
-    const item: ImportedItem = {
-      id:        `import-${Date.now()}`,
-      type:      selectedType.type,
-      typeLabel: selectedType.label,
-      typeColor: selectedType.color,
-      sourceFile: droppedFile.name,
-      createdAt: new Date().toISOString(),
-      stad:      stad || undefined,
-      data:      formData,
-      title,
+
+    // Sla op in gebied-sectie als mogelijk, anders in losse imports
+    const savedToGebied = gebiedId
+      ? saveToGebied(selectedType.type, formData, gebiedId)
+      : false
+
+    if (!savedToGebied) {
+      const stadNaam = geselecteerdeStad?.naam
+      const item: ImportedItem = {
+        id:         `import-${Date.now()}`,
+        type:       selectedType.type,
+        typeLabel:  selectedType.label,
+        typeColor:  selectedType.color,
+        sourceFile: droppedFile.name,
+        createdAt:  new Date().toISOString(),
+        stad:       stadNaam,
+        data:       formData,
+        title,
+      }
+      await saveItem(item)
     }
-    await saveItem(item)
+
     setSaved(true)
     setTimeout(close, 1400)
   }
@@ -651,19 +747,40 @@ export default function DocumentDropzone() {
                     )}
                   </div>
 
-                  {/* Stad */}
-                  <div style={{ marginBottom: 12 }}>
-                    <label style={labelStyle}>Stad (optioneel)</label>
-                    <select
-                      value={stad}
-                      onChange={(e) => setStad(e.target.value)}
-                      style={inputStyle}
-                    >
-                      <option value="">— geen koppeling —</option>
-                      {allSteden.map((s) => (
-                        <option key={s.id} value={s.naam}>{s.naam}</option>
-                      ))}
-                    </select>
+                  {/* Stad + Gebied */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+                    <div>
+                      <label style={labelStyle}>Stad</label>
+                      <select
+                        value={stadId}
+                        onChange={(e) => { setStadId(e.target.value); setGebiedId('') }}
+                        style={inputStyle}
+                      >
+                        <option value="">— kies stad —</option>
+                        {allSteden.map((s) => (
+                          <option key={s.id} value={s.id}>{s.naam}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={labelStyle}>
+                        Gebied
+                        {gebiedId && GEBIED_KEY_MAP[selectedType.type] && (
+                          <span style={{ color: '#34d399', marginLeft: 4 }}>→ direct geplaatst</span>
+                        )}
+                      </label>
+                      <select
+                        value={gebiedId}
+                        onChange={(e) => setGebiedId(e.target.value)}
+                        style={inputStyle}
+                        disabled={!stadId}
+                      >
+                        <option value="">— kies gebied —</option>
+                        {gebieden.map((g) => (
+                          <option key={g.id} value={g.id}>{g.naam || g.id}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   <div style={{ height: 1, background: '#1e293b', marginBottom: 12 }} />
