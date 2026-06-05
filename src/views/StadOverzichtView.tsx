@@ -1310,6 +1310,35 @@ function RotterdamOmgevingskenmerkenPanel() {
             </div>
             )}
 
+            {/* Desque Rotterdam */}
+            {!hiddenCards.has('desque-rdam') && (
+            <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                <div>
+                  <EditableText storageKey="omgeving.rdam.desque.naam" defaultValue="Desque" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
+                    <EditableText storageKey="omgeving.rdam.desque.meta" defaultValue="desque.nl · Eindhoven/Rotterdam · Design & Build" style={{ fontSize: 11, color: 'var(--c-subtle)' }} />
+                    <BronTooltip bron={BRONNEN.kvk_desque} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <EditableText storageKey="omgeving.rdam.desque.badge" defaultValue="Actief in Rotterdam" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#fef2f2', color: '#991b1b', border: '1px solid #fca5a5' }} />
+                  {deleteBtn('desque-rdam')}
+                </div>
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <BalansRij storageKey="omgeving.rdam.desque.activa" label="Totaal activa" value="€ 3.388.629" />
+                <BalansRij storageKey="omgeving.rdam.desque.ev" label="Eigen vermogen" value="€ 58.605" highlight="rood" />
+                <BalansRij storageKey="omgeving.rdam.desque.liquide" label="Liquide middelen" value="€ 641.019" />
+                <BalansRij storageKey="omgeving.rdam.desque.schulden" label="Kortlopende schulden" value="€ 3.261.485" highlight="rood" />
+              </div>
+              <div style={{ padding: '10px 12px', background: '#fef2f2', borderRadius: 8, border: '1px solid #fca5a5' }}>
+                <EditableText storageKey="omgeving.rdam.desque.kop" defaultValue="Wat dit betekent voor Ditt" style={{ fontSize: 11, fontWeight: 700, color: '#991b1b', marginBottom: 4, display: 'block' }} />
+                <EditableText storageKey="omgeving.rdam.desque.context" defaultValue="Desque opereert vanuit Eindhoven maar is actief in Rotterdam — bevestigd via Schaub makelaars die met beide partijen samenwerken. Financieel staat Desque zwak: continuïteitszorg, negatief eigen vermogen en kortlopende schulden van €3,2M overstijgen vlottende activa ruimschoots. Opdrachtgevers die leveringszekerheid zoeken zijn een directe kans voor Ditt." multiline tag="div" style={{ fontSize: 11, color: '#991b1b', lineHeight: 1.6 }} />
+              </div>
+            </div>
+            )}
+
             {/* Strategische conclusie Rotterdam */}
             {!hiddenCards.has('conclusie') && (
             <div style={{ background: '#fff7f4', borderRadius: 10, padding: '16px', border: '1px solid #ffd4c2' }}>
