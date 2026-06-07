@@ -4076,11 +4076,19 @@ const F4_SLIDES: Record<F2Product, Record<F4Partij, { nr: number; omschrijving: 
   },
 }
 
+const F4_ELEVATOR_PITCH =
+  'Ditt Officemakers is design & build specialist voor kantoorwerkomgevingen — van schets tot sleuteloverdracht. ' +
+  'Wij zijn B Corp gecertificeerd (score 89,5), werken met 65+ specialisten en zetten onze eigen AI-tool in om ' +
+  'plattegronden snel in kaart te brengen. Of het nu gaat om een volledig Design & Build traject, een snelle ' +
+  'Fast Fit-Out of Detail & Build met een externe architect — wij zorgen dat het kantoor klaar is op tijd, ' +
+  'binnen budget en met een resultaat waar mensen blij van worden.'
+
 function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
   const [product,    setProduct]    = useState<F2Product>('design-and-build')
   const [partijType, setPartijType] = useState<F4Partij>('eigenaar')
   const [m2Input,    setM2Input]    = useState<string>('')
   const [cfg,        setCfg]        = useState<StadConfig>({ ...DEFAULT_STAD_CONFIG })
+  const [toonPitch,  setToonPitch]  = useState(false)
 
   const kanalen     = KANALEN_PER_STAD[stadNaam]
   const stadContext = kanalen?.[partijType]
@@ -4187,15 +4195,41 @@ function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
                 style={{ fontSize: 12, color: '#6d28d9', lineHeight: 1.6, fontStyle: 'italic' }}
               />
             </div>
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 8 }}><EditableText storageKey="fase2.proto.label.slides" defaultValue="Aanbevolen slides" /></div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {slides.map((s) => (
-                  <div key={s.nr} style={{ display: 'flex', alignItems: 'baseline', gap: 8, fontSize: 12, color: 'var(--c-muted)' }}>
-                    <span style={{ fontWeight: 700, color: 'var(--c-coral)', minWidth: 28, flexShrink: 0 }}>#{s.nr}</span>
-                    <EditableText storageKey={`fase2.slides.${product}.${partijType}.${s.nr}`} defaultValue={s.omschrijving} />
-                  </div>
-                ))}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              {/* Aanbevolen slides */}
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 8 }}><EditableText storageKey="fase2.proto.label.slides" defaultValue="Aanbevolen slides" /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {slides.map((s) => (
+                    <div key={s.nr} style={{ display: 'flex', alignItems: 'baseline', gap: 8, fontSize: 12, color: 'var(--c-muted)' }}>
+                      <span style={{ fontWeight: 700, color: 'var(--c-coral)', minWidth: 28, flexShrink: 0 }}>#{s.nr}</span>
+                      <EditableText storageKey={`fase2.slides.${product}.${partijType}.${s.nr}`} defaultValue={s.omschrijving} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Elevator pitch */}
+              <div>
+                <button
+                  onClick={() => setToonPitch(!toonPitch)}
+                  style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}
+                >
+                  Elevator pitch {toonPitch ? '▲' : '▼'}
+                </button>
+                {toonPitch ? (
+                  <EditableText
+                    storageKey="elevator_pitch"
+                    defaultValue={F4_ELEVATOR_PITCH}
+                    tag="p"
+                    multiline
+                    style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.7, margin: 0 }}
+                  />
+                ) : (
+                  <p style={{ fontSize: 12, color: 'var(--c-subtle)', margin: 0, fontStyle: 'italic' }}>
+                    Klik om de standaard Ditt-pitch te tonen.
+                  </p>
+                )}
               </div>
             </div>
           </div>
