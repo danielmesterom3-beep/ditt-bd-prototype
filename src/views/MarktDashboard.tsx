@@ -20,7 +20,7 @@ const MARKT_STATUS_CFG: Record<GebiedStatus, { label: string; bg: string; text: 
   'live':               { label: 'Live',               bg: '#d1fae5', text: '#065f46' },
 }
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+// helpers
 
 function klasseVanGebied(gebied: Gebied): LocatieKlasse {
   const klassen = gebied.partijen
@@ -40,7 +40,7 @@ function formatVVO(m2: number): string {
   return `${m2} m²`
 }
 
-// ── style maps ────────────────────────────────────────────────────────────────
+// style maps
 
 const KLASSE_STYLE: Record<NonNullable<LocatieKlasse>, { bg: string; text: string; border: string; dot: string }> = {
   A: { bg: '#d1fae5', text: '#065f46', border: '#6ee7b7', dot: '#059669' },
@@ -57,7 +57,7 @@ function pandJaar(s: string): number {
 }
 
 
-// ── GebiedCard ────────────────────────────────────────────────────────────────
+// GebiedCard
 
 function GebiedCard({ gebied }: { gebied: Gebied }) {
   const { setGebied } = useNavigation()
@@ -95,7 +95,7 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
         transition: 'border-color 0.15s, box-shadow 0.15s, transform 0.15s',
       }}
     >
-      {/* ── Card header ── */}
+      {/* Card header */}
       <div className="flex items-start justify-between gap-2">
         <div>
           <EditableText
@@ -135,13 +135,13 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
               className="text-xs rounded"
               style={{ background: '#f3f3f3', color: '#bbb', padding: '2px 7px' }}
             >
-              —
+              -
             </span>
           )}
         </div>
       </div>
 
-      {/* ── Marktdata grid — verborgen als geen data ── */}
+      {/* Marktdata grid - verborgen als geen data */}
       {(marktdata.totaalKantoorVvo > 0 || marktdata.huurprijsBandwidth.min > 0 || marktdata.huurprijsBandwidth.max > 0) && (
       <div className="grid grid-cols-2 gap-2">
         <div className="rounded-lg px-3 py-2.5" style={{ background: '#f8f7f5' }}>
@@ -195,7 +195,7 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
       </div>
       )}
 
-      {/* ── Panden in ontwikkeling ── */}
+      {/* Panden in ontwikkeling */}
       {activePanden.length > 0 && (
         <div className="relative">
           <button
@@ -257,7 +257,7 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
         </div>
       )}
 
-      {/* ── Card footer ── */}
+      {/* Card footer */}
       <div
         className="pt-3 flex items-center justify-between gap-2"
         style={{ borderTop: '1px solid var(--c-border)' }}
@@ -310,7 +310,7 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
   )
 }
 
-// ── MarktDashboard ────────────────────────────────────────────────────────────
+// MarktDashboard
 
 export default function MarktDashboard() {
   const { allSteden: steden } = useAllSteden()
@@ -333,7 +333,7 @@ export default function MarktDashboard() {
   return (
     <div className="flex flex-col gap-6">
 
-      {/* ── Stad selector ── */}
+      {/* Stad selector */}
       <div className="flex items-end justify-between flex-wrap gap-4">
         <div>
           <div
@@ -365,7 +365,7 @@ export default function MarktDashboard() {
           </div>
         </div>
 
-        {/* ── Aggregate stats ── */}
+        {/* Aggregate stats */}
         <div className="flex items-center gap-5">
           <div className="text-right">
             <div className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--c-subtle)' }}>
@@ -378,14 +378,14 @@ export default function MarktDashboard() {
         </div>
       </div>
 
-      {/* ── Kaart section header ── */}
+      {/* Kaart section header */}
       <div className="flex items-baseline justify-between">
         <div>
           <EditableText
             key={`header.${huidigStad.id}.titel`}
             tag="h1"
             storageKey={`header.${huidigStad.id}.titel`}
-            defaultValue={`${huidigStad.naam} — Gebiedskaart`}
+            defaultValue={`${huidigStad.naam} Gebiedskaart`}
             className="text-xl font-semibold"
             style={{ color: 'var(--c-text)', letterSpacing: '-0.01em' }}
           />
@@ -396,7 +396,7 @@ export default function MarktDashboard() {
         </div>
       </div>
 
-      {/* ── Kaart ── */}
+      {/* Kaart */}
       <div
         className="rounded-xl p-4"
         style={{

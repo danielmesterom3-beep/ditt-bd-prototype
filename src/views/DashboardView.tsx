@@ -5,7 +5,7 @@ import type { Stad } from '../data/types'
 import BronTooltip from '../components/BronTooltip'
 import EditableText from '../components/EditableText'
 
-// ── JLL data ─────────────────────────────────────────────────────────────────
+// JLL data
 
 const JLL_KWARTALEN = ['Q4 2025', 'Q1 2026', 'Q2 2026', 'Q3 2026', 'Q4 2026', 'Q1 2027', 'Q2 2027', 'Q3 2027', 'Q4 2027'] as const
 type JllKwartaal = typeof JLL_KWARTALEN[number]
@@ -21,7 +21,7 @@ type JllRecord = {
   bron: string
 }
 
-const BLANK: JllRecord = { takeUp: '—', takeUpSub: '', vacancy: '—', vacancySub: '', primeRent: '—', investVolume: '—', investSub: '', bron: '' }
+const BLANK: JllRecord = { takeUp: '', takeUpSub: '', vacancy: '', vacancySub: '', primeRent: '', investVolume: '', investSub: '', bron: '' }
 
 const JLL_DATA: Record<string, Record<JllKwartaal, JllRecord>> = {
   eindhoven: {
@@ -76,7 +76,7 @@ function StadCard({
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-      {/* ── Klikbaar bovenste deel ── */}
+      {/* Klikbaar bovenste deel */}
       <button
         onClick={() => setStad(stad)}
         className="group w-full text-left p-5 hover:bg-slate-50 transition-colors"
@@ -117,7 +117,7 @@ function StadCard({
         </div>
       </button>
 
-      {/* ── JLL sectie ── */}
+      {/* JLL sectie */}
       {jll && (
         <div className="border-t border-slate-100 px-5 py-4">
           <div className="flex items-center justify-between mb-3">
@@ -275,7 +275,7 @@ export default function DashboardView() {
 
         {aantalAfgevinkt === VRAGEN.length && (
           <div className="mt-5 pt-4 border-t border-indigo-700 text-xs text-emerald-400 font-medium">
-            ✓ Alle vragen behandeld — testmoment afgerond.
+            ✓ Alle vragen behandeld. Testmoment afgerond.
           </div>
         )}
       </div>
