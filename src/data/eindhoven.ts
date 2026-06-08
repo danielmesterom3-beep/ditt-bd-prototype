@@ -13,18 +13,18 @@ const eindhoven: Gebied[] = [
     naam: 'Centrum Eindhoven',
     marktdata: {
       peildatum: '2026-03-31',
-      totaalKantoorVvo: 265000,          // schatting: stationsgebied + Vestdijk + Oude Stad; polygon was te groot
+      totaalKantoorVvo: 265000, // schatting: stationsgebied + Vestdijk + Oude Stad; polygon was te groot
       leegstandPercentage: 6.5,
       huurprijsBandwidth: { min: 125, max: 320 },
       huurprijsGemiddeld: 258,
-      opnameVorigeJaar: 15447,           // 2025: <500m² 4.801 + >=500m² 10.646
-      beschikbaarAanbod: 17200,          // herschaald o.b.v. gecorrigeerde voorraad (leegstand 6.5%)
+      opnameVorigeJaar: 15447, // 2025: <500m² 4.801 + >=500m² 10.646
+      beschikbaarAanbod: 17200, // herschaald o.b.v. gecorrigeerde voorraad (leegstand 6.5%)
     },
     vastgoedMix: {
-      kantoor: 9,    // 567.325 / 6.592.828 m² totaal = 8,6%
+      kantoor: 9, // 567.325 / 6.592.828 m² totaal = 8,6%
       retail: 7,
       wonen: 67,
-      overig: 17,    // bijeenkomst 5%, onderwijs 3%, zorg 1%, overig
+      overig: 17, // bijeenkomst 5%, onderwijs 3%, zorg 1%, overig
     },
     pandenInOntwikkeling: [
       {
@@ -44,7 +44,7 @@ const eindhoven: Gebied[] = [
         oppervlakte: 13429,
         fase: 'vergunning',
         verwachteOplevering: '2026',
-        toelichting: 'Nieuw kantoorproject centrumrand. Nog in vergunningsfase — tijd om vroeg in beeld te komen. Potentieel relevant als multi-tenant: meerdere inrichtingsprojecten mogelijk. Nog weinig publiek over eigenaar en concept, nader onderzoek nodig.',
+        toelichting: 'Nieuw kantoorproject centrumrand. Nog in vergunningsfase, tijd om vroeg in beeld te komen. Potentieel relevant als multi-tenant: meerdere inrichtingsprojecten mogelijk. Nog weinig publiek over eigenaar en concept, nader onderzoek nodig.',
       },
       {
         id: 'fell-dev-02',
@@ -59,7 +59,7 @@ const eindhoven: Gebied[] = [
     trends: [
       {
         id: 'cent-trend-01',
-        omschrijving: 'Huurprijzen kantoor stijgen structureel: van €145/m²/jr (2016) naar €245/m²/jr (2025) — +69% in 9 jaar.',
+        omschrijving: 'Huurprijzen kantoor stijgen structureel: van €145/m²/jr (2016) naar €245/m²/jr (2025), +69% in 9 jaar.',
         richting: 'positief',
       },
       {
@@ -174,7 +174,7 @@ const eindhoven: Gebied[] = [
         organisatie: 'Verschuuren & Scheppers Bedrijfsmakelaars',
         datum: '2026-03-06',
         categorie: 'inrichting',
-        inzicht: 'Huurders beginnen vanaf de tweede bezichtiging na te denken over inrichting — zij willen weten wat de totale kosten inclusief afbouw zijn, want die moeten in de huurtermijn worden terugverdiend.',
+        inzicht: 'Huurders beginnen vanaf de tweede bezichtiging na te denken over inrichting, zij willen weten wat de totale kosten inclusief afbouw zijn, want die moeten in de huurtermijn worden terugverdiend.',
       },
       {
         id: 'cent-inz-02',
@@ -190,7 +190,7 @@ const eindhoven: Gebied[] = [
         organisatie: 'Tenzin Vastgoed',
         datum: '2026-02-14',
         categorie: 'acquisitie',
-        inzicht: 'Voor advocatenkantoren en zakelijke dienstverleners — sterk vertegenwoordigd in het centrum — moet taalgebruik, kleding en inhoudelijke nadruk volledig worden aangepast op de gesprekspartner.',
+        inzicht: 'Voor advocatenkantoren en zakelijke dienstverleners, sterk vertegenwoordigd in het centrum, moet taalgebruik, kleding en inhoudelijke nadruk volledig worden aangepast op de gesprekspartner.',
       },
       {
         id: 'fell-inz-01',
@@ -212,7 +212,7 @@ const eindhoven: Gebied[] = [
     partijen: [
       { id: 'cent-01', naam: '', type: 'eigenaar', contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
       { id: 'cent-02', naam: '', type: 'makelaar', contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
-      { id: 'cent-03', naam: '', type: 'huurder',  contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
+      { id: 'cent-03', naam: '', type: 'huurder', contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
     ],
     kansrijkeLeads: [
       {
@@ -225,7 +225,7 @@ const eindhoven: Gebied[] = [
         huurprijsPerM2: 182,
         eigenaar: 'Braintown',
         contractBegin: '2022-07',
-        motivatie: 'PNO Consultants — marktleider EU-subsidieadvies — huurt 729 m² in The Core. Contract loopt in juli 2027 af; dit is de grootste en meest profielrijke lead in het centrum, precies op de grens van Ditt.\'s sweetspot.',
+        motivatie: 'PNO Consultants, marktleider EU-subsidieadvies, huurt 729 m² in The Core. Contract loopt in juli 2027 af; dit is de grootste en meest profielrijke lead in het centrum, precies op de grens van Ditt.\'s sweetspot.',
       },
       {
         id: 'cent-lead-02',
@@ -236,7 +236,7 @@ const eindhoven: Gebied[] = [
         omvang: 431,
         huurprijsPerM2: 348,
         contractBegin: '2022-11',
-        motivatie: 'Van Lanschot betaalt met €348/m²/jr de hoogste huurprijs in het centrum — signaal van een opdrachtgever die representativiteit en kwaliteit prioriteert. 431 m² in de sweetspot, contract loopt november 2027 af.',
+        motivatie: 'Van Lanschot betaalt met €348/m²/jr de hoogste huurprijs in het centrum, signaal van een opdrachtgever die representativiteit en kwaliteit prioriteert. 431 m² in de sweetspot, contract loopt november 2027 af.',
       },
       {
         id: 'cent-lead-03',
@@ -248,7 +248,7 @@ const eindhoven: Gebied[] = [
         huurprijsPerM2: 145,
         eigenaar: 'Forma',
         contractBegin: '2022-07',
-        motivatie: 'Interim-managementbureau in de zakelijke kern van het centrum; 408 m² in de sweetspot. Contract in juli 2027 — ruim op tijd om een turnkey-propositie voor te leggen.',
+        motivatie: 'Interim-managementbureau in de zakelijke kern van het centrum; 408 m² in de sweetspot. Contract in juli 2027, ruim op tijd om een turnkey-propositie voor te leggen.',
       },
       {
         id: 'fell-lead-01',
@@ -258,7 +258,7 @@ const eindhoven: Gebied[] = [
         branche: 'Zakelijke dienstverlening',
         omvang: 307,
         contractBegin: '2022-01',
-        motivatie: 'Zakelijke dienstverlener in prime centrumlocatie De Admirant; contract loopt per januari 2027 af — directe acquisitiekans in Ditt.\'s sweetspot.',
+        motivatie: 'Zakelijke dienstverlener in prime centrumlocatie De Admirant; contract loopt per januari 2027 af, directe acquisitiekans in Ditt.\'s sweetspot.',
       },
       {
         id: 'fell-lead-02',
@@ -268,7 +268,7 @@ const eindhoven: Gebied[] = [
         branche: 'E-commerce tech',
         omvang: 282,
         contractBegin: '2022-03',
-        motivatie: 'Tech-huurder op het Kennedyhuis — meest zichtbare locatie van Fellenoord. Contract loopt in maart 2027 af; kans voor herhuisvesting met een passende tech-inrichting.',
+        motivatie: 'Tech-huurder op het Kennedyhuis, meest zichtbare locatie van Fellenoord. Contract loopt in maart 2027 af; kans voor herhuisvesting met een passende tech-inrichting.',
       },
       {
         id: 'fell-lead-03',
@@ -278,7 +278,7 @@ const eindhoven: Gebied[] = [
         branche: 'Software / IT',
         omvang: 336,
         contractBegin: '2022-06',
-        motivatie: 'Software-huurder in het meest herkenbare kantoorgebouw van Fellenoord; 336 m² valt precies in de sweetspot. Loopt juni 2027 af — voldoende aanlooptijd voor een sterk voorstel.',
+        motivatie: 'Software-huurder in het meest herkenbare kantoorgebouw van Fellenoord; 336 m² valt precies in de sweetspot. Loopt juni 2027 af, voldoende aanlooptijd voor een sterk voorstel.',
       },
     ],
   },
@@ -291,18 +291,18 @@ const eindhoven: Gebied[] = [
     naam: 'Strijp-S',
     marktdata: {
       peildatum: '2026-03-31',
-      totaalKantoorVvo: 46000,           // schatting: creatief district, 75% wonen — beperkt kantooraanbod (Bold, Ketelhuis e.o.); polygon was te groot
+      totaalKantoorVvo: 46000, // schatting: creatief district, 75% wonen, beperkt kantooraanbod (Bold, Ketelhuis e.o.); polygon was te groot
       leegstandPercentage: 4.2,
       huurprijsBandwidth: { min: 130, max: 270 },
       huurprijsGemiddeld: 200,
-      opnameVorigeJaar: 1503,            // 2025: alleen <500m² (1.503); >=500m² = 0
-      beschikbaarAanbod: 1950,           // herschaald o.b.v. gecorrigeerde voorraad (leegstand 4.2%)
+      opnameVorigeJaar: 1503, // 2025: alleen <500m² (1.503); >=500m² = 0
+      beschikbaarAanbod: 1950, // herschaald o.b.v. gecorrigeerde voorraad (leegstand 4.2%)
     },
     vastgoedMix: {
-      kantoor: 9,    // 275.672 / 3.113.202 m² totaal
+      kantoor: 9, // 275.672 / 3.113.202 m² totaal
       retail: 3,
       wonen: 75,
-      overig: 13,    // ateliers, creatieve bedrijfsruimte, horeca
+      overig: 13, // ateliers, creatieve bedrijfsruimte, horeca
     },
     pandenInOntwikkeling: [
       {
@@ -348,7 +348,7 @@ const eindhoven: Gebied[] = [
         id: 'ss-wc-01',
         naam: 'Wesley Tegelaers',
         organisatie: 'Jamestown',
-        rol: 'Property Manager — Bold Eindhoven',
+        rol: 'Property Manager, Bold Eindhoven',
         email: 'Wesley.Tegelaers@JamestownLP.com',
         telefoon: '+31618906030',
         datumLaatsteContact: '',
@@ -361,7 +361,7 @@ const eindhoven: Gebied[] = [
         naam: 'Balans Eindhoven',
         sector: 'Zorg / welzijn',
         profiel: 'Gehuurd 364 m² op Dr Cuyperslaan 74 (€207/m²/jr, november 2025). Zorgaanbieder in creatief gebied.',
-        reden: 'Onconventionele vestigingskeuze voor zorgbranche — signaal van brede aantrekkingskracht Strijp-S.',
+        reden: 'Onconventionele vestigingskeuze voor zorgbranche, signaal van brede aantrekkingskracht Strijp-S.',
         status: 'prospect',
       },
       {
@@ -388,7 +388,7 @@ const eindhoven: Gebied[] = [
         organisatie: 'Verschuuren & Scheppers Bedrijfsmakelaars',
         datum: '2026-03-06',
         categorie: 'samenwerking',
-        inzicht: 'Eindhoven heeft een overvloed aan lokale inrichtingspartijen (Hal2, King Kongs, VB Vastgoedinrichter, Dan Wack, Bureaubas) die snel en no-nonsense werken — passend bij de Brabantse bedrijfscultuur. Een nieuwkomer moet beginnen met één sterk referentieproject in de regio.',
+        inzicht: 'Eindhoven heeft een overvloed aan lokale inrichtingspartijen (Hal2, King Kongs, VB Vastgoedinrichter, Dan Wack, Bureaubas) die snel en no-nonsense werken, passend bij de Brabantse bedrijfscultuur. Een nieuwkomer moet beginnen met één sterk referentieproject in de regio.',
       },
       {
         id: 'ss-inz-02',
@@ -402,7 +402,7 @@ const eindhoven: Gebied[] = [
     partijen: [
       { id: 'ss-01', naam: '', type: 'eigenaar', contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
       { id: 'ss-02', naam: '', type: 'makelaar', contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
-      { id: 'ss-03', naam: '', type: 'huurder',  contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
+      { id: 'ss-03', naam: '', type: 'huurder', contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
     ],
     kansrijkeLeads: [
       {
@@ -415,7 +415,7 @@ const eindhoven: Gebied[] = [
         huurprijsPerM2: 138,
         eigenaar: 'Certitudo Capital',
         contractBegin: '2022-02',
-        motivatie: 'Simbuka huurt 460 m² op Strijp-S — tech-consultancy in het creatieve hart van Eindhoven. Contract loopt in februari 2027 af: meest urgente lead in het gebied, met profiel dat naadloos aansluit op Ditt.\'s portfolio.',
+        motivatie: 'Simbuka huurt 460 m² op Strijp-S, tech-consultancy in het creatieve hart van Eindhoven. Contract loopt in februari 2027 af: meest urgente lead in het gebied, met profiel dat naadloos aansluit op Ditt.\'s portfolio.',
       },
       {
         id: 'ss-lead-02',
@@ -426,7 +426,7 @@ const eindhoven: Gebied[] = [
         omvang: 360,
         huurprijsPerM2: 190,
         contractBegin: '2022-06',
-        motivatie: 'Recornect huurt 360 m² aan de hogere kant van de Strijp-S huurprijsrange (€190/m²/jr) — een huurder die kwaliteit waardeert. Contract loopt juni 2027 af; kans voor een creatieve herinrichting die past bij de Strijp-identiteit.',
+        motivatie: 'Recornect huurt 360 m² aan de hogere kant van de Strijp-S huurprijsrange (€190/m²/jr), een huurder die kwaliteit waardeert. Contract loopt juni 2027 af; kans voor een creatieve herinrichting die past bij de Strijp-identiteit.',
       },
     ],
   },
@@ -439,18 +439,18 @@ const eindhoven: Gebied[] = [
     naam: 'Airport / Flight Forum',
     marktdata: {
       peildatum: '2026-03-31',
-      totaalKantoorVvo: 205000,          // schatting: Flight Forum + Park Forum businesspark; polygon iets te groot (incl. omliggend industriegebied)
+      totaalKantoorVvo: 205000, // schatting: Flight Forum + Park Forum businesspark; polygon iets te groot (incl. omliggend industriegebied)
       leegstandPercentage: 11.5,
       huurprijsBandwidth: { min: 80, max: 175 },
       huurprijsGemiddeld: 156,
-      opnameVorigeJaar: 8751,            // 2025: <500m² 1.729 + >=500m² 7.022
-      beschikbaarAanbod: 23600,          // herschaald o.b.v. gecorrigeerde voorraad (leegstand 11.5%)
+      opnameVorigeJaar: 8751, // 2025: <500m² 1.729 + >=500m² 7.022
+      beschikbaarAanbod: 23600, // herschaald o.b.v. gecorrigeerde voorraad (leegstand 11.5%)
     },
     vastgoedMix: {
-      kantoor: 10,   // 283.104 / 2.779.690 m² totaal
+      kantoor: 10, // 283.104 / 2.779.690 m² totaal
       retail: 1,
       wonen: 35,
-      overig: 54,    // bedrijfsmatig/logistiek dominant (1.368.040 m²)
+      overig: 54, // bedrijfsmatig/logistiek dominant (1.368.040 m²)
     },
     pandenInOntwikkeling: [
       {
@@ -545,24 +545,24 @@ const eindhoven: Gebied[] = [
       {
         id: 'ap-inz-01',
         bron: 'Michiel Bijmolt',
-        organisatie: 'Ditt. Officemakers — testmoment contactprotocol',
+        organisatie: 'Ditt. Officemakers, testmoment contactprotocol',
         datum: '2026-04-24',
         categorie: 'inrichting',
-        inzicht: 'Op B-locaties zoals een bedrijventerrein draait de pitch volledig op basisgetallen en de base fit-out. Een fit-out van €1.000/m² is niet logisch als de huurder slechts €150/m²/jr betaalt over vijf jaar — de investering moet in verhouding staan tot het totaalplaatje van het object.',
+        inzicht: 'Op B-locaties zoals een bedrijventerrein draait de pitch volledig op basisgetallen en de base fit-out. Een fit-out van €1.000/m² is niet logisch als de huurder slechts €150/m²/jr betaalt over vijf jaar, de investering moet in verhouding staan tot het totaalplaatje van het object.',
       },
       {
         id: 'ap-inz-02',
         bron: 'Michiel Bijmolt',
-        organisatie: 'Ditt. Officemakers — testmoment contactprotocol',
+        organisatie: 'Ditt. Officemakers, testmoment contactprotocol',
         datum: '2026-04-24',
         categorie: 'acquisitie',
-        inzicht: 'Het eerste contactmoment is altijd telefonisch — een koude e-mail werkt te afstandelijk. Bellen geeft directe mogelijkheid om het gesprek te sturen op totale ontzorging: van A tot Z begeleiden, grip op prijs, kwaliteit en doorlooptijd.',
+        inzicht: 'Het eerste contactmoment is altijd telefonisch, een koude e-mail werkt te afstandelijk. Bellen geeft directe mogelijkheid om het gesprek te sturen op totale ontzorging: van A tot Z begeleiden, grip op prijs, kwaliteit en doorlooptijd.',
       },
     ],
     partijen: [
       { id: 'ap-01', naam: '', type: 'eigenaar', contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
       { id: 'ap-02', naam: '', type: 'makelaar', contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
-      { id: 'ap-03', naam: '', type: 'huurder',  contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
+      { id: 'ap-03', naam: '', type: 'huurder', contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
     ],
     kansrijkeLeads: [
       {
@@ -574,7 +574,7 @@ const eindhoven: Gebied[] = [
         omvang: 714,
         huurprijsPerM2: 136,
         contractBegin: '2022-11',
-        motivatie: 'TWC IT Solutions huurt 714 m² op Flight Forum — bovengrens van de sweetspot, IT-sector, en een huurder die gewend is aan een functionele maar professionele werkomgeving. Contract loopt november 2027 af.',
+        motivatie: 'TWC IT Solutions huurt 714 m² op Flight Forum, bovengrens van de sweetspot, IT-sector, en een huurder die gewend is aan een functionele maar professionele werkomgeving. Contract loopt november 2027 af.',
       },
       {
         id: 'ap-lead-02',
@@ -586,31 +586,31 @@ const eindhoven: Gebied[] = [
         huurprijsPerM2: 143,
         eigenaar: 'Profinn',
         contractBegin: '2022-09',
-        motivatie: 'Sempre Technology huurt 360 m² — midden in de sweetspot. Tech-huurder in de Airport-zone met contract tot september 2027; tijdig genoeg om een turnkey-inrichtingspropositie voor te bereiden.',
+        motivatie: 'Sempre Technology huurt 360 m², midden in de sweetspot. Tech-huurder in de Airport-zone met contract tot september 2027; tijdig genoeg om een turnkey-inrichtingspropositie voor te bereiden.',
       },
     ],
   },
 
   // ─────────────────────────────────────────────────────────────────
-  // 5. HTC / ASML (High Tech Campus — Veldhoven/Eindhoven)
+  // 5. HTC / ASML (High Tech Campus, Veldhoven/Eindhoven)
   // ─────────────────────────────────────────────────────────────────
   {
     id: 'high-tech-campus',
     naam: 'High Tech Campus',
     marktdata: {
       peildatum: '2026-03-31',
-      totaalKantoorVvo: 115000,          // schatting: extern toegankelijk kantooraandeel HTC + Veldhoven-cluster; campus intern veel groter maar gesloten; polygon incl. Veldhoven woonwijken
-      leegstandPercentage: 2.5,           // campus-managed; vrijwel geen vrije leegstand
+      totaalKantoorVvo: 115000, // schatting: extern toegankelijk kantooraandeel HTC + Veldhoven-cluster; campus intern veel groter maar gesloten; polygon incl. Veldhoven woonwijken
+      leegstandPercentage: 2.5, // campus-managed; vrijwel geen vrije leegstand
       huurprijsBandwidth: { min: 175, max: 325 },
       huurprijsGemiddeld: 258,
-      opnameVorigeJaar: 806,             // 2025: <500m² 150 + >=500m² 656 (sterk gedaald t.o.v. 6.936 in 2024)
-      beschikbaarAanbod: 2900,           // herschaald o.b.v. gecorrigeerde voorraad (leegstand 2.5%)
+      opnameVorigeJaar: 806, // 2025: <500m² 150 + >=500m² 656 (sterk gedaald t.o.v. 6.936 in 2024)
+      beschikbaarAanbod: 2900, // herschaald o.b.v. gecorrigeerde voorraad (leegstand 2.5%)
     },
     vastgoedMix: {
-      kantoor: 19,   // 334.200 / 1.774.863 m² totaal
+      kantoor: 19, // 334.200 / 1.774.863 m² totaal
       retail: 5,
-      wonen: 44,     // woonwijken Veldhoven meegenomen in analyse
-      overig: 32,    // bedrijfsmatig/R&D (447.686 m²) dominant
+      wonen: 44, // woonwijken Veldhoven meegenomen in analyse
+      overig: 32, // bedrijfsmatig/R&D (447.686 m²) dominant
     },
     pandenInOntwikkeling: [
       {
@@ -635,7 +635,7 @@ const eindhoven: Gebied[] = [
         id: 'htc-dev-03',
         naam: 'Genderstroom 200 & 400',
         adres: 'Genderstroom, 5504DD Veldhoven',
-        oppervlakte: 5000,   // 3.000 + 2.000
+        oppervlakte: 5000, // 3.000 + 2.000
         fase: 'bouw',
         verwachteOplevering: '2023 / afgerond',
         toelichting: 'Twee kantoor/R&D-panden op Genderstroom-bedrijventerrein.',
@@ -664,7 +664,7 @@ const eindhoven: Gebied[] = [
       },
       {
         id: 'htc-trend-05',
-        omschrijving: 'Gem. huurprijs €258/m²/jr gelijk aan Centrum Eindhoven — reflectie van premium die tech-huurders bereid zijn te betalen voor campuslocatie.',
+        omschrijving: 'Gem. huurprijs €258/m²/jr gelijk aan Centrum Eindhoven, reflectie van premium die tech-huurders bereid zijn te betalen voor campuslocatie.',
         richting: 'positief',
       },
     ],
@@ -713,7 +713,7 @@ const eindhoven: Gebied[] = [
         organisatie: 'Tenzin Vastgoed',
         datum: '2026-02-14',
         categorie: 'samenwerking',
-        inzicht: 'In Eindhoven zijn Verschuuren & Scheppers de dominante regionale makelaar — zij zitten "heel diep in de projecten" en weten wat er speelt. Lokale grote makelaars zijn een effectievere ingang dan internationale kantoren met slechts een paar man ter plaatse.',
+        inzicht: 'In Eindhoven zijn Verschuuren & Scheppers de dominante regionale makelaar, zij zitten "heel diep in de projecten" en weten wat er speelt. Lokale grote makelaars zijn een effectievere ingang dan internationale kantoren met slechts een paar man ter plaatse.',
       },
     ],
     partijen: [

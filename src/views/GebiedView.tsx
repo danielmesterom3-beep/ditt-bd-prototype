@@ -73,7 +73,7 @@ export default function GebiedView() {
                   </span>
                 ) : (
                   <span className="text-xs text-slate-300 border border-slate-200 px-2 py-0.5 rounded-full shrink-0">
-                    —
+                 , 
                   </span>
                 )}
               </div>

@@ -31,7 +31,7 @@ export default function ViewModeSidebar() {
         Weergave
       </div>
 
-      {/* ── Actie — primaire weergave ── */}
+      {/* ── Actie, primaire weergave ── */}
       <button
         onClick={() => setViewMode('actie')}
         style={{
@@ -72,7 +72,7 @@ export default function ViewModeSidebar() {
         </span>
       </button>
 
-      {/* ── Informatie — naslag-laag ── */}
+      {/* ── Informatie, naslag-laag ── */}
       <button
         onClick={() => setViewMode('informatie')}
         style={{
@@ -105,7 +105,7 @@ export default function ViewModeSidebar() {
             lineHeight: 1.4,
           }}
         >
-          Naslag — marktdata, concurrenten, vastgoeddata
+          Naslag, marktdata, concurrenten, vastgoeddata
         </span>
       </button>
 

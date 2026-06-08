@@ -148,7 +148,7 @@ export const activities: Activity[] = [
     dealId: 'd2',
     company: 'Studio Rooftop',
     contact: 'Lars Hendriks',
-    description: 'Follow-up offerte — feedback ophalen',
+    description: 'Follow-up offerte, feedback ophalen',
     date: '2026-04-23',
     done: false,
   },

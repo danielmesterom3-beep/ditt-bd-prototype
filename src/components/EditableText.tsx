@@ -168,7 +168,7 @@ function insertBulletPoint() {
   const sel = window.getSelection()
   if (!sel || sel.rangeCount === 0) return
   const range = sel.getRangeAt(0)
-  // Check if we're already in a list item — if so, just insert a newline + bullet via execCommand
+  // Check if we're already in a list item ,  if so, just insert a newline + bullet via execCommand
   const anchor = sel.anchorNode
   let inList = false
   let node: Node | null = anchor
@@ -420,7 +420,7 @@ export default function EditableText({
         }
         ref.current?.blur()
       }
-      // Enter: browser default in contentEditable inserts <br> or <div> — allow it
+      // Enter: browser default in contentEditable inserts <br> or <div> ,  allow it
     } else {
       if (e.key === 'Enter') {
         e.preventDefault()
@@ -527,7 +527,7 @@ export function SaveButton() {
   const { isEditMode } = useEditMode()
 
   useEffect(() => {
-    // Alleen dirty=true zetten als er wijzigingen binnenkomen — nooit automatisch resetten
+    // Alleen dirty=true zetten als er wijzigingen binnenkomen ,  nooit automatisch resetten
     const unsub = subscribeToPending(() => {
       if (hasPendingChanges()) { setDirty(true); setSaved(false) }
     })

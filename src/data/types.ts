@@ -127,7 +127,7 @@ export interface KansrijkeLead {
   huurprijsPerM2?: number   // €/m²/jr indien bekend
   contractBegin: string     // 'YYYY-MM'
   eigenaar?: string         // eigenaar/verhuurder van het pand
-  motivatie: string         // waarom past dit bij Ditt — data storytelling afsluiter
+  motivatie: string         // waarom past dit bij Ditt, data storytelling afsluiter
 }
 
 // --- Gebied (uitgebreid) ---

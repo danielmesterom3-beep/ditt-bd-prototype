@@ -236,7 +236,7 @@ export default function BeheerView() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                         <StatusBadge status={effectiveStatus} />
                         <StatusCycleButton gebiedId={gebied.id} currentStatus={effectiveStatus} />
-                        {/* Reset knop — alleen zichtbaar als er een override is */}
+                        {/* Reset knop,  alleen zichtbaar als er een override is */}
                         {gebied.id in overrides && (
                           <button
                             onClick={() => setStatus(gebied.id, gebied.status ?? 'live')}
@@ -285,7 +285,7 @@ export default function BeheerView() {
               Stad aanmaken
             </div>
             <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
-              Voeg een nieuwe stad toe met een leeg template — zichtbaar voor alle gebruikers
+              Voeg een nieuwe stad toe met een leeg template,  zichtbaar voor alle gebruikers
             </div>
           </div>
           <span style={{ fontSize: 16, color: 'var(--c-subtle)', transform: stadAanmakenOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
@@ -352,7 +352,7 @@ export default function BeheerView() {
         )}
       </div>
 
-      {/* ── Aangemaakte steden — altijd zichtbaar ── */}
+      {/* ── Aangemaakte steden,  altijd zichtbaar ── */}
       {customSteden.length > 0 && (
         <div
           style={{

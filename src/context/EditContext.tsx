@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from 'react'
 import type { ReactNode } from 'react'
 
-// PIN to unlock edit mode — change here to rotate.
+// PIN to unlock edit mode ,  change here to rotate.
 const EDIT_PIN = 'ditt2026'
 const UNLOCK_KEY = 'ditt_edit_unlocked'
 

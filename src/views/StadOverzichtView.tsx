@@ -27,11 +27,11 @@ const BRONNEN = {
 
 // ── Totaal kantoor VVO per stad (stadsniveau, bron: EIND.pdf / Rdam.pdf) ──────
 const STAD_KANTOOR_VVO: Record<string, number> = {
-  eindhoven: 1_900_681,  // EIND.pdf p.3 — 20 februari 2026
-  rotterdam: 3_829_464,  // Rdam.pdf p.3 — 20 februari 2026
+  eindhoven: 1_900_681,  // EIND.pdf p.3,  20 februari 2026
+  rotterdam: 3_829_464,  // Rdam.pdf p.3,  20 februari 2026
 }
 
-// ── JLL Office — hardcoded source data ───────────────────────────────────────
+// ── JLL Office,  hardcoded source data ───────────────────────────────────────
 
 const JLL_KWARTALEN = ['Q4 2025', 'Q1 2026', 'Q2 2026', 'Q3 2026', 'Q4 2026', 'Q1 2027', 'Q2 2027', 'Q3 2027', 'Q4 2027'] as const
 type JllKwartaal = typeof JLL_KWARTALEN[number]
@@ -86,7 +86,7 @@ const JLL: Record<string, Record<JllKwartaal, JllData>> = {
 }
 
 function fmJll(n: number, format: (v: number) => string): string {
-  return n > 0 ? format(n) : '—'
+  return n > 0 ? format(n) : ', '
 }
 
 // ── Formatting ────────────────────────────────────────────────────────────────
@@ -412,10 +412,10 @@ function StadPanel({ stad, onDelete }: { stad: Stad; onDelete?: () => void }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
                 {[
                   { label: 'Totaal kantoor VVO',       value: fmM2(STAD_KANTOOR_VVO[stad.id] ?? totaalVVO), bron: BRONNEN.vvoStad },
-                  { label: `Vacancy rate (JLL ${kwartaal})`, value: jll?.vacancyRate ? `${jll.vacancyRate}%` : '—', bron: jll?.bron ?? BRONNEN.jll },
+                  { label: `Vacancy rate (JLL ${kwartaal})`, value: jll?.vacancyRate ? `${jll.vacancyRate}%` : ', ', bron: jll?.bron ?? BRONNEN.jll },
                   { label: 'Opname 2025 (gebieden)',    value: fmM2(opname),                      bron: BRONNEN.opname },
-                  { label: `Take-up (JLL ${kwartaal})`, value: jll?.takeUp ? fmM2(jll.takeUp) : '—', bron: jll?.bron ?? BRONNEN.jll },
-                  { label: 'Pijplijn 2026–2030 (JLL)', value: jll?.pipeline2030 ? fmM2(jll.pipeline2030) : '—', bron: BRONNEN.jll },
+                  { label: `Take-up (JLL ${kwartaal})`, value: jll?.takeUp ? fmM2(jll.takeUp) : ', ', bron: jll?.bron ?? BRONNEN.jll },
+                  { label: 'Pijplijn 2026–2030 (JLL)', value: jll?.pipeline2030 ? fmM2(jll.pipeline2030) : ', ', bron: BRONNEN.jll },
                   { label: 'Panden in ontwikkeling',   value: `${aantalOntwikkeling}`,           bron: BRONNEN.vvo },
                 ].map(({ label, value, bron }) => (
                   <div
@@ -436,7 +436,7 @@ function StadPanel({ stad, onDelete }: { stad: Stad; onDelete?: () => void }) {
 
           </div>
 
-          {/* Right column — vastgoedmix chart */}
+          {/* Right column,  vastgoedmix chart */}
           <div style={{ padding: '20px 24px 20px 20px' }}>
             <div style={sectionLabelStyle}>Vastgoedmix per gebied</div>
             <div style={{ marginTop: 14 }}>
@@ -511,49 +511,49 @@ const VALIDATIE_DATA: ValidatiePunt[] = [
     label: 'Locatieklasse-indeling (A/B/C)',
     toelichting: 'Indeling herkend en werkbaar bevonden. Michiel illustreerde dit met het rekenvoorbeeld huurprijs/fit-out ratio: een fit-out van €1.000/m² is niet logisch bij €150/m²/jr huur over 5 jaar.',
     status: 'bevestigd',
-    bron: 'Michiel Bijmolt — testmoment 24 april 2026',
+    bron: 'Michiel Bijmolt,  testmoment 24 april 2026',
   },
   {
     label: 'Warme ingangen uit CRM',
     toelichting: 'Overzicht van bekende contacten (Edge Eindhoven, The Pulse, HERE Technologies, Aroundtown, NSI) herkend als bruikbaar vertrekpunt. Sluit aan op hoe het BD-team in de praktijk werkt.',
     status: 'bevestigd',
-    bron: 'Mattijs Kaak — testmoment 17 april 2026',
+    bron: 'Mattijs Kaak,  testmoment 17 april 2026',
   },
   {
     label: 'Differentiatie per dienstvorm (Fast Fit-Out / Smart Moves / D&B)',
     toelichting: 'Duidelijk en groot verschil bevestigd. Fast Fit-Out = snelheid; Smart Moves = technologie en data; Design & Build = meest uitgebreide propositie met beide elementen.',
     status: 'bevestigd',
-    bron: 'Michiel Bijmolt — testmoment 24 april 2026',
+    bron: 'Michiel Bijmolt,  testmoment 24 april 2026',
   },
   {
     label: 'Eerste contact altijd telefonisch',
     toelichting: 'Bevestigd: koude e-mail werkt te afstandelijk. Bellen geeft directe mogelijkheid om het gesprek te sturen op totale ontzorging. Bij geen reactie: twee dagen later opnieuw bellen.',
     status: 'bevestigd',
-    bron: 'Michiel Bijmolt — testmoment 24 april 2026',
+    bron: 'Michiel Bijmolt,  testmoment 24 april 2026',
   },
   {
     label: 'Marktcap-berekening per stad',
     toelichting: 'Redenering herkend en werkbaar als indicatie. Verzocht om Amsterdam en Utrecht toe te voegen zodat nieuwe doelsteden naast bestaande markten kunnen worden afgezet.',
     status: 'deels',
-    bron: 'Mattijs Kaak — testmoment 17 april 2026',
+    bron: 'Mattijs Kaak,  testmoment 17 april 2026',
   },
   {
     label: 'Gespreksopbouw per type partij',
     toelichting: 'Indeling herkend maar uitwerking op gespreksinhoudniveau te globaal. Bij advocatenkantoren: andere taal, kleding en nadruk. Bij gebouweigenaren: verhuurbaarheid centraal, niet fit-out investering.',
     status: 'deels',
-    bron: 'Michiel Bijmolt — testmoment 24 april 2026',
+    bron: 'Michiel Bijmolt,  testmoment 24 april 2026',
   },
   {
     label: 'Smart Moves als ingang voor gebouweigenaren',
     toelichting: 'Instaplogica Smart Moves richting gebouweigenaren (leegstandsanalyse als trigger) ontbrak in het prototype. Verbetersuggestie: proactief benaderen op basis van leegstandscijfers per stad.',
     status: 'ontbreekt',
-    bron: 'Michiel Bijmolt — testmoment 24 april 2026',
+    bron: 'Michiel Bijmolt,  testmoment 24 april 2026',
   },
   {
     label: 'Tab relevante spelers en panden per doelstad',
     toelichting: 'Direct gemis: zonder inzicht in welke partijen en panden relevant zijn, is de marktcap-berekening op zichzelf onvoldoende om een BD zonder voorkennis direct aan de slag te laten gaan.',
     status: 'ontbreekt',
-    bron: 'Mattijs Kaak — testmoment 17 april 2026',
+    bron: 'Mattijs Kaak,  testmoment 17 april 2026',
   },
 ]
 
@@ -581,7 +581,7 @@ function TestvalidatiePanel() {
         overflow: 'hidden',
       }}
     >
-      {/* Header — altijd zichtbaar */}
+      {/* Header,  altijd zichtbaar */}
       <button
         onClick={() => setOpen((o) => !o)}
         style={{
@@ -610,7 +610,7 @@ function TestvalidatiePanel() {
               Testvalidatie prototype
             </div>
             <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
-              Bijlage 14 — testronde 1 (17 & 24 april 2026) · Mattijs Kaak & Michiel Bijmolt
+              Bijlage 14,  testronde 1 (17 & 24 april 2026) · Mattijs Kaak & Michiel Bijmolt
             </div>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
@@ -646,7 +646,7 @@ function TestvalidatiePanel() {
         </span>
       </button>
 
-      {/* Inhoud — uitklapbaar */}
+      {/* Inhoud,  uitklapbaar */}
       {open && (
         <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           {VALIDATIE_DATA.map((punt) => {
@@ -722,7 +722,7 @@ function OmgevingskenmerkenPanel() {
         }}
       >
         <div>
-          <EditableText storageKey="omgeving.titel" defaultValue="Omgevingskenmerken — Eindhoven" style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em', display: 'block' }} onClick={(e) => e.stopPropagation()} />
+          <EditableText storageKey="omgeving.titel" defaultValue="Omgevingskenmerken,  Eindhoven" style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em', display: 'block' }} onClick={(e) => e.stopPropagation()} />
           <EditableText storageKey="omgeving.subtitel" defaultValue="Concurrentieanalyse · Design & Build activiteit · Strategische context" style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2, display: 'block' }} onClick={(e) => e.stopPropagation()} />
         </div>
         <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
@@ -751,7 +751,7 @@ function OmgevingskenmerkenPanel() {
               <BalansRij storageKey="omgeving.hal2.schulden" label="Kortlopende schulden" value="€ 1.230.217" />
               <div style={{ marginTop: 12, padding: '10px 12px', background: '#f0fdf4', borderRadius: 8, border: '1px solid #86efac' }}>
                 <EditableText storageKey="omgeving.hal2.kop" defaultValue="Wat dit betekent voor Ditt" style={{ fontSize: 11, fontWeight: 700, color: '#166534', marginBottom: 4, display: 'block' }} />
-                <EditableText storageKey="omgeving.hal2.context" defaultValue="HAL 2 is financieel sterk met bijna €1,3M eigen vermogen en ruim €950K winst. Ze opereren vanuit een gezonde kaspositie en kunnen concurreren op prijs. Ditt moet zich richten op snelheid, ontzorging en het ASML-netwerk — niet op prijs." multiline tag="div" style={{ fontSize: 11, color: '#166534', lineHeight: 1.6 }} />
+                <EditableText storageKey="omgeving.hal2.context" defaultValue="HAL 2 is financieel sterk met bijna €1,3M eigen vermogen en ruim €950K winst. Ze opereren vanuit een gezonde kaspositie en kunnen concurreren op prijs. Ditt moet zich richten op snelheid, ontzorging en het ASML-netwerk,  niet op prijs." multiline tag="div" style={{ fontSize: 11, color: '#166534', lineHeight: 1.6 }} />
               </div>
             </div>
 
@@ -780,13 +780,13 @@ function OmgevingskenmerkenPanel() {
 
             {/* D&B activiteit Eindhoven */}
             <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
-              <EditableText storageKey="omgeving.db.titel" defaultValue="Design & Build activiteit — Eindhoven" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', marginBottom: 4, display: 'block' }} />
+              <EditableText storageKey="omgeving.db.titel" defaultValue="Design & Build activiteit,  Eindhoven" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', marginBottom: 4, display: 'block' }} />
               <EditableText storageKey="omgeving.db.meta" defaultValue="Bekende opdrachten in de markt · 2023–2025" style={{ fontSize: 11, color: 'var(--c-subtle)', marginBottom: 12, display: 'block' }} />
 
               {[
-                { id: 'sweco', partij: 'Sweco Architecten → HAL 2 B.V.', aantal: '4 opdrachten', context: 'Sweco, dat veel projecten uitvoert voor ASML, heeft HAL 2 vier keer ingeschakeld voor Design & Build. Dit bevestigt HAL 2 als vaste partner in de ASML-keten — een netwerk dat voor Ditt nog niet ontsloten is.' },
-                { id: 'yksi-geva', partij: 'Yksi Ontwerp + De Bever Architecten → Geva Vastgoed', aantal: '2 opdrachten op Strijp-T', context: 'Yksi Ontwerp (interieurarchitect) voerde samen met De Bever Architecten twee opdrachten uit op Strijp-T voor Geva Vastgoed — een grote eigenaar in de Eindhovense markt. Geva is nog geen warme relatie voor Ditt.' },
-                { id: 'yksi-htc', partij: 'Yksi Ontwerp — Hightech Campus', aantal: '2 opdrachten', context: 'Twee opdrachten op de Hightech Campus bevestigen dat Yksi actief is in het ASML-ecosysteem. De campus is een groeisegment waarbij Ditt tot nu toe niet in beeld is.' },
+                { id: 'sweco', partij: 'Sweco Architecten → HAL 2 B.V.', aantal: '4 opdrachten', context: 'Sweco, dat veel projecten uitvoert voor ASML, heeft HAL 2 vier keer ingeschakeld voor Design & Build. Dit bevestigt HAL 2 als vaste partner in de ASML-keten,  een netwerk dat voor Ditt nog niet ontsloten is.' },
+                { id: 'yksi-geva', partij: 'Yksi Ontwerp + De Bever Architecten → Geva Vastgoed', aantal: '2 opdrachten op Strijp-T', context: 'Yksi Ontwerp (interieurarchitect) voerde samen met De Bever Architecten twee opdrachten uit op Strijp-T voor Geva Vastgoed,  een grote eigenaar in de Eindhovense markt. Geva is nog geen warme relatie voor Ditt.' },
+                { id: 'yksi-htc', partij: 'Yksi Ontwerp,  Hightech Campus', aantal: '2 opdrachten', context: 'Twee opdrachten op de Hightech Campus bevestigen dat Yksi actief is in het ASML-ecosysteem. De campus is een groeisegment waarbij Ditt tot nu toe niet in beeld is.' },
               ].map((item) => (
                 <div key={item.id} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid var(--c-border)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
@@ -798,9 +798,9 @@ function OmgevingskenmerkenPanel() {
               ))}
             </div>
 
-            {/* Gemiddeld projectformaat concurrenten — Eindhoven */}
+            {/* Gemiddeld projectformaat concurrenten,  Eindhoven */}
             <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)', gridColumn: '1 / -1' }}>
-              <EditableText storageKey="omgeving.concformaat.titel" defaultValue="Gemiddeld projectformaat — concurrenten Eindhoven" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', marginBottom: 4, display: 'block' }} />
+              <EditableText storageKey="omgeving.concformaat.titel" defaultValue="Gemiddeld projectformaat,  concurrenten Eindhoven" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', marginBottom: 4, display: 'block' }} />
               <EditableText storageKey="omgeving.concformaat.meta" defaultValue="Op basis van gepubliceerde portfoliogegevens · duotone-interior.nl · hal2.nl · ininterieurs.nl" style={{ fontSize: 11, color: 'var(--c-subtle)', marginBottom: 14, display: 'block' }} />
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 14 }}>
@@ -810,14 +810,14 @@ function OmgevingskenmerkenPanel() {
                     naam: 'Duotone Interior Concepts',
                     bron: 'duotone-interior.nl/projecten',
                     projecten: [
-                      { naam: 'Molex BV — HTC', m2: 1800 },
-                      { naam: 'Marvell Technology — HTC', m2: 1500 },
+                      { naam: 'Molex BV,  HTC', m2: 1800 },
+                      { naam: 'Marvell Technology,  HTC', m2: 1500 },
                       { naam: 'HTC Plantarium', m2: 800 },
                       { naam: 'HTC Building 37 (renovatie)', m2: 550 },
                       { naam: 'Maas Makelaars', m2: 200 },
                     ],
                     gem: 970,
-                    context: 'Actief op High Tech Campus voor zowel enterprise (Molex, Marvell) als kleinere ruimtes en gemeenschappelijke zones. Breed portfolio — van 200 m² tot 1.800 m².',
+                    context: 'Actief op High Tech Campus voor zowel enterprise (Molex, Marvell) als kleinere ruimtes en gemeenschappelijke zones. Breed portfolio,  van 200 m² tot 1.800 m².',
                   },
                   {
                     id: 'hal2',
@@ -825,13 +825,13 @@ function OmgevingskenmerkenPanel() {
                     bron: 'hal2.nl/projecten',
                     projecten: [
                       { naam: 'VdMeijs', m2: 1000 },
-                      { naam: 'Sweco — Eindhoven', m2: 1000 },
+                      { naam: 'Sweco,  Eindhoven', m2: 1000 },
                       { naam: 'Stuurmen', m2: 200 },
                       { naam: 'ALX Studio', m2: 100 },
-                      { naam: 'BEECKK Ruimtemakers — Strijp-S', m2: 100 },
+                      { naam: 'BEECKK Ruimtemakers,  Strijp-S', m2: 100 },
                     ],
                     gem: 480,
-                    context: 'Brede doelgroep: van 100 m² creatieve studios op Strijp-S tot 1.000 m² zakelijke dienstverleners. Gemiddeld formaat lager dan Duotone — minder enterprise, meer MKB.',
+                    context: 'Brede doelgroep: van 100 m² creatieve studios op Strijp-S tot 1.000 m² zakelijke dienstverleners. Gemiddeld formaat lager dan Duotone,  minder enterprise, meer MKB.',
                   },
                   {
                     id: 'ininterieurs',
@@ -839,7 +839,7 @@ function OmgevingskenmerkenPanel() {
                     bron: 'ininterieurs.nl/projecten',
                     projecten: [],
                     gem: 0,
-                    context: 'Schrijf hier je eigen notities over INinterieurs — projecten, formaat, positionering, contacten.',
+                    context: 'Schrijf hier je eigen notities over INinterieurs,  projecten, formaat, positionering, contacten.',
                   },
                 ].map((c) => (
                   <div key={c.id} style={{ background: '#fff', borderRadius: 8, padding: '12px', border: '1px solid var(--c-border)' }}>
@@ -897,23 +897,23 @@ function RotterdamKantorenstrategiePanel() {
     },
     {
       id: 'flight',
-      titel: 'Flight to quality — verhuismoment = kans',
-      context: 'Rotterdam heeft de sterkste huurprijsgroei van alle Europese kantorsteden (+28,3% jaar-op-jaar, Cushman & Wakefield 2025). Bedrijven verhuizen naar betere locaties. Elk verhuismoment is een acquisitie-instappunt voor Ditt — de huurder heeft dan een directe behoefte aan een integrale D&B partner.',
+      titel: 'Flight to quality,  verhuismoment = kans',
+      context: 'Rotterdam heeft de sterkste huurprijsgroei van alle Europese kantorsteden (+28,3% jaar-op-jaar, Cushman & Wakefield 2025). Bedrijven verhuizen naar betere locaties. Elk verhuismoment is een acquisitie-instappunt voor Ditt,  de huurder heeft dan een directe behoefte aan een integrale D&B partner.',
       kleur: '#2563eb',
       bg: '#eff6ff',
       border: '#bfdbfe',
     },
     {
       id: 'schaarste',
-      titel: 'Schaarste op toplocaties — huurders investeren in huidig pand',
-      context: 'Modern kantorenaanbod op OV-knooppuntlocaties (Centrum, Blaak, Rotterdam Alexander) is schaars. Huurders die wél op een toplocatie zitten kunnen niet verhuizen — ze investeren in hun bestaande ruimte. Dit genereert inrichtingsopdrachten zonder verhuisbeweging.',
+      titel: 'Schaarste op toplocaties,  huurders investeren in huidig pand',
+      context: 'Modern kantorenaanbod op OV-knooppuntlocaties (Centrum, Blaak, Rotterdam Alexander) is schaars. Huurders die wél op een toplocatie zitten kunnen niet verhuizen,  ze investeren in hun bestaande ruimte. Dit genereert inrichtingsopdrachten zonder verhuisbeweging.',
       kleur: '#7c3aed',
       bg: '#faf5ff',
       border: '#e9d5ff',
     },
     {
       id: 'duurzaamheid',
-      titel: 'Duurzaamheidsrenovatie — energielabel C verplicht',
+      titel: 'Duurzaamheidsrenovatie,  energielabel C verplicht',
       context: 'Sinds 2023 is energielabel C verplicht voor bestaande kantoren. Gebouweigenaren moeten renoveren. Ditt kan hier vroeg betrokken raken als D&B partner: combineer energierenovatie met interieurupgrade en positioneer Ditt als de integrale ontzorger voor gebouweigenaren en hun huurders.',
       kleur: '#16a34a',
       bg: '#f0fdf4',
@@ -937,7 +937,7 @@ function RotterdamKantorenstrategiePanel() {
       >
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)' }}>
-            Rotterdam kantorenstrategie 2025–2035 — kansen voor Ditt
+            Rotterdam kantorenstrategie 2025–2035,  kansen voor Ditt
           </div>
           <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
             MRDH Actualisatie Kantorenstrategie 2025–2035 · Metropoolregio Rotterdam Den Haag
@@ -968,7 +968,7 @@ function RotterdamKantorenstrategiePanel() {
 
           {/* Kansen voor Ditt */}
           <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 12 }}>
-            Kansen voor Ditt — Rotterdam
+            Kansen voor Ditt,  Rotterdam
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {kansen.map((k) => (
@@ -1093,7 +1093,7 @@ function RotterdamLeegstandPanel() {
       >
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em' }}>
-            Beschikbaar aanbod — leegstand per pand
+            Beschikbaar aanbod,  leegstand per pand
           </div>
           <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
             Rotterdam Centrum · {LEEGSTAND_PANDEN.length} panden · {totaalLeeg.toLocaleString('nl-NL')} m² beschikbaar
@@ -1134,7 +1134,7 @@ function RotterdamLeegstandPanel() {
                         <EditableText storageKey={`leegstand.${pand.id}.v${i}.label`} defaultValue={v.label} />
                       </span>
                       <span style={{ color: 'var(--c-subtle)', fontVariantNumeric: 'tabular-nums' }}>
-                        <EditableText storageKey={`leegstand.${pand.id}.v${i}.waarde`} defaultValue={v.m2 ? `${v.m2.toLocaleString('nl-NL')} m²` : (v.opmerking ?? '—')} />
+                        <EditableText storageKey={`leegstand.${pand.id}.v${i}.waarde`} defaultValue={v.m2 ? `${v.m2.toLocaleString('nl-NL')} m²` : (v.opmerking ?? ', ')} />
                       </span>
                     </div>
                   ))}
@@ -1194,7 +1194,7 @@ function RotterdamOmgevingskenmerkenPanel() {
         style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
       >
         <div>
-          <EditableText storageKey="omgeving.rdam.titel" defaultValue="Omgevingskenmerken — Rotterdam" style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em', display: 'block' }} onClick={(e) => e.stopPropagation()} />
+          <EditableText storageKey="omgeving.rdam.titel" defaultValue="Omgevingskenmerken,  Rotterdam" style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em', display: 'block' }} onClick={(e) => e.stopPropagation()} />
           <EditableText storageKey="omgeving.rdam.subtitel" defaultValue="Concurrentieanalyse · Design & Build activiteit · Strategische context" style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2, display: 'block' }} onClick={(e) => e.stopPropagation()} />
         </div>
         <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
@@ -1227,8 +1227,8 @@ function RotterdamOmgevingskenmerkenPanel() {
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam (bevestigde m²)</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 12 }}>
                 {[
-                  { id: 'sprank-p1', naam: 'VTTI — The Mark (1e verdieping)', m2: '1.239 m²' },
-                  { id: 'sprank-p2', naam: 'Hoge Erasmus — entree (Ooms Makelaars)', m2: '500 m²' },
+                  { id: 'sprank-p1', naam: 'VTTI,  The Mark (1e verdieping)', m2: '1.239 m²' },
+                  { id: 'sprank-p2', naam: 'Hoge Erasmus,  entree (Ooms Makelaars)', m2: '500 m²' },
                 ].map((p) => (
                   <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
                     <EditableText storageKey={`omgeving.${p.id}.naam`} defaultValue={p.naam} />
@@ -1237,7 +1237,7 @@ function RotterdamOmgevingskenmerkenPanel() {
                 ))}
               </div>
               <div style={{ padding: '10px 12px', background: '#fefce8', borderRadius: 8, border: '1px solid #fde047' }}>
-                <EditableText storageKey="omgeving.sprank.context" defaultValue="Sprank is de meest gelijkende concurrent op Ditt in Rotterdam — lokaal geworteld, D&B focus, brede klantenkring. Ze werken voor makelaars (Ooms) en directe huurders. Concurreren op relatie en snelheid, niet puur op design." tag="div" style={{ fontSize: 11, color: '#854d0e', lineHeight: 1.6 }} />
+                <EditableText storageKey="omgeving.sprank.context" defaultValue="Sprank is de meest gelijkende concurrent op Ditt in Rotterdam,  lokaal geworteld, D&B focus, brede klantenkring. Ze werken voor makelaars (Ooms) en directe huurders. Concurreren op relatie en snelheid, niet puur op design." tag="div" style={{ fontSize: 11, color: '#854d0e', lineHeight: 1.6 }} />
               </div>
             </div>
             )}
@@ -1259,9 +1259,9 @@ function RotterdamOmgevingskenmerkenPanel() {
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 12 }}>
                 {[
-                  { id: 'planatoffice-p1', naam: 'Den Hartogh — Sluisjesdijk (campus)', m2: '24.000 m²' },
-                  { id: 'planatoffice-p2', naam: 'EuroNordic — Waalhaven', m2: '1.780 m²' },
-                  { id: 'planatoffice-p3', naam: '9Corporate — Weena', m2: '1.000 m²' },
+                  { id: 'planatoffice-p1', naam: 'Den Hartogh,  Sluisjesdijk (campus)', m2: '24.000 m²' },
+                  { id: 'planatoffice-p2', naam: 'EuroNordic,  Waalhaven', m2: '1.780 m²' },
+                  { id: 'planatoffice-p3', naam: '9Corporate,  Weena', m2: '1.000 m²' },
                 ].map((p) => (
                   <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)' }}>
                     <EditableText storageKey={`omgeving.${p.id}.naam`} defaultValue={p.naam} />
@@ -1270,7 +1270,7 @@ function RotterdamOmgevingskenmerkenPanel() {
                 ))}
               </div>
               <div style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid #cbd5e1' }}>
-                <EditableText storageKey="omgeving.planatoffice.context" defaultValue="Plan@Office is meer een projectinrichter dan een echte D&B-speler — sterker in meubilair en levering dan in ontwerp en bouw. Minder directe concurrent voor Ditt's kernpropositie, maar wel actief bij eigenaren en huurders in het Waalhaven/Rdam-segment." tag="div" style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }} />
+                <EditableText storageKey="omgeving.planatoffice.context" defaultValue="Plan@Office is meer een projectinrichter dan een echte D&B-speler,  sterker in meubilair en levering dan in ontwerp en bouw. Minder directe concurrent voor Ditt's kernpropositie, maar wel actief bij eigenaren en huurders in het Waalhaven/Rdam-segment." tag="div" style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }} />
               </div>
             </div>
             )}
@@ -1292,8 +1292,8 @@ function RotterdamOmgevingskenmerkenPanel() {
               <div style={{ marginBottom: 12 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam (bevestigd)</div>
                 {[
-                  { id: 'leidmotiv-p1', naam: 'Rotterdam Partners (2024)', m2: '—' },
-                  { id: 'leidmotiv-p2', naam: 'Pentrade (2023)', m2: '—' },
+                  { id: 'leidmotiv-p1', naam: 'Rotterdam Partners (2024)', m2: ', ' },
+                  { id: 'leidmotiv-p2', naam: 'Pentrade (2023)', m2: ', ' },
                   { id: 'leidmotiv-p3', naam: 'HDI (2022)', m2: '150 m²' },
                   { id: 'leidmotiv-p4', naam: 'Crowe Peak (2021)', m2: '400 m²' },
                   { id: 'leidmotiv-p5', naam: 'Carerix (2018)', m2: '600 m²' },
@@ -1305,7 +1305,7 @@ function RotterdamOmgevingskenmerkenPanel() {
                 ))}
               </div>
               <div style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid #cbd5e1' }}>
-                <EditableText storageKey="omgeving.leidmotiv.context" defaultValue="Leidmotiv is een design-gedreven D&B-studio met nationale uitstraling en sterke storytelling-aanpak. Actief in Rotterdam (Rotterdam Partners, Pentrade, HDI). Positioneren zich op merk en betekenis — directe concurrent voor kwalitatieve huurders die design hoog in het vaandel hebben. Kleinere projectomvang dan Ditt's focus, maar groeiend in het kantoorsegment." tag="div" style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }} />
+                <EditableText storageKey="omgeving.leidmotiv.context" defaultValue="Leidmotiv is een design-gedreven D&B-studio met nationale uitstraling en sterke storytelling-aanpak. Actief in Rotterdam (Rotterdam Partners, Pentrade, HDI). Positioneren zich op merk en betekenis,  directe concurrent voor kwalitatieve huurders die design hoog in het vaandel hebben. Kleinere projectomvang dan Ditt's focus, maar groeiend in het kantoorsegment." tag="div" style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }} />
               </div>
             </div>
             )}
@@ -1327,9 +1327,9 @@ function RotterdamOmgevingskenmerkenPanel() {
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6 }}>Projecten in Rotterdam (bevestigd)</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 12 }}>
                 {[
-                  { id: 'desque-rdam-p1', naam: 'Stolt-Nielsen — Westerlaantoren (2024)', m2: '5.500 m²' },
-                  { id: 'desque-rdam-p2', naam: 'Delftse Poort (2021)', m2: '—' },
-                  { id: 'desque-rdam-p3', naam: 'LBC — Botlek (2022)', m2: '—' },
+                  { id: 'desque-rdam-p1', naam: 'Stolt-Nielsen,  Westerlaantoren (2024)', m2: '5.500 m²' },
+                  { id: 'desque-rdam-p2', naam: 'Delftse Poort (2021)', m2: ', ' },
+                  { id: 'desque-rdam-p3', naam: 'LBC,  Botlek (2022)', m2: ', ' },
                 ].map((p) => (
                   <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--c-muted)', padding: '3px 0', borderBottom: '1px solid var(--c-border)' }}>
                     <EditableText storageKey={`omgeving.${p.id}.naam`} defaultValue={p.naam} />
@@ -1338,7 +1338,7 @@ function RotterdamOmgevingskenmerkenPanel() {
                 ))}
               </div>
               <div style={{ padding: '10px 12px', background: '#fefce8', borderRadius: 8, border: '1px solid #fde047' }}>
-                <EditableText storageKey="omgeving.rdam.desque.context" defaultValue="Desque is een landelijke top-3 projectinrichter met eigen vestiging in Rotterdam. Ze zijn sterker als meubel- en inrichtingsspecialist dan als volledig D&B-partij — ontwerp en bouw wordt uitbesteed aan externe architecten en aannemers. Schaub makelaars werkt al met Desque samen, dus dit netwerk is niet meer vrij te veroveren. Ditt's onderscheid zit in integrale D&B-propositie: één partij voor ontwerp én realisatie." tag="div" style={{ fontSize: 11, color: '#854d0e', lineHeight: 1.6 }} />
+                <EditableText storageKey="omgeving.rdam.desque.context" defaultValue="Desque is een landelijke top-3 projectinrichter met eigen vestiging in Rotterdam. Ze zijn sterker als meubel- en inrichtingsspecialist dan als volledig D&B-partij,  ontwerp en bouw wordt uitbesteed aan externe architecten en aannemers. Schaub makelaars werkt al met Desque samen, dus dit netwerk is niet meer vrij te veroveren. Ditt's onderscheid zit in integrale D&B-propositie: één partij voor ontwerp én realisatie." tag="div" style={{ fontSize: 11, color: '#854d0e', lineHeight: 1.6 }} />
               </div>
             </div>
             )}
@@ -1347,10 +1347,10 @@ function RotterdamOmgevingskenmerkenPanel() {
             {!hiddenCards.has('conclusie') && (
             <div style={{ background: '#fff7f4', borderRadius: 10, padding: '16px', border: '1px solid #ffd4c2' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                <EditableText storageKey="omgeving.rdam.conclusie.titel" defaultValue="Strategische positie Ditt — Rotterdam" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-coral)', display: 'block' }} />
+                <EditableText storageKey="omgeving.rdam.conclusie.titel" defaultValue="Strategische positie Ditt,  Rotterdam" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-coral)', display: 'block' }} />
                 {deleteBtn('conclusie')}
               </div>
-              <EditableText storageKey="omgeving.rdam.conclusie.tekst" defaultValue="Rotterdam heeft geen dominante lokale D&B-speler van de omvang van HAL 2 in Eindhoven. Sprank is de meest directe concurrent maar opereert breder dan alleen D&B. Plan@Office en UP zitten in het lagere segment. Dit geeft Ditt ruimte om zich te positioneren als de kwalitatieve D&B-specialist op Kop van Zuid en Brainpark — een gat dat nog niet gevuld is. Prioriteit: makelaarsrelaties opbouwen (Ooms, Verschuuren & Schreppers) voordat concurrenten die positie innemen." multiline tag="div" style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.7 }} />
+              <EditableText storageKey="omgeving.rdam.conclusie.tekst" defaultValue="Rotterdam heeft geen dominante lokale D&B-speler van de omvang van HAL 2 in Eindhoven. Sprank is de meest directe concurrent maar opereert breder dan alleen D&B. Plan@Office en UP zitten in het lagere segment. Dit geeft Ditt ruimte om zich te positioneren als de kwalitatieve D&B-specialist op Kop van Zuid en Brainpark,  een gat dat nog niet gevuld is. Prioriteit: makelaarsrelaties opbouwen (Ooms, Verschuuren & Schreppers) voordat concurrenten die positie innemen." multiline tag="div" style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.7 }} />
             </div>
             )}
 
@@ -1414,7 +1414,7 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
         koper: 'Investe Group',
         koopsom: '~€18–20M',
         datum: 'maart 2025',
-        context: 'Na overdracht van Achmea aan Investe Group volgt doorgaans herpositionering en nieuwe verhuur. Nieuwe eigenaar investeert veelal in kwaliteitsverbetering — een kans voor D&B-acquisitie bij fit-out van instromende huurders.',
+        context: 'Na overdracht van Achmea aan Investe Group volgt doorgaans herpositionering en nieuwe verhuur. Nieuwe eigenaar investeert veelal in kwaliteitsverbetering,  een kans voor D&B-acquisitie bij fit-out van instromende huurders.',
       },
       {
         adres: 'Vestdijk 45, Eindhoven',
@@ -1422,7 +1422,7 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
         koper: 'Van der Valk',
         koopsom: '~€60–70M',
         datum: 'februari 2025',
-        context: 'Hotel-acquisitie in het centrum bevestigt actieve investeringsmarkt. Van der Valk investeert in transformatie en herinrichting — een type project waarbij Ditt inzetbaar is voor interieur Design & Build.',
+        context: 'Hotel-acquisitie in het centrum bevestigt actieve investeringsmarkt. Van der Valk investeert in transformatie en herinrichting,  een type project waarbij Ditt inzetbaar is voor interieur Design & Build.',
       },
     ],
   },
@@ -1453,7 +1453,7 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
         koper: 'Breadstone',
         koopsom: '~€9–10M',
         datum: 'februari 2025',
-        context: 'Nieuwe eigenaar op strategische locatie dicht bij luchthaven. Breadstone is actief als vastgoedinvesteerder en zal pand verhuurklaar maken — kans voor Ditt bij cat-A/cat-B inrichting.',
+        context: 'Nieuwe eigenaar op strategische locatie dicht bij luchthaven. Breadstone is actief als vastgoedinvesteerder en zal pand verhuurklaar maken,  kans voor Ditt bij cat-A/cat-B inrichting.',
       },
       {
         adres: 'Westfields 1010, Oirschot (Airport-corridor)',
@@ -1484,7 +1484,7 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
         koper: 'MSC',
         koopsom: '~€70–80M',
         datum: 'juni 2025',
-        context: 'Flight-to-quality: internationale scheepvaartgigant MSC neemt topkantoor op A-locatie Blaak. Gebruikersovername van deze omvang gepaard met volledige herinrichting naar eigen bedrijfsidentiteit — core D&B-propositie.',
+        context: 'Flight-to-quality: internationale scheepvaartgigant MSC neemt topkantoor op A-locatie Blaak. Gebruikersovername van deze omvang gepaard met volledige herinrichting naar eigen bedrijfsidentiteit,  core D&B-propositie.',
       },
       {
         adres: 'Delftsestraat 26, Rotterdam',
@@ -1516,7 +1516,7 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
         koper: 'Provast Beheer',
         koopsom: '~€14–16M',
         datum: 'oktober 2025',
-        context: 'Provast staat bekend om herontwikkeling van kantoorpanden. Aankoop van Bouwinvest duidt op transformatieproject in voorbereiding — ideale instap voor Ditt in vroeg stadium.',
+        context: 'Provast staat bekend om herontwikkeling van kantoorpanden. Aankoop van Bouwinvest duidt op transformatieproject in voorbereiding,  ideale instap voor Ditt in vroeg stadium.',
       },
     ],
   },
@@ -1539,7 +1539,7 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
         koper: 'Corum Origin',
         koopsom: '~€14–16M',
         datum: 'oktober 2024',
-        context: 'DWS (Deutsche Bank vastgoedtak) verkoopt aan Corum Origin. Nieuwe eigenaar investeert in verhuurbaarheid — kans om vroeg in gesprek te komen over inrichting van verhuurbare units.',
+        context: 'DWS (Deutsche Bank vastgoedtak) verkoopt aan Corum Origin. Nieuwe eigenaar investeert in verhuurbaarheid,  kans om vroeg in gesprek te komen over inrichting van verhuurbare units.',
       },
       {
         adres: 'Rivium Quadrant 81, Capelle a/d IJssel',
@@ -1547,13 +1547,13 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
         koper: 'Schouten Zekerheid',
         koopsom: '~€9–10M',
         datum: 'november 2024',
-        context: 'Eindgebruiker koopt eigen kantoorpand. Schouten Zekerheid is verzekeringsadviseur die nu eigenaar wordt van eigen pand — directe inrichtingsvraag voor eigen werkplek is te verwachten.',
+        context: 'Eindgebruiker koopt eigen kantoorpand. Schouten Zekerheid is verzekeringsadviseur die nu eigenaar wordt van eigen pand,  directe inrichtingsvraag voor eigen werkplek is te verwachten.',
       },
     ],
   },
   {
     id: 'fellenoord',
-    naam: 'Centrum Eindhoven — Fellenoord',
+    naam: 'Centrum Eindhoven,  Fellenoord',
     stad: 'eindhoven',
     transacties: [
       {
@@ -1570,7 +1570,7 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
         koper: 'Gemeente Eindhoven',
         koopsom: '~€20–25M',
         datum: 'december 2025',
-        context: 'Samen met Kennedyplein 100 heeft de gemeente nu €38–45M aan Fellenoord-vastgoed in handen. Huurders van beide panden worden actief op zoek naar vervangende locaties — dit is een van de sterkste verhuistriggers in Eindhoven momenteel.',
+        context: 'Samen met Kennedyplein 100 heeft de gemeente nu €38–45M aan Fellenoord-vastgoed in handen. Huurders van beide panden worden actief op zoek naar vervangende locaties,  dit is een van de sterkste verhuistriggers in Eindhoven momenteel.',
       },
       {
         adres: 'Professor Dr Dorgelolaan 20, Eindhoven',
@@ -1578,7 +1578,7 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
         koper: 'Rijksvastgoedbedrijf',
         koopsom: '~€12–14M',
         datum: 'april 2025',
-        context: 'Rijksoverheid verwerft pand voor eigen gebruik. Bestaande huurders zoeken vervangende kantoorruimte in Eindhoven — een groep met bekende eisen en budgetten, direct inzetbaar voor Smart Moves of D&B.',
+        context: 'Rijksoverheid verwerft pand voor eigen gebruik. Bestaande huurders zoeken vervangende kantoorruimte in Eindhoven,  een groep met bekende eisen en budgetten, direct inzetbaar voor Smart Moves of D&B.',
       },
       {
         adres: 'Visserstraat 18A, Eindhoven',
@@ -1618,7 +1618,7 @@ function RecenteTransactiesPanel() {
               Recente Transacties <span style={{ fontWeight: 400, color: 'var(--c-muted)' }}>(laatste 24 maanden)</span>
             </div>
             <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
-              Koper · Verkoper · Koopsom · Strategische context — bron: Vastgoeddata.nl
+              Koper · Verkoper · Koopsom · Strategische context,  bron: Vastgoeddata.nl
             </div>
           </div>
           <span
@@ -1755,7 +1755,7 @@ const VELDONDERZOEK_THEMAS: VeldonderzoekThema[] = [
         stad: 'eindhoven',
       },
       {
-        toelichting: 'Rotterdam is een mkb-stad: circa 80% van de transacties zit qua aantallen onder de 500 m². Het merendeel betreft verplaatsingen binnen de stad — weinig nieuwe toetreders van buiten. Mkb-klanten groeien mee van 200 naar 500, 1.000 of 1.500 m² bij een goede relatie.',
+        toelichting: 'Rotterdam is een mkb-stad: circa 80% van de transacties zit qua aantallen onder de 500 m². Het merendeel betreft verplaatsingen binnen de stad,  weinig nieuwe toetreders van buiten. Mkb-klanten groeien mee van 200 naar 500, 1.000 of 1.500 m² bij een goede relatie.',
         persoon: 'Maurits de Peuter',
         organisatie: 'Schaub & Partners Bedrijfshuisvesting',
         datum: '12/03/26',
@@ -1832,7 +1832,7 @@ const VELDONDERZOEK_THEMAS: VeldonderzoekThema[] = [
         stad: 'rotterdam',
       },
       {
-        toelichting: 'De vraag naar turnkey kantoorruimte groeit maar huurders schrikken terug bij het prijskaartje. NSI startte een pilot waarbij ook het 200–500 m²-segment turnkey wordt ingericht — een trend die vanuit Londen via Amsterdam naar de rest van Nederland uitwaait.',
+        toelichting: 'De vraag naar turnkey kantoorruimte groeit maar huurders schrikken terug bij het prijskaartje. NSI startte een pilot waarbij ook het 200–500 m²-segment turnkey wordt ingericht,  een trend die vanuit Londen via Amsterdam naar de rest van Nederland uitwaait.',
         persoon: 'Stefan Suurmond',
         organisatie: 'NSI N.V.',
         datum: '07/04/26',
@@ -1846,7 +1846,7 @@ const VELDONDERZOEK_THEMAS: VeldonderzoekThema[] = [
     beschrijving: 'Huurders beginnen relatief vroeg in het verhuurtraject na te denken over inrichting. De kostenverhouding tussen eigenaar en huurder verschilt per segment en contractduur.',
     inzichten: [
       {
-        toelichting: 'Huurders beginnen vanaf de tweede bezichtiging na te denken over inrichting — zij willen weten wat de totale kosten inclusief afbouw zijn, want die moeten in de huurtermijn worden terugverdiend. Bij lange huurcontracten geeft de eigenaar soms een financiële bijdrage als incentive.',
+        toelichting: 'Huurders beginnen vanaf de tweede bezichtiging na te denken over inrichting,  zij willen weten wat de totale kosten inclusief afbouw zijn, want die moeten in de huurtermijn worden terugverdiend. Bij lange huurcontracten geeft de eigenaar soms een financiële bijdrage als incentive.',
         persoon: 'Dirk Verberne',
         organisatie: 'Verschuuren & Schreppers Bedrijfsmakelaars',
         datum: '06/03/26',
@@ -1881,7 +1881,7 @@ const VELDONDERZOEK_THEMAS: VeldonderzoekThema[] = [
     beschrijving: 'Nieuwe samenwerkingen komen in beide markten vrijwel uitsluitend via bestaande contacten tot stand. Koude acquisitie werkt averechts. Wederkerigheid en snelheid zijn de sleutelwoorden voor een nieuwe D&B-partij zonder lokale vestiging.',
     inzichten: [
       {
-        toelichting: 'Koude acquisitie via LinkedIn of directe mail werkt averechts — je geeft aan "jeuk te willen krijgen". Netwerk via Dynamis-events (Provada) en wederkerigheid zijn de norm. Eindhoven heeft een overvloed aan lokale inrichtingspartijen (Hal2, King Kongs, VB Vastgoedinrichter, Dan Wack, Bureaubas); een nieuwkomer moet beginnen met één sterk referentieproject in de regio.',
+        toelichting: 'Koude acquisitie via LinkedIn of directe mail werkt averechts,  je geeft aan "jeuk te willen krijgen". Netwerk via Dynamis-events (Provada) en wederkerigheid zijn de norm. Eindhoven heeft een overvloed aan lokale inrichtingspartijen (Hal2, King Kongs, VB Vastgoedinrichter, Dan Wack, Bureaubas); een nieuwkomer moet beginnen met één sterk referentieproject in de regio.',
         persoon: 'Dirk Verberne',
         organisatie: 'Verschuuren & Schreppers Bedrijfsmakelaars',
         datum: '06/03/26',
@@ -1889,7 +1889,7 @@ const VELDONDERZOEK_THEMAS: VeldonderzoekThema[] = [
       },
       {
         citaat: 'Partijen die alleen komen halen krijgen keurig een kopje koffie maar daarna blijft het bij. Het gaat niet om het financiële stukje maar meer om de wederkerigheid.',
-        toelichting: 'Wederkerigheid is de sleutel: een inrichtingspartij die de makelaar introduceert bij opdrachtgevers creëert een morele verplichting voor een warme introductie terug. Er zijn geen formele courtageafspraken — onafhankelijkheid is belangrijk.',
+        toelichting: 'Wederkerigheid is de sleutel: een inrichtingspartij die de makelaar introduceert bij opdrachtgevers creëert een morele verplichting voor een warme introductie terug. Er zijn geen formele courtageafspraken,  onafhankelijkheid is belangrijk.',
         persoon: 'Maurits de Peuter',
         organisatie: 'Schaub & Partners Bedrijfshuisvesting',
         datum: '12/03/26',
@@ -1975,7 +1975,7 @@ function VeldonderzoekPanel() {
               Trends en inzichten veldonderzoek in de doelregio's
             </div>
             <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
-              Veldinterviews met makelaars en gebouweigenaar in Rotterdam en Eindhoven — Bijlage 9
+              Veldinterviews met makelaars en gebouweigenaar in Rotterdam en Eindhoven,  Bijlage 9
             </div>
           </div>
           <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 20, background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', flexShrink: 0 }}>
@@ -2262,7 +2262,7 @@ function BegrotingsDoelregioPanel({ partijOverrides }: { partijOverrides: Record
       >
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)' }}>
-            Begrotingsindicatie — metrage doelregio
+            Begrotingsindicatie,  metrage doelregio
           </div>
           <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
             Kwaliteitsniveau × m² doelregio per stad · op basis van Begrotingssheet 2026 Premium
@@ -2513,7 +2513,7 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
                 <div style={{ height: '100%', width: `${barPct}%`, background: kleur, borderRadius: 3, transition: 'width 0.2s' }} />
               </div>
 
-              {/* Formule — uitklapbaar */}
+              {/* Formule,  uitklapbaar */}
               <details style={{ fontSize: 12 }}>
                 <summary style={{
                   fontSize: 11,
@@ -2611,7 +2611,7 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
   )
 }
 
-// ── PanelWrapper — verberg paneel met × knop ──────────────────────────────────
+// ── PanelWrapper,  verberg paneel met × knop ──────────────────────────────────
 
 function PanelWrapper({ hidden, onHide, editMode, children }: { hidden: boolean; onHide: () => void; editMode: boolean; children: React.ReactNode }) {
   if (hidden) return null
@@ -2640,7 +2640,7 @@ function PanelWrapper({ hidden, onHide, editMode, children }: { hidden: boolean;
 // ── ActieOverzichtView ────────────────────────────────────────────────────────
 
 
-// Drempelcriteria — minimale voorwaarden vóór acquisitie-inzet per stad
+// Drempelcriteria,  minimale voorwaarden vóór acquisitie-inzet per stad
 const DREMPEL_ITEMS = [
   'Minimaal 1 lokale makelaar geïdentificeerd & benaderd',
   'Minimaal 2 relevante gebouweigenaren in kaart',
@@ -2683,37 +2683,37 @@ function EindhovenGemeenteStrategiePanel() {
   const kansen = [
     {
       id: 'brainport',
-      titel: 'Brainport Eindhoven — Technologieregio 2030',
+      titel: 'Brainport Eindhoven,  Technologieregio 2030',
       context: 'Gemeente Eindhoven en de Brainport Development-agenda richten zich op behoud en groei van de hightech-maakindustrie rondom ASML, NXP en het HTC-ecosysteem. Dit genereert structurele vraag naar kantoor- en R&D-ruimte voor toeleveranciers die niet op de campus passen.',
       kleur: '#f59e0b', bg: '#fffbeb', border: '#fcd34d',
     },
     {
       id: 'fellenoord',
-      titel: 'Fellenoord-transformatie — verhuismoment 2026–2028',
-      context: 'De gemeente koopt actief panden terug op Fellenoord (Kennedyplein 100 + 300, ~€38–45M). Zittende kantoorhuurders worden gedwongen te verhuizen — directe stroom verhuisbewegingen richting centrum en Edge Eindhoven. Elk verhuismoment is een acquisitie-instappunt voor Ditt.',
+      titel: 'Fellenoord-transformatie,  verhuismoment 2026–2028',
+      context: 'De gemeente koopt actief panden terug op Fellenoord (Kennedyplein 100 + 300, ~€38–45M). Zittende kantoorhuurders worden gedwongen te verhuizen,  directe stroom verhuisbewegingen richting centrum en Edge Eindhoven. Elk verhuismoment is een acquisitie-instappunt voor Ditt.',
       kleur: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe',
     },
     {
       id: 'stationsgebied',
-      titel: 'Stationsgebied — Flight to Quality',
+      titel: 'Stationsgebied,  Flight to Quality',
       context: 'Edge Eindhoven (35.351 m²) op Stationsweg 17 positioneert het stationsgebied als nieuwe prime-locatie voor zakelijke dienstverlening en advocatuur. Prime huurprijzen stijgen naar €265/m²/jr. Elk contract dat hier wordt gesloten genereert een inrichtingsvraag.',
       kleur: '#8b5cf6', bg: '#f5f3ff', border: '#c4b5fd',
     },
     {
       id: 'sweetspot',
       titel: 'Sweetspot Eindhovense markt: 500–600 m²',
-      context: 'Circa 80 actieve zoekers zitten onder de 1.000 m². Slechts ~10 zoekers zijn actief boven die grens. Ditt\'s sweetspot (500–1.500 m²) sluit perfect aan op het dominante transactiesegment — verplaatsingen van MKB en zakelijke dienstverleners.',
+      context: 'Circa 80 actieve zoekers zitten onder de 1.000 m². Slechts ~10 zoekers zijn actief boven die grens. Ditt\'s sweetspot (500–1.500 m²) sluit perfect aan op het dominante transactiesegment,  verplaatsingen van MKB en zakelijke dienstverleners.',
       kleur: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0',
     },
     {
       id: 'concurrentie',
-      titel: 'Concurrentielandschap — gat in het premium D&B-segment',
+      titel: 'Concurrentielandschap,  gat in het premium D&B-segment',
       context: 'HAL 2 B.V. domineert het MKB-segment (gem. ø 480 m²); Duotone Interior Concepts richt zich op enterprise (ø 970 m², HTC). Tussen beide partijen is ruimte voor Ditt. als kwalitatieve D&B-specialist voor zakelijke dienstverleners op A-locaties.',
       kleur: '#0891b2', bg: '#f0f9ff', border: '#bae6fd',
     },
     {
       id: 'flightforum',
-      titel: 'Flight Forum — hoogste aanbodsdynamiek in Eindhoven',
+      titel: 'Flight Forum,  hoogste aanbodsdynamiek in Eindhoven',
       context: 'Flight Forum kent het hoogste aantal actief aangeboden kantoorobjecten van alle Eindhovense gebieden: 32 van de 205 objecten op Funda in Business, circa 16% van het totale aanbod. Dit duidt op hoge marktdynamiek en beschikbaarheid, wat acquisitiepotentieel oplevert voor renovatie- en herinrichtingsopdrachten.',
       kleur: '#0891b2', bg: '#f0f9ff', border: '#bae6fd',
     },
@@ -2727,7 +2727,7 @@ function EindhovenGemeenteStrategiePanel() {
       >
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)' }}>
-            <EditableText storageKey="fase1.eind.strategie.paneltitel" defaultValue="Eindhovense kantoormarkt — strategische context voor Ditt." />
+            <EditableText storageKey="fase1.eind.strategie.paneltitel" defaultValue="Eindhovense kantoormarkt,  strategische context voor Ditt." />
           </div>
           <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
             <EditableText storageKey="fase1.eind.strategie.panelsubtitel" defaultValue="Brainport 2030 · Fellenoord-transformatie · Sweetspot analyse · Concurrentie" />
@@ -2759,7 +2759,7 @@ function EindhovenGemeenteStrategiePanel() {
   )
 }
 
-// ── Fase 1 Oriëntatie — samengestelde inhoud per stad ─────────────────────────
+// ── Fase 1 Oriëntatie,  samengestelde inhoud per stad ─────────────────────────
 
 function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
   const stadId = stadNaam.toLowerCase() as 'eindhoven' | 'rotterdam'
@@ -2794,10 +2794,10 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
           {[
             { label: 'Totaal kantoor VVO',   value: fmM2(stadVVO) },
             { label: 'Leegstand (m²)',        value: mc.leegstandM2.toLocaleString('nl-NL') + ' m²' },
-            { label: 'Vacancy rate (JLL)',    value: jll ? `${jll.vacancyRate}%` : '—' },
-            { label: 'Prime rent (JLL)',      value: jll ? `€${jll.primeRent}/m²` : '—' },
-            { label: 'Take-up 2025',          value: jll ? fmM2(jll.takeUp) : '—' },
-            { label: 'Pijplijn 2026–2030',   value: jll ? fmM2(jll.pipeline2030) : '—' },
+            { label: 'Vacancy rate (JLL)',    value: jll ? `${jll.vacancyRate}%` : ', ' },
+            { label: 'Prime rent (JLL)',      value: jll ? `€${jll.primeRent}/m²` : ', ' },
+            { label: 'Take-up 2025',          value: jll ? fmM2(jll.takeUp) : ', ' },
+            { label: 'Pijplijn 2026–2030',   value: jll ? fmM2(jll.pipeline2030) : ', ' },
             { label: 'Ditt. doelregio (m²)', value: fmM2(mc.dittM2) },
           ].map(({ label, value }) => (
             <div key={label} style={{ background: '#f8f7f5', borderRadius: 8, padding: '10px 12px', border: '1px solid var(--c-border)' }}>
@@ -2819,7 +2819,7 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
 
       {/* 2 · Omgevingskenmerken */}
       <div>
-        <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.2`} defaultValue="2 · Omgevingskenmerken — concurrentie & D&B-activiteit" /></div>
+        <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.2`} defaultValue="2 · Omgevingskenmerken,  concurrentie & D&B-activiteit" /></div>
         {stadNaam === 'Eindhoven' ? <OmgevingskenmerkenPanel /> : <RotterdamOmgevingskenmerkenPanel />}
       </div>
 
@@ -2834,15 +2834,15 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
       {/* 3b · Leegstand per pand (Rotterdam only) */}
       {stadNaam === 'Rotterdam' && (
         <div>
-          <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.3b`} defaultValue="3b · Beschikbaar aanbod — leegstand per pand" /></div>
+          <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.3b`} defaultValue="3b · Beschikbaar aanbod,  leegstand per pand" /></div>
           <RotterdamLeegstandPanel />
         </div>
       )}
 
 
-      {/* 4 · Veldonderzoek-inzichten — uitklapbaar */}
+      {/* 4 · Veldonderzoek-inzichten,  uitklapbaar */}
       <div>
-        <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.4`} defaultValue="4 · Veldonderzoek — markt, huurcontracten & turn-key" /></div>
+        <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.4`} defaultValue="4 · Veldonderzoek,  markt, huurcontracten & turn-key" /></div>
         <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
           <button
             onClick={() => setOpenVeld((o) => !o)}
@@ -2865,7 +2865,7 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
                 onClick={() => setDeletedVeld(new Set())}
                 style={{ fontSize: 11, color: 'var(--c-coral)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', alignSelf: 'flex-start', padding: 0 }}
               >
-                {deletedVeld.size} kaart{deletedVeld.size > 1 ? 'en' : ''} verborgen — herstel alles
+                {deletedVeld.size} kaart{deletedVeld.size > 1 ? 'en' : ''} verborgen,  herstel alles
               </button>
             )}
             {veldThemas.map((thema) => {
@@ -2923,7 +2923,7 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
       {/* 5 · Makelaars-quotes */}
       {makelaarsQuotes.length > 0 && (
         <div>
-          <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.5`} defaultValue="5 · Makelaars-quotes — directe uitspraken veldonderzoek" /></div>
+          <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.5`} defaultValue="5 · Makelaars-quotes,  directe uitspraken veldonderzoek" /></div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {makelaarsQuotes.map((inzicht, i) => {
               const badge = inzicht.stad ? VELDONDERZOEK_STAD_BADGE[inzicht.stad] : null
@@ -2957,7 +2957,7 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
   )
 }
 
-// ── Fase 2 Netwerk opbouwen — data & componenten ──────────────────────────────
+// ── Fase 2 Netwerk opbouwen,  data & componenten ──────────────────────────────
 
 const FASE2_VELD_THEMAS = ['samenwerking']
 
@@ -2970,21 +2970,21 @@ const KANALEN_PER_STAD: Record<string, Record<'makelaar' | 'eigenaar' | 'huurder
       kapstok: 'Welke objecten in uw portefeuille hebben op dit moment een actieve verhuurvraag of aankomende huurdersmutatie?',
     },
     eigenaar: {
-      aanpak: 'Focus op Fellenoord-transformatie en Edge Eindhoven-eigenaren. Geva Vastgoed (Strijp-T) en Edge Technologies zijn prioritaire targets. D&B verhoogt verhuurwaarde en combineert energielabel C-renovatie met interieurupgrade — één aanspreekpunt van ontwerp tot oplevering.',
+      aanpak: 'Focus op Fellenoord-transformatie en Edge Eindhoven-eigenaren. Geva Vastgoed (Strijp-T) en Edge Technologies zijn prioritaire targets. D&B verhoogt verhuurwaarde en combineert energielabel C-renovatie met interieurupgrade,  één aanspreekpunt van ontwerp tot oplevering.',
       kapstok: 'Heeft u plannen voor renovatie of herinrichting van uw pand in de komende 12–24 maanden?',
     },
     huurder: {
-      aanpak: 'Sweetspot: 500–600 m², zakelijke dienstverleners en tech scale-ups. Instapklare behoefte bij <750 m²; grotere huurders willen eigen inrichtingskeuzes. Kom vroeg in het verhuurtraject — al vanaf de 2e bezichtiging denken huurders aan inrichting.',
+      aanpak: 'Sweetspot: 500–600 m², zakelijke dienstverleners en tech scale-ups. Instapklare behoefte bij <750 m²; grotere huurders willen eigen inrichtingskeuzes. Kom vroeg in het verhuurtraject,  al vanaf de 2e bezichtiging denken huurders aan inrichting.',
       kapstok: 'Hoe ziet uw ideale werkplek eruit en wat is uw tijdsplanning voor het betrekken van de nieuwe ruimte?',
     },
   },
   Rotterdam: {
     makelaar: {
-      aanpak: 'Schaub & Partners (Maurits de Peuter) en De Mik Real Estate Partners (Marcel Naaktgeboren) zijn de prioritaire makelaars. Geen courtageafspraken — maar wederkerigheid schept morele verplichtingen. Plan@Office is vaste D&B-partner van De Mik; Ditt moet dat vertrouwen verdienen met snelheid en nakoming. Netwerk via Provada (9–11 juni 2026, stand 12.06).',
+      aanpak: 'Schaub & Partners (Maurits de Peuter) en De Mik Real Estate Partners (Marcel Naaktgeboren) zijn de prioritaire makelaars. Geen courtageafspraken,  maar wederkerigheid schept morele verplichtingen. Plan@Office is vaste D&B-partner van De Mik; Ditt moet dat vertrouwen verdienen met snelheid en nakoming. Netwerk via Provada (9–11 juni 2026, stand 12.06).',
       kapstok: 'Heeft u huurkandidaten met een strakke deadline die twijfelen vanwege de inrichtingstijd?',
     },
     eigenaar: {
-      aanpak: 'NSI N.V. (Stefan Suurmond) — beursgenoteerd, tender-verplicht, maar partijen uit bestaand netwerk (Provada, Fresh-netwerkclub) worden uitgenodigd. Benadruk B Corp-score (89,5) en BREEAM-expertise. Kop van Zuid en Brainpark zijn de prioritaire gebieden.',
+      aanpak: 'NSI N.V. (Stefan Suurmond),  beursgenoteerd, tender-verplicht, maar partijen uit bestaand netwerk (Provada, Fresh-netwerkclub) worden uitgenodigd. Benadruk B Corp-score (89,5) en BREEAM-expertise. Kop van Zuid en Brainpark zijn de prioritaire gebieden.',
       kapstok: 'Hoe lang staat uw pand al leeg en hoe urgent is het om snel een huurder te huisvesten?',
     },
     huurder: {
@@ -3271,7 +3271,7 @@ interface F2ProtocolInhoud { aanpak: string; kapstok: string }
 const F2_PROTOCOL: Record<F2Product, Record<F2Partij, F2ProtocolInhoud>> = {
   'design-and-build': {
     makelaar: {
-      aanpak:   'Vraag naar panden in portefeuille met verhuurleegstand of aankomende mutaties. Positioneer D&B als compleet inrichtingsconcept voor nieuwe huurders — verhoogt aantrekkingskracht zonder risico voor de eigenaar.',
+      aanpak:   'Vraag naar panden in portefeuille met verhuurleegstand of aankomende mutaties. Positioneer D&B als compleet inrichtingsconcept voor nieuwe huurders,  verhoogt aantrekkingskracht zonder risico voor de eigenaar.',
       kapstok:  'Welke objecten in uw portefeuille hebben op dit moment een actieve verhuurvraag of aankomende huurdersmutatie?',
     },
     eigenaar: {
@@ -3295,7 +3295,7 @@ const F2_PROTOCOL: Record<F2Product, Record<F2Partij, F2ProtocolInhoud>> = {
       kapstok:  'Heeft u huurkandidaten die al met een eigen architect werken maar nog een betrouwbare uitvoerende partij zoeken?',
     },
     eigenaar: {
-      aanpak:   'Ideaal voor objecten waarbij de huurder of eigenaar al een architectenbureau heeft geselecteerd. Ditt treedt op als uitvoerend partner — één aanspreekpunt voor de volledige bouwfase, zonder vertraging en binnen budget.',
+      aanpak:   'Ideaal voor objecten waarbij de huurder of eigenaar al een architectenbureau heeft geselecteerd. Ditt treedt op als uitvoerend partner,  één aanspreekpunt voor de volledige bouwfase, zonder vertraging en binnen budget.',
       kapstok:  'Werkt de toekomstige gebruiker van uw pand al met een architect? Dan kan Ditt de uitvoering volledig overnemen.',
     },
   },
@@ -3304,45 +3304,45 @@ const F2_PROTOCOL: Record<F2Product, Record<F2Partij, F2ProtocolInhoud>> = {
 const F2_SLIDES: Record<F2Product, Record<F2Partij, { nr: number; omschrijving: string }[]>> = {
   'design-and-build': {
     makelaar: [
-      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
-      { nr: 31, omschrijving: 'Dienstenoverzicht — D&B, Detail & Build, Consultancy' },
-      { nr: 43, omschrijving: 'Samenwerking — wij werken graag samen met makelaars' },
-      { nr: 45, omschrijving: 'The Office Lifecycle — vroeg betrokken = meer impact' },
+      { nr: 17, omschrijving: 'Bedrijfsintro,  Great Offices, Happy People' },
+      { nr: 31, omschrijving: 'Dienstenoverzicht,  D&B, Detail & Build, Consultancy' },
+      { nr: 43, omschrijving: 'Samenwerking,  wij werken graag samen met makelaars' },
+      { nr: 45, omschrijving: 'The Office Lifecycle,  vroeg betrokken = meer impact' },
     ],
     eigenaar: [
-      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
-      { nr: 32, omschrijving: 'Design & Build Specialist — van schets tot sleuteloverdracht' },
-      { nr: 45, omschrijving: 'The Office Lifecycle — van consultancy tot oplevering' },
-      { nr: 49, omschrijving: 'Storytelling — een gebouw is meer dan een bouwproject' },
-      { nr: 20, omschrijving: 'B Corp 89,5 — duurzaamheid als verhuurargument' },
+      { nr: 17, omschrijving: 'Bedrijfsintro,  Great Offices, Happy People' },
+      { nr: 32, omschrijving: 'Design & Build Specialist,  van schets tot sleuteloverdracht' },
+      { nr: 45, omschrijving: 'The Office Lifecycle,  van consultancy tot oplevering' },
+      { nr: 49, omschrijving: 'Storytelling,  een gebouw is meer dan een bouwproject' },
+      { nr: 20, omschrijving: 'B Corp 89,5,  duurzaamheid als verhuurargument' },
     ],
   },
   'fast-fit-out': {
     makelaar: [
-      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
-      { nr: 31, omschrijving: 'Dienstenoverzicht — Fast Fit-Out als snel inzetbaar concept' },
-      { nr: 40, omschrijving: 'Waarom Ditt? — VCA, WELL, 65+ specialisten' },
-      { nr: 99, omschrijving: 'Planningsoverzicht — vaste doorlooptijd, geen verrassingen' },
+      { nr: 17, omschrijving: 'Bedrijfsintro,  Great Offices, Happy People' },
+      { nr: 31, omschrijving: 'Dienstenoverzicht,  Fast Fit-Out als snel inzetbaar concept' },
+      { nr: 40, omschrijving: 'Waarom Ditt?,  VCA, WELL, 65+ specialisten' },
+      { nr: 99, omschrijving: 'Planningsoverzicht,  vaste doorlooptijd, geen verrassingen' },
     ],
     eigenaar: [
-      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
-      { nr: 40, omschrijving: 'Waarom Ditt? — bewezen concept, snelle realisatie' },
-      { nr: 99, omschrijving: 'Planningsoverzicht — tijdlijn en mijlpalen' },
-      { nr: 20, omschrijving: 'B Corp 89,5 — duurzame materialen standaard' },
+      { nr: 17, omschrijving: 'Bedrijfsintro,  Great Offices, Happy People' },
+      { nr: 40, omschrijving: 'Waarom Ditt?,  bewezen concept, snelle realisatie' },
+      { nr: 99, omschrijving: 'Planningsoverzicht,  tijdlijn en mijlpalen' },
+      { nr: 20, omschrijving: 'B Corp 89,5,  duurzame materialen standaard' },
     ],
   },
   'detail-and-build': {
     makelaar: [
-      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
-      { nr: 31, omschrijving: 'Dienstenoverzicht — Detail & Build als uitvoeringspartner' },
-      { nr: 54, omschrijving: 'D&B organogram — Ditt als bouwpartner naast architect' },
-      { nr: 43, omschrijving: 'Samenwerking — prettige partner bij complexe opgaven' },
+      { nr: 17, omschrijving: 'Bedrijfsintro,  Great Offices, Happy People' },
+      { nr: 31, omschrijving: 'Dienstenoverzicht,  Detail & Build als uitvoeringspartner' },
+      { nr: 54, omschrijving: 'D&B organogram,  Ditt als bouwpartner naast architect' },
+      { nr: 43, omschrijving: 'Samenwerking,  prettige partner bij complexe opgaven' },
     ],
     eigenaar: [
-      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
-      { nr: 54, omschrijving: 'D&B organogram — architect ontwerpt, Ditt bouwt' },
-      { nr: 43, omschrijving: 'Samenwerking — van dag 1 betrokken bij het team' },
-      { nr: 40, omschrijving: 'Waarom Ditt? — VCA, WELL, betrouwbare uitvoering' },
+      { nr: 17, omschrijving: 'Bedrijfsintro,  Great Offices, Happy People' },
+      { nr: 54, omschrijving: 'D&B organogram,  architect ontwerpt, Ditt bouwt' },
+      { nr: 43, omschrijving: 'Samenwerking,  van dag 1 betrokken bij het team' },
+      { nr: 40, omschrijving: 'Waarom Ditt?,  VCA, WELL, betrouwbare uitvoering' },
     ],
   },
 }
@@ -3384,7 +3384,7 @@ function PrioriteitWarmContactCard({ contact, gebiedBadge }: { contact: WarmCont
       <div style={{ padding: '14px 16px 10px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10, gap: 8 }}>
           <div style={{ minWidth: 0 }}>
-            <EditableText storageKey={`${sk}.naam`} defaultValue={contact.naam || '—'} style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a' }} />
+            <EditableText storageKey={`${sk}.naam`} defaultValue={contact.naam || ', '} style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a' }} />
             <EditableText storageKey={`${sk}.organisatie`} defaultValue={contact.organisatie} style={{ fontSize: 12, color: '#78716c', marginTop: 2, display: 'block' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
@@ -3650,7 +3650,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   const { deleted: deletedPanden,      deleteItem: deletePand }      = useDeletedItemsFase2(`deleted_panden_fase3_v2_${stadId}`)
   const { deleted: deletedTransacties, deleteItem: deleteTransactie } = useDeletedItemsFase2(`deleted_transacties_fase3_${stadId}`)
 
-  // Panden in ontwikkeling — aggregaat uit steden-data
+  // Panden in ontwikkeling,  aggregaat uit steden-data
   const stadData = steden.find((s) => s.naam === stadNaam)
   const pandenInOntwikkeling = (stadData?.gebieden.flatMap((g) =>
     g.pandenInOntwikkeling.map((p) => ({ ...p, gebiedNaam: g.naam }))
@@ -3659,7 +3659,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
     !/afgerond|opgeleverd|in gebruik/i.test(p.verwachteOplevering)
   )
 
-  // 3. Recente transacties — gefilterd op stad
+  // 3. Recente transacties,  gefilterd op stad
   const transactiesVoorStad = TRANSACTIES_DATA.filter((g) => g.stad === stadId)
   const totalTransacties = transactiesVoorStad.reduce((s, g) => s + g.transacties.length, 0)
 
@@ -3668,7 +3668,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
     textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8,
   }
 
-  // Prioriteitsgebieden Eindhoven — gekoppeld aan aanbevolen actie
+  // Prioriteitsgebieden Eindhoven,  gekoppeld aan aanbevolen actie
   const PRIORITEIT_GEBIED_IDS = ['centrum-eindhoven', 'airport-ehv']
   const prioriteitGebieden = stadNaam === 'Eindhoven'
     ? (stadData?.gebieden.filter((g) => PRIORITEIT_GEBIED_IDS.includes(g.id)) ?? [])
@@ -3683,7 +3683,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-      {/* 2 · Panden in ontwikkeling — uitklapbaar */}
+      {/* 2 · Panden in ontwikkeling,  uitklapbaar */}
       <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
         <button
           onClick={() => setOpenPanden((o) => !o)}
@@ -3771,7 +3771,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
         )}
       </div>
 
-      {/* 3 · Recente transacties — uitklapbaar */}
+      {/* 3 · Recente transacties,  uitklapbaar */}
       <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
         <button
           onClick={() => setOpenTransacties((o) => !o)}
@@ -3861,7 +3861,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
         )}
       </div>
 
-      {/* 4 · Aflopende huurcontracten — uitklapbaar */}
+      {/* 4 · Aflopende huurcontracten,  uitklapbaar */}
       <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
         <button
           onClick={() => setOpenHuurcontracten((o) => !o)}
@@ -3888,7 +3888,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
         )}
       </div>
 
-      {/* Aanbevolen actie — Eindhoven */}
+      {/* Aanbevolen actie,  Eindhoven */}
       {stadNaam === 'Eindhoven' && (
         <div style={{ border: '1px solid #bfdbfe', borderRadius: 12, overflow: 'hidden', background: '#eff6ff' }}>
           <div style={{ padding: '14px 18px', borderBottom: '1px solid #bfdbfe', background: '#dbeafe' }}>
@@ -3899,14 +3899,14 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
             />
             <EditableText
               storageKey="fase3.eind.aanbevolen.sub"
-              defaultValue="Bouw eerst referentieprojecten op toegankelijke locaties — gebruik die als sleutel naar Strijp-S en High Tech Campus"
+              defaultValue="Bouw eerst referentieprojecten op toegankelijke locaties,  gebruik die als sleutel naar Strijp-S en High Tech Campus"
               style={{ fontSize: 11, color: '#3b82f6', marginTop: 2, display: 'block' }}
             />
           </div>
           <div style={{ padding: '14px 18px' }}>
             <EditableText
               storageKey="fase3.eind.aanbevolen.body"
-              defaultValue="Prioriteer Flight Forum en Centrum Eindhoven als eerste acquisitiedoelen. Samen met het Carglass-project op Science Park vormen deze de referentiebase die nodig is om toegang te krijgen tot Strijp-S en High Tech Campus — gebieden waar opdrachtgevers bewijs van track record verwachten vóórdat ze een gesprek aangaan. Zet Flight Forum en Centrum bewust in als portfolio-opbouw, niet alleen als omzetdoelstelling."
+              defaultValue="Prioriteer Flight Forum en Centrum Eindhoven als eerste acquisitiedoelen. Samen met het Carglass-project op Science Park vormen deze de referentiebase die nodig is om toegang te krijgen tot Strijp-S en High Tech Campus,  gebieden waar opdrachtgevers bewijs van track record verwachten vóórdat ze een gesprek aangaan. Zet Flight Forum en Centrum bewust in als portfolio-opbouw, niet alleen als omzetdoelstelling."
               tag="div"
               multiline
               style={{ fontSize: 12, color: '#1e3a8a', lineHeight: 1.7 }}
@@ -3915,11 +3915,11 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
         </div>
       )}
 
-      {/* Gekoppelde kansen — warme contacten + aflopende contracten in prioriteitsgebieden */}
+      {/* Gekoppelde kansen,  warme contacten + aflopende contracten in prioriteitsgebieden */}
       {stadNaam === 'Eindhoven' && (prioriteitContacten.length > 0 || prioriteitLeads.length > 0) && (
         <div style={{ border: '1px solid #bfdbfe', borderLeft: '4px solid #3b82f6', borderRadius: 12, overflow: 'hidden', background: '#f8faff' }}>
 
-          {/* Header — klikbaar voor uitklappen */}
+          {/* Header,  klikbaar voor uitklappen */}
           <button
             onClick={() => setOpenGekoppeld((o) => !o)}
             style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px 10px 14px', background: '#eff6ff', border: 'none', cursor: 'pointer', textAlign: 'left', gap: 10 }}
@@ -3933,7 +3933,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a8a', marginTop: 1 }}>
                   <EditableText
                     storageKey="fase3.eind.gekoppeld.header"
-                    defaultValue={`${prioriteitContacten.length} warme contacten · ${prioriteitLeads.filter((l) => l.huurprijsPerM2).length} aflopende contracten — Flight Forum & Centrum Eindhoven`}
+                    defaultValue={`${prioriteitContacten.length} warme contacten · ${prioriteitLeads.filter((l) => l.huurprijsPerM2).length} aflopende contracten,  Flight Forum & Centrum Eindhoven`}
                   />
                 </div>
               </div>
@@ -3947,7 +3947,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
               {prioriteitContacten.length > 0 && (
                 <div style={{ padding: '14px 16px', borderTop: '1px solid #dbeafe', borderBottom: prioriteitLeads.length > 0 ? '1px solid #dbeafe' : 'none' }}>
                   <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 10 }}>
-                    <EditableText storageKey="fase3.eind.contacten.sublabel" defaultValue="Warme contacten — in prioriteitsgebied" />
+                    <EditableText storageKey="fase3.eind.contacten.sublabel" defaultValue="Warme contacten,  in prioriteitsgebied" />
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
                     {prioriteitContacten.map((c) => {
@@ -3971,7 +3971,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
               {prioriteitLeads.filter((l) => l.huurprijsPerM2).length > 0 && (
                 <div style={{ padding: '14px 16px', borderTop: prioriteitContacten.length > 0 ? 'none' : '1px solid #dbeafe' }}>
                   <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 10 }}>
-                    <EditableText storageKey="fase3.eind.leads.sublabel" defaultValue="Aflopende contracten — in prioriteitsgebied" />
+                    <EditableText storageKey="fase3.eind.leads.sublabel" defaultValue="Aflopende contracten,  in prioriteitsgebied" />
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                     {prioriteitLeads.filter((l) => l.huurprijsPerM2).map((l) => {
@@ -4010,21 +4010,21 @@ const F4_PROTOCOL: Record<F2Product, Record<F4Partij, F2ProtocolInhoud>> = {
   },
   'fast-fit-out': {
     eigenaar: {
-      aanpak:  'Verhoog bezettingsgraad door snel op te leveren. Geschikt voor objecten waar snelheid boven volledig maatwerk gaat. Beperkt risico, direct resultaat — aantrekkelijk argument richting aankomende huurders met tijdsdruk.',
+      aanpak:  'Verhoog bezettingsgraad door snel op te leveren. Geschikt voor objecten waar snelheid boven volledig maatwerk gaat. Beperkt risico, direct resultaat,  aantrekkelijk argument richting aankomende huurders met tijdsdruk.',
       kapstok: 'Hoe lang staat uw pand al leeg en hoe urgent is het om snel een huurder te huisvesten?',
     },
     huurder: {
-      aanpak:  'Wanneer een huurder tijdsdruk heeft, is Fast Fit-Out het sterkste argument. Presenteer het concept als een vooraf gedefinieerd, bewezen pakket met vaste doorlooptijd. Geen langdurig ontwerptraject — direct zekerheid over planning en prijs.',
+      aanpak:  'Wanneer een huurder tijdsdruk heeft, is Fast Fit-Out het sterkste argument. Presenteer het concept als een vooraf gedefinieerd, bewezen pakket met vaste doorlooptijd. Geen langdurig ontwerptraject,  direct zekerheid over planning en prijs.',
       kapstok: 'Wanneer moet u de nieuwe ruimte uiterlijk betrekken en hoeveel speelruimte heeft u in de planning?',
     },
   },
   'detail-and-build': {
     eigenaar: {
-      aanpak:  'Ideaal voor objecten waarbij de huurder of eigenaar al een architectenbureau heeft geselecteerd. Ditt treedt op als uitvoerend partner — één aanspreekpunt voor de volledige bouwfase, zonder vertraging en binnen budget.',
+      aanpak:  'Ideaal voor objecten waarbij de huurder of eigenaar al een architectenbureau heeft geselecteerd. Ditt treedt op als uitvoerend partner,  één aanspreekpunt voor de volledige bouwfase, zonder vertraging en binnen budget.',
       kapstok: 'Werkt de toekomstige gebruiker van uw pand al met een architect? Dan kan Ditt de uitvoering volledig overnemen.',
     },
     huurder: {
-      aanpak:  'Wanneer de huurder al een architect in de arm heeft genomen, positioneer Ditt als de uitvoerende bouwpartner. Het ontwerp blijft volledig bij de architect; Ditt beheerst de volledige realisatie — één aanspreekpunt, vaste prijs, betrouwbare oplevering.',
+      aanpak:  'Wanneer de huurder al een architect in de arm heeft genomen, positioneer Ditt als de uitvoerende bouwpartner. Het ontwerp blijft volledig bij de architect; Ditt beheerst de volledige realisatie,  één aanspreekpunt, vaste prijs, betrouwbare oplevering.',
       kapstok: 'Werkt u al met een architect voor de inrichting? Dan kunnen wij de volledige uitvoering voor u overnemen.',
     },
   },
@@ -4033,54 +4033,54 @@ const F4_PROTOCOL: Record<F2Product, Record<F4Partij, F2ProtocolInhoud>> = {
 const F4_SLIDES: Record<F2Product, Record<F4Partij, { nr: number; omschrijving: string }[]>> = {
   'design-and-build': {
     eigenaar: [
-      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
-      { nr: 32, omschrijving: 'Design & Build Specialist — van schets tot sleuteloverdracht' },
-      { nr: 45, omschrijving: 'The Office Lifecycle — van consultancy tot oplevering' },
-      { nr: 20, omschrijving: 'B Corp 89,5 — duurzaamheid als verhuurargument' },
+      { nr: 17, omschrijving: 'Bedrijfsintro,  Great Offices, Happy People' },
+      { nr: 32, omschrijving: 'Design & Build Specialist,  van schets tot sleuteloverdracht' },
+      { nr: 45, omschrijving: 'The Office Lifecycle,  van consultancy tot oplevering' },
+      { nr: 20, omschrijving: 'B Corp 89,5,  duurzaamheid als verhuurargument' },
     ],
     huurder: [
-      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
-      { nr: 32, omschrijving: 'Design & Build — van concept tot sleuteloverdracht' },
-      { nr: 49, omschrijving: 'Storytelling — kantoor als verlengstuk van uw merk' },
-      { nr: 20, omschrijving: 'B Corp 89,5 — duurzame materialen standaard' },
-      { nr: 45, omschrijving: 'The Office Lifecycle — vroeg betrokken = meer impact' },
+      { nr: 17, omschrijving: 'Bedrijfsintro,  Great Offices, Happy People' },
+      { nr: 32, omschrijving: 'Design & Build,  van concept tot sleuteloverdracht' },
+      { nr: 49, omschrijving: 'Storytelling,  kantoor als verlengstuk van uw merk' },
+      { nr: 20, omschrijving: 'B Corp 89,5,  duurzame materialen standaard' },
+      { nr: 45, omschrijving: 'The Office Lifecycle,  vroeg betrokken = meer impact' },
     ],
   },
   'fast-fit-out': {
     eigenaar: [
-      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
-      { nr: 40, omschrijving: 'Waarom Ditt? — bewezen concept, snelle realisatie' },
-      { nr: 99, omschrijving: 'Planningsoverzicht — tijdlijn en mijlpalen' },
-      { nr: 20, omschrijving: 'B Corp 89,5 — duurzame materialen standaard' },
+      { nr: 17, omschrijving: 'Bedrijfsintro,  Great Offices, Happy People' },
+      { nr: 40, omschrijving: 'Waarom Ditt?,  bewezen concept, snelle realisatie' },
+      { nr: 99, omschrijving: 'Planningsoverzicht,  tijdlijn en mijlpalen' },
+      { nr: 20, omschrijving: 'B Corp 89,5,  duurzame materialen standaard' },
     ],
     huurder: [
-      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
-      { nr: 31, omschrijving: 'Fast Fit-Out — vast concept, vaste prijs, vaste doorlooptijd' },
-      { nr: 99, omschrijving: 'Planningsoverzicht — geen verrassingen in de tijdlijn' },
-      { nr: 40, omschrijving: 'Waarom Ditt? — VCA, WELL, 65+ specialisten' },
+      { nr: 17, omschrijving: 'Bedrijfsintro,  Great Offices, Happy People' },
+      { nr: 31, omschrijving: 'Fast Fit-Out,  vast concept, vaste prijs, vaste doorlooptijd' },
+      { nr: 99, omschrijving: 'Planningsoverzicht,  geen verrassingen in de tijdlijn' },
+      { nr: 40, omschrijving: 'Waarom Ditt?,  VCA, WELL, 65+ specialisten' },
     ],
   },
   'detail-and-build': {
     eigenaar: [
-      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
-      { nr: 54, omschrijving: 'D&B organogram — architect ontwerpt, Ditt bouwt' },
-      { nr: 43, omschrijving: 'Samenwerking — van dag 1 betrokken bij het team' },
-      { nr: 40, omschrijving: 'Waarom Ditt? — VCA, WELL, betrouwbare uitvoering' },
+      { nr: 17, omschrijving: 'Bedrijfsintro,  Great Offices, Happy People' },
+      { nr: 54, omschrijving: 'D&B organogram,  architect ontwerpt, Ditt bouwt' },
+      { nr: 43, omschrijving: 'Samenwerking,  van dag 1 betrokken bij het team' },
+      { nr: 40, omschrijving: 'Waarom Ditt?,  VCA, WELL, betrouwbare uitvoering' },
     ],
     huurder: [
-      { nr: 17, omschrijving: 'Bedrijfsintro — Great Offices, Happy People' },
-      { nr: 54, omschrijving: 'D&B organogram — Ditt als bouwpartner naast uw architect' },
-      { nr: 43, omschrijving: 'Samenwerking — prettige partner bij complexe opgaven' },
-      { nr: 40, omschrijving: 'Waarom Ditt? — VCA, WELL, betrouwbare oplevering' },
+      { nr: 17, omschrijving: 'Bedrijfsintro,  Great Offices, Happy People' },
+      { nr: 54, omschrijving: 'D&B organogram,  Ditt als bouwpartner naast uw architect' },
+      { nr: 43, omschrijving: 'Samenwerking,  prettige partner bij complexe opgaven' },
+      { nr: 40, omschrijving: 'Waarom Ditt?,  VCA, WELL, betrouwbare oplevering' },
     ],
   },
 }
 
 const F4_ELEVATOR_PITCH =
-  'Ditt Officemakers is design & build specialist voor kantoorwerkomgevingen — van schets tot sleuteloverdracht. ' +
+  'Ditt Officemakers is design & build specialist voor kantoorwerkomgevingen,  van schets tot sleuteloverdracht. ' +
   'Wij zijn B Corp gecertificeerd (score 89,5), werken met 65+ specialisten en zetten onze eigen AI-tool in om ' +
   'plattegronden snel in kaart te brengen. Of het nu gaat om een volledig Design & Build traject, een snelle ' +
-  'Fast Fit-Out of Detail & Build met een externe architect — wij zorgen dat het kantoor klaar is op tijd, ' +
+  'Fast Fit-Out of Detail & Build met een externe architect,  wij zorgen dat het kantoor klaar is op tijd, ' +
   'binnen budget en met een resultaat waar mensen blij van worden.'
 
 function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
@@ -4109,14 +4109,14 @@ function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
 
       {/* 1 · Contactprotocol */}
       <div>
-        <div style={subLabel}><EditableText storageKey={`fase4.${stadNaam.toLowerCase()}.sublabel.1`} defaultValue="1 · Contactprotocol — eigenaren & huurders" /></div>
+        <div style={subLabel}><EditableText storageKey={`fase4.${stadNaam.toLowerCase()}.sublabel.1`} defaultValue="1 · Contactprotocol,  eigenaren & huurders" /></div>
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden' }}>
 
           {/* Header + partijtype selector */}
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--c-border)', background: '#faf9f7', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
             <div>
               <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--c-subtle)' }}>Contactprotocol</div>
-              <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 3 }}>Gebouweigenaren &amp; huurders — {stadNaam}</div>
+              <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 3 }}>Gebouweigenaren &amp; huurders,  {stadNaam}</div>
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
               {(['eigenaar', 'huurder'] as const).map((pt) => (
@@ -4164,7 +4164,7 @@ function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
           {stadContext && (
             <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--c-border)', background: '#fdf8f5' }}>
               <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-coral)', marginBottom: 4 }}>
-                {stadNaam} — marktcontext
+                {stadNaam},  marktcontext
               </div>
               <EditableText
                 storageKey={`fase4.${stadNaam.toLowerCase()}.${partijType}.context`}
@@ -4241,7 +4241,7 @@ function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
         <div style={subLabel}><EditableText storageKey={`fase4.${stadNaam.toLowerCase()}.sublabel.2`} defaultValue="2 · Begrotingsindicator" /></div>
         <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
           <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--c-border)', background: '#faf9f7' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>Begrotingsindicatie — per gesprek</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>Begrotingsindicatie,  per gesprek</div>
             <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2 }}>
               Kwaliteitsniveau × m² opgave · op basis van Begrotingssheet 2026 Premium
             </div>
@@ -4393,14 +4393,14 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
 
       {/* 1 · Contactprotocol */}
       <div>
-        <div style={subLabel}><EditableText storageKey={`fase2.${stadId}.sublabel.1`} defaultValue="1 · Contactprotocol — aanpak per partijtype" /></div>
+        <div style={subLabel}><EditableText storageKey={`fase2.${stadId}.sublabel.1`} defaultValue="1 · Contactprotocol,  aanpak per partijtype" /></div>
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden' }}>
 
           {/* Header + partijtype selector */}
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--c-border)', background: '#faf9f7', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
             <div>
               <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--c-subtle)' }}><EditableText storageKey="fase2.proto.header.titel" defaultValue="Contactprotocol" /></div>
-              <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 3 }}><EditableText storageKey={`fase2.proto.header.sub.${stadNaam.toLowerCase()}`} defaultValue={`Makelaars & gebouweigenaren — ${stadNaam}`} /></div>
+              <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 3 }}><EditableText storageKey={`fase2.proto.header.sub.${stadNaam.toLowerCase()}`} defaultValue={`Makelaars & gebouweigenaren,  ${stadNaam}`} /></div>
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
               {(['makelaar', 'eigenaar'] as const).map((pt) => (
@@ -4448,7 +4448,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
           {stadContext && (
             <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--c-border)', background: '#fdf8f5' }}>
               <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-coral)', marginBottom: 4 }}>
-                {stadNaam} — marktcontext
+                {stadNaam},  marktcontext
               </div>
               <EditableText
                 storageKey={`fase2.${stadNaam.toLowerCase()}.${partijType}.context`}
@@ -4496,9 +4496,9 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
         </div>
       </div>
 
-      {/* 2 · Veldonderzoek — makelaarsrelaties & acquisitie */}
+      {/* 2 · Veldonderzoek,  makelaarsrelaties & acquisitie */}
       <div>
-        <div style={subLabel}><EditableText storageKey={`fase2.${stadId}.sublabel.2`} defaultValue="2 · Veldonderzoek — makelaarsrelaties, acquisitie & toetreding" /></div>
+        <div style={subLabel}><EditableText storageKey={`fase2.${stadId}.sublabel.2`} defaultValue="2 · Veldonderzoek,  makelaarsrelaties, acquisitie & toetreding" /></div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {veldThemas.map((thema) => {
             const gefilterd = thema.inzichten.filter(inzichtFilter)
@@ -4541,7 +4541,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
         </div>
       </div>
 
-      {/* Aanbevolen actie — makelaars Eindhoven */}
+      {/* Aanbevolen actie,  makelaars Eindhoven */}
       {stadNaam === 'Eindhoven' && (
         <div style={{ border: '1px solid #bfdbfe', borderRadius: 12, overflow: 'hidden', background: '#eff6ff' }}>
           <div style={{ padding: '14px 18px', borderBottom: '1px solid #bfdbfe', background: '#dbeafe' }}>
@@ -4552,7 +4552,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
             />
             <EditableText
               storageKey="fase2.eind.makelaars.sub"
-              defaultValue="Vier lokale bedrijfsmakelaars — direct benaderen voor relatieopbouw"
+              defaultValue="Vier lokale bedrijfsmakelaars,  direct benaderen voor relatieopbouw"
               style={{ fontSize: 11, color: '#3b82f6', marginTop: 2, display: 'block' }}
             />
           </div>
@@ -4561,7 +4561,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
               {
                 id: 'vs',
                 naam: 'Verschuuren & Schreppers',
-                sub: 'Bedrijfsmakelaars — Eindhoven',
+                sub: 'Bedrijfsmakelaars,  Eindhoven',
                 beschrijving: 'Dominante lokale makelaar in Eindhoven. Al gesproken in ontwerpfase (Dirk Verberne, 6 mrt 2026). Call gepland. Status: warm, relatie in opbouw.',
                 email: 'info@verschuurenschreppers.nl',
                 website: 'verschuurenschreppers.nl',
@@ -4569,7 +4569,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
               {
                 id: 'bf',
                 naam: 'Bossers & Fitters',
-                sub: 'Bedrijfshuisvesting — Eindhoven',
+                sub: 'Bedrijfshuisvesting,  Eindhoven',
                 beschrijving: 'NVM-kantoor in Eindhoven. Persoonlijke aanpak, actief in verhuur en verkoop van kantoor- en bedrijfsruimte. Vergelijkbaar profiel als Schaub & Partners in Rotterdam.',
                 email: 'info@bossersfitters.nl',
                 website: 'bossersfitters.nl',
@@ -4577,7 +4577,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
               {
                 id: 'kb',
                 naam: 'Kolsteren Bedrijfshuisvesting',
-                sub: 'Bedrijfsmakelaardij — Eindhoven',
+                sub: 'Bedrijfsmakelaardij,  Eindhoven',
                 beschrijving: 'Meer dan 25 jaar actief in regio Eindhoven. Bewust klein en onafhankelijk team met accent op commercieel vastgoed.',
                 email: 'info@kolsterenbedrijfshuisvesting.nl',
                 website: 'kolsterenbedrijfshuisvesting.nl',
@@ -4585,7 +4585,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
               {
                 id: 'avh',
                 naam: 'Adriaan van den Heuvel',
-                sub: 'Bedrijfsmakelaardij — Eindhoven & Helmond',
+                sub: 'Bedrijfsmakelaardij,  Eindhoven & Helmond',
                 beschrijving: 'Regionaal kantoor voor Eindhoven en Helmond. Breed pakket commercieel vastgoed, actief in aan- en verhuur.',
                 email: 'info@heuvel.nl',
                 website: 'heuvel.nl',
@@ -4619,7 +4619,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
           <div style={subLabel}>
-            <EditableText storageKey={`fase2.${stadId}.sublabel.3`} defaultValue={`3 · Warme ingangen — ${alleWarmeContacten.length + localContacts.length} contact${(alleWarmeContacten.length + localContacts.length) !== 1 ? 'en' : ''} in beeld`} />
+            <EditableText storageKey={`fase2.${stadId}.sublabel.3`} defaultValue={`3 · Warme ingangen,  ${alleWarmeContacten.length + localContacts.length} contact${(alleWarmeContacten.length + localContacts.length) !== 1 ? 'en' : ''} in beeld`} />
           </div>
           <button
             onClick={() => setShowNieuwForm((v) => !v)}
@@ -4826,7 +4826,7 @@ function ActieOverzichtView() {
 
               {/* ── Acquisitietrechter ── */}
               <div>
-                <div style={labelStyle}><EditableText storageKey="trechter.label" defaultValue="Acquisitietrechter — 4 fases" /></div>
+                <div style={labelStyle}><EditableText storageKey="trechter.label" defaultValue="Acquisitietrechter,  4 fases" /></div>
 
                 {/* ── Horizontale fase-stepper ── */}
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
@@ -4879,7 +4879,7 @@ function ActieOverzichtView() {
                   })}
                 </div>
 
-                {/* ── Actieve fase — fullwidth ── */}
+                {/* ── Actieve fase,  fullwidth ── */}
                 <div style={{ border: `1px solid ${huidigeFase.border}`, borderRadius: 12, overflow: 'hidden' }}>
 
                   {/* Fase-header */}
@@ -4988,7 +4988,7 @@ function ActieOverzichtView() {
                       style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ ...labelStyle, margin: 0 }}><EditableText storageKey="drempel.sectie.titel" defaultValue="Drempelcriteria — naar actief prospecting" /></span>
+                        <span style={{ ...labelStyle, margin: 0 }}><EditableText storageKey="drempel.sectie.titel" defaultValue="Drempelcriteria,  naar actief prospecting" /></span>
                         <span style={{ fontSize: 11, fontWeight: 600, padding: '1px 7px', borderRadius: 8, background: aantalKlaarVisible === visibleItems.length ? '#dcfce7' : '#fef9c3', color: aantalKlaarVisible === visibleItems.length ? '#16a34a' : '#854d0e' }}>
                           {aantalKlaarVisible}/{visibleItems.length}
                         </span>
@@ -5084,7 +5084,7 @@ function RecenteImportsPanel() {
             Geïmporteerde items
           </div>
           <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 1 }}>
-            Aangemaakt via document drag &amp; drop — {items.length} item{items.length !== 1 ? 's' : ''}
+            Aangemaakt via document drag &amp; drop,  {items.length} item{items.length !== 1 ? 's' : ''}
           </div>
         </div>
         <div
@@ -5224,7 +5224,7 @@ export default function StadOverzichtView() {
           Stadsoverzicht
         </h1>
         <p style={{ fontSize: 13, color: 'var(--c-muted)', margin: '4px 0 0' }}>
-          Marktindicatoren per stad — JLL Office Q4 2025 · Vastgoeddata.nl april 2026
+          Marktindicatoren per stad,  JLL Office Q4 2025 · Vastgoeddata.nl april 2026
         </p>
       </div>
 

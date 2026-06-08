@@ -13,11 +13,11 @@ interface NieuwsItem {
 }
 
 const CATEGORIE_BADGE: Record<string, { label: string; bg: string; text: string }> = {
-  transactie:   { label: 'Transactie',   bg: '#fef3c7', text: '#92400e' },
-  huurprijs:    { label: 'Huurprijs',    bg: '#dbeafe', text: '#1e40af' },
+  transactie:   { label: 'Transactie', bg: '#fef3c7', text: '#92400e' },
+  huurprijs:    { label: 'Huurprijs', bg: '#dbeafe', text: '#1e40af' },
   ontwikkeling: { label: 'Ontwikkeling', bg: '#d1fae5', text: '#065f46' },
-  bedrijf:      { label: 'Bedrijf',      bg: '#ede9fe', text: '#5b21b6' },
-  overig:       { label: 'Overig',       bg: '#f1f5f9', text: '#475569' },
+  bedrijf:      { label: 'Bedrijf', bg: '#ede9fe', text: '#5b21b6' },
+  overig:       { label: 'Overig', bg: '#f1f5f9', text: '#475569' },
 }
 
 const STAD_KLEUREN: Record<string, { bg: string; text: string }> = {
@@ -74,7 +74,7 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
         padding: '24px 16px', textAlign: 'center',
         fontSize: 12, color: 'var(--c-muted)', fontStyle: 'italic',
       }}>
-        Nog geen relevante berichten — feed wordt elke 30 minuten bijgewerkt.
+        Nog geen relevante berichten, feed wordt elke 30 minuten bijgewerkt.
       </div>
     )
   }

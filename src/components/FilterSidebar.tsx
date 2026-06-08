@@ -129,7 +129,7 @@ export default function FilterSidebar() {
         </label>
       </div>
 
-      {/* Footer — peildatum */}
+      {/* Footer, peildatum */}
       <div
         className="mt-auto pt-4"
         style={{ borderTop: '1px solid var(--c-border)' }}

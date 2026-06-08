@@ -38,35 +38,35 @@ const ENTITY_TYPES: EntityTypeDef[] = [
   {
     type: 'kansrijke-lead',
     label: 'Aflopend contract',
-    desc: 'Huurder met aflopend contract — potentieel D&B project',
+    desc: 'Huurder met aflopend contract, potentieel D&B project',
     abbr: 'AC',
     color: '#e11d48',
     fields: [
-      { key: 'huurder',        label: 'Huurder',             type: 'text',     required: true },
-      { key: 'branche',        label: 'Branche',             type: 'text' },
-      { key: 'pandnaam',       label: 'Pandnaam',            type: 'text' },
-      { key: 'adres',          label: 'Adres',               type: 'text' },
-      { key: 'omvang',         label: 'Omvang (m²)',         type: 'number',   required: true },
+      { key: 'huurder', label: 'Huurder', type: 'text', required: true },
+      { key: 'branche', label: 'Branche', type: 'text' },
+      { key: 'pandnaam', label: 'Pandnaam', type: 'text' },
+      { key: 'adres', label: 'Adres', type: 'text' },
+      { key: 'omvang', label: 'Omvang (m²)', type: 'number', required: true },
       { key: 'huurprijsPerM2', label: 'Huurprijs (€/m²/jr)', type: 'number' },
-      { key: 'contractBegin',  label: 'Contract start',      type: 'month' },
-      { key: 'eigenaar',       label: 'Eigenaar / verhuurder', type: 'text' },
-      { key: 'motivatie',      label: 'Motivatie',           type: 'textarea' },
+      { key: 'contractBegin', label: 'Contract start', type: 'month' },
+      { key: 'eigenaar', label: 'Eigenaar / verhuurder', type: 'text' },
+      { key: 'motivatie', label: 'Motivatie', type: 'textarea' },
     ],
   },
   {
     type: 'pand',
     label: 'Pand in ontwikkeling',
-    desc: 'Nieuwbouw of transformatie — monitor voor D&B kansen',
+    desc: 'Nieuwbouw of transformatie, monitor voor D&B kansen',
     abbr: 'PO',
     color: '#7c3aed',
     fields: [
-      { key: 'naam',                label: 'Pandnaam',         type: 'text',   required: true },
-      { key: 'adres',               label: 'Adres',            type: 'text' },
-      { key: 'oppervlakte',         label: 'Oppervlakte (m²)', type: 'number' },
-      { key: 'fase',                label: 'Fase',             type: 'select', options: ['planfase', 'vergunning', 'bouw', 'oplevering'] },
-      { key: 'verwachteOplevering', label: 'Oplevering',       type: 'text',   placeholder: 'bijv. Q3 2026' },
-      { key: 'ontwikkelaar',        label: 'Ontwikkelaar',     type: 'text' },
-      { key: 'toelichting',         label: 'Toelichting',      type: 'textarea' },
+      { key: 'naam', label: 'Pandnaam', type: 'text', required: true },
+      { key: 'adres', label: 'Adres', type: 'text' },
+      { key: 'oppervlakte', label: 'Oppervlakte (m²)', type: 'number' },
+      { key: 'fase', label: 'Fase', type: 'select', options: ['planfase', 'vergunning', 'bouw', 'oplevering'] },
+      { key: 'verwachteOplevering', label: 'Oplevering', type: 'text', placeholder: 'bijv. Q3 2026' },
+      { key: 'ontwikkelaar', label: 'Ontwikkelaar', type: 'text' },
+      { key: 'toelichting', label: 'Toelichting', type: 'textarea' },
     ],
   },
   {
@@ -77,7 +77,7 @@ const ENTITY_TYPES: EntityTypeDef[] = [
     color: '#0284c7',
     fields: [
       { key: 'omschrijving', label: 'Omschrijving', type: 'textarea', required: true },
-      { key: 'richting',     label: 'Richting',     type: 'select',   options: ['positief', 'neutraal', 'negatief'] },
+      { key: 'richting', label: 'Richting', type: 'select', options: ['positief', 'neutraal', 'negatief'] },
     ],
   },
   {
@@ -87,13 +87,13 @@ const ENTITY_TYPES: EntityTypeDef[] = [
     abbr: 'WC',
     color: '#d97706',
     fields: [
-      { key: 'naam',                label: 'Naam',            type: 'text',     required: true },
-      { key: 'organisatie',         label: 'Organisatie',     type: 'text' },
-      { key: 'rol',                 label: 'Rol / functie',   type: 'text' },
-      { key: 'email',               label: 'E-mail',          type: 'text' },
-      { key: 'telefoon',            label: 'Telefoon',        type: 'text' },
+      { key: 'naam', label: 'Naam', type: 'text', required: true },
+      { key: 'organisatie', label: 'Organisatie', type: 'text' },
+      { key: 'rol', label: 'Rol / functie', type: 'text' },
+      { key: 'email', label: 'E-mail', type: 'text' },
+      { key: 'telefoon', label: 'Telefoon', type: 'text' },
       { key: 'datumLaatsteContact', label: 'Laatste contact', type: 'date' },
-      { key: 'notitie',             label: 'Notitie',         type: 'textarea' },
+      { key: 'notitie', label: 'Notitie', type: 'textarea' },
     ],
   },
   {
@@ -103,11 +103,11 @@ const ENTITY_TYPES: EntityTypeDef[] = [
     abbr: 'II',
     color: '#059669',
     fields: [
-      { key: 'bron',        label: 'Geïnterviewde', type: 'text',     required: true },
-      { key: 'organisatie', label: 'Organisatie',   type: 'text' },
-      { key: 'datum',       label: 'Datum',         type: 'date' },
-      { key: 'inzicht',     label: 'Inzicht',       type: 'textarea', required: true },
-      { key: 'categorie',   label: 'Categorie',     type: 'select',   options: ['marktdynamiek', 'acquisitie', 'samenwerking', 'inrichting'] },
+      { key: 'bron', label: 'Geïnterviewde', type: 'text', required: true },
+      { key: 'organisatie', label: 'Organisatie', type: 'text' },
+      { key: 'datum', label: 'Datum', type: 'date' },
+      { key: 'inzicht', label: 'Inzicht', type: 'textarea', required: true },
+      { key: 'categorie', label: 'Categorie', type: 'select', options: ['marktdynamiek', 'acquisitie', 'samenwerking', 'inrichting'] },
     ],
   },
   {
@@ -117,11 +117,11 @@ const ENTITY_TYPES: EntityTypeDef[] = [
     abbr: 'OG',
     color: '#0f766e',
     fields: [
-      { key: 'naam',    label: 'Naam',    type: 'text',     required: true },
-      { key: 'sector',  label: 'Sector',  type: 'text' },
+      { key: 'naam', label: 'Naam', type: 'text', required: true },
+      { key: 'sector', label: 'Sector', type: 'text' },
       { key: 'profiel', label: 'Profiel', type: 'textarea' },
-      { key: 'reden',   label: 'Reden',   type: 'textarea' },
-      { key: 'status',  label: 'Status',  type: 'select',   options: ['prospect', 'in-gesprek', 'gewonnen'] },
+      { key: 'reden', label: 'Reden', type: 'textarea' },
+      { key: 'status', label: 'Status', type: 'select', options: ['prospect', 'in-gesprek', 'gewonnen'] },
     ],
   },
   {
@@ -131,12 +131,12 @@ const ENTITY_TYPES: EntityTypeDef[] = [
     abbr: 'MK',
     color: '#64748b',
     fields: [
-      { key: 'naam',             label: 'Naam',             type: 'text',   required: true },
-      { key: 'type',             label: 'Type',             type: 'select', options: ['makelaar', 'eigenaar', 'huurder'] },
-      { key: 'contactStatus',    label: 'Contactstatus',    type: 'select', options: ['koud', 'warm', 'actief'] },
-      { key: 'locatieKlasse',    label: 'Locatieklasse',    type: 'select', options: ['A', 'B', 'C'] },
-      { key: 'pitch',            label: 'Pitch',            type: 'textarea' },
-      { key: 'followUp',         label: 'Follow-up',        type: 'text' },
+      { key: 'naam', label: 'Naam', type: 'text', required: true },
+      { key: 'type', label: 'Type', type: 'select', options: ['makelaar', 'eigenaar', 'huurder'] },
+      { key: 'contactStatus', label: 'Contactstatus', type: 'select', options: ['koud', 'warm', 'actief'] },
+      { key: 'locatieKlasse', label: 'Locatieklasse', type: 'select', options: ['A', 'B', 'C'] },
+      { key: 'pitch', label: 'Pitch', type: 'textarea' },
+      { key: 'followUp', label: 'Follow-up', type: 'text' },
       { key: 'suggestieProduct', label: 'Suggestie product', type: 'text' },
     ],
   },
@@ -463,7 +463,7 @@ export default function DocumentDropzone() {
       if (e.dataTransfer?.types.includes('Files')) setDragDepth((d) => d + 1)
     }
     function onLeave() {
-      setDragDepth((d) => Math.max(0, d - 1))
+      setDragDepth((d) => Math.max(0, d, 1))
     }
     function onOver(e: DragEvent) { e.preventDefault() }
     function onDrop(e: DragEvent) {
@@ -483,13 +483,13 @@ export default function DocumentDropzone() {
 
     window.addEventListener('dragenter', onEnter)
     window.addEventListener('dragleave', onLeave)
-    window.addEventListener('dragover',  onOver)
-    window.addEventListener('drop',      onDrop)
+    window.addEventListener('dragover', onOver)
+    window.addEventListener('drop', onDrop)
     return () => {
       window.removeEventListener('dragenter', onEnter)
       window.removeEventListener('dragleave', onLeave)
-      window.removeEventListener('dragover',  onOver)
-      window.removeEventListener('drop',      onDrop)
+      window.removeEventListener('dragover', onOver)
+      window.removeEventListener('drop', onDrop)
     }
   }, [])
 
@@ -756,7 +756,7 @@ export default function DocumentDropzone() {
                         onChange={(e) => { setStadId(e.target.value); setGebiedId('') }}
                         style={inputStyle}
                       >
-                        <option value="">— kies stad —</option>
+                        <option value="">, kies stad, </option>
                         {allSteden.map((s) => (
                           <option key={s.id} value={s.id}>{s.naam}</option>
                         ))}
@@ -775,7 +775,7 @@ export default function DocumentDropzone() {
                         style={inputStyle}
                         disabled={!stadId}
                       >
-                        <option value="">— kies gebied —</option>
+                        <option value="">, kies gebied, </option>
                         {gebieden.map((g) => (
                           <option key={g.id} value={g.id}>{g.naam || g.id}</option>
                         ))}
@@ -849,7 +849,7 @@ export default function DocumentDropzone() {
                         padding: '8px 0',
                       }}
                     >
-                      Opgeslagen — zichtbaar in recente imports
+                      Opgeslagen, zichtbaar in recente imports
                     </div>
                   ) : (
                     <>
