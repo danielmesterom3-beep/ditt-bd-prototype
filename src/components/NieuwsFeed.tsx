@@ -38,6 +38,13 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
   const [items, setItems] = useState<NieuwsItem[]>([])
   const [loading, setLoading] = useState(true)
 
+  async function verwijder(id: string, e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    await supabase.from('nieuws_items').delete().eq('id', id)
+    setItems(prev => prev.filter(i => i.id !== id))
+  }
+
   useEffect(() => {
     async function laad() {
       let query = supabase
@@ -119,6 +126,17 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
               <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--c-subtle)', flexShrink: 0 }}>
                 {tijdGeleden(item.gepubliceerd)}
               </span>
+              <button
+                onClick={(e) => verwijder(item.id, e)}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontSize: 12, color: 'var(--c-subtle)', padding: '0 2px',
+                  lineHeight: 1, flexShrink: 0,
+                }}
+                title="Verwijder"
+              >
+                ×
+              </button>
             </div>
 
             {/* Titel */}
