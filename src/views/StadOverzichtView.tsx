@@ -1775,6 +1775,13 @@ const VELDONDERZOEK_THEMAS: VeldonderzoekThema[] = [
         datum: '07/04/26',
         stad: 'rotterdam',
       },
+      {
+        toelichting: 'Knoop XL-gebied Eindhoven: nieuwe vestigers zijn huiverig. Wie zich nu vestigt loopt risico over drie tot vijf jaar te moeten verhuizen wanneer de gemeente haar mixed-use plannen uitvoert. Bedrijven kiezen liever voor alternatieven als Strijp-S, Roggenwoud, Flight Forum of Eindhoven Airport. Verhuur in Knoop XL gaat moeizaam.',
+        persoon: 'Dirk Verberne',
+        organisatie: 'Verschuuren & Scheppers Bedrijfsmakelaars',
+        datum: '04/06/26',
+        stad: 'eindhoven',
+      },
     ],
   },
   {
@@ -1914,6 +1921,41 @@ const VELDONDERZOEK_THEMAS: VeldonderzoekThema[] = [
         persoon: 'Stefan Suurmond',
         organisatie: 'NSI N.V.',
         datum: '07/04/26',
+        stad: 'rotterdam',
+      },
+      {
+        toelichting: 'Inrichtingskeuze ligt altijd bij de huurder. Gebiedsbeheerders zoals Park-Strijp-Beheer en Hightech Campus kunnen adviseren en een vaste aannemer aanbevelen, maar mogen niemand verplichten. Ditt moet zich richten op de gebruikersmarkt en niet op gebiedsbeheerders als poortwachter voor opdrachten.',
+        persoon: 'Dirk Verberne',
+        organisatie: 'Verschuuren & Scheppers Bedrijfsmakelaars',
+        datum: '04/06/26',
+        stad: 'eindhoven',
+      },
+      {
+        toelichting: 'Geva Vastgoed is bouwondernemer die kantoorinrichtingen volledig zelf realiseert. Als gecombineerde eigenaar-bouwer hebben zij geen behoefte aan een externe inrichtingspartij. Geen zinvol acquisitiedoel voor Ditt in Eindhoven centrum.',
+        persoon: 'Dirk Verberne',
+        organisatie: 'Verschuuren & Scheppers Bedrijfsmakelaars',
+        datum: '04/06/26',
+        stad: 'eindhoven',
+      },
+    ],
+  },
+  {
+    id: 'concurrentie',
+    titel: 'Concurrentielandschap inrichtingsmarkt',
+    beschrijving: 'Beide markten kennen een verzadigd lokaal aanbod van inrichtingspartijen. Ditt treedt toe als kwaliteitsspeler in het D&B-segment. Kennis van wie actief is per stad is essentieel voor positionering in pitchgesprekken.',
+    inzichten: [
+      {
+        toelichting: 'Bekende inrichtingspartijen in Eindhoven MKB-segment: VB Vastgoedinrichter, Den Bak Projecten, PGA, Markt Projecten, Totaal Kantoorinrichting en HAL 2. Dit zijn de directe concurrenten van Ditt in het MKB-segment (500-1.500 m²). HAL 2 domineert het lage segment, Duotone het enterprise-segment boven 1.000 m².',
+        persoon: 'Dirk Verberne',
+        organisatie: 'Verschuuren & Scheppers Bedrijfsmakelaars',
+        datum: '04/06/26',
+        stad: 'eindhoven',
+      },
+      {
+        toelichting: 'Directe concurrenten van Ditt in Rotterdam: Planet Office, Leitmotiv en Desk zijn de meest relevante spelers in het MKB/premium segment. Desk is vergelijkbaar met Ditt qua positionering en aanwezig in meerdere steden. Corporate tak wordt gedomineerd door Ciguri (voorheen Rietveld) en Tetris.',
+        persoon: 'Maurits de Peuter',
+        organisatie: 'Schaub & Partners Bedrijfshuisvesting',
+        datum: '30/05/26',
         stad: 'rotterdam',
       },
     ],
@@ -2960,6 +3002,7 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
 // ── Fase 2 Netwerk opbouwen,  data & componenten ──────────────────────────────
 
 const FASE2_VELD_THEMAS = ['samenwerking']
+const FASE3_VELD_THEMAS = ['concurrentie']
 
 interface StadKanaalItem { aanpak: string; kapstok: string }
 
@@ -3680,8 +3723,62 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
     (g.kansrijkeLeads ?? []).map((l) => ({ ...l, gebiedNaam: g.naam }))
   )
 
+  const inzichtFilter = (inzicht: VeldonderzoekInzicht) =>
+    !inzicht.stad || inzicht.stad === stadId || inzicht.stad === 'both'
+
+  const veldThemas = VELDONDERZOEK_THEMAS.filter((t) => FASE3_VELD_THEMAS.includes(t.id))
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+      {/* 1 · Veldonderzoek concurrentie */}
+      {veldThemas.some((t) => t.inzichten.filter(inzichtFilter).length > 0) && (
+        <div>
+          <div style={{ ...subLabel, marginBottom: 10 }}>
+            <EditableText storageKey={`fase3.${stadId}.sublabel.1`} defaultValue="1 · Veldonderzoek,  concurrentie & marktpartijen" />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {veldThemas.map((thema) => {
+              const gefilterd = thema.inzichten.filter(inzichtFilter)
+              if (gefilterd.length === 0) return null
+              return (
+                <div key={thema.id} style={{ border: '1px solid var(--c-border)', borderRadius: 10, overflow: 'hidden' }}>
+                  <div style={{ padding: '10px 14px', background: '#f8f7f5', borderBottom: '1px solid var(--c-border)' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }}>{thema.titel}</div>
+                    <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>{thema.beschrijving}</div>
+                  </div>
+                  <div style={{ padding: '12px 14px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
+                    {gefilterd.map((inzicht, i) => {
+                      const badge = inzicht.stad ? VELDONDERZOEK_STAD_BADGE[inzicht.stad] : null
+                      return (
+                        <div key={i} style={{ background: '#fafaf9', border: '1px solid var(--c-border)', borderRadius: 8, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          {badge && (
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: badge.bg, color: badge.text, border: `1px solid ${badge.border}`, alignSelf: 'flex-start' }}>
+                              {badge.label}
+                            </span>
+                          )}
+                          {inzicht.citaat && (
+                            <blockquote style={{ margin: 0, padding: '6px 10px', borderLeft: '3px solid #e2e8f0', background: '#fff', borderRadius: '0 6px 6px 0' }}>
+                              <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6, fontStyle: 'italic' }}>{inzicht.citaat}</div>
+                            </blockquote>
+                          )}
+                          {inzicht.toelichting && (
+                            <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}>{inzicht.toelichting}</div>
+                          )}
+                          <div style={{ marginTop: 'auto', paddingTop: 6, borderTop: '1px solid var(--c-border)' }}>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }}>{inzicht.persoon}</div>
+                            <div style={{ fontSize: 10, color: 'var(--c-muted)' }}>{inzicht.organisatie}</div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 2 · Panden in ontwikkeling,  uitklapbaar */}
       <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
