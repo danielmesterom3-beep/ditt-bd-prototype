@@ -375,6 +375,22 @@ const rotterdam: Gebied[] = [
         categorie: 'inrichting',
         inzicht: 'Fit-out bij hoogwaardige kantoren: Varo Energy realiseerde ca. EUR 1.500/m2 (2-3 jaar geleden, nu richting EUR 2.000/m2). Haven- en industriebedrijven hanteren aanzienlijk lager budget. Installaties zijn vaak gebonden aan de huisinstallateur van het gebouw, wat de keuzevrijheid van inrichtingspartijen bij technische aanpassingen beperkt.',
       },
+      {
+        id: 'rc-inz-08',
+        bron: 'Maurits de Peuter',
+        organisatie: 'Schaub & Partners Bedrijfshuisvesting',
+        datum: '2026-05-30',
+        categorie: 'inrichting',
+        inzicht: 'Inbouwpakket omvat alles wat vast is (vloer, wandjes, meubels) inclusief design en projectmanagement. Dit verschilt van casco-gereed (vloer, plafond, verlichting, elektra, geschilderde wanden). In offertegesprekken is het cruciaal dat beide partijen dezelfde definitie hanteren om misverstanden over budget en scope te voorkomen.',
+      },
+      {
+        id: 'rc-inz-09',
+        bron: 'Maurits de Peuter',
+        organisatie: 'Schaub & Partners Bedrijfshuisvesting',
+        datum: '2026-05-30',
+        categorie: 'marktdynamiek',
+        inzicht: 'Renovatie van verouderde kantoren leidt structureel tot hogere huurprijzen en betere bezetting. Alexanderpoort Rotterdam: jaren-tachtig pand met hoge leegstand renoveerde en realiseerde daarna hogere huurprijs en bezetting. Flight to quality vertaalt zich direct in verhuurresultaat voor eigenaren die investeren.',
+      },
     ],
     partijen: [
       { id: 'rc-01', naam: '', type: 'eigenaar', contactStatus: 'koud', locatieKlasse: null, pitch: '', followUp: '', suggestieProduct: '' },
