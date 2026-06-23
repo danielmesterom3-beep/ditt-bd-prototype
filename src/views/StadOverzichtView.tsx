@@ -748,7 +748,7 @@ function OmgevingskenmerkenPanel({ showContext = false }: { showContext?: boolea
                   defaultValue=""
                   tag="div"
                   multiline
-                  style={{ fontSize: 12, fontWeight: 400, color: 'var(--c-muted)', lineHeight: 1.7 }}
+                  style={{ fontSize: 12, fontWeight: 400, color: 'var(--c-muted)', lineHeight: 1.7, minHeight: '60px' }}
                 />
               </div>
               <div style={{ background: '#faf9f7', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
@@ -765,7 +765,7 @@ function OmgevingskenmerkenPanel({ showContext = false }: { showContext?: boolea
                   defaultValue=""
                   tag="div"
                   multiline
-                  style={{ fontSize: 12, fontWeight: 400, color: 'var(--c-muted)', lineHeight: 1.7 }}
+                  style={{ fontSize: 12, fontWeight: 400, color: 'var(--c-muted)', lineHeight: 1.7, minHeight: '60px' }}
                 />
               </div>
             </div>
@@ -1267,7 +1267,7 @@ function RotterdamOmgevingskenmerkenPanel({ showContext = false }: { showContext
                   defaultValue=""
                   tag="div"
                   multiline
-                  style={{ fontSize: 12, fontWeight: 400, color: 'var(--c-muted)', lineHeight: 1.7 }}
+                  style={{ fontSize: 12, fontWeight: 400, color: 'var(--c-muted)', lineHeight: 1.7, minHeight: '60px' }}
                 />
               </div>
               <div style={{ background: '#faf9f7', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
@@ -1284,7 +1284,7 @@ function RotterdamOmgevingskenmerkenPanel({ showContext = false }: { showContext
                   defaultValue=""
                   tag="div"
                   multiline
-                  style={{ fontSize: 12, fontWeight: 400, color: 'var(--c-muted)', lineHeight: 1.7 }}
+                  style={{ fontSize: 12, fontWeight: 400, color: 'var(--c-muted)', lineHeight: 1.7, minHeight: '60px' }}
                 />
               </div>
             </div>
