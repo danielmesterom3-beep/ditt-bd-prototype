@@ -885,6 +885,7 @@ function OmgevingskenmerkenPanel() {
 
 function RotterdamKantorenstrategiePanel() {
   const [open, setOpen] = useState(false)
+  const { deleted: deletedKansen, deleteItem: deleteKans } = useDeletedItemsFase2('deleted_rdam_kansen')
 
   const kansen = [
     {
@@ -971,12 +972,17 @@ function RotterdamKantorenstrategiePanel() {
             Kansen voor Ditt,  Rotterdam
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {kansen.map((k) => (
-              <div key={k.id} style={{ background: k.bg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${k.border}` }}>
+            {kansen.filter((k) => !deletedKansen.has(k.id)).map((k) => (
+              <div key={k.id} style={{ position: 'relative', background: k.bg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${k.border}` }}>
+                <button
+                  onClick={() => deleteKans(k.id)}
+                  style={{ position: 'absolute', top: 8, right: 8, width: 18, height: 18, borderRadius: '50%', border: `1px solid ${k.border}`, background: k.bg, color: k.kleur, fontSize: 12, lineHeight: 1, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, opacity: 0.6 }}
+                  title="Verbergen"
+                >×</button>
                 <EditableText
                   storageKey={`rdam.strategie.${k.id}.titel`}
                   defaultValue={k.titel}
-                  style={{ fontSize: 12, fontWeight: 700, color: k.kleur, marginBottom: 4, display: 'block' }}
+                  style={{ fontSize: 12, fontWeight: 700, color: k.kleur, marginBottom: 4, display: 'block', paddingRight: 20 }}
                 />
                 <EditableText
                   storageKey={`rdam.strategie.${k.id}.tekst`}
