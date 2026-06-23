@@ -734,38 +734,38 @@ function OmgevingskenmerkenPanel() {
           {/* Marktcontext boven de kaarten */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
 
-            {/* Eigenaarschap en marktwerking */}
+            {/* Context 1 */}
             <div style={{ background: '#faf9f7', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
               <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>
-                <EditableText storageKey="omgeving.eigenaarschap.label" defaultValue="Eigenaarschap en marktwerking" />
+                <EditableText storageKey="omgeving.ehv.ctx1.label" defaultValue="Stadscontext" />
               </div>
               <EditableText
-                storageKey="omgeving.eigenaarschap.titel"
-                defaultValue="Wie bezit wat in Eindhoven"
+                storageKey="omgeving.ehv.ctx1.titel"
+                defaultValue="Eindhoven als kantoormarkt"
                 style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block', marginBottom: 8 }}
               />
               <EditableText
-                storageKey="omgeving.eigenaarschap.tekst"
-                defaultValue="Voeg hier context toe over de eigendomsstructuur van de Eindhovense kantoormarkt."
+                storageKey="omgeving.ehv.ctx1.tekst"
+                defaultValue=""
                 tag="div"
                 multiline
                 style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.7 }}
               />
             </div>
 
-            {/* Concurrentie Eindhoven */}
+            {/* Context 2 */}
             <div style={{ background: '#faf9f7', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
               <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>
-                <EditableText storageKey="omgeving.concurrentie.label" defaultValue="Concurrentielandschap" />
+                <EditableText storageKey="omgeving.ehv.ctx2.label" defaultValue="Opvallende kenmerken" />
               </div>
               <EditableText
-                storageKey="omgeving.concurrentie.titel"
-                defaultValue="Partijen actief in Eindhoven"
+                storageKey="omgeving.ehv.ctx2.titel"
+                defaultValue="Wat opvalt in deze markt"
                 style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block', marginBottom: 8 }}
               />
               <EditableText
-                storageKey="omgeving.concurrentie.tekst"
-                defaultValue="Voeg hier context toe over het concurrentielandschap in Eindhoven."
+                storageKey="omgeving.ehv.ctx2.tekst"
+                defaultValue=""
                 tag="div"
                 multiline
                 style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.7 }}
@@ -1251,6 +1251,45 @@ function RotterdamOmgevingskenmerkenPanel() {
 
       {open && (
         <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px' }}>
+
+          {/* Marktcontext boven de kaarten */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
+            <div style={{ background: '#faf9f7', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>
+                <EditableText storageKey="omgeving.rdam.ctx1.label" defaultValue="Stadscontext" />
+              </div>
+              <EditableText
+                storageKey="omgeving.rdam.ctx1.titel"
+                defaultValue="Rotterdam als kantoormarkt"
+                style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block', marginBottom: 8 }}
+              />
+              <EditableText
+                storageKey="omgeving.rdam.ctx1.tekst"
+                defaultValue=""
+                tag="div"
+                multiline
+                style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.7 }}
+              />
+            </div>
+            <div style={{ background: '#faf9f7', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>
+                <EditableText storageKey="omgeving.rdam.ctx2.label" defaultValue="Opvallende kenmerken" />
+              </div>
+              <EditableText
+                storageKey="omgeving.rdam.ctx2.titel"
+                defaultValue="Wat opvalt in deze markt"
+                style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block', marginBottom: 8 }}
+              />
+              <EditableText
+                storageKey="omgeving.rdam.ctx2.tekst"
+                defaultValue=""
+                tag="div"
+                multiline
+                style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.7 }}
+              />
+            </div>
+          </div>
+
           {hiddenCards.size > 0 && (
             <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 11, color: 'var(--c-muted)' }}>{hiddenCards.size} kaart{hiddenCards.size > 1 ? 'en' : ''} verborgen</span>
