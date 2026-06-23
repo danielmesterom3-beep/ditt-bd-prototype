@@ -730,6 +730,49 @@ function OmgevingskenmerkenPanel() {
 
       {open && (
         <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px' }}>
+
+          {/* Marktcontext boven de kaarten */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
+
+            {/* Eigenaarschap en marktwerking */}
+            <div style={{ background: '#faf9f7', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>
+                <EditableText storageKey="omgeving.eigenaarschap.label" defaultValue="Eigenaarschap en marktwerking" />
+              </div>
+              <EditableText
+                storageKey="omgeving.eigenaarschap.titel"
+                defaultValue="Wie bezit wat in Eindhoven"
+                style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block', marginBottom: 8 }}
+              />
+              <EditableText
+                storageKey="omgeving.eigenaarschap.tekst"
+                defaultValue="Voeg hier context toe over de eigendomsstructuur van de Eindhovense kantoormarkt."
+                tag="div"
+                multiline
+                style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.7 }}
+              />
+            </div>
+
+            {/* Concurrentie Eindhoven */}
+            <div style={{ background: '#faf9f7', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>
+                <EditableText storageKey="omgeving.concurrentie.label" defaultValue="Concurrentielandschap" />
+              </div>
+              <EditableText
+                storageKey="omgeving.concurrentie.titel"
+                defaultValue="Partijen actief in Eindhoven"
+                style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block', marginBottom: 8 }}
+              />
+              <EditableText
+                storageKey="omgeving.concurrentie.tekst"
+                defaultValue="Voeg hier context toe over het concurrentielandschap in Eindhoven."
+                tag="div"
+                multiline
+                style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.7 }}
+              />
+            </div>
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
 
             {/* HAL 2 balans */}
