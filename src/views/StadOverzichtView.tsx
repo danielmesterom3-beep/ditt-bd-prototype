@@ -4459,6 +4459,7 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
   const [partijType, setPartijType] = useState<F2Partij>('makelaar')
 
   const { deleted: deletedWc, deleteItem: deleteWc } = useDeletedItemsFase2(`deleted_wc_fase2_${stadId}`)
+  const { deleted: deletedMkl, deleteItem: deleteMkl } = useDeletedItemsFase2(`deleted_mkl_fase2_${stadId}`)
   const { contacts: localContacts, addContact, removeContact } = useLocalContacts(stadId)
   const [showNieuwForm, setShowNieuwForm] = useState(false)
 
@@ -4665,19 +4666,19 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
               },
               {
                 id: 'bf',
-                naam: 'Bossers & Fitters',
-                sub: 'Bedrijfshuisvesting,  Eindhoven',
-                beschrijving: 'NVM-kantoor in Eindhoven. Persoonlijke aanpak, actief in verhuur en verkoop van kantoor- en bedrijfsruimte. Vergelijkbaar profiel als Schaub & Partners in Rotterdam.',
-                email: 'info@bossersfitters.nl',
-                website: 'bossersfitters.nl',
+                naam: 'Jamestown',
+                sub: 'Vastgoedbeheer,  Eindhoven (Strijp-S)',
+                beschrijving: 'Eigenaar en beheerder van Bold Eindhoven op Strijp-S. Actief in kantoor- en creatieve werkruimteverhuur; interessant voor facilitaire samenwerking en netwerktoegang tot tech-community.',
+                email: 'info@jamestownlp.com',
+                website: 'jamestownlp.com',
               },
               {
                 id: 'kb',
-                naam: 'Kolsteren Bedrijfshuisvesting',
-                sub: 'Bedrijfsmakelaardij,  Eindhoven',
-                beschrijving: 'Meer dan 25 jaar actief in regio Eindhoven. Bewust klein en onafhankelijk team met accent op commercieel vastgoed.',
-                email: 'info@kolsterenbedrijfshuisvesting.nl',
-                website: 'kolsterenbedrijfshuisvesting.nl',
+                naam: 'Wesley Tegelaers',
+                sub: 'Property Manager,  Jamestown Eindhoven',
+                beschrijving: '',
+                email: 'Wesley.Tegelaers@JamestownLP.com',
+                website: 'jamestownlp.com',
               },
               {
                 id: 'avh',
@@ -4687,9 +4688,14 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
                 email: 'info@heuvel.nl',
                 website: 'heuvel.nl',
               },
-            ].map((m) => (
-              <div key={m.id} style={{ background: '#fff', borderRadius: 10, padding: '14px', border: '1px solid #bfdbfe', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <EditableText storageKey={`fase2.eind.mkl.${m.id}.naam`} defaultValue={m.naam} style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.3 }} />
+            ].filter((m) => !deletedMkl.has(m.id)).map((m) => (
+              <div key={m.id} style={{ position: 'relative', background: '#fff', borderRadius: 10, padding: '14px', border: '1px solid #bfdbfe', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <button
+                  onClick={() => deleteMkl(m.id)}
+                  style={{ position: 'absolute', top: 8, right: 8, width: 18, height: 18, borderRadius: '50%', border: '1px solid #bfdbfe', background: '#eff6ff', color: '#93c5fd', fontSize: 11, lineHeight: 1, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                  title="Verbergen"
+                >×</button>
+                <EditableText storageKey={`fase2.eind.mkl.${m.id}.naam`} defaultValue={m.naam} style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.3, paddingRight: 20 }} />
                 <EditableText storageKey={`fase2.eind.mkl.${m.id}.sub`} defaultValue={m.sub} style={{ fontSize: 10, color: 'var(--c-subtle)', lineHeight: 1.3 }} />
                 <EditableText storageKey={`fase2.eind.mkl.${m.id}.beschr`} defaultValue={m.beschrijving} tag="div" multiline style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6, flex: 1 }} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
