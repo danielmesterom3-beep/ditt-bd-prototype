@@ -736,11 +736,11 @@ function OmgevingskenmerkenPanel({ showContext = false }: { showContext?: boolea
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
               <div style={{ background: '#faf9f7', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
                 <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>
-                  <EditableText storageKey="omgeving.ehv.ctx1.label" defaultValue="Stadscontext" />
+                  <EditableText storageKey="omgeving.ehv.ctx1.label" defaultValue="Eigenaarschap" />
                 </div>
                 <EditableText
                   storageKey="omgeving.ehv.ctx1.titel"
-                  defaultValue="Eindhoven als kantoormarkt"
+                  defaultValue="Eigenaren in de Eindhovense markt"
                   style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block', marginBottom: 8 }}
                 />
                 <EditableText
@@ -753,11 +753,11 @@ function OmgevingskenmerkenPanel({ showContext = false }: { showContext?: boolea
               </div>
               <div style={{ background: '#faf9f7', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
                 <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>
-                  <EditableText storageKey="omgeving.ehv.ctx2.label" defaultValue="Opvallende kenmerken" />
+                  <EditableText storageKey="omgeving.ehv.ctx2.label" defaultValue="Marktkenmerken" />
                 </div>
                 <EditableText
                   storageKey="omgeving.ehv.ctx2.titel"
-                  defaultValue="Wat opvalt in deze markt"
+                  defaultValue="Opvallende dingen over de markt"
                   style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block', marginBottom: 8 }}
                 />
                 <EditableText
@@ -1255,11 +1255,11 @@ function RotterdamOmgevingskenmerkenPanel({ showContext = false }: { showContext
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
               <div style={{ background: '#faf9f7', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
                 <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>
-                  <EditableText storageKey="omgeving.rdam.ctx1.label" defaultValue="Stadscontext" />
+                  <EditableText storageKey="omgeving.rdam.ctx1.label" defaultValue="Eigenaarschap" />
                 </div>
                 <EditableText
                   storageKey="omgeving.rdam.ctx1.titel"
-                  defaultValue="Rotterdam als kantoormarkt"
+                  defaultValue="Eigenaren in de Rotterdamse markt"
                   style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block', marginBottom: 8 }}
                 />
                 <EditableText
@@ -1272,11 +1272,11 @@ function RotterdamOmgevingskenmerkenPanel({ showContext = false }: { showContext
               </div>
               <div style={{ background: '#faf9f7', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
                 <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>
-                  <EditableText storageKey="omgeving.rdam.ctx2.label" defaultValue="Opvallende kenmerken" />
+                  <EditableText storageKey="omgeving.rdam.ctx2.label" defaultValue="Marktkenmerken" />
                 </div>
                 <EditableText
                   storageKey="omgeving.rdam.ctx2.titel"
-                  defaultValue="Wat opvalt in deze markt"
+                  defaultValue="Opvallende dingen over de markt"
                   style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block', marginBottom: 8 }}
                 />
                 <EditableText
