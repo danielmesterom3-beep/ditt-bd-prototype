@@ -4673,14 +4673,6 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
                 website: 'jamestownlp.com',
               },
               {
-                id: 'kb',
-                naam: 'Wesley Tegelaers',
-                sub: 'Property Manager,  Jamestown Eindhoven',
-                beschrijving: '',
-                email: 'Wesley.Tegelaers@JamestownLP.com',
-                website: 'jamestownlp.com',
-              },
-              {
                 id: 'avh',
                 naam: 'Adriaan van den Heuvel',
                 sub: 'Bedrijfsmakelaardij,  Eindhoven & Helmond',
