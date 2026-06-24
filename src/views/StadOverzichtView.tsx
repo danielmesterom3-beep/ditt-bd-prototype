@@ -2916,7 +2916,7 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
       {/* 2 · Omgevingskenmerken */}
       <div>
         <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.2`} defaultValue="2 · Omgevingskenmerken,  concurrentie & D&B-activiteit" /></div>
-        {stadNaam === 'Eindhoven' ? <OmgevingskenmerkenPanel /> : <RotterdamOmgevingskenmerkenPanel />}
+        {stadNaam === 'Eindhoven' ? <OmgevingskenmerkenPanel showContext /> : <RotterdamOmgevingskenmerkenPanel />}
       </div>
 
       {/* 3 · Gemeente- / marktstrategieblok */}
