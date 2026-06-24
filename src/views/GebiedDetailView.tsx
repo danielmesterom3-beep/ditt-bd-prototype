@@ -1248,9 +1248,13 @@ function InzichtKaart({ inzicht, onDelete }: { inzicht: InterviewInzicht; onDele
       </div>
 
       {/* Inzicht tekst */}
-      <p style={{ fontSize: 13, color: 'var(--c-text)', lineHeight: 1.65, margin: 0 }}>
-        {inzicht.inzicht}
-      </p>
+      <EditableText
+        storageKey={`inzicht.${inzicht.id}.tekst`}
+        defaultValue={inzicht.inzicht}
+        multiline
+        tag="p"
+        style={{ fontSize: 13, color: 'var(--c-text)', lineHeight: 1.65, margin: 0 }}
+      />
 
       {/* Bron */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingTop: 4, borderTop: '1px solid var(--c-border)' }}>
@@ -1272,8 +1276,8 @@ function InzichtKaart({ inzicht, onDelete }: { inzicht: InterviewInzicht; onDele
           {inzicht.bron.charAt(0)}
         </span>
         <div>
-          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }}>{inzicht.bron}</span>
-          <span style={{ fontSize: 11, color: 'var(--c-subtle)' }}> · {inzicht.organisatie}</span>
+          <EditableText storageKey={`inzicht.${inzicht.id}.bron`} defaultValue={inzicht.bron} style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }} />
+          <EditableText storageKey={`inzicht.${inzicht.id}.org`} defaultValue={inzicht.organisatie} style={{ fontSize: 11, color: 'var(--c-subtle)' }} />
         </div>
       </div>
     </div>
