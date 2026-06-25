@@ -3743,6 +3743,15 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   const [openTransacties, setOpenTransacties] = useState(false)
   const [openHuurcontracten, setOpenHuurcontracten] = useState(false)
   const [openGekoppeld, setOpenGekoppeld] = useState(true)
+  const [expandedThemas, setExpandedThemas] = useState<Set<string>>(new Set())
+
+  function toggleThema(id: string) {
+    setExpandedThemas((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
 
   const { deleted: deletedPanden,      deleteItem: deletePand }      = useDeletedItemsFase2(`deleted_panden_fase3_v2_${stadId}`)
   const { deleted: deletedTransacties, deleteItem: deleteTransactie } = useDeletedItemsFase2(`deleted_transacties_fase3_${stadId}`)
@@ -3795,38 +3804,47 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
             {veldThemas.map((thema) => {
               const gefilterd = thema.inzichten.filter(inzichtFilter)
               if (gefilterd.length === 0) return null
+              const isOpen = expandedThemas.has(thema.id)
               return (
                 <div key={thema.id} style={{ border: '1px solid var(--c-border)', borderRadius: 10, overflow: 'hidden' }}>
-                  <div style={{ padding: '10px 14px', background: '#f8f7f5', borderBottom: '1px solid var(--c-border)' }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }}>{thema.titel}</div>
-                    <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>{thema.beschrijving}</div>
-                  </div>
-                  <div style={{ padding: '12px 14px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
-                    {gefilterd.map((inzicht, i) => {
-                      const badge = inzicht.stad ? VELDONDERZOEK_STAD_BADGE[inzicht.stad] : null
-                      return (
-                        <div key={i} style={{ background: '#fafaf9', border: '1px solid var(--c-border)', borderRadius: 8, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                          {badge && (
-                            <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: badge.bg, color: badge.text, border: `1px solid ${badge.border}`, alignSelf: 'flex-start' }}>
-                              {badge.label}
-                            </span>
-                          )}
-                          {inzicht.citaat && (
-                            <blockquote style={{ margin: 0, padding: '6px 10px', borderLeft: '3px solid #e2e8f0', background: '#fff', borderRadius: '0 6px 6px 0' }}>
-                              <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6, fontStyle: 'italic' }}>{inzicht.citaat}</div>
-                            </blockquote>
-                          )}
-                          {inzicht.toelichting && (
-                            <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}>{inzicht.toelichting}</div>
-                          )}
-                          <div style={{ marginTop: 'auto', paddingTop: 6, borderTop: '1px solid var(--c-border)' }}>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }}>{inzicht.persoon}</div>
-                            <div style={{ fontSize: 10, color: 'var(--c-muted)' }}>{inzicht.organisatie}</div>
+                  <button
+                    onClick={() => toggleThema(thema.id)}
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#f8f7f5', border: 'none', cursor: 'pointer', textAlign: 'left', borderBottom: isOpen ? '1px solid var(--c-border)' : 'none' }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }}>{thema.titel}</div>
+                      <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>{thema.beschrijving}</div>
+                    </div>
+                    <span style={{ fontSize: 13, color: 'var(--c-subtle)', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s', flexShrink: 0, marginLeft: 10 }}>↓</span>
+                  </button>
+                  {isOpen && (
+                    <div style={{ padding: '12px 14px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
+                      {gefilterd.map((inzicht, i) => {
+                        const badge = inzicht.stad ? VELDONDERZOEK_STAD_BADGE[inzicht.stad] : null
+                        return (
+                          <div key={i} style={{ background: '#fafaf9', border: '1px solid var(--c-border)', borderRadius: 8, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {badge && (
+                              <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: badge.bg, color: badge.text, border: `1px solid ${badge.border}`, alignSelf: 'flex-start' }}>
+                                {badge.label}
+                              </span>
+                            )}
+                            {inzicht.citaat && (
+                              <blockquote style={{ margin: 0, padding: '6px 10px', borderLeft: '3px solid #e2e8f0', background: '#fff', borderRadius: '0 6px 6px 0' }}>
+                                <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6, fontStyle: 'italic' }}>{inzicht.citaat}</div>
+                              </blockquote>
+                            )}
+                            {inzicht.toelichting && (
+                              <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}>{inzicht.toelichting}</div>
+                            )}
+                            <div style={{ marginTop: 'auto', paddingTop: 6, borderTop: '1px solid var(--c-border)' }}>
+                              <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }}>{inzicht.persoon}</div>
+                              <div style={{ fontSize: 10, color: 'var(--c-muted)' }}>{inzicht.organisatie}</div>
+                            </div>
                           </div>
-                        </div>
-                      )
-                    })}
-                  </div>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               )
             })}
