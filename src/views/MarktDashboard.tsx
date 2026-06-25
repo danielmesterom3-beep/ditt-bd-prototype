@@ -57,6 +57,165 @@ function pandJaar(s: string): number {
 }
 
 
+// ── Design & Build Netwerk ────────────────────────────────────────────────────
+
+type DBPartner = { naam: string; type: string; partner: boolean }
+
+const DB_NETWERK: Record<string, { design: DBPartner[]; build: DBPartner[] }> = {
+  Rotterdam: {
+    design: [
+      { naam: 'StudioOK',           type: 'Interieurarchitectuur', partner: false },
+      { naam: 'Switchs',            type: 'D&B coördinatie',       partner: false },
+      { naam: 'Fokkema & Partners', type: 'Interieurarchitectuur', partner: true  },
+    ],
+    build: [
+      { naam: 'De Vries en Verburg',  type: 'Aannemer',            partner: false },
+      { naam: 'Pubblik&Vos',          type: 'Afbouw',              partner: false },
+      { naam: 'A. De Jong Groep',     type: 'Installateur',        partner: false },
+      { naam: 'Nornorm',              type: 'Circulair meubilair', partner: false },
+      { naam: 'Kantorice',            type: 'Projectinrichter',    partner: false },
+      { naam: 'Flex Projects',        type: 'Uitvoering',          partner: false },
+      { naam: 'BEUK',                 type: 'Sloper',              partner: true  },
+      { naam: 'CT Sloop',             type: 'Sloper',              partner: true  },
+      { naam: 'BigBrands',            type: 'Projectmeubilair',    partner: true  },
+      { naam: 'Unica',                type: 'Installateur',        partner: true  },
+      { naam: 'EQUANS',               type: 'Installateur',        partner: true  },
+      { naam: 'Croonwolter&dros',     type: 'Installateur',        partner: true  },
+      { naam: 'Homij',                type: 'Installateur',        partner: true  },
+      { naam: 'Bovero',               type: 'Vloeren',             partner: true  },
+      { naam: 'Windside Digital',     type: 'AV & signage',        partner: true  },
+      { naam: 'EeStairs',             type: 'Trappen',             partner: true  },
+    ],
+  },
+  Eindhoven: {
+    design: [
+      { naam: 'BuroBas',                  type: 'Interieurarchitectuur', partner: false },
+      { naam: 'Ininterieurs',             type: 'Projectinrichter',      partner: false },
+      { naam: 'Totaal Kantoorinrichting', type: 'Projectinrichter',      partner: false },
+      { naam: 'VB Vastgoedinrichter',     type: 'Projectinrichter',      partner: false },
+      { naam: 'Den Bak Projecten',        type: 'Projectinrichter',      partner: false },
+      { naam: 'PGA / Markt Projecten',    type: 'Projectinrichter',      partner: false },
+    ],
+    build: [
+      { naam: 'Goevaars Bouwonderneming', type: 'Aannemer',                 partner: false },
+      { naam: 'Stam + De Koning Bouw',    type: 'Aannemer (VolkersWessels)', partner: false },
+      { naam: 'LK',                       type: 'Aannemer',                 partner: false },
+      { naam: 'Afbouw AMB',               type: 'Afbouwer',                 partner: false },
+      { naam: 'VolkersWessels',           type: 'Bouwconcern',              partner: false },
+      { naam: 'Ahrend',                   type: 'Projectinrichter',         partner: true  },
+      { naam: 'Hoppenbrouwers Techniek',  type: 'Installateur',             partner: true  },
+      { naam: 'Unica',                    type: 'Installateur',             partner: true  },
+      { naam: 'EQUANS',                   type: 'Installateur',             partner: true  },
+      { naam: 'Croonwolter&dros',         type: 'Installateur',             partner: true  },
+      { naam: 'Homij',                    type: 'Installateur',             partner: true  },
+      { naam: 'Bovero',                   type: 'Vloeren',                  partner: true  },
+      { naam: 'Windside Digital',         type: 'AV & signage',             partner: true  },
+      { naam: 'EeStairs',                 type: 'Trappen',                  partner: true  },
+    ],
+  },
+}
+
+function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
+  const [tab, setTab] = useState<'design' | 'build'>('design')
+  const data = DB_NETWERK[stadNaam]
+  if (!data) return null
+  const lijst = data[tab]
+  const prospects = lijst.filter((p) => !p.partner)
+  const partners  = lijst.filter((p) =>  p.partner)
+
+  return (
+    <div
+      className="flex flex-col gap-3 rounded-xl p-5"
+      style={{
+        background: 'var(--c-surface)',
+        border: '1px solid var(--c-border)',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="font-semibold text-sm leading-tight" style={{ color: 'var(--c-text)' }}>
+            Design &amp; Build Netwerk
+          </h3>
+          <p className="text-[10px] mt-0.5" style={{ color: 'var(--c-subtle)' }}>
+            marktpartijen per discipline
+          </p>
+        </div>
+        {/* Toggle */}
+        <div className="flex gap-0.5 rounded-lg p-0.5 shrink-0" style={{ background: '#f0ede8', border: '1px solid var(--c-border)' }}>
+          <button
+            onClick={() => setTab('design')}
+            className="px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all"
+            style={{
+              background: tab === 'design' ? 'var(--c-surface)' : 'transparent',
+              color: tab === 'design' ? 'var(--c-coral)' : 'var(--c-subtle)',
+              boxShadow: tab === 'design' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+              border: 'none', cursor: 'pointer',
+            }}
+          >
+            D  Design
+          </button>
+          <button
+            onClick={() => setTab('build')}
+            className="px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all"
+            style={{
+              background: tab === 'build' ? 'var(--c-surface)' : 'transparent',
+              color: tab === 'build' ? 'var(--c-coral)' : 'var(--c-subtle)',
+              boxShadow: tab === 'build' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+              border: 'none', cursor: 'pointer',
+            }}
+          >
+            B  Build
+          </button>
+        </div>
+      </div>
+
+      {/* Lijst */}
+      <div className="flex flex-col overflow-y-auto" style={{ maxHeight: 180 }}>
+        {prospects.map((p) => (
+          <div key={p.naam} className="flex items-center justify-between py-1.5" style={{ borderBottom: '1px solid var(--c-border)' }}>
+            <div>
+              <div className="text-[11px] font-medium" style={{ color: 'var(--c-text)' }}>{p.naam}</div>
+              <div className="text-[10px]" style={{ color: 'var(--c-subtle)' }}>{p.type}</div>
+            </div>
+            <span
+              className="text-[9px] font-semibold shrink-0 ml-2 px-1.5 py-0.5 rounded-full"
+              style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa' }}
+            >
+              prospect
+            </span>
+          </div>
+        ))}
+        {partners.map((p) => (
+          <div key={p.naam} className="flex items-center justify-between py-1.5" style={{ borderBottom: '1px solid var(--c-border)' }}>
+            <div>
+              <div className="text-[11px] font-medium" style={{ color: 'var(--c-text)' }}>{p.naam}</div>
+              <div className="text-[10px]" style={{ color: 'var(--c-subtle)' }}>{p.type}</div>
+            </div>
+            <span
+              className="text-[9px] font-semibold shrink-0 ml-2 px-1.5 py-0.5 rounded-full"
+              style={{ background: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7' }}
+            >
+              partner
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center gap-4 pt-2" style={{ borderTop: '1px solid var(--c-border)' }}>
+        <span className="text-[10px]" style={{ color: 'var(--c-subtle)' }}>
+          <span className="font-semibold" style={{ color: '#c2410c' }}>{prospects.length}</span> prospects
+        </span>
+        <span className="text-[10px]" style={{ color: 'var(--c-subtle)' }}>
+          <span className="font-semibold" style={{ color: '#059669' }}>{partners.length}</span> partners
+        </span>
+      </div>
+    </div>
+  )
+}
+
 // GebiedCard
 
 function GebiedCard({ gebied }: { gebied: Gebied }) {
@@ -418,6 +577,7 @@ export default function MarktDashboard() {
             {gefilterdeGebieden.map((g) => (
               <GebiedCard key={g.id} gebied={g} />
             ))}
+            <DesignBouwKaart stadNaam={huidigStad.naam} />
           </div>
         )}
       </div>
