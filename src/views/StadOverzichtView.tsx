@@ -3739,14 +3739,11 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   const stadId = stadNaam.toLowerCase() as 'eindhoven' | 'rotterdam'
   const colors = STAD_COLORS[stadId]
 
+  const [openVeldonderzoek, setOpenVeldonderzoek] = useState(false)
   const [openPanden, setOpenPanden] = useState(false)
   const [openTransacties, setOpenTransacties] = useState(false)
   const [openHuurcontracten, setOpenHuurcontracten] = useState(false)
   const [openGekoppeld, setOpenGekoppeld] = useState(true)
-  const [expandedThemas, setExpandedThemas] = useState<Set<string>>(new Set())
-  function toggleThema(id: string) {
-    setExpandedThemas((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
-  }
 
   const { deleted: deletedPanden,      deleteItem: deletePand }      = useDeletedItemsFase2(`deleted_panden_fase3_v2_${stadId}`)
   const { deleted: deletedTransacties, deleteItem: deleteTransactie } = useDeletedItemsFase2(`deleted_transacties_fase3_${stadId}`)
@@ -3791,28 +3788,27 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
 
       {/* 1 · Veldonderzoek concurrentie */}
       {veldThemas.some((t) => t.inzichten.filter(inzichtFilter).length > 0) && (
-        <div>
-          <div style={{ ...subLabel, marginBottom: 10 }}>
-            <EditableText storageKey={`fase3.${stadId}.sublabel.1`} defaultValue="1 · Veldonderzoek,  concurrentie & marktpartijen" />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {veldThemas.map((thema) => {
-              const gefilterd = thema.inzichten.filter(inzichtFilter)
-              if (gefilterd.length === 0) return null
-              const isOpen = expandedThemas.has(thema.id)
-              return (
-                <div key={thema.id} style={{ border: '1px solid var(--c-border)', borderRadius: 10, overflow: 'hidden' }}>
-                  <button
-                    onClick={() => toggleThema(thema.id)}
-                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#f8f7f5', border: 'none', borderBottom: isOpen ? '1px solid var(--c-border)' : 'none', cursor: 'pointer', textAlign: 'left' }}
-                  >
-                    <div>
+        <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+          <button
+            onClick={() => setOpenVeldonderzoek((o) => !o)}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+          >
+            <div style={subLabel} onClick={(e) => e.stopPropagation()}>
+              <EditableText storageKey={`fase3.${stadId}.sublabel.1`} defaultValue="1 · Veldonderzoek,  concurrentie & marktpartijen" />
+            </div>
+            <span style={{ fontSize: 16, color: 'var(--c-subtle)', transform: openVeldonderzoek ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+          </button>
+          {openVeldonderzoek && (
+            <div style={{ borderTop: '1px solid var(--c-border)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {veldThemas.map((thema) => {
+                const gefilterd = thema.inzichten.filter(inzichtFilter)
+                if (gefilterd.length === 0) return null
+                return (
+                  <div key={thema.id} style={{ border: '1px solid var(--c-border)', borderRadius: 10, overflow: 'hidden' }}>
+                    <div style={{ padding: '10px 14px', background: '#f8f7f5', borderBottom: '1px solid var(--c-border)' }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }}>{thema.titel}</div>
                       <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>{thema.beschrijving}</div>
                     </div>
-                    <span style={{ fontSize: 13, color: 'var(--c-subtle)', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s', flexShrink: 0, marginLeft: 10 }}>↓</span>
-                  </button>
-                  {isOpen && (
                     <div style={{ padding: '12px 14px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
                       {gefilterd.map((inzicht, i) => {
                         const badge = inzicht.stad ? VELDONDERZOEK_STAD_BADGE[inzicht.stad] : null
@@ -3839,11 +3835,11 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
                         )
                       })}
                     </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       )}
 
