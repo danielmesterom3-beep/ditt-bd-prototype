@@ -124,7 +124,7 @@ function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
 
   return (
     <div
-      className="xl:col-span-2 flex flex-col gap-3 rounded-xl p-5"
+      className="flex flex-col gap-3 rounded-xl p-5"
       style={{
         background: 'var(--c-surface)',
         border: '1px solid var(--c-border)',
@@ -171,7 +171,7 @@ function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
       </div>
 
       {/* Lijst */}
-      <div className="grid overflow-y-auto" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0 16px', maxHeight: 180 }}>
+      <div className="flex flex-col overflow-y-auto" style={{ maxHeight: 180 }}>
         {prospects.map((p) => (
           <div key={p.naam} className="flex items-center justify-between py-1.5" style={{ borderBottom: '1px solid var(--c-border)' }}>
             <div>
