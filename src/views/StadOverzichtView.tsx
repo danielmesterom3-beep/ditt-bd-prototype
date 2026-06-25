@@ -5425,11 +5425,11 @@ export default function StadOverzichtView() {
       {/* Testvalidatie */}
       <PanelWrapper hidden={hiddenPanels.has('testvalidatie')} onHide={() => hidePanel('testvalidatie')} editMode={isEditMode}><TestvalidatiePanel /></PanelWrapper>
 
-      {/* Omgevingskenmerken Eindhoven + Rotterdam naast elkaar */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
-        <PanelWrapper hidden={hiddenPanels.has('omgeving-eindhoven')} onHide={() => hidePanel('omgeving-eindhoven')} editMode={isEditMode}><OmgevingskenmerkenPanel showContext /></PanelWrapper>
-        <PanelWrapper hidden={hiddenPanels.has('omgeving-rotterdam')} onHide={() => hidePanel('omgeving-rotterdam')} editMode={isEditMode}><RotterdamOmgevingskenmerkenPanel showContext /></PanelWrapper>
-      </div>
+      {/* Omgevingskenmerken Eindhoven */}
+      <PanelWrapper hidden={hiddenPanels.has('omgeving-eindhoven')} onHide={() => hidePanel('omgeving-eindhoven')} editMode={isEditMode}><OmgevingskenmerkenPanel showContext /></PanelWrapper>
+
+      {/* Omgevingskenmerken Rotterdam */}
+      <PanelWrapper hidden={hiddenPanels.has('omgeving-rotterdam')} onHide={() => hidePanel('omgeving-rotterdam')} editMode={isEditMode}><RotterdamOmgevingskenmerkenPanel showContext /></PanelWrapper>
 
       {/* Rotterdam kantorenstrategie + leegstand naast elkaar */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
