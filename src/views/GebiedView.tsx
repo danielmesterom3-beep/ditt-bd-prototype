@@ -1,6 +1,147 @@
+import { useState } from 'react'
 import type { Gebied, LocatieKlasse } from '../data/types'
 import { useNavigation } from '../context/NavigationContext'
 import EditableText, { getEditableText } from '../components/EditableText'
+
+// ── Design & Build Netwerk data ───────────────────────────────────────────────
+
+type DBPartner = { naam: string; type: string; partner: boolean }
+
+const DB_NETWERK: Record<string, { design: DBPartner[]; build: DBPartner[] }> = {
+  Rotterdam: {
+    design: [
+      { naam: 'StudioOK',           type: 'Interieurarchitectuur',    partner: false },
+      { naam: 'Switchs',            type: 'D&B coördinatie',          partner: false },
+      { naam: 'Fokkema & Partners', type: 'Interieurarchitectuur',    partner: true  },
+    ],
+    build: [
+      { naam: 'De Vries en Verburg',  type: 'Aannemer',             partner: false },
+      { naam: 'Pubblik&Vos',          type: 'Afbouw',               partner: false },
+      { naam: 'A. De Jong Groep',     type: 'Installateur',         partner: false },
+      { naam: 'Nornorm',              type: 'Circulair meubilair',  partner: false },
+      { naam: 'Kantorice',            type: 'Projectinrichter',     partner: false },
+      { naam: 'Flex Projects',        type: 'Uitvoering',           partner: false },
+      { naam: 'BEUK',                 type: 'Sloper',               partner: true  },
+      { naam: 'CT Sloop',             type: 'Sloper',               partner: true  },
+      { naam: 'BigBrands',            type: 'Projectmeubilair',     partner: true  },
+      { naam: 'Unica',                type: 'Installateur',         partner: true  },
+      { naam: 'EQUANS',               type: 'Installateur',         partner: true  },
+      { naam: 'Croonwolter&dros',     type: 'Installateur',         partner: true  },
+      { naam: 'Homij',                type: 'Installateur',         partner: true  },
+      { naam: 'Bovero',               type: 'Vloeren',              partner: true  },
+      { naam: 'Windside Digital',     type: 'AV & signage',         partner: true  },
+      { naam: 'EeStairs',             type: 'Trappen',              partner: true  },
+    ],
+  },
+  Eindhoven: {
+    design: [
+      { naam: 'BuroBas',                  type: 'Interieurarchitectuur', partner: false },
+      { naam: 'Ininterieurs',             type: 'Projectinrichter',      partner: false },
+      { naam: 'Totaal Kantoorinrichting', type: 'Projectinrichter',      partner: false },
+      { naam: 'VB Vastgoedinrichter',     type: 'Projectinrichter',      partner: false },
+      { naam: 'Den Bak Projecten',        type: 'Projectinrichter',      partner: false },
+      { naam: 'PGA / Markt Projecten',    type: 'Projectinrichter',      partner: false },
+    ],
+    build: [
+      { naam: 'Goevaars Bouwonderneming',  type: 'Aannemer',                   partner: false },
+      { naam: 'Stam + De Koning Bouw',     type: 'Aannemer (VolkersWessels)',   partner: false },
+      { naam: 'LK',                        type: 'Aannemer',                   partner: false },
+      { naam: 'Afbouw AMB',                type: 'Afbouwer',                   partner: false },
+      { naam: 'VolkersWessels',            type: 'Bouwconcern',                partner: false },
+      { naam: 'Ahrend',                    type: 'Projectinrichter',            partner: true  },
+      { naam: 'Hoppenbrouwers Techniek',   type: 'Installateur',               partner: true  },
+      { naam: 'Unica',                     type: 'Installateur',               partner: true  },
+      { naam: 'EQUANS',                    type: 'Installateur',               partner: true  },
+      { naam: 'Croonwolter&dros',          type: 'Installateur',               partner: true  },
+      { naam: 'Homij',                     type: 'Installateur',               partner: true  },
+      { naam: 'Bovero',                    type: 'Vloeren',                    partner: true  },
+      { naam: 'Windside Digital',          type: 'AV & signage',               partner: true  },
+      { naam: 'EeStairs',                  type: 'Trappen',                    partner: true  },
+    ],
+  },
+}
+
+function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
+  const [tab, setTab] = useState<'design' | 'build'>('design')
+  const data = DB_NETWERK[stadNaam]
+  if (!data) return null
+  const lijst = data[tab]
+  const nieuwePartijen = lijst.filter((p) => !p.partner)
+  const bestaandePartners = lijst.filter((p) => p.partner)
+
+  return (
+    <div className="sm:col-span-2 bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="font-semibold text-slate-800 text-base leading-tight">Design & Build Netwerk</h2>
+          <p className="text-[11px] text-slate-400 mt-0.5">{stadNaam} · marktpartijen per discipline</p>
+        </div>
+        {/* Toggle */}
+        <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+          <button
+            onClick={() => setTab('design')}
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+              tab === 'design'
+                ? 'bg-white text-indigo-700 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            D  Design
+          </button>
+          <button
+            onClick={() => setTab('build')}
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+              tab === 'build'
+                ? 'bg-white text-indigo-700 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            B  Build
+          </button>
+        </div>
+      </div>
+
+      {/* Lijst — twee kolommen */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-0 max-h-52 overflow-y-auto pr-1">
+        {/* Nieuwe partijen eerst */}
+        {nieuwePartijen.map((p) => (
+          <div key={p.naam} className="flex items-center justify-between py-1.5 border-b border-slate-50">
+            <div>
+              <div className="text-[12px] font-medium text-slate-800">{p.naam}</div>
+              <div className="text-[10px] text-slate-400">{p.type}</div>
+            </div>
+            <span className="text-[9px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full shrink-0 ml-2">
+              prospect
+            </span>
+          </div>
+        ))}
+        {/* Bestaande Ditt-partners */}
+        {bestaandePartners.map((p) => (
+          <div key={p.naam} className="flex items-center justify-between py-1.5 border-b border-slate-50">
+            <div>
+              <div className="text-[12px] font-medium text-slate-700">{p.naam}</div>
+              <div className="text-[10px] text-slate-400">{p.type}</div>
+            </div>
+            <span className="text-[9px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full shrink-0 ml-2">
+              partner
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer telling */}
+      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-4">
+        <span className="text-[11px] text-slate-400">
+          <span className="font-semibold text-amber-600">{nieuwePartijen.length}</span> prospect{nieuwePartijen.length !== 1 ? 'en' : ''}
+        </span>
+        <span className="text-[11px] text-slate-400">
+          <span className="font-semibold text-emerald-600">{bestaandePartners.length}</span> partner{bestaandePartners.length !== 1 ? 's' : ''}
+        </span>
+      </div>
+    </div>
+  )
+}
 
 const KLASSE_STYLE: Record<NonNullable<LocatieKlasse>, string> = {
   A: 'bg-emerald-100 text-emerald-700',
@@ -116,6 +257,7 @@ export default function GebiedView() {
             </button>
           )
         })}
+        <DesignBouwKaart stadNaam={geselecteerdeStad.naam} />
       </div>
     </div>
   )
