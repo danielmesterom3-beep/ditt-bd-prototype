@@ -8,8 +8,6 @@ import type {
   Trend,
   TrendRichting,
   WarmContact,
-  InteressanteOpdrachtgever,
-  OpdrachtgeverStatus,
   PartijenType,
   Gebied,
   InterviewInzicht,
@@ -127,12 +125,6 @@ const FASE_STYLE: Record<OntwikkelingFase, { bg: string; text: string; label: st
   vergunning: { bg: '#dbeafe', text: '#1d4ed8', label: 'Vergunning' },
   bouw:       { bg: '#ffedd5', text: '#c2410c', label: 'In bouw' },
   oplevering: { bg: '#d1fae5', text: '#065f46', label: 'Oplevering' },
-}
-
-const OG_STATUS_STYLE: Record<OpdrachtgeverStatus, { bg: string; text: string; label: string }> = {
-  prospect:    { bg: '#f1f5f9', text: '#475569', label: 'Prospect' },
-  'in-gesprek': { bg: '#fef3c7', text: '#92400e', label: 'In gesprek' },
-  gewonnen:    { bg: '#d1fae5', text: '#065f46', label: 'Gewonnen' },
 }
 
 const TREND_STYLE: Record<TrendRichting, { icon: string; color: string; bg: string }> = {
@@ -423,90 +415,6 @@ function TrendItem({ trend, onDelete }: { trend: Trend; onDelete?: () => void })
   )
 }
 
-// ── Section 4: Interessante opdrachtgevers (SFO) ──────────────────────────────
-
-function OpdrachtgeverCard({ og, onDelete }: { og: InteressanteOpdrachtgever; onDelete?: () => void }) {
-  const s = OG_STATUS_STYLE[og.status]
-  return (
-    <div
-      style={{
-        background: 'var(--c-surface)',
-        border: '1px solid var(--c-border)',
-        borderRadius: 12,
-        padding: '16px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 10,
-        position: 'relative',
-      }}
-    >
-      <DeleteBtn onDelete={onDelete ?? (() => {})} />
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
-        <div>
-          <EditableText storageKey={`og.${og.id}.naam`} defaultValue={og.naam || 'Anoniem profiel'} style={{ fontWeight: 600, fontSize: 13, color: og.naam ? 'var(--c-text)' : 'var(--c-subtle)' }} />
-          <div
-            style={{
-              display: 'inline-block',
-              marginTop: 3,
-              fontSize: 10,
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              padding: '2px 8px',
-              borderRadius: 20,
-              background: '#f1f5f9',
-              color: '#475569',
-            }}
-          >
-            <EditableText storageKey={`og.${og.id}.sector`} defaultValue={og.sector} />
-          </div>
-        </div>
-        <span
-          style={{
-            fontSize: 10,
-            fontWeight: 700,
-            padding: '3px 8px',
-            borderRadius: 20,
-            background: s.bg,
-            color: s.text,
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-          }}
-        >
-          {s.label}
-        </span>
-      </div>
-
-      {/* Profiel */}
-      <EditableText storageKey={`og.${og.id}.profiel`} defaultValue={og.profiel} multiline tag="div" style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.6 }} />
-
-      {/* SFO-match */}
-      <div
-        style={{
-          padding: '10px 12px',
-          background: 'linear-gradient(135deg, #fff7f4, #fff2ee)',
-          border: '1px solid #ffd4c2',
-          borderRadius: 8,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 10,
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            color: 'var(--c-coral)',
-            marginBottom: 4,
-          }}
-        >
-          SFO-match
-        </div>
-        <EditableText storageKey={`og.${og.id}.reden`} defaultValue={og.reden} multiline tag="div" style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.6 }} />
-      </div>
-    </div>
-  )
-}
 
 // ── Section 5: Warme contacten ────────────────────────────────────────────────
 
@@ -1769,18 +1677,15 @@ export default function GebiedDetailView() {
   const statusCfg = GEBIED_STATUS_CFG[effectiveStatus]
   const { deleted: deletedPanden,    deleteItem: deletePand }    = useDeletedItems('deleted_panden')
   const { deleted: deletedTrends,    deleteItem: deleteTrend }   = useDeletedItems('deleted_trends')
-  const { deleted: deletedOg,        deleteItem: deleteOg }      = useDeletedItems('deleted_og')
   const { deleted: deletedContacten, deleteItem: deleteContact } = useDeletedItems('deleted_wc')
   const { items: addedTrends,    addItem: addTrend }   = useAddedItems<Trend>(`added_trends_${gebied.id}`)
   const { items: addedContacten, addItem: addContact } = useAddedItems<WarmContact>(`added_wc_${gebied.id}`)
   const { items: addedLeads,     addItem: addLead }    = useAddedItems<KansrijkeLead>(`added_leads_${gebied.id}`)
-  const { items: addedOg,        addItem: addOg }      = useAddedItems<InteressanteOpdrachtgever>(`added_og_${gebied.id}`)
   const { items: addedPanden,    addItem: addPand }    = useAddedItems<PandInOntwikkeling>(`added_panden_${gebied.id}`)
   const alleLeads  = [...(gebied.kansrijkeLeads ?? []), ...addedLeads]
 
   const zichtbarePanden    = [...gebied.pandenInOntwikkeling, ...addedPanden].filter((p) => !deletedPanden.has(p.id))
   const zichtbareTrends    = [...gebied.trends, ...addedTrends].filter((t) => !deletedTrends.has(t.id))
-  const zichtbareOg        = [...gebied.interessanteOpdrachtgevers, ...addedOg].filter((o) => !deletedOg.has(o.id))
   const zichtbareContacten = [...gebied.warmeContacten, ...addedContacten].filter((c) => !deletedContacten.has(c.id))
 
   const heeftPanden    = zichtbarePanden.length > 0
@@ -2003,35 +1908,6 @@ export default function GebiedDetailView() {
               </div>
             </Section>
 
-            <Section title={`Interessante opdrachtgevers (SFO),  ${zichtbareOg.length}`}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {zichtbareOg.map((og) => (
-                  <OpdrachtgeverCard key={og.id} og={og} onDelete={() => deleteOg(og.id)} />
-                ))}
-                {zichtbareOg.length === 0 && (
-                  <div style={{ padding: '20px', background: '#faf9f7', borderRadius: 10, fontSize: 12, color: 'var(--c-subtle)', textAlign: 'center', border: '1px dashed var(--c-border)' }}>
-                    Geen opdrachtgevers vastgelegd
-                  </div>
-                )}
-                {isEditMode && (
-                  <button
-                    onClick={() => addOg({
-                      id: `og-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-                      naam: 'Bedrijfsnaam...', sector: 'Sector...',
-                      profiel: 'Profiel...', reden: 'Waarom interessant voor Ditt...',
-                      status: 'prospect',
-                    })}
-                    style={{
-                      padding: '8px 16px', borderRadius: 8, border: '1px dashed var(--c-border)',
-                      background: 'transparent', color: 'var(--c-muted)', fontSize: 12,
-                      fontWeight: 600, cursor: 'pointer', width: '100%',
-                    }}
-                  >
-                    + Opdrachtgever toevoegen
-                  </button>
-                )}
-              </div>
-            </Section>
           </div>
         </>
       )}
