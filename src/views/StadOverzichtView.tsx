@@ -5416,17 +5416,17 @@ export default function StadOverzichtView() {
       {/* Testvalidatie */}
       <PanelWrapper hidden={hiddenPanels.has('testvalidatie')} onHide={() => hidePanel('testvalidatie')} editMode={isEditMode}><TestvalidatiePanel /></PanelWrapper>
 
-      {/* Omgevingskenmerken Eindhoven */}
-      <PanelWrapper hidden={hiddenPanels.has('omgeving-eindhoven')} onHide={() => hidePanel('omgeving-eindhoven')} editMode={isEditMode}><OmgevingskenmerkenPanel showContext /></PanelWrapper>
+      {/* Omgevingskenmerken Eindhoven + Rotterdam naast elkaar */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
+        <PanelWrapper hidden={hiddenPanels.has('omgeving-eindhoven')} onHide={() => hidePanel('omgeving-eindhoven')} editMode={isEditMode}><OmgevingskenmerkenPanel showContext /></PanelWrapper>
+        <PanelWrapper hidden={hiddenPanels.has('omgeving-rotterdam')} onHide={() => hidePanel('omgeving-rotterdam')} editMode={isEditMode}><RotterdamOmgevingskenmerkenPanel showContext /></PanelWrapper>
+      </div>
 
-      {/* Omgevingskenmerken Rotterdam */}
-      <PanelWrapper hidden={hiddenPanels.has('omgeving-rotterdam')} onHide={() => hidePanel('omgeving-rotterdam')} editMode={isEditMode}><RotterdamOmgevingskenmerkenPanel showContext /></PanelWrapper>
-
-      {/* Rotterdam kantorenstrategie MRDH */}
-      <PanelWrapper hidden={hiddenPanels.has('strategie-rotterdam')} onHide={() => hidePanel('strategie-rotterdam')} editMode={isEditMode}><RotterdamKantorenstrategiePanel /></PanelWrapper>
-
-      {/* Rotterdam leegstand per pand */}
-      <PanelWrapper hidden={hiddenPanels.has('leegstand-rotterdam')} onHide={() => hidePanel('leegstand-rotterdam')} editMode={isEditMode}><RotterdamLeegstandPanel /></PanelWrapper>
+      {/* Rotterdam kantorenstrategie + leegstand naast elkaar */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
+        <PanelWrapper hidden={hiddenPanels.has('strategie-rotterdam')} onHide={() => hidePanel('strategie-rotterdam')} editMode={isEditMode}><RotterdamKantorenstrategiePanel /></PanelWrapper>
+        <PanelWrapper hidden={hiddenPanels.has('leegstand-rotterdam')} onHide={() => hidePanel('leegstand-rotterdam')} editMode={isEditMode}><RotterdamLeegstandPanel /></PanelWrapper>
+      </div>
 
       {/* Recente transacties */}
       <PanelWrapper hidden={hiddenPanels.has('recente-transacties')} onHide={() => hidePanel('recente-transacties')} editMode={isEditMode}><RecenteTransactiesPanel /></PanelWrapper>
