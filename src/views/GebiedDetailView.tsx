@@ -146,10 +146,12 @@ const MIX_LABELS: Record<string, string> = {
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
 
-function Section({ title, children }: { title: string; icon?: string; children: React.ReactNode }) {
+function Section({ title, children, collapsible }: { title: string; icon?: string; children: React.ReactNode; collapsible?: boolean }) {
+  const [open, setOpen] = useState(!collapsible)
   return (
     <section>
       <h2
+        onClick={collapsible ? () => setOpen((o) => !o) : undefined}
         style={{
           fontSize: 11,
           fontWeight: 700,
@@ -157,11 +159,17 @@ function Section({ title, children }: { title: string; icon?: string; children: 
           letterSpacing: '0.1em',
           color: 'var(--c-subtle)',
           margin: '0 0 14px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          cursor: collapsible ? 'pointer' : 'default',
+          userSelect: 'none',
         }}
       >
         {title}
+        {collapsible && <span style={{ fontSize: 13, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>↓</span>}
       </h2>
-      {children}
+      {(!collapsible || open) && children}
     </section>
   )
 }
@@ -1921,7 +1929,7 @@ export default function GebiedDetailView() {
           {/* Warme contacten + Veldonderzoek naast elkaar */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: 20, alignItems: 'start' }}>
             {(heeftContacten || isEditMode) && (
-              <Section title={`Warme contacten,  ${zichtbareContacten.length}`}>
+              <Section title={`Warme contacten,  ${zichtbareContacten.length}`} collapsible>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   {zichtbareContacten.map((contact) => (
                     <WarmContactCard key={contact.id} contact={contact} onDelete={() => deleteContact(contact.id)} />
@@ -1948,7 +1956,7 @@ export default function GebiedDetailView() {
             )}
 
             {gebied.inzichten.length > 0 && (
-              <Section title={`Veldonderzoek,  ${gebied.inzichten.length} inzicht${gebied.inzichten.length !== 1 ? 'en' : ''} uit interviews`}>
+              <Section title={`Veldonderzoek,  ${gebied.inzichten.length} inzicht${gebied.inzichten.length !== 1 ? 'en' : ''} uit interviews`} collapsible>
                 <InzichtKaarten inzichten={gebied.inzichten} />
               </Section>
             )}
