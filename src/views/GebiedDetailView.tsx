@@ -1868,10 +1868,10 @@ export default function GebiedDetailView() {
             </Section>
           )}
 
-          {/* Trends + Opdrachtgevers side by side */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+          {/* Trends */}
+          <div>
             <Section title={`Trends,  ${trendCounts.positief} positief · ${trendCounts.neutraal} neutraal · ${trendCounts.negatief} negatief`}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 8 }}>
                 {zichtbareTrends.map((trend) => (
                   <TrendItem key={trend.id} trend={trend} onDelete={() => deleteTrend(trend.id)} />
                 ))}
