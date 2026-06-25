@@ -154,7 +154,7 @@ function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
               border: 'none', cursor: 'pointer',
             }}
           >
-            D  Design
+            D
           </button>
           <button
             onClick={() => setTab('build')}
@@ -166,7 +166,7 @@ function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
               border: 'none', cursor: 'pointer',
             }}
           >
-            B  Build
+            B
           </button>
         </div>
       </div>
@@ -183,7 +183,7 @@ function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
               className="text-[9px] font-semibold shrink-0 ml-2 px-1.5 py-0.5 rounded-full"
               style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa' }}
             >
-              prospect
+              lokale partij
             </span>
           </div>
         ))}
@@ -206,7 +206,7 @@ function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
       {/* Footer */}
       <div className="flex items-center gap-4 pt-2" style={{ borderTop: '1px solid var(--c-border)' }}>
         <span className="text-[10px]" style={{ color: 'var(--c-subtle)' }}>
-          <span className="font-semibold" style={{ color: '#c2410c' }}>{prospects.length}</span> prospects
+          <span className="font-semibold" style={{ color: '#c2410c' }}>{prospects.length}</span> lokale partijen
         </span>
         <span className="text-[10px]" style={{ color: 'var(--c-subtle)' }}>
           <span className="font-semibold" style={{ color: '#059669' }}>{partners.length}</span> partners
