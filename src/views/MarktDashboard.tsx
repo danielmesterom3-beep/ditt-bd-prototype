@@ -66,7 +66,6 @@ const DB_NETWERK: Record<string, { design: DBPartner[]; build: DBPartner[] }> = 
     design: [
       { naam: 'StudioOK',           type: 'Interieurarchitectuur', partner: false },
       { naam: 'Switchs',            type: 'D&B coördinatie',       partner: false },
-      { naam: 'Fokkema & Partners', type: 'Interieurarchitectuur', partner: true  },
     ],
     build: [
       { naam: 'De Vries en Verburg',  type: 'Aannemer',            partner: false },
@@ -136,10 +135,10 @@ function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="font-semibold text-sm leading-tight" style={{ color: 'var(--c-text)' }}>
-            Design &amp; Build Netwerk
+            Marktpartijen
           </h3>
           <p className="text-[10px] mt-0.5" style={{ color: 'var(--c-subtle)' }}>
-            marktpartijen per discipline
+            ontwerp &amp; uitvoering
           </p>
         </div>
         {/* Toggle */}
