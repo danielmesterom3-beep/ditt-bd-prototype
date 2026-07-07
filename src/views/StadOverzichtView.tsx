@@ -1646,24 +1646,57 @@ const TRANSACTIES_DATA: GebiedTransacties[] = [
   },
 ]
 
-const STAD_COLORS: Record<'eindhoven' | 'rotterdam', { accent: string; accentLight: string; accentBorder: string; badge: string; badgeText: string }> = {
+type StadColor = { accent: string; accentLight: string; accentBorder: string; badge: string; badgeText: string }
+const STAD_COLORS: Record<string, StadColor> = {
   eindhoven: { accent: '#ff7f50', accentLight: '#fff5f0', accentBorder: '#ffd4c0', badge: '#fff0e8', badgeText: '#c2410c' },
   rotterdam: { accent: '#3b82f6', accentLight: '#eff6ff', accentBorder: '#bfdbfe', badge: '#eff6ff', badgeText: '#1e40af' },
+}
+const STAD_COLOR_PALETTE: StadColor[] = [
+  { accent: '#8b5cf6', accentLight: '#f5f3ff', accentBorder: '#ddd6fe', badge: '#f5f3ff', badgeText: '#5b21b6' },
+  { accent: '#10b981', accentLight: '#ecfdf5', accentBorder: '#a7f3d0', badge: '#ecfdf5', badgeText: '#065f46' },
+  { accent: '#f59e0b', accentLight: '#fffbeb', accentBorder: '#fde68a', badge: '#fffbeb', badgeText: '#92400e' },
+  { accent: '#ec4899', accentLight: '#fdf2f8', accentBorder: '#fbcfe8', badge: '#fdf2f8', badgeText: '#9d174d' },
+  { accent: '#06b6d4', accentLight: '#ecfeff', accentBorder: '#a5f3fc', badge: '#ecfeff', badgeText: '#164e63' },
+]
+function getStadColor(stadId: string): StadColor {
+  if (stadId in STAD_COLORS) return STAD_COLORS[stadId]
+  const hash = stadId.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
+  return STAD_COLOR_PALETTE[hash % STAD_COLOR_PALETTE.length]
 }
 
 function RecenteTransactiesPanel() {
   const [open, setOpen] = useState(false)
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [addForm, setAddForm] = useState({ stadId: 'eindhoven', stadNaam: 'Eindhoven', gebiedNaam: '', adres: '', verkoper: '', koper: '', koopsom: '', datum: '', context: '' })
+  const { allSteden } = useAllSteden()
+  const { items: localTransacties, add: addTransactie, remove: removeTransactie } = useLocalTransacties()
 
-  const totalCount = TRANSACTIES_DATA.reduce((s, g) => s + g.transacties.length, 0)
+  const totalCount = TRANSACTIES_DATA.reduce((s, g) => s + g.transacties.length, 0) + localTransacties.length
+
+  const tInputStyle: React.CSSProperties = { width: '100%', padding: '7px 10px', fontSize: 12, borderRadius: 7, border: '1px solid #e2e8f0', background: '#fff', color: '#1a1a1a', outline: 'none', boxSizing: 'border-box' }
+  const tLabelStyle: React.CSSProperties = { fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', display: 'block', marginBottom: 4 }
+
+  const localByStad = localTransacties.reduce<Record<string, LocalTransactie[]>>((acc, t) => {
+    const k = t.stadId
+    acc[k] = [...(acc[k] ?? []), t]
+    return acc
+  }, {})
+
+  function submitTransactie(e: React.FormEvent) {
+    e.preventDefault()
+    addTransactie({ ...addForm, id: `local_transactie_${Date.now()}` })
+    setAddForm({ stadId: 'eindhoven', stadNaam: 'Eindhoven', gebiedNaam: '', adres: '', verkoper: '', koper: '', koopsom: '', datum: '', context: '' })
+    setShowAddForm(false)
+  }
 
   return (
     <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
       {/* Header / toggle */}
-      <button
+      <div
         onClick={() => setOpen((o) => !o)}
         style={{
           width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+          padding: '16px 20px', cursor: 'pointer',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -1681,11 +1714,72 @@ function RecenteTransactiesPanel() {
               background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', flexShrink: 0,
             }}
           >
-            {totalCount} transacties · 6 gebieden
+            {totalCount} transacties
           </span>
         </div>
-        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
-      </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowAddForm(v => !v) }}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px',
+              fontSize: 11, fontWeight: 600, borderRadius: 7, cursor: 'pointer',
+              border: '1px solid #e2e8f0', background: showAddForm ? '#475569' : '#f8fafc',
+              color: showAddForm ? '#fff' : '#475569',
+            }}
+          >
+            <span style={{ fontSize: 13, lineHeight: 1 }}>{showAddForm ? '×' : '+'}</span>
+            {showAddForm ? 'Sluiten' : 'Nieuwe transactie'}
+          </button>
+          <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>↓</span>
+        </div>
+      </div>
+
+      {/* Add form */}
+      {showAddForm && (
+        <form onSubmit={submitTransactie} style={{ borderTop: '1px solid var(--c-border)', padding: '20px', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--c-text)' }}>Nieuwe transactie toevoegen</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10 }}>
+            <div>
+              <label style={tLabelStyle}>Stad *</label>
+              <select required value={addForm.stadId} onChange={(e) => { const s = allSteden.find(s => s.id === e.target.value); setAddForm(p => ({ ...p, stadId: e.target.value, stadNaam: s?.naam ?? e.target.value })) }} style={{ ...tInputStyle, cursor: 'pointer' }}>
+                {allSteden.map(s => <option key={s.id} value={s.id}>{s.naam}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={tLabelStyle}>Gebied</label>
+              <input style={tInputStyle} value={addForm.gebiedNaam} onChange={(e) => setAddForm(p => ({ ...p, gebiedNaam: e.target.value }))} placeholder="Bijv. Centrum" />
+            </div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={tLabelStyle}>Adres *</label>
+              <input style={tInputStyle} required value={addForm.adres} onChange={(e) => setAddForm(p => ({ ...p, adres: e.target.value }))} placeholder="Straat, Stad" />
+            </div>
+            <div>
+              <label style={tLabelStyle}>Verkoper *</label>
+              <input style={tInputStyle} required value={addForm.verkoper} onChange={(e) => setAddForm(p => ({ ...p, verkoper: e.target.value }))} placeholder="Verkopende partij" />
+            </div>
+            <div>
+              <label style={tLabelStyle}>Koper *</label>
+              <input style={tInputStyle} required value={addForm.koper} onChange={(e) => setAddForm(p => ({ ...p, koper: e.target.value }))} placeholder="Kopende partij" />
+            </div>
+            <div>
+              <label style={tLabelStyle}>Koopsom</label>
+              <input style={tInputStyle} value={addForm.koopsom} onChange={(e) => setAddForm(p => ({ ...p, koopsom: e.target.value }))} placeholder="~€10–15M" />
+            </div>
+            <div>
+              <label style={tLabelStyle}>Datum</label>
+              <input style={tInputStyle} value={addForm.datum} onChange={(e) => setAddForm(p => ({ ...p, datum: e.target.value }))} placeholder="maart 2025" />
+            </div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={tLabelStyle}>Strategische context</label>
+              <textarea style={{ ...tInputStyle, minHeight: 70, resize: 'vertical' }} value={addForm.context} onChange={(e) => setAddForm(p => ({ ...p, context: e.target.value }))} placeholder="Wat betekent deze transactie voor de markt?" />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+            <button type="button" onClick={() => setShowAddForm(false)} style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, borderRadius: 7, border: '1px solid #e2e8f0', background: 'none', color: '#64748b', cursor: 'pointer' }}>Annuleren</button>
+            <button type="submit" style={{ padding: '6px 14px', fontSize: 12, fontWeight: 600, borderRadius: 7, border: 'none', background: '#475569', color: '#fff', cursor: 'pointer' }}>Opslaan</button>
+          </div>
+        </form>
+      )}
 
       {open && (
         <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px', display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -1770,6 +1864,44 @@ function RecenteTransactiesPanel() {
                 </div>
               </div>
             )
+          })}
+
+          {/* Lokaal toegevoegde transacties */}
+          {Object.entries(localByStad).map(([stadId, tList]) => {
+            const colors = getStadColor(stadId)
+            const stadNaamDisplay = tList[0]?.stadNaam ?? stadId
+            const byGebied = tList.reduce<Record<string, LocalTransactie[]>>((acc, t) => {
+              const k = t.gebiedNaam || 'Overig'
+              acc[k] = [...(acc[k] ?? []), t]
+              return acc
+            }, {})
+            return Object.entries(byGebied).map(([gebiedNaam, trans]) => (
+              <div key={`${stadId}_${gebiedNaam}`}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <div style={{ width: 3, height: 18, borderRadius: 2, background: colors.accent, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em' }}>{gebiedNaam}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: colors.badge, color: colors.badgeText, border: `1px solid ${colors.accentBorder}` }}>{stadNaamDisplay}</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
+                  {trans.map((t) => (
+                    <div key={t.id} style={{ position: 'relative', background: colors.accentLight, border: `1px solid ${colors.accentBorder}`, borderRadius: 10, padding: '14px 16px' }}>
+                      <button onClick={() => removeTransactie(t.id)} title="Verwijderen" style={{ position: 'absolute', top: 8, right: 8, width: 18, height: 18, borderRadius: '50%', border: `1px solid ${colors.accentBorder}`, background: 'transparent', color: colors.accent, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>×</button>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', marginBottom: 8, paddingRight: 22 }}>{t.adres}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                        <span style={{ fontSize: 11, color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 6, padding: '2px 8px' }}>{t.verkoper}</span>
+                        <span style={{ fontSize: 11, color: colors.accent, fontWeight: 700 }}>→</span>
+                        <span style={{ fontSize: 11, color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 6, padding: '2px 8px' }}>{t.koper}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+                        {t.koopsom && <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: colors.accent, color: '#fff' }}>{t.koopsom}</span>}
+                        {t.datum && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: 'var(--c-surface)', color: 'var(--c-muted)', border: '1px solid var(--c-border)' }}>{t.datum}</span>}
+                      </div>
+                      {t.context && <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}>{t.context}</div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
           })}
         </div>
       )}
@@ -2053,8 +2185,13 @@ function VeldonderzoekPanel() {
   const [activeThema, setActiveThema] = useState<string | null>(null)
   const { isEditMode } = useEditMode()
   const { deleted, deleteCard } = useDeletedCards()
+  const { extra, addInzicht } = useLocalVeldInzichten()
+  const [formThema, setFormThema] = useState<string | null>(null)
+  const [trendForm, setTrendForm] = useState({ toelichting: '', citaat: '', persoon: '', organisatie: '' })
 
-  const totalInzichten = VELDONDERZOEK_THEMAS.reduce((s, t) => s + t.inzichten.length, 0)
+  const trendInputStyle: React.CSSProperties = { width: '100%', padding: '7px 10px', fontSize: 12, borderRadius: 7, border: '1px solid #e2e8f0', background: '#fff', color: '#1a1a1a', outline: 'none', boxSizing: 'border-box' }
+
+  const totalInzichten = VELDONDERZOEK_THEMAS.reduce((s, t) => s + t.inzichten.length + (extra[t.id]?.length ?? 0), 0)
 
   return (
     <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
@@ -2104,13 +2241,14 @@ function VeldonderzoekPanel() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingTop: 2 }}>
-                    <span style={{ fontSize: 11, color: 'var(--c-subtle)' }}>{thema.inzichten.length} inzichten</span>
+                    <span style={{ fontSize: 11, color: 'var(--c-subtle)' }}>{thema.inzichten.length + (extra[thema.id]?.length ?? 0)} inzichten</span>
                     <span style={{ fontSize: 14, color: 'var(--c-subtle)', transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>↓</span>
                   </div>
                 </button>
 
                 {isExpanded && (
-                  <div style={{ borderTop: '1px solid var(--c-border)', padding: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
+                  <div style={{ borderTop: '1px solid var(--c-border)', padding: '16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
                     {thema.inzichten.map((inzicht, i) => {
                       const cardId = `${thema.id}_${i}`
                       if (deleted.has(cardId)) return null
@@ -2189,6 +2327,53 @@ function VeldonderzoekPanel() {
                         </div>
                       )
                     })}
+                    {/* Lokaal toegevoegde inzichten */}
+                    {(extra[thema.id] ?? []).map((inzicht, i) => (
+                      <div key={`extra_${i}`} style={{ position: 'relative', background: '#f0fdf4', border: '1px solid #a7f3d0', borderRadius: 8, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <span style={{ position: 'absolute', top: 8, right: 8, fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 10, background: '#dcfce7', color: '#166534' }}>NIEUW</span>
+                        {inzicht.citaat && (
+                          <blockquote style={{ margin: 0, padding: '8px 12px', borderLeft: '3px solid #a7f3d0', background: '#fff', borderRadius: '0 6px 6px 0' }}>
+                            <div style={{ fontSize: 11, color: 'var(--c-text)', lineHeight: 1.6, fontStyle: 'italic' }}>{inzicht.citaat}</div>
+                          </blockquote>
+                        )}
+                        {inzicht.toelichting && <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}>{inzicht.toelichting}</div>}
+                        <div style={{ marginTop: 'auto', paddingTop: 6, borderTop: '1px solid #a7f3d0' }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }}>{inzicht.persoon}</div>
+                          <div style={{ fontSize: 10, color: 'var(--c-muted)' }}>{inzicht.organisatie}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                    {/* + Nieuwe trend */}
+                    {formThema !== thema.id ? (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setFormThema(thema.id); setTrendForm({ toelichting: '', citaat: '', persoon: '', organisatie: '' }) }}
+                        style={{ alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 12px', fontSize: 12, fontWeight: 600, borderRadius: 8, cursor: 'pointer', border: '1px solid #e2e8f0', background: '#f8fafc', color: '#475569' }}
+                      >
+                        <span style={{ fontSize: 14, lineHeight: 1 }}>+</span> Nieuwe trend
+                      </button>
+                    ) : (
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault()
+                          addInzicht(thema.id, { toelichting: trendForm.toelichting, citaat: trendForm.citaat || undefined, persoon: trendForm.persoon, organisatie: trendForm.organisatie, datum: new Date().toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit', year: '2-digit' }) } as VeldonderzoekInzicht)
+                          setFormThema(null)
+                        }}
+                        style={{ background: '#f8f7f5', border: '1px dashed #e2e8f0', borderRadius: 10, padding: '14px', display: 'flex', flexDirection: 'column', gap: 10 }}
+                      >
+                        <div style={{ fontWeight: 700, fontSize: 12, color: 'var(--c-text)' }}>Nieuwe trend toevoegen</div>
+                        <textarea placeholder="Toelichting *" required value={trendForm.toelichting} onChange={(e) => setTrendForm(p => ({ ...p, toelichting: e.target.value }))} style={{ ...trendInputStyle, minHeight: 60, resize: 'vertical' }} />
+                        <input placeholder="Citaat (optioneel)" value={trendForm.citaat} onChange={(e) => setTrendForm(p => ({ ...p, citaat: e.target.value }))} style={trendInputStyle} />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                          <input placeholder="Naam *" required value={trendForm.persoon} onChange={(e) => setTrendForm(p => ({ ...p, persoon: e.target.value }))} style={trendInputStyle} />
+                          <input placeholder="Organisatie *" required value={trendForm.organisatie} onChange={(e) => setTrendForm(p => ({ ...p, organisatie: e.target.value }))} style={trendInputStyle} />
+                        </div>
+                        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                          <button type="button" onClick={() => setFormThema(null)} style={{ padding: '5px 12px', fontSize: 12, borderRadius: 7, border: '1px solid #e2e8f0', background: 'none', color: '#64748b', cursor: 'pointer' }}>Annuleren</button>
+                          <button type="submit" style={{ padding: '5px 12px', fontSize: 12, fontWeight: 600, borderRadius: 7, border: 'none', background: '#475569', color: '#fff', cursor: 'pointer' }}>Opslaan</button>
+                        </div>
+                      </form>
+                    )}
                   </div>
                 )}
               </div>
@@ -3180,6 +3365,94 @@ function NieuwContactForm({ onSave, onCancel }: { onSave: (c: WarmContact) => vo
       </div>
     </form>
   )
+}
+
+// ── useLocalTransacties ───────────────────────────────────────────────────────
+interface LocalTransactie {
+  id: string
+  stadId: string
+  stadNaam: string
+  gebiedNaam: string
+  adres: string
+  verkoper: string
+  koper: string
+  koopsom: string
+  datum: string
+  context: string
+}
+
+function useLocalTransacties() {
+  const KEY = 'local_transacties_v1'
+  const [items, setItems] = useState<LocalTransactie[]>(() => {
+    try { return JSON.parse(localStorage.getItem(KEY) ?? '[]') } catch { return [] }
+  })
+  function add(t: LocalTransactie) {
+    setItems(prev => {
+      const next = [...prev, t]
+      localStorage.setItem(KEY, JSON.stringify(next))
+      queueChange(KEY, JSON.stringify(next))
+      return next
+    })
+  }
+  function remove(id: string) {
+    setItems(prev => {
+      const next = prev.filter(t => t.id !== id)
+      localStorage.setItem(KEY, JSON.stringify(next))
+      queueChange(KEY, JSON.stringify(next))
+      return next
+    })
+  }
+  return { items, add, remove }
+}
+
+// ── useLocalVeldInzichten ─────────────────────────────────────────────────────
+function useLocalVeldInzichten() {
+  const KEY = 'local_veld_inzichten_v1'
+  const [extra, setExtra] = useState<Record<string, VeldonderzoekInzicht[]>>(() => {
+    try { return JSON.parse(localStorage.getItem(KEY) ?? '{}') } catch { return {} }
+  })
+  function addInzicht(themaId: string, inzicht: VeldonderzoekInzicht) {
+    setExtra(prev => {
+      const next = { ...prev, [themaId]: [...(prev[themaId] ?? []), inzicht] }
+      localStorage.setItem(KEY, JSON.stringify(next))
+      queueChange(KEY, JSON.stringify(next))
+      return next
+    })
+  }
+  return { extra, addInzicht }
+}
+
+// ── useLocalPartijen ──────────────────────────────────────────────────────────
+interface LocalPartij {
+  id: string
+  naam: string
+  sub: string
+  beschrijving: string
+  email: string
+  website: string
+}
+
+function useLocalPartijen(key: string) {
+  const [items, setItems] = useState<LocalPartij[]>(() => {
+    try { return JSON.parse(localStorage.getItem(key) ?? '[]') } catch { return [] }
+  })
+  function add(item: LocalPartij) {
+    setItems(prev => {
+      const next = [...prev, item]
+      localStorage.setItem(key, JSON.stringify(next))
+      queueChange(key, JSON.stringify(next))
+      return next
+    })
+  }
+  function remove(id: string) {
+    setItems(prev => {
+      const next = prev.filter(p => p.id !== id)
+      localStorage.setItem(key, JSON.stringify(next))
+      queueChange(key, JSON.stringify(next))
+      return next
+    })
+  }
+  return { items, add, remove }
 }
 
 function useDeletedItemsFase2(storageKey: string) {
@@ -4524,7 +4797,10 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
   const { deleted: deletedWc, deleteItem: deleteWc } = useDeletedItemsFase2(`deleted_wc_fase2_${stadId}`)
   const { deleted: deletedMkl, deleteItem: deleteMkl } = useDeletedItemsFase2(`deleted_mkl_fase2_${stadId}`)
   const { contacts: localContacts, addContact, removeContact } = useLocalContacts(stadId)
+  const { items: localPartijen, add: addPartij, remove: removePartij } = useLocalPartijen(`local_mkl_fase2_${stadId}`)
   const [showNieuwForm, setShowNieuwForm] = useState(false)
+  const [showPartijForm, setShowPartijForm] = useState(false)
+  const [partijForm, setPartijForm] = useState({ naam: '', sub: '', beschrijving: '', email: '', website: '' })
 
   const stad = steden.find((s) => s.naam === stadNaam)
   const alleWarmeContacten: WarmContact[] = (() => {
@@ -4705,18 +4981,62 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
       {/* Aanbevolen actie,  makelaars Eindhoven */}
       {stadNaam === 'Eindhoven' && (
         <div style={{ border: '1px solid #bfdbfe', borderRadius: 12, overflow: 'hidden', background: '#eff6ff' }}>
-          <div style={{ padding: '14px 18px', borderBottom: '1px solid #bfdbfe', background: '#dbeafe' }}>
-            <EditableText
-              storageKey="fase2.eind.makelaars.titel"
-              defaultValue="Aanbevolen actie: oriënterend gesprek inplannen"
-              style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'block' }}
-            />
-            <EditableText
-              storageKey="fase2.eind.makelaars.sub"
-              defaultValue="Vier lokale bedrijfsmakelaars,  direct benaderen voor relatieopbouw"
-              style={{ fontSize: 11, color: '#3b82f6', marginTop: 2, display: 'block' }}
-            />
+          <div style={{ padding: '14px 18px', borderBottom: '1px solid #bfdbfe', background: '#dbeafe', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+            <div>
+              <EditableText
+                storageKey="fase2.eind.makelaars.titel"
+                defaultValue="Aanbevolen actie: oriënterend gesprek inplannen"
+                style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'block' }}
+              />
+              <EditableText
+                storageKey="fase2.eind.makelaars.sub"
+                defaultValue="Vier lokale bedrijfsmakelaars,  direct benaderen voor relatieopbouw"
+                style={{ fontSize: 11, color: '#3b82f6', marginTop: 2, display: 'block' }}
+              />
+            </div>
+            <button
+              onClick={() => setShowPartijForm(v => !v)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', fontSize: 11, fontWeight: 600, borderRadius: 7, cursor: 'pointer', border: '1px solid #bfdbfe', background: showPartijForm ? '#1e40af' : '#eff6ff', color: showPartijForm ? '#fff' : '#1e40af', flexShrink: 0 }}
+            >
+              <span style={{ fontSize: 13, lineHeight: 1 }}>{showPartijForm ? '×' : '+'}</span>
+              {showPartijForm ? 'Sluiten' : 'Partij'}
+            </button>
           </div>
+          {showPartijForm && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                addPartij({ ...partijForm, id: `local_partij_${Date.now()}` })
+                setPartijForm({ naam: '', sub: '', beschrijving: '', email: '', website: '' })
+                setShowPartijForm(false)
+              }}
+              style={{ padding: '14px 18px', background: '#f0f7ff', borderBottom: '1px solid #bfdbfe', display: 'flex', flexDirection: 'column', gap: 10 }}
+            >
+              <div style={{ fontWeight: 700, fontSize: 12, color: '#1e40af' }}>Nieuwe partij toevoegen</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                {[['naam', 'Naam *', true], ['sub', 'Type / Locatie', false], ['email', 'E-mail', false], ['website', 'Website', false]].map(([field, label, req]) => (
+                  <div key={field as string}>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#3b82f6', marginBottom: 3 }}>{label as string}</div>
+                    <input
+                      required={!!req}
+                      value={partijForm[field as keyof typeof partijForm]}
+                      onChange={(e) => setPartijForm(p => ({ ...p, [field as string]: e.target.value }))}
+                      style={{ width: '100%', padding: '6px 9px', fontSize: 12, borderRadius: 7, border: '1px solid #bfdbfe', background: '#fff', outline: 'none', boxSizing: 'border-box' }}
+                      placeholder={label as string}
+                    />
+                  </div>
+                ))}
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#3b82f6', marginBottom: 3 }}>Beschrijving</div>
+                  <textarea value={partijForm.beschrijving} onChange={(e) => setPartijForm(p => ({ ...p, beschrijving: e.target.value }))} style={{ width: '100%', padding: '6px 9px', fontSize: 12, borderRadius: 7, border: '1px solid #bfdbfe', background: '#fff', outline: 'none', resize: 'vertical', minHeight: 60, boxSizing: 'border-box' }} placeholder="Korte beschrijving..." />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                <button type="button" onClick={() => setShowPartijForm(false)} style={{ padding: '5px 12px', fontSize: 12, borderRadius: 7, border: '1px solid #bfdbfe', background: 'none', color: '#3b82f6', cursor: 'pointer' }}>Annuleren</button>
+                <button type="submit" style={{ padding: '5px 12px', fontSize: 12, fontWeight: 600, borderRadius: 7, border: 'none', background: '#1e40af', color: '#fff', cursor: 'pointer' }}>Opslaan</button>
+              </div>
+            </form>
+          )}
           <div style={{ padding: '14px 18px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
             {[
               {
@@ -4766,6 +5086,23 @@ function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
                   <a href={`https://${getEditableText(`fase2.eind.mkl.${m.id}.website`, m.website)}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: '#3b82f6', textDecoration: 'none' }} onClick={(e) => e.stopPropagation()}>
                     <EditableText storageKey={`fase2.eind.mkl.${m.id}.website`} defaultValue={m.website} style={{ fontSize: 11, color: '#3b82f6' }} />
                   </a>
+                </div>
+              </div>
+            ))}
+            {/* Lokaal toegevoegde partijen */}
+            {localPartijen.map((m) => (
+              <div key={m.id} style={{ position: 'relative', background: '#fff', borderRadius: 10, padding: '14px', border: '2px dashed #bfdbfe', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <button onClick={() => removePartij(m.id)} style={{ position: 'absolute', top: 8, right: 8, width: 18, height: 18, borderRadius: '50%', border: '1px solid #bfdbfe', background: '#eff6ff', color: '#93c5fd', fontSize: 11, lineHeight: 1, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }} title="Verwijderen">×</button>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.3, paddingRight: 20 }}>{m.naam}</div>
+                {m.sub && <div style={{ fontSize: 10, color: 'var(--c-subtle)', lineHeight: 1.3 }}>{m.sub}</div>}
+                {m.beschrijving && <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6, flex: 1 }}>{m.beschrijving}</div>}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                  {m.email && (
+                    <a href={`mailto:${m.email}`} onClick={(e) => e.stopPropagation()} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 7, background: '#1e40af', textDecoration: 'none', flexShrink: 0 }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+                    </a>
+                  )}
+                  {m.website && <span style={{ fontSize: 11, color: '#3b82f6' }}>{m.website}</span>}
                 </div>
               </div>
             ))}
