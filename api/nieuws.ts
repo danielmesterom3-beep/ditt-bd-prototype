@@ -1,21 +1,45 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { STEDEN } from '../src/config/steden'
 
-// Vaste feeds (directe RSS bronnen)
+// STEDEN config inline (Vercel bundelt API routes apart — cross-directory import faalt runtime)
+// Bron van waarheid voor frontend: /src/config/steden.ts
+// Als je een stad toevoegt in steden.ts, voeg die ook hier toe.
+const STEDEN = [
+  {
+    id: 'rotterdam',
+    naam: 'Rotterdam',
+    zoektermen: [
+      'rotterdam', 'kop van zuid', 'wilhelminapier', 'wilhelminakade',
+      'coolsingel', 'weena', 'hofplein', 'blaak', 'alexandrium',
+      'katendrecht', 'schiekade',
+    ],
+    googleNewsQuery: 'kantoor+Rotterdam+verhuur+OR+transactie+OR+huurder+OR+leegstand',
+  },
+  {
+    id: 'eindhoven',
+    naam: 'Eindhoven',
+    zoektermen: [
+      'eindhoven', 'knoop xl', 'fellenoord', 'strijp-s', 'strijp s', 'strijp',
+      'flight forum', 'brainport', 'high tech campus', 'park forum',
+      'kennedyplein', 'meerhoven', 'woensel',
+    ],
+    googleNewsQuery: 'kantoor+Eindhoven+verhuur+OR+transactie+OR+huurder+OR+leegstand',
+  },
+]
+
+// Vaste feeds
 const VASTE_FEEDS = [
   { bron: 'Vastgoedjournaal', url: 'https://vastgoedjournaal.nl/news/rss',  stripSourceSuffix: false },
   { bron: 'Vastgoed Actueel', url: 'https://vastgoedactueel.nl/feed/',      stripSourceSuffix: false },
   { bron: 'Stadszaken',       url: 'https://stadszaken.nl/rss',             stripSourceSuffix: false },
 ]
 
-// Google News feeds dynamisch gegenereerd vanuit STEDEN config
+// Google News feeds dynamisch per stad + D&B
 const GOOGLE_FEEDS = STEDEN.map(stad => ({
   bron: `Google News ${stad.naam}`,
   url: `https://news.google.com/rss/search?q=${stad.googleNewsQuery}&hl=nl&gl=NL&ceid=NL:nl`,
   stripSourceSuffix: true,
 }))
 
-// D&B feed voor beide steden gecombineerd
 const DB_FEED = {
   bron: 'Google News D&B',
   url: 'https://news.google.com/rss/search?q=kantoorinrichting+OR+design+build+OR+kantoorverbouwing+Rotterdam+OR+Eindhoven&hl=nl&gl=NL&ceid=NL:nl',
@@ -24,7 +48,7 @@ const DB_FEED = {
 
 const FEEDS = [...VASTE_FEEDS, ...GOOGLE_FEEDS, DB_FEED]
 
-// Alle stadszoektermen gecombineerd uit config
+// Alle stadszoektermen gecombineerd
 const ALLE_STAD_TERMEN = STEDEN.flatMap(s => s.zoektermen)
 
 // Kantoor-relevantie: VERPLICHT
@@ -42,7 +66,7 @@ const KANTOOR_TERMEN = [
   'kantoorinrichting',
 ]
 
-// Uitsluitingstermen: artikel valt af
+// Uitsluitingstermen
 const UITSLUIT_TERMEN = [
   'woning', 'woningen', 'woningbouw', 'woningmarkt', 'koopwoning', 'huurwoning',
   'sociale huur', 'hypotheek', 'huizenprijs', 'eengezins', 'corporatie',
@@ -52,7 +76,7 @@ const UITSLUIT_TERMEN = [
   'benoemd tot', 'carrière', 'overstap naar',
 ]
 
-// Datum grens: geen artikelen voor 9 feb 2026
+// Datum grens: artikelen vóór deze datum worden gefilterd
 const DATUM_GRENS = new Date('2026-02-09T00:00:00Z')
 
 // Ranking scoring
@@ -156,14 +180,24 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
         }
 
         const xml = await r.text()
-        const items = parseRss(xml)
-        console.log(`[nieuws] ${bron} — ${items.length} raw items`)
+        const rawItems = parseRss(xml)
+        console.log(`[nieuws] ${bron} stap 0 - raw: ${rawItems.length}`)
 
+        // Debug: eerste 3 items met datum
+        rawItems.slice(0, 3).forEach((it, i) => {
+          const d = new Date(it.pubDate)
+          console.log(`[nieuws]   [${i}] pubDate="${it.pubDate}" parsed=${d.toISOString()} title="${it.title.slice(0, 60)}"`)
+        })
+
+        let naDatum = 0, naStad = 0, naKantoor = 0, naUitsluit = 0
         let bronCount = 0
-        for (const item of items) {
-          // Datum filter: geen artikelen voor 9 feb 2026
-          const datum = item.pubDate ? new Date(item.pubDate) : new Date()
-          if (datum < DATUM_GRENS) continue
+
+        for (const item of rawItems) {
+          // Stap 1: datum filter
+          // Robuust: als datum niet te parsen is, artikel behouden
+          const artikelDatum = new Date(item.pubDate)
+          if (!isNaN(artikelDatum.getTime()) && artikelDatum < DATUM_GRENS) continue
+          naDatum++
 
           const rawTitel = stripHtml(item.title)
           const titel = stripSourceSuffix
@@ -172,17 +206,21 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
           const samen  = stripHtml(item.description)
           const tekst  = titel + ' ' + samen
 
-          // Hard filter 1: stadsterm verplicht
+          // Stap 2: stadsterm verplicht
           if (!bevat(tekst, ALLE_STAD_TERMEN)) continue
+          naStad++
 
-          // Hard filter 2: kantoor-relevantie verplicht
+          // Stap 3: kantoor-relevantie verplicht
           if (!bevat(tekst, KANTOOR_TERMEN)) continue
+          naKantoor++
 
-          // Hard filter 3: uitsluitingstermen verbieden
+          // Stap 4: uitsluitingstermen verbieden
           if (bevat(tekst, UITSLUIT_TERMEN)) continue
+          naUitsluit++
 
           const score  = berekenScore(titel, tekst)
           const steden = detectSteden(tekst)
+          const datum  = isNaN(artikelDatum.getTime()) ? new Date() : artikelDatum
 
           results.push({
             id:           item.guid || item.link || `${bron}_${titel}`,
@@ -198,7 +236,7 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
           bronCount++
         }
 
-        console.log(`[nieuws] ${bron} — ${bronCount} items na filter`)
+        console.log(`[nieuws] ${bron} — na datum: ${naDatum}, na stad: ${naStad}, na kantoor: ${naKantoor}, na uitsluit/door: ${naUitsluit}`)
         feedStatus.push({ bron, actief: true, url, fout: null, aantalItems: bronCount })
 
       } catch (err) {
@@ -211,7 +249,7 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
 
   results.sort((a, b) => b.score - a.score || new Date(b.datum).getTime() - new Date(a.datum).getTime())
 
-  console.log(`[nieuws] klaar — ${results.length} relevante items, ${feedStatus.filter(s => s.actief).length}/${feedStatus.length} feeds actief`)
+  console.log(`[nieuws] klaar — ${results.length} items, ${feedStatus.filter(s => s.actief).length}/${feedStatus.length} feeds actief`)
 
   res.end(JSON.stringify({ items: results.slice(0, 60), feedStatus }))
 }
