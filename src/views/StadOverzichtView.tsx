@@ -7,7 +7,6 @@ import BronTooltip from '../components/BronTooltip'
 import EditableText, { queueChange, STORAGE_PREFIX, getEditableText } from '../components/EditableText'
 import { useEditMode } from '../context/EditContext'
 import { useViewMode } from '../context/ViewModeContext'
-import NieuwsFeed from '../components/NieuwsFeed'
 import { getImportedItems, deleteImportedItem, type ImportedItem } from '../components/DocumentDropzone'
 import { supabase } from '../lib/supabase'
 
@@ -688,6 +687,99 @@ function TestvalidatiePanel() {
               </div>
             )
           })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── BlankOmgevingskenmerkenPanel (lege template voor custom steden) ───────────
+
+function BlankOmgevingskenmerkenPanel({ stadId, stadNaam, showContext = false }: { stadId: string; stadNaam: string; showContext?: boolean }) {
+  const [open, setOpen] = useState(false)
+  const k = `omgeving.custom.${stadId}`
+
+  return (
+    <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden', background: 'var(--c-surface)' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+      >
+        <div>
+          <EditableText storageKey={`${k}.titel`} defaultValue={`Omgevingskenmerken,  ${stadNaam}`} style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', letterSpacing: '-0.01em', display: 'block' }} onClick={(e) => e.stopPropagation()} />
+          <EditableText storageKey={`${k}.subtitel`} defaultValue="Concurrentieanalyse · Design & Build activiteit · Stadscontext" style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2, display: 'block' }} onClick={(e) => e.stopPropagation()} />
+        </div>
+        <span style={{ fontSize: 18, color: 'var(--c-subtle)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
+      </button>
+
+      {open && (
+        <div style={{ borderTop: '1px solid var(--c-border)', padding: '20px' }}>
+          {showContext && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ background: '#faf9f7', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 6 }}>
+                  <EditableText storageKey={`${k}.ctx.label`} defaultValue="Eigenaarschap" />
+                </div>
+                <EditableText storageKey={`${k}.ctx.titel`} defaultValue={`Eigenaren in de ${stadNaam}se markt`} style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-text)', display: 'block', marginBottom: 8 }} />
+                <EditableText storageKey={`${k}.ctx.tekst`} defaultValue="" tag="div" multiline style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.7, minHeight: '60px' }} />
+              </div>
+            </div>
+          )}
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+            {/* Concurrent 1 */}
+            <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <div>
+                  <EditableText storageKey={`${k}.c1.naam`} defaultValue="Concurrent 1" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
+                  <EditableText storageKey={`${k}.c1.meta`} defaultValue={`Jaarrekening · ${stadNaam}`} style={{ fontSize: 11, color: 'var(--c-subtle)' }} />
+                </div>
+                <EditableText storageKey={`${k}.c1.badge`} defaultValue="Status" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }} />
+              </div>
+              <BalansRij storageKey={`${k}.c1.activa`} label="Totaal activa" value="—" />
+              <BalansRij storageKey={`${k}.c1.ev`} label="Eigen vermogen" value="—" />
+              <BalansRij storageKey={`${k}.c1.winst`} label="Resultaat" value="—" />
+              <BalansRij storageKey={`${k}.c1.liquide`} label="Liquide middelen" value="—" />
+              <BalansRij storageKey={`${k}.c1.schulden`} label="Kortlopende schulden" value="—" />
+              <div style={{ marginTop: 12, padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid var(--c-border)' }}>
+                <EditableText storageKey={`${k}.c1.kop`} defaultValue="Wat dit betekent voor Ditt" style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-muted)', marginBottom: 4, display: 'block' }} />
+                <EditableText storageKey={`${k}.c1.context`} defaultValue="" multiline tag="div" style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6, minHeight: 40 }} />
+              </div>
+            </div>
+
+            {/* Concurrent 2 */}
+            <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <div>
+                  <EditableText storageKey={`${k}.c2.naam`} defaultValue="Concurrent 2" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block' }} />
+                  <EditableText storageKey={`${k}.c2.meta`} defaultValue={`Jaarrekening · ${stadNaam}`} style={{ fontSize: 11, color: 'var(--c-subtle)' }} />
+                </div>
+                <EditableText storageKey={`${k}.c2.badge`} defaultValue="Status" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }} />
+              </div>
+              <BalansRij storageKey={`${k}.c2.activa`} label="Totaal activa" value="—" />
+              <BalansRij storageKey={`${k}.c2.ev`} label="Eigen vermogen" value="—" />
+              <BalansRij storageKey={`${k}.c2.winst`} label="Resultaat" value="—" />
+              <BalansRij storageKey={`${k}.c2.liquide`} label="Liquide middelen" value="—" />
+              <BalansRij storageKey={`${k}.c2.schulden`} label="Kortlopende schulden" value="—" />
+              <div style={{ marginTop: 12, padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid var(--c-border)' }}>
+                <EditableText storageKey={`${k}.c2.kop`} defaultValue="Wat dit betekent voor Ditt" style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-muted)', marginBottom: 4, display: 'block' }} />
+                <EditableText storageKey={`${k}.c2.context`} defaultValue="" multiline tag="div" style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6, minHeight: 40 }} />
+              </div>
+            </div>
+
+            {/* D&B activiteit */}
+            <div style={{ background: '#f8f7f5', borderRadius: 10, padding: '16px', border: '1px solid var(--c-border)' }}>
+              <EditableText storageKey={`${k}.db.naam`} defaultValue={`Design & Build activiteit ${stadNaam}`} style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', display: 'block', marginBottom: 12 }} />
+              <BalansRij storageKey={`${k}.db.aanvragen`} label="Bouwvergunningen (jaar)" value="—" />
+              <BalansRij storageKey={`${k}.db.transacties`} label="Kantooropnames (m²)" value="—" />
+              <BalansRij storageKey={`${k}.db.leegstand`} label="Leegstand" value="—" />
+              <BalansRij storageKey={`${k}.db.huurprijs`} label="Prime huurprijs" value="—" />
+              <div style={{ marginTop: 12, padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid var(--c-border)' }}>
+                <EditableText storageKey={`${k}.db.kop`} defaultValue="Kansen voor Ditt" style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-muted)', marginBottom: 4, display: 'block' }} />
+                <EditableText storageKey={`${k}.db.context`} defaultValue="" multiline tag="div" style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6, minHeight: 40 }} />
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -5768,6 +5860,13 @@ export default function StadOverzichtView() {
       {/* Omgevingskenmerken Rotterdam */}
       <PanelWrapper hidden={hiddenPanels.has('omgeving-rotterdam')} onHide={() => hidePanel('omgeving-rotterdam')} editMode={isEditMode}><RotterdamOmgevingskenmerkenPanel showContext /></PanelWrapper>
 
+      {/* Omgevingskenmerken custom steden */}
+      {customSteden.map((stad) => (
+        <PanelWrapper key={stad.id} hidden={hiddenPanels.has(`omgeving-${stad.id}`)} onHide={() => hidePanel(`omgeving-${stad.id}`)} editMode={isEditMode}>
+          <BlankOmgevingskenmerkenPanel stadId={stad.id} stadNaam={stad.naam} showContext />
+        </PanelWrapper>
+      ))}
+
       {/* Rotterdam kantorenstrategie + leegstand naast elkaar */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
         <PanelWrapper hidden={hiddenPanels.has('strategie-rotterdam')} onHide={() => hidePanel('strategie-rotterdam')} editMode={isEditMode}><RotterdamKantorenstrategiePanel /></PanelWrapper>
@@ -5776,27 +5875,6 @@ export default function StadOverzichtView() {
 
       {/* Recente transacties */}
       <PanelWrapper hidden={hiddenPanels.has('recente-transacties')} onHide={() => hidePanel('recente-transacties')} editMode={isEditMode}><RecenteTransactiesPanel /></PanelWrapper>
-
-      {/* Live marktnieuws feed */}
-      <div style={{ border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden' }}>
-        <div style={{ padding: '14px 18px', background: 'var(--c-surface)', borderBottom: '1px solid var(--c-border)', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)' }}>Live marktnieuws</div>
-            <div style={{ fontSize: 11, color: 'var(--c-muted)', marginTop: 2 }}>PropertyNL · Rotterdam &amp; Eindhoven · elke 30 min bijgewerkt</div>
-          </div>
-          <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0' }}>LIVE</span>
-        </div>
-        <div style={{ display: 'flex', gap: 0 }}>
-          <div style={{ flex: 1, padding: '16px', borderRight: '1px solid var(--c-border)' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-muted)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Rotterdam</div>
-            <NieuwsFeed stadFilter="rotterdam" />
-          </div>
-          <div style={{ flex: 1, padding: '16px' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--c-muted)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Eindhoven</div>
-            <NieuwsFeed stadFilter="eindhoven" />
-          </div>
-        </div>
-      </div>
 
       {/* Veldonderzoek trends & inzichten */}
       <VeldonderzoekPanel />
