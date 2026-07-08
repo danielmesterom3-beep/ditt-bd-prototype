@@ -28,9 +28,8 @@ const STEDEN = [
 
 // Vaste feeds
 const VASTE_FEEDS = [
-  { bron: 'Vastgoedjournaal', url: 'https://vastgoedjournaal.nl/news/rss',  stripSourceSuffix: false },
-  { bron: 'Vastgoed Actueel', url: 'https://vastgoedactueel.nl/feed/',      stripSourceSuffix: false },
-  { bron: 'Stadszaken',       url: 'https://stadszaken.nl/rss',             stripSourceSuffix: false },
+  { bron: 'Vastgoedjournaal', url: 'https://vastgoedjournaal.nl/news/rss', stripSourceSuffix: false },
+  { bron: 'Vastgoed Actueel', url: 'https://vastgoedactueel.nl/feed/',     stripSourceSuffix: false },
 ]
 
 // Google News feeds dynamisch per stad + D&B
@@ -59,9 +58,10 @@ const KANTOOR_TERMEN = [
   'makelaar', 'transactie', 'aankoop', 'verkoop', 'opname',
   'leegstand', 'bezettingsgraad',
   'm²', 'm2', 'vierkante meter',
-  'herontwikkeling', 'renovatie', 'transformatie', 'nieuwbouw', 'oplevering',
+  'herontwikkeling', 'renovatie', 'transformatie', 'oplevering',
   'inrichting', 'design build', 'interieur', 'fit-out', 'verbouwing',
   'commercieel vastgoed', 'bedrijfsruimte',
+  // 'nieuwbouw' verwijderd — te breed (ook groen/wonen/infra)
 ]
 
 // Uitsluitingstermen
@@ -72,6 +72,10 @@ const UITSLUIT_TERMEN = [
   'slaapkamer', 'kookeiland', 'badkamer', 'tuin', 'balkon',
   'vacature', 'topvacature', 'register-taxateur', 'in dienst getreden',
   'benoemd tot', 'carrière', 'overstap naar',
+  // klimaat/duurzaamheid — geen kantoorvastgoed
+  'klimaatadaptatie', 'biodiversiteit', 'groene daken', 'groendak',
+  'zonnepanelen', 'energielabel', 'warmtepomp', 'verduurzaming',
+  'leefbaarheid', 'openbare ruimte', 'stadspark', 'wateroverlast',
 ]
 
 // Datum grens: artikelen vóór deze datum worden gefilterd
@@ -86,20 +90,27 @@ const laag = (s: string) => (s ?? '').toLowerCase()
 const bevat = (tekst: string, termen: string[]) => termen.some(t => laag(tekst).includes(t))
 
 function stripHtml(s: string): string {
-  return (s ?? '')
-    .replace(/<[^>]*>/g, '')            // HTML tags
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
+  let t = (s ?? '')
+  // Stap 1: echte HTML tags weg
+  t = t.replace(/<[^>]*>/g, ' ')
+  // Stap 2: HTML entities decoderen
+  t = t
     .replace(/&lt;/gi, '<')
     .replace(/&gt;/gi, '>')
+    .replace(/&amp;/gi, '&')
     .replace(/&quot;/gi, '"')
     .replace(/&#039;/gi, "'")
+    .replace(/&nbsp;/gi, ' ')
     .replace(/&[a-z]{2,8};/gi, ' ')
     .replace(/&#\d+;/gi, ' ')
-    .replace(/https?:\/\/\S+/g, '')    // losse URLs als tekst
-    .replace(/\b(href|src|alt|class|id|rel|target)=["'][^"']*["']/g, '') // HTML-attributen
-    .replace(/\s+/g, ' ')
-    .trim()
+  // Stap 3: nogmaals tags weg (encoded tags zijn nu echte tags geworden)
+  t = t.replace(/<[^>]*>/g, ' ')
+  // Stap 4: URLs weg
+  t = t.replace(/https?:\/\/\S+/g, '')
+  // Stap 5: losse HTML-achtige restanten weg (bijv. _blank", href=, font color=)
+  t = t.replace(/\b\w[\w-]*=["'][^"']*["']/g, '')
+  t = t.replace(/_blank["']?/g, '')
+  return t.replace(/\s+/g, ' ').trim()
 }
 
 function cdata(s: string): string {

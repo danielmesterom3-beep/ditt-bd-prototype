@@ -26,7 +26,6 @@ const BRON_BADGE: Record<string, { bg: string; text: string }> = {
   'Vastgoedmarkt':    { bg: '#fed7aa', text: '#c2410c' },
   'PropertyNL':       { bg: '#d1fae5', text: '#065f46' },
   'Vastgoed Actueel': { bg: '#ede9fe', text: '#5b21b6' },
-  'Stadszaken':       { bg: '#f0fdf4', text: '#15803d' },
 }
 
 // Google News bronnen allemaal rood
