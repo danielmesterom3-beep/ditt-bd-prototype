@@ -1,26 +1,24 @@
-import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { useEffect, useRef, useState } from 'react'
 
 interface NieuwsItem {
   id: string
   titel: string
-  url: string
+  link: string
+  datum: string
   samenvatting: string
   bron: string
-  gepubliceerd: string
-  categorie: string | null
-  stad: string[] | null
+  steden: string[]
+  relevantieScore: 'hoog' | 'normaal'
 }
 
-const CATEGORIE_BADGE: Record<string, { label: string; bg: string; text: string }> = {
-  transactie:   { label: 'Transactie', bg: '#fef3c7', text: '#92400e' },
-  huurprijs:    { label: 'Huurprijs', bg: '#dbeafe', text: '#1e40af' },
-  ontwikkeling: { label: 'Ontwikkeling', bg: '#d1fae5', text: '#065f46' },
-  bedrijf:      { label: 'Bedrijf', bg: '#ede9fe', text: '#5b21b6' },
-  overig:       { label: 'Overig', bg: '#f1f5f9', text: '#475569' },
+const BRON_BADGE: Record<string, { bg: string; text: string }> = {
+  'Vastgoedjournaal': { bg: '#dbeafe', text: '#1e40af' },
+  'Vastgoedmarkt':    { bg: '#fed7aa', text: '#c2410c' },
+  'PropertyNL':       { bg: '#d1fae5', text: '#065f46' },
+  'Vastgoed Actueel': { bg: '#ede9fe', text: '#5b21b6' },
 }
 
-const STAD_KLEUREN: Record<string, { bg: string; text: string }> = {
+const STAD_BADGE: Record<string, { bg: string; text: string }> = {
   rotterdam: { bg: '#fff7ed', text: '#c2410c' },
   eindhoven: { bg: '#eff6ff', text: '#1d4ed8' },
 }
@@ -31,137 +29,232 @@ function tijdGeleden(iso: string): string {
   if (min < 60)  return `${min}m geleden`
   const uur  = Math.floor(min / 60)
   if (uur < 24)  return `${uur}u geleden`
-  return `${Math.floor(uur / 24)}d geleden`
+  const dag  = Math.floor(uur / 24)
+  if (dag === 1) return 'gisteren'
+  return `${dag}d geleden`
 }
 
 export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
-  const [items, setItems] = useState<NieuwsItem[]>([])
-  const [loading, setLoading] = useState(true)
+  const [items, setItems]           = useState<NieuwsItem[]>([])
+  const [loading, setLoading]       = useState(true)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [nieuwCount, setNieuwCount] = useState(0)
+  const [stadToggle, setStadToggle] = useState<string>(stadFilter ?? 'alle')
+  const [bronFilter, setBronFilter] = useState<Set<string>>(new Set())
+  const [zoekterm, setZoekterm]     = useState('')
+  const prevIds   = useRef<Set<string>>(new Set())
+  const isFirst   = useRef(true)
 
-  async function verwijder(id: string, e: React.MouseEvent) {
-    e.preventDefault()
-    e.stopPropagation()
-    await supabase.from('nieuws_items').delete().eq('id', id)
-    setItems(prev => prev.filter(i => i.id !== id))
+  async function fetchNieuws() {
+    try {
+      const res = await fetch('/api/nieuws')
+      if (!res.ok) return
+      const data: NieuwsItem[] = await res.json()
+      if (!isFirst.current) {
+        const nieuw = data.filter(d => !prevIds.current.has(d.id))
+        setNieuwCount(nieuw.length)
+      }
+      prevIds.current = new Set(data.map(d => d.id))
+      isFirst.current = false
+      setItems(data)
+      setLastUpdated(new Date())
+    } catch { /* ignore */ }
+    finally { setLoading(false) }
   }
 
   useEffect(() => {
-    async function laad() {
-      let query = supabase
-        .from('nieuws_items')
-        .select('id, titel, url, samenvatting, bron, gepubliceerd, categorie, stad')
-        .eq('relevant', true)
-        .order('gepubliceerd', { ascending: false })
-        .limit(30)
+    fetchNieuws()
+    const id = setInterval(fetchNieuws, 5 * 60 * 1000)
+    return () => clearInterval(id)
+  }, [])
 
-      if (stadFilter) {
-        query = query.contains('stad', [stadFilter.toLowerCase()])
-      }
+  useEffect(() => { if (stadFilter) setStadToggle(stadFilter) }, [stadFilter])
 
-      const { data } = await query
-      setItems(data ?? [])
-      setLoading(false)
+  const allBronnen = [...new Set(items.map(i => i.bron))]
+
+  const filtered = items.filter(item => {
+    if (stadToggle !== 'alle' && !item.steden.includes(stadToggle)) return false
+    if (bronFilter.size > 0 && !bronFilter.has(item.bron)) return false
+    if (zoekterm) {
+      const q = zoekterm.toLowerCase()
+      if (!item.titel.toLowerCase().includes(q) && !item.samenvatting.toLowerCase().includes(q)) return false
     }
+    return true
+  })
 
-    laad()
-  }, [stadFilter])
+  function toggleBron(bron: string) {
+    setBronFilter(prev => {
+      const next = new Set(prev)
+      next.has(bron) ? next.delete(bron) : next.add(bron)
+      return next
+    })
+  }
 
   if (loading) {
     return (
-      <div style={{ padding: '20px 0', fontSize: 12, color: 'var(--c-subtle)' }}>
-        Nieuws laden…
-      </div>
-    )
-  }
-
-  if (items.length === 0) {
-    return (
-      <div style={{
-        border: '1px dashed var(--c-border)', borderRadius: 10,
-        padding: '24px 16px', textAlign: 'center',
-        fontSize: 12, color: 'var(--c-muted)', fontStyle: 'italic',
-      }}>
-        Nog geen relevante berichten, feed wordt elke 30 minuten bijgewerkt.
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {[1, 2, 3].map(i => (
+          <div key={i} style={{ border: '1px solid var(--c-border)', borderRadius: 10, padding: '14px', background: 'var(--c-surface)' }}>
+            <div style={{ height: 10, width: '40%', background: '#e2e8f0', borderRadius: 4, marginBottom: 10 }} />
+            <div style={{ height: 13, width: '85%', background: '#e2e8f0', borderRadius: 4, marginBottom: 6 }} />
+            <div style={{ height: 11, width: '65%', background: '#f1f5f9', borderRadius: 4 }} />
+          </div>
+        ))}
       </div>
     )
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      {items.map((item) => {
-        const badge = CATEGORIE_BADGE[item.categorie ?? 'overig'] ?? CATEGORIE_BADGE.overig
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-        return (
-          <a
-            key={item.id}
-            href={item.url}
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              display: 'block',
-              border: '1px solid var(--c-border)',
-              borderRadius: 10,
-              padding: '12px 14px',
-              background: 'var(--c-surface)',
-              textDecoration: 'none',
-            }}
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--c-text)' }}>
+            {filtered.length} berichten
+          </span>
+          {nieuwCount > 0 && (
+            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#ef4444', color: '#fff' }}>
+              +{nieuwCount} nieuw
+            </span>
+          )}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {lastUpdated && (
+            <span style={{ fontSize: 10, color: 'var(--c-subtle)' }}>
+              bijgewerkt {tijdGeleden(lastUpdated.toISOString())}
+            </span>
+          )}
+          <button
+            onClick={() => { setLoading(true); setNieuwCount(0); fetchNieuws() }}
+            style={{ fontSize: 11, padding: '3px 9px', borderRadius: 6, border: '1px solid var(--c-border)', background: 'var(--c-surface)', color: 'var(--c-muted)', cursor: 'pointer' }}
           >
-            {/* Header rij */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, flexWrap: 'wrap' }}>
-              <span style={{
-                fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20,
-                background: badge.bg, color: badge.text,
-              }}>
-                {badge.label}
-              </span>
-              {item.stad?.map((s) => (
-                <span key={s} style={{
-                  fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 20,
-                  background: STAD_KLEUREN[s]?.bg ?? '#f1f5f9',
-                  color: STAD_KLEUREN[s]?.text ?? '#475569',
-                }}>
-                  {s.charAt(0).toUpperCase() + s.slice(1)}
-                </span>
-              ))}
-              <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--c-subtle)', flexShrink: 0 }}>
-                {tijdGeleden(item.gepubliceerd)}
-              </span>
+            ↻ Verversen
+          </button>
+        </div>
+      </div>
+
+      {/* Stad toggle (verberg als stadFilter via prop opgegeven) */}
+      {!stadFilter && (
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          {['alle', 'rotterdam', 'eindhoven'].map(s => (
+            <button
+              key={s}
+              onClick={() => setStadToggle(s)}
+              style={{
+                fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
+                cursor: 'pointer', border: '1px solid',
+                borderColor: stadToggle === s ? 'transparent' : 'var(--c-border)',
+                background: stadToggle === s ? '#1e40af' : 'var(--c-surface)',
+                color: stadToggle === s ? '#fff' : 'var(--c-muted)',
+              }}
+            >
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Bron filters */}
+      {allBronnen.length > 0 && (
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          {allBronnen.map(bron => {
+            const badge = BRON_BADGE[bron] ?? { bg: '#f1f5f9', text: '#475569' }
+            const active = bronFilter.has(bron)
+            return (
               <button
-                onClick={(e) => verwijder(item.id, e)}
+                key={bron}
+                onClick={() => toggleBron(bron)}
                 style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  fontSize: 12, color: 'var(--c-subtle)', padding: '0 2px',
-                  lineHeight: 1, flexShrink: 0,
+                  fontSize: 10, fontWeight: 700, padding: '2px 9px', borderRadius: 20,
+                  cursor: 'pointer', border: `1px solid ${badge.bg}`,
+                  background: active ? badge.text : badge.bg,
+                  color: active ? '#fff' : badge.text,
                 }}
-                title="Verwijder"
               >
-                ×
+                {bron}
               </button>
-            </div>
+            )
+          })}
+        </div>
+      )}
 
-            {/* Titel */}
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.4, marginBottom: 4 }}>
-              {item.titel}
-            </div>
+      {/* Zoekbalk */}
+      <input
+        placeholder="Zoeken in nieuws..."
+        value={zoekterm}
+        onChange={e => { setZoekterm(e.target.value); setNieuwCount(0) }}
+        style={{
+          width: '100%', padding: '7px 10px', fontSize: 12, borderRadius: 8,
+          border: '1px solid var(--c-border)', background: 'var(--c-surface)',
+          color: 'var(--c-text)', outline: 'none', boxSizing: 'border-box',
+        }}
+      />
 
-            {/* Samenvatting */}
-            {item.samenvatting && (
-              <div style={{
-                fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6,
-                display: '-webkit-box', WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical', overflow: 'hidden',
-              }}>
-                {item.samenvatting}
-              </div>
-            )}
+      {/* Berichten */}
+      {filtered.length === 0 ? (
+        <div style={{ border: '1px dashed var(--c-border)', borderRadius: 10, padding: '24px 16px', textAlign: 'center', fontSize: 12, color: 'var(--c-muted)', fontStyle: 'italic' }}>
+          {items.length === 0
+            ? 'Nieuws laden mislukt. Controleer of de API bereikbaar is.'
+            : 'Geen berichten gevonden voor deze filters.'}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {filtered.map(item => {
+            const bron = BRON_BADGE[item.bron] ?? { bg: '#f1f5f9', text: '#475569' }
+            const isHoog = item.relevantieScore === 'hoog'
+            return (
+              <a
+                key={item.id}
+                href={item.link}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: 'block',
+                  border: '1px solid var(--c-border)',
+                  borderLeft: isHoog ? '3px solid #f59e0b' : '1px solid var(--c-border)',
+                  borderRadius: 10,
+                  padding: '12px 14px',
+                  background: 'var(--c-surface)',
+                  textDecoration: 'none',
+                  transition: 'border-color 0.15s',
+                }}
+              >
+                {/* Badge rij */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: bron.bg, color: bron.text }}>
+                    {item.bron}
+                  </span>
+                  {item.steden.map(s => (
+                    <span key={s} style={{ fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 20, background: STAD_BADGE[s]?.bg ?? '#f1f5f9', color: STAD_BADGE[s]?.text ?? '#475569' }}>
+                      {s.charAt(0).toUpperCase() + s.slice(1)}
+                    </span>
+                  ))}
+                  <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--c-subtle)', flexShrink: 0 }}>
+                    {tijdGeleden(item.datum)}
+                  </span>
+                </div>
 
-            {/* Bron */}
-            <div style={{ marginTop: 6, fontSize: 10, color: 'var(--c-subtle)' }}>
-              {item.bron}
-            </div>
-          </a>
-        )
-      })}
+                {/* Titel */}
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.4, marginBottom: 4 }}>
+                  {item.titel}
+                </div>
+
+                {/* Samenvatting */}
+                {item.samenvatting && (
+                  <div style={{
+                    fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6,
+                    display: '-webkit-box', WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                  }}>
+                    {item.samenvatting}
+                  </div>
+                )}
+              </a>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
