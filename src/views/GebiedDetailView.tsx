@@ -700,7 +700,7 @@ function gebiedPrefix(id: string): string {
   if (id.startsWith('rc-')  || id === 'rotterdam-centrum')  return 'rotterdam-centrum'
   if (id === 'high-tech-campus')                             return 'high-tech-campus'
   if (id === 'airport-ehv')                                  return 'airport-ehv'
-  return 'generiek'
+  return id
 }
 
 const GEBIED_INSTEEK: Record<string, GebiedInsteek> = {
@@ -1089,7 +1089,7 @@ function ContactProtocol({ klasse, gebiedId, stadNaam }: { klasse: LocatieKlasse
           </button>
           {toonPitch && (
             <EditableText
-              storageKey="elevator_pitch"
+              storageKey={`elevator_pitch.${gebiedId}`}
               defaultValue={ELEVATOR_PITCH}
               tag="p"
               multiline
