@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import type { Marktdata } from '../data/types'
+import { queueChange } from '../components/EditableText'
 
 interface GebiedOverrides {
   leegstandPercentage?: number
@@ -35,8 +36,20 @@ export function DataOverrideProvider({ children }: { children: React.ReactNode }
   })
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides))
+    const json = JSON.stringify(overrides)
+    localStorage.setItem(STORAGE_KEY, json)
+    queueChange(STORAGE_KEY, json)
   }, [overrides])
+
+  useEffect(() => {
+    function onRemote(e: Event) {
+      const { key, value } = (e as CustomEvent<{ key: string; value: string }>).detail
+      if (key !== STORAGE_KEY) return
+      try { setOverrides(JSON.parse(value)) } catch {}
+    }
+    window.addEventListener('ditt-remote-edit', onRemote)
+    return () => window.removeEventListener('ditt-remote-edit', onRemote)
+  }, [])
 
   function getMarktdata(gebiedId: string, original: Marktdata): Marktdata {
     const o = overrides[gebiedId]

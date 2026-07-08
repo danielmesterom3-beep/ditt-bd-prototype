@@ -2045,6 +2045,16 @@ function useDeletedCards() {
     } catch { return new Set() }
   })
 
+  useEffect(() => {
+    function onRemote(e: Event) {
+      const { key, value } = (e as CustomEvent<{ key: string; value: string }>).detail
+      if (key !== DELETED_KEY) return
+      try { setDeleted(new Set(JSON.parse(value))) } catch {}
+    }
+    window.addEventListener('ditt-remote-edit', onRemote)
+    return () => window.removeEventListener('ditt-remote-edit', onRemote)
+  }, [])
+
   function deleteCard(id: string) {
     setDeleted(prev => {
       const next = new Set(prev)
@@ -3157,6 +3167,15 @@ function useLocalContacts(stadId: string) {
   const [contacts, setContacts] = useState<WarmContact[]>(() => {
     try { return JSON.parse(localStorage.getItem(key) ?? '[]') } catch { return [] }
   })
+  useEffect(() => {
+    function onRemote(e: Event) {
+      const { key: k, value } = (e as CustomEvent<{ key: string; value: string }>).detail
+      if (k !== key) return
+      try { setContacts(JSON.parse(value)) } catch {}
+    }
+    window.addEventListener('ditt-remote-edit', onRemote)
+    return () => window.removeEventListener('ditt-remote-edit', onRemote)
+  }, [key])
   function addContact(contact: WarmContact) {
     setContacts(prev => {
       const next = [...prev, contact]
@@ -3262,6 +3281,15 @@ function useLocalTransacties() {
   const [items, setItems] = useState<LocalTransactie[]>(() => {
     try { return JSON.parse(localStorage.getItem(KEY) ?? '[]') } catch { return [] }
   })
+  useEffect(() => {
+    function onRemote(e: Event) {
+      const { key, value } = (e as CustomEvent<{ key: string; value: string }>).detail
+      if (key !== KEY) return
+      try { setItems(JSON.parse(value)) } catch {}
+    }
+    window.addEventListener('ditt-remote-edit', onRemote)
+    return () => window.removeEventListener('ditt-remote-edit', onRemote)
+  }, [])
   function add(t: LocalTransactie) {
     setItems(prev => {
       const next = [...prev, t]
@@ -3287,6 +3315,15 @@ function useLocalVeldInzichten() {
   const [extra, setExtra] = useState<Record<string, VeldonderzoekInzicht[]>>(() => {
     try { return JSON.parse(localStorage.getItem(KEY) ?? '{}') } catch { return {} }
   })
+  useEffect(() => {
+    function onRemote(e: Event) {
+      const { key, value } = (e as CustomEvent<{ key: string; value: string }>).detail
+      if (key !== KEY) return
+      try { setExtra(JSON.parse(value)) } catch {}
+    }
+    window.addEventListener('ditt-remote-edit', onRemote)
+    return () => window.removeEventListener('ditt-remote-edit', onRemote)
+  }, [])
   function addInzicht(themaId: string, inzicht: VeldonderzoekInzicht) {
     setExtra(prev => {
       const next = { ...prev, [themaId]: [...(prev[themaId] ?? []), inzicht] }
@@ -3312,6 +3349,15 @@ function useLocalPartijen(key: string) {
   const [items, setItems] = useState<LocalPartij[]>(() => {
     try { return JSON.parse(localStorage.getItem(key) ?? '[]') } catch { return [] }
   })
+  useEffect(() => {
+    function onRemote(e: Event) {
+      const { key: k, value } = (e as CustomEvent<{ key: string; value: string }>).detail
+      if (k !== key) return
+      try { setItems(JSON.parse(value)) } catch {}
+    }
+    window.addEventListener('ditt-remote-edit', onRemote)
+    return () => window.removeEventListener('ditt-remote-edit', onRemote)
+  }, [key])
   function add(item: LocalPartij) {
     setItems(prev => {
       const next = [...prev, item]
@@ -3335,6 +3381,15 @@ function useDeletedItemsFase2(storageKey: string) {
   const [deleted, setDeleted] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem(storageKey) ?? '[]')) } catch { return new Set() }
   })
+  useEffect(() => {
+    function onRemote(e: Event) {
+      const { key, value } = (e as CustomEvent<{ key: string; value: string }>).detail
+      if (key !== storageKey) return
+      try { setDeleted(new Set(JSON.parse(value))) } catch {}
+    }
+    window.addEventListener('ditt-remote-edit', onRemote)
+    return () => window.removeEventListener('ditt-remote-edit', onRemote)
+  }, [storageKey])
   function deleteItem(id: string) {
     setDeleted(prev => {
       const next = new Set(prev)

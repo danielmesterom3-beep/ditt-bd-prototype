@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigation } from '../context/NavigationContext'
 import { useFilters } from '../context/FilterContext'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
@@ -8,7 +8,7 @@ import { useEditMode } from '../context/EditContext'
 import type { Gebied, LocatieKlasse, GebiedStatus } from '../data/types'
 import BronTooltip from '../components/BronTooltip'
 import InlineEdit from '../components/InlineEdit'
-import EditableText from '../components/EditableText'
+import EditableText, { queueChange } from '../components/EditableText'
 
 const BRONNEN = {
   vvo:      'Vastgoeddata.nl. (2026, 29 april). Gebiedsanalyses kantoormarkten [Dataset]. Vastgoeddata.nl.',
@@ -135,6 +135,18 @@ function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
   const prospects = lijst.filter((p) => !p.partner)
   const partners  = lijst.filter((p) =>  p.partner)
 
+  useEffect(() => {
+    function onRemote(e: Event) {
+      const { key, value } = (e as CustomEvent<{ key: string; value: string }>).detail
+      try {
+        if (key === `db_partijen_${stadNaam}_design`) setCustomDesign(JSON.parse(value))
+        if (key === `db_partijen_${stadNaam}_build`) setCustomBuild(JSON.parse(value))
+      } catch {}
+    }
+    window.addEventListener('ditt-remote-edit', onRemote)
+    return () => window.removeEventListener('ditt-remote-edit', onRemote)
+  }, [stadNaam])
+
   function addPartij(e: React.FormEvent) {
     e.preventDefault()
     if (!form.naam.trim()) return
@@ -143,10 +155,12 @@ function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
       const updated = [...customDesign, nieuw]
       setCustomDesign(updated)
       localStorage.setItem(`db_partijen_${stadNaam}_design`, JSON.stringify(updated))
+      queueChange(`db_partijen_${stadNaam}_design`, JSON.stringify(updated))
     } else {
       const updated = [...customBuild, nieuw]
       setCustomBuild(updated)
       localStorage.setItem(`db_partijen_${stadNaam}_build`, JSON.stringify(updated))
+      queueChange(`db_partijen_${stadNaam}_build`, JSON.stringify(updated))
     }
     setForm({ naam: '', type: '' })
     setShowForm(false)
@@ -157,10 +171,12 @@ function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
       const updated = customDesign.filter(p => p.naam !== naam)
       setCustomDesign(updated)
       localStorage.setItem(`db_partijen_${stadNaam}_design`, JSON.stringify(updated))
+      queueChange(`db_partijen_${stadNaam}_design`, JSON.stringify(updated))
     } else {
       const updated = customBuild.filter(p => p.naam !== naam)
       setCustomBuild(updated)
       localStorage.setItem(`db_partijen_${stadNaam}_build`, JSON.stringify(updated))
+      queueChange(`db_partijen_${stadNaam}_build`, JSON.stringify(updated))
     }
   }
 
