@@ -51,19 +51,17 @@ const FEEDS = [...VASTE_FEEDS, ...GOOGLE_FEEDS, DB_FEED]
 // Alle stadszoektermen gecombineerd
 const ALLE_STAD_TERMEN = STEDEN.flatMap(s => s.zoektermen)
 
-// Kantoor-relevantie: VERPLICHT
+// Kantoor-relevantie: VERPLICHT — beide checks (stad + kantoor) moeten true zijn
 const KANTOOR_TERMEN = [
-  'kantoor', 'kantoren', 'office', 'werkplek', 'werkomgeving', 'huisvesting',
-  'verhuur', 'verhuurd', 'huurder', 'huurovereenkomst', 'gehuurd',
-  'eigenaar', 'belegger', 'belegging', 'investeerder', 'asset manager',
+  'kantoor', 'kantoren', 'office', 'werkplek', 'werkomgeving',
+  'verhuur', 'verhuurd', 'huurder', 'huurovereenkomst',
+  'eigenaar', 'belegger', 'vastgoedbelegger', 'asset manager',
   'makelaar', 'transactie', 'aankoop', 'verkoop', 'opname',
   'leegstand', 'bezettingsgraad',
-  'm²', 'm2', 'vierkante meter', 'vloeroppervlak',
+  'm²', 'm2', 'vierkante meter',
   'herontwikkeling', 'renovatie', 'transformatie', 'nieuwbouw', 'oplevering',
   'inrichting', 'design build', 'interieur', 'fit-out', 'verbouwing',
-  'gebiedsontwikkeling', 'bestemmingsplan', 'masterplan',
-  'bedrijfsruimte', 'commercieel vastgoed', 'vastgoedbelegger',
-  'kantoorinrichting',
+  'commercieel vastgoed', 'bedrijfsruimte',
 ]
 
 // Uitsluitingstermen
@@ -89,7 +87,7 @@ const bevat = (tekst: string, termen: string[]) => termen.some(t => laag(tekst).
 
 function stripHtml(s: string): string {
   return (s ?? '')
-    .replace(/<[^>]*>/g, '')
+    .replace(/<[^>]*>/g, '')            // HTML tags
     .replace(/&nbsp;/gi, ' ')
     .replace(/&amp;/gi, '&')
     .replace(/&lt;/gi, '<')
@@ -98,6 +96,8 @@ function stripHtml(s: string): string {
     .replace(/&#039;/gi, "'")
     .replace(/&[a-z]{2,8};/gi, ' ')
     .replace(/&#\d+;/gi, ' ')
+    .replace(/https?:\/\/\S+/g, '')    // losse URLs als tekst
+    .replace(/\b(href|src|alt|class|id|rel|target)=["'][^"']*["']/g, '') // HTML-attributen
     .replace(/\s+/g, ' ')
     .trim()
 }
