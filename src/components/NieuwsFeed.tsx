@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { STEDEN } from '../config/steden'
 
 interface NieuwsItem {
   id: string
@@ -21,19 +22,17 @@ interface FeedStatus {
 }
 
 const BRON_BADGE: Record<string, { bg: string; text: string }> = {
-  'Vastgoedjournaal':      { bg: '#dbeafe', text: '#1e40af' },
-  'Vastgoedmarkt':         { bg: '#fed7aa', text: '#c2410c' },
-  'PropertyNL':            { bg: '#d1fae5', text: '#065f46' },
-  'Vastgoed Actueel':      { bg: '#ede9fe', text: '#5b21b6' },
-  'Stadszaken':            { bg: '#f0fdf4', text: '#15803d' },
-  'Google News Rotterdam': { bg: '#fee2e2', text: '#b91c1c' },
-  'Google News Eindhoven': { bg: '#fee2e2', text: '#b91c1c' },
-  'Google News D&B':       { bg: '#fee2e2', text: '#b91c1c' },
+  'Vastgoedjournaal': { bg: '#dbeafe', text: '#1e40af' },
+  'Vastgoedmarkt':    { bg: '#fed7aa', text: '#c2410c' },
+  'PropertyNL':       { bg: '#d1fae5', text: '#065f46' },
+  'Vastgoed Actueel': { bg: '#ede9fe', text: '#5b21b6' },
+  'Stadszaken':       { bg: '#f0fdf4', text: '#15803d' },
 }
 
-const STAD_BADGE: Record<string, { bg: string; text: string }> = {
-  rotterdam: { bg: '#fff7ed', text: '#c2410c' },
-  eindhoven: { bg: '#eff6ff', text: '#1d4ed8' },
+// Google News bronnen allemaal rood
+function getBronBadge(bron: string): { bg: string; text: string } {
+  if (bron.startsWith('Google News')) return { bg: '#fee2e2', text: '#b91c1c' }
+  return BRON_BADGE[bron] ?? { bg: '#f1f5f9', text: '#475569' }
 }
 
 function tijdGeleden(iso: string): string {
@@ -130,7 +129,10 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
             {filtered.length} berichten
           </span>
           {nieuwCount > 0 && (
-            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#ef4444', color: '#fff' }}>
+            <span
+              style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: '#ef4444', color: '#fff', cursor: 'pointer' }}
+              onClick={() => setNieuwCount(0)}
+            >
               +{nieuwCount} nieuw
             </span>
           )}
@@ -186,24 +188,28 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
         </div>
       )}
 
-      {/* Stad toggle (verberg als stadFilter via prop opgegeven) */}
+      {/* Stad toggle — dynamisch vanuit STEDEN config */}
       {!stadFilter && (
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-          {['alle', 'rotterdam', 'eindhoven'].map(s => (
-            <button
-              key={s}
-              onClick={() => setStadToggle(s)}
-              style={{
-                fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
-                cursor: 'pointer', border: '1px solid',
-                borderColor: stadToggle === s ? 'transparent' : 'var(--c-border)',
-                background: stadToggle === s ? '#1e40af' : 'var(--c-surface)',
-                color: stadToggle === s ? '#fff' : 'var(--c-muted)',
-              }}
-            >
-              {s.charAt(0).toUpperCase() + s.slice(1)}
-            </button>
-          ))}
+          {['alle', ...STEDEN.map(s => s.id)].map(id => {
+            const stad = STEDEN.find(s => s.id === id)
+            const isActive = stadToggle === id
+            return (
+              <button
+                key={id}
+                onClick={() => setStadToggle(id)}
+                style={{
+                  fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
+                  cursor: 'pointer', border: '1px solid',
+                  borderColor: isActive ? 'transparent' : 'var(--c-border)',
+                  background: isActive ? (stad?.kleur ?? '#1e40af') : 'var(--c-surface)',
+                  color: isActive ? '#fff' : 'var(--c-muted)',
+                }}
+              >
+                {id === 'alle' ? 'Alle' : stad?.naam ?? id}
+              </button>
+            )
+          })}
         </div>
       )}
 
@@ -211,7 +217,7 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
       {allBronnen.length > 0 && (
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
           {allBronnen.map(bron => {
-            const badge = BRON_BADGE[bron] ?? { bg: '#f1f5f9', text: '#475569' }
+            const badge  = getBronBadge(bron)
             const active = bronFilter.has(bron)
             return (
               <button
@@ -255,50 +261,48 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {filtered.map(item => {
-            const bron = BRON_BADGE[item.bron] ?? { bg: '#f1f5f9', text: '#475569' }
+            const badge  = getBronBadge(item.bron)
             const isHoog = item.relevantieScore === 'hoog'
-            const sterren = item.score >= 10 ? '★★★' : item.score >= 5 ? '★★' : item.score >= 3 ? '★' : null
             return (
-              <a
+              <div
                 key={item.id}
-                href={item.link}
-                target="_blank"
-                rel="noreferrer"
                 style={{
-                  display: 'block',
                   border: '1px solid var(--c-border)',
                   borderLeft: isHoog ? '3px solid #f59e0b' : '1px solid var(--c-border)',
                   borderRadius: 10,
                   padding: '12px 14px',
                   background: 'var(--c-surface)',
-                  textDecoration: 'none',
-                  transition: 'border-color 0.15s',
                 }}
               >
                 {/* Badge rij */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: bron.bg, color: bron.text }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: badge.bg, color: badge.text }}>
                     {item.bron}
                   </span>
-                  {item.steden.map(s => (
-                    <span key={s} style={{ fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 20, background: STAD_BADGE[s]?.bg ?? '#f1f5f9', color: STAD_BADGE[s]?.text ?? '#475569' }}>
-                      {s.charAt(0).toUpperCase() + s.slice(1)}
-                    </span>
-                  ))}
-                  {sterren && (
-                    <span style={{ fontSize: 9, color: isHoog ? '#f59e0b' : '#94a3b8', letterSpacing: 1 }} title={`Relevantiescore: ${item.score}`}>
-                      {sterren}
-                    </span>
-                  )}
+                  {item.steden.map(sid => {
+                    const stad = STEDEN.find(s => s.id === sid)
+                    return stad ? (
+                      <span key={sid} style={{ fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 20, background: stad.kleur + '22', color: stad.kleur }}>
+                        {stad.naam}
+                      </span>
+                    ) : null
+                  })}
                   <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--c-subtle)', flexShrink: 0 }}>
                     {tijdGeleden(item.datum)}
                   </span>
                 </div>
 
-                {/* Titel */}
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.4, marginBottom: 4 }}>
+                {/* Titel als klikbare link */}
+                <a
+                  href={item.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.4, display: 'block', marginBottom: 4, textDecoration: 'none' }}
+                  onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
+                  onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
+                >
                   {item.titel}
-                </div>
+                </a>
 
                 {/* Samenvatting */}
                 {item.samenvatting && (
@@ -306,11 +310,27 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
                     fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6,
                     display: '-webkit-box', WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                    marginBottom: 8,
                   }}>
                     {item.samenvatting}
                   </div>
                 )}
-              </a>
+
+                {/* Lees artikel knop */}
+                <a
+                  href={item.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    fontSize: 11, fontWeight: 600, color: '#3b82f6',
+                    textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 3,
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
+                  onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
+                >
+                  Lees artikel →
+                </a>
+              </div>
             )
           })}
         </div>

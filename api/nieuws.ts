@@ -1,25 +1,33 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import { STEDEN } from '../src/config/steden'
 
-const FEEDS = [
-  { bron: 'Vastgoedjournaal',      url: 'https://vastgoedjournaal.nl/news/rss',        stripSourceSuffix: false },
-  { bron: 'Vastgoed Actueel',      url: 'https://vastgoedactueel.nl/feed/',             stripSourceSuffix: false },
-  { bron: 'Stadszaken',            url: 'https://stadszaken.nl/rss',                   stripSourceSuffix: false },
-  { bron: 'Google News Rotterdam', url: 'https://news.google.com/rss/search?q=kantoor+Rotterdam+verhuur+OR+transactie+OR+huurder+OR+leegstand&hl=nl&gl=NL&ceid=NL:nl', stripSourceSuffix: true },
-  { bron: 'Google News Eindhoven', url: 'https://news.google.com/rss/search?q=kantoor+Eindhoven+verhuur+OR+transactie+OR+huurder+OR+leegstand&hl=nl&gl=NL&ceid=NL:nl', stripSourceSuffix: true },
-  { bron: 'Google News D&B',       url: 'https://news.google.com/rss/search?q=kantoorinrichting+OR+design+build+OR+kantoorverbouwing+Rotterdam+OR+Eindhoven&hl=nl&gl=NL&ceid=NL:nl', stripSourceSuffix: true },
+// Vaste feeds (directe RSS bronnen)
+const VASTE_FEEDS = [
+  { bron: 'Vastgoedjournaal', url: 'https://vastgoedjournaal.nl/news/rss',  stripSourceSuffix: false },
+  { bron: 'Vastgoed Actueel', url: 'https://vastgoedactueel.nl/feed/',      stripSourceSuffix: false },
+  { bron: 'Stadszaken',       url: 'https://stadszaken.nl/rss',             stripSourceSuffix: false },
 ]
 
-// Stap 1: stadsterm VERPLICHT aanwezig (hard filter)
-const STAD_TERMEN = [
-  'rotterdam', 'eindhoven',
-  'kop van zuid', 'wilhelminapier', 'wilhelminakade', 'katendrecht',
-  'coolsingel', 'weena', 'hofplein', 'blaak', 'alexanderplein', 'stadionweg',
-  'knoop xl', 'fellenoord', 'strijp-s', 'strijp s', 'strijp',
-  'flight forum', 'brainport', 'high tech campus', 'park forum',
-  'kennedyplein', 'meerhoven', 'woensel',
-]
+// Google News feeds dynamisch gegenereerd vanuit STEDEN config
+const GOOGLE_FEEDS = STEDEN.map(stad => ({
+  bron: `Google News ${stad.naam}`,
+  url: `https://news.google.com/rss/search?q=${stad.googleNewsQuery}&hl=nl&gl=NL&ceid=NL:nl`,
+  stripSourceSuffix: true,
+}))
 
-// Stap 2: kantoor-relevantie VERPLICHT (hard filter)
+// D&B feed voor beide steden gecombineerd
+const DB_FEED = {
+  bron: 'Google News D&B',
+  url: 'https://news.google.com/rss/search?q=kantoorinrichting+OR+design+build+OR+kantoorverbouwing+Rotterdam+OR+Eindhoven&hl=nl&gl=NL&ceid=NL:nl',
+  stripSourceSuffix: true,
+}
+
+const FEEDS = [...VASTE_FEEDS, ...GOOGLE_FEEDS, DB_FEED]
+
+// Alle stadszoektermen gecombineerd uit config
+const ALLE_STAD_TERMEN = STEDEN.flatMap(s => s.zoektermen)
+
+// Kantoor-relevantie: VERPLICHT
 const KANTOOR_TERMEN = [
   'kantoor', 'kantoren', 'office', 'werkplek', 'werkomgeving', 'huisvesting',
   'verhuur', 'verhuurd', 'huurder', 'huurovereenkomst', 'gehuurd',
@@ -31,9 +39,10 @@ const KANTOOR_TERMEN = [
   'inrichting', 'design build', 'interieur', 'fit-out', 'verbouwing',
   'gebiedsontwikkeling', 'bestemmingsplan', 'masterplan',
   'bedrijfsruimte', 'commercieel vastgoed', 'vastgoedbelegger',
+  'kantoorinrichting',
 ]
 
-// Stap 3: uitsluitingstermen (hard filter — artikel valt af als titel+samen dit bevat)
+// Uitsluitingstermen: artikel valt af
 const UITSLUIT_TERMEN = [
   'woning', 'woningen', 'woningbouw', 'woningmarkt', 'koopwoning', 'huurwoning',
   'sociale huur', 'hypotheek', 'huizenprijs', 'eengezins', 'corporatie',
@@ -43,7 +52,10 @@ const UITSLUIT_TERMEN = [
   'benoemd tot', 'carrière', 'overstap naar',
 ]
 
-// Stap 3: scoring voor ranking
+// Datum grens: geen artikelen voor 9 feb 2026
+const DATUM_GRENS = new Date('2026-02-09T00:00:00Z')
+
+// Ranking scoring
 const RANK_TITEL_HOOG = ['kantoor', 'kantoren', 'office']
 const RANK_TEKST_MID  = ['verhuur', 'verhuurd', 'transactie', 'leegstand', 'makelaar', 'eigenaar', 'belegger']
 const RANK_TEKST_LAAG = ['m2', 'm²', 'vierkante meter', 'huurovereenkomst']
@@ -54,7 +66,6 @@ const bevat = (tekst: string, termen: string[]) => termen.some(t => laag(tekst).
 function stripHtml(s: string): string {
   return (s ?? '')
     .replace(/<[^>]*>/g, '')
-    // HTML entities: named + numeric
     .replace(/&nbsp;/gi, ' ')
     .replace(/&amp;/gi, '&')
     .replace(/&lt;/gi, '<')
@@ -100,16 +111,9 @@ function berekenScore(titel: string, tekst: string): number {
 }
 
 function detectSteden(tekst: string): string[] {
-  const t = laag(tekst)
-  const steden: string[] = []
-  if (['rotterdam', 'kop van zuid', 'wilhelminapier', 'wilhelminakade', 'katendrecht',
-       'coolsingel', 'weena', 'hofplein', 'blaak', 'alexanderplein', 'stadionweg'].some(w => t.includes(w)))
-    steden.push('rotterdam')
-  if (['eindhoven', 'knoop xl', 'fellenoord', 'strijp-s', 'strijp s', 'strijp',
-       'flight forum', 'brainport', 'high tech campus', 'park forum',
-       'kennedyplein', 'meerhoven', 'woensel'].some(w => t.includes(w)))
-    steden.push('eindhoven')
-  return steden
+  return STEDEN
+    .filter(stad => stad.zoektermen.some(t => laag(tekst).includes(t)))
+    .map(s => s.id)
 }
 
 type NieuwsApiItem = {
@@ -155,14 +159,12 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
         const items = parseRss(xml)
         console.log(`[nieuws] ${bron} — ${items.length} raw items`)
 
-        // Debug: eerste 5 titels
-        items.slice(0, 5).forEach((it, i) =>
-          console.log(`[nieuws]   [${i}] ${it.title.slice(0, 80)}`)
-        )
-
         let bronCount = 0
         for (const item of items) {
-          // Google News titels eindigen op " - Bronnaam" — strip dat
+          // Datum filter: geen artikelen voor 9 feb 2026
+          const datum = item.pubDate ? new Date(item.pubDate) : new Date()
+          if (datum < DATUM_GRENS) continue
+
           const rawTitel = stripHtml(item.title)
           const titel = stripSourceSuffix
             ? rawTitel.replace(/\s+-\s+[^-]+$/, '').trim()
@@ -171,7 +173,7 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
           const tekst  = titel + ' ' + samen
 
           // Hard filter 1: stadsterm verplicht
-          if (!bevat(tekst, STAD_TERMEN)) continue
+          if (!bevat(tekst, ALLE_STAD_TERMEN)) continue
 
           // Hard filter 2: kantoor-relevantie verplicht
           if (!bevat(tekst, KANTOOR_TERMEN)) continue
@@ -186,7 +188,7 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
             id:           item.guid || item.link || `${bron}_${titel}`,
             titel,
             link:         item.link,
-            datum:        item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
+            datum:        datum.toISOString(),
             samenvatting: samen.slice(0, 300),
             bron,
             steden,
@@ -207,7 +209,6 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
     })
   )
 
-  // Sorteer: score desc, dan datum desc
   results.sort((a, b) => b.score - a.score || new Date(b.datum).getTime() - new Date(a.datum).getTime())
 
   console.log(`[nieuws] klaar — ${results.length} relevante items, ${feedStatus.filter(s => s.actief).length}/${feedStatus.length} feeds actief`)
