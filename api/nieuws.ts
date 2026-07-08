@@ -1,11 +1,44 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import Parser from 'rss-parser'
 
-const FEEDS = [
-  { url: 'https://vastgoedjournaal.nl/news/rss',   bron: 'Vastgoedjournaal' },
-  { url: 'https://www.vastgoedmarkt.nl/feed',      bron: 'Vastgoedmarkt'    },
-  { url: 'https://www.propertynl.com/feed',        bron: 'PropertyNL'       },
-  { url: 'https://vastgoedactueel.nl/feed',        bron: 'Vastgoed Actueel' },
+// Per bron: meerdere paden geprobeerd in volgorde
+const FEEDS: { bron: string; urls: string[] }[] = [
+  {
+    bron: 'Vastgoedjournaal',
+    urls: [
+      'https://vastgoedjournaal.nl/news/rss',
+      'https://vastgoedjournaal.nl/feed',
+      'https://vastgoedjournaal.nl/rss',
+      'https://vastgoedjournaal.nl/feed.xml',
+    ],
+  },
+  {
+    bron: 'Vastgoedmarkt',
+    urls: [
+      'https://www.vastgoedmarkt.nl/feed',
+      'https://www.vastgoedmarkt.nl/rss',
+      'https://www.vastgoedmarkt.nl/feed.xml',
+      'https://www.vastgoedmarkt.nl/news/rss',
+    ],
+  },
+  {
+    bron: 'PropertyNL',
+    urls: [
+      'https://www.propertynl.com/feed',
+      'https://www.propertynl.com/rss',
+      'https://www.propertynl.com/feed.xml',
+      'https://www.propertynl.com/news/rss',
+    ],
+  },
+  {
+    bron: 'Vastgoed Actueel',
+    urls: [
+      'https://vastgoedactueel.nl/feed',
+      'https://vastgoedactueel.nl/rss',
+      'https://vastgoedactueel.nl/feed.xml',
+      'https://vastgoedactueel.nl/news/rss',
+    ],
+  },
 ]
 
 const STAD_TERMEN = [
@@ -47,6 +80,13 @@ function detectSteden(tekst: string): string[] {
   return steden
 }
 
+export type FeedStatus = {
+  bron: string
+  actief: boolean
+  url: string | null
+  fout: string | null
+}
+
 export type NieuwsApiItem = {
   id: string
   titel: string
@@ -56,6 +96,11 @@ export type NieuwsApiItem = {
   bron: string
   steden: string[]
   relevantieScore: 'hoog' | 'normaal'
+}
+
+export type NieuwsApiResponse = {
+  items: NieuwsApiItem[]
+  feedStatus: FeedStatus[]
 }
 
 export default async function handler(_req: IncomingMessage, res: ServerResponse) {
@@ -69,45 +114,73 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
   })
 
   const results: NieuwsApiItem[] = []
+  const feedStatus: FeedStatus[] = []
 
   await Promise.allSettled(
     FEEDS.map(async (feed) => {
-      try {
-        const parsed = await parser.parseURL(feed.url)
-        for (const item of parsed.items ?? []) {
-          const titel = item.title ?? ''
-          const samen = stripHtml(item.contentSnippet ?? item.content ?? item.summary ?? '')
-          const tekst = titel + ' ' + samen
+      let werkendUrl: string | null = null
+      let fout: string | null = null
 
-          // Stap A: stadsfilter
-          if (!bevat(tekst, STAD_TERMEN)) continue
-          // Stap B: kantoorfilter
-          if (!bevat(tekst, KANTOOR_TERMEN)) continue
-          // Stap C: woningfilter
-          if (bevat(titel, WONING_TERMEN) && !bevat(titel, KANTOOR_TERMEN)) continue
+      // Probeer urls in volgorde totdat één werkt
+      for (const url of feed.urls) {
+        try {
+          console.log(`[nieuws] probeer ${feed.bron}: ${url}`)
+          const parsed = await parser.parseURL(url)
 
-          const steden = detectSteden(tekst)
-          const relevantieScore: 'hoog' | 'normaal' =
-            bevat(titel, KANTOOR_TERMEN) && bevat(titel, STAD_TERMEN) ? 'hoog' : 'normaal'
+          // Gelukt — verwerk items
+          werkendUrl = url
+          console.log(`[nieuws] ✓ ${feed.bron} (${url}) — ${parsed.items?.length ?? 0} items`)
 
-          results.push({
-            id: item.guid ?? item.link ?? `${feed.bron}_${titel}`,
-            titel,
-            link: item.link ?? '',
-            datum: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
-            samenvatting: samen.slice(0, 300),
-            bron: feed.bron,
-            steden,
-            relevantieScore,
-          })
+          for (const item of parsed.items ?? []) {
+            const titel = item.title ?? ''
+            const samen = stripHtml(item.contentSnippet ?? item.content ?? item.summary ?? '')
+            const tekst = titel + ' ' + samen
+
+            if (!bevat(tekst, STAD_TERMEN)) continue
+            if (!bevat(tekst, KANTOOR_TERMEN)) continue
+            if (bevat(titel, WONING_TERMEN) && !bevat(titel, KANTOOR_TERMEN)) continue
+
+            const steden = detectSteden(tekst)
+            const relevantieScore: 'hoog' | 'normaal' =
+              bevat(titel, KANTOOR_TERMEN) && bevat(titel, STAD_TERMEN) ? 'hoog' : 'normaal'
+
+            results.push({
+              id: item.guid ?? item.link ?? `${feed.bron}_${titel}`,
+              titel,
+              link: item.link ?? '',
+              datum: item.isoDate ?? item.pubDate ?? new Date().toISOString(),
+              samenvatting: samen.slice(0, 300),
+              bron: feed.bron,
+              steden,
+              relevantieScore,
+            })
+          }
+          break // stop zodra één url werkt
+        } catch (err) {
+          fout = err instanceof Error ? err.message : String(err)
+          console.warn(`[nieuws] ✗ ${feed.bron} (${url}): ${fout}`)
         }
-      } catch {
-        // feed faalt: overslaan
       }
+
+      if (!werkendUrl) {
+        console.error(`[nieuws] ✗✗ ${feed.bron} — alle urls gefaald`)
+      }
+
+      feedStatus.push({
+        bron: feed.bron,
+        actief: werkendUrl !== null,
+        url: werkendUrl,
+        fout: werkendUrl ? null : fout,
+      })
     })
   )
 
   results.sort((a, b) => new Date(b.datum).getTime() - new Date(a.datum).getTime())
 
-  res.end(JSON.stringify(results.slice(0, 60)))
+  const response: NieuwsApiResponse = {
+    items: results.slice(0, 60),
+    feedStatus,
+  }
+
+  res.end(JSON.stringify(response))
 }

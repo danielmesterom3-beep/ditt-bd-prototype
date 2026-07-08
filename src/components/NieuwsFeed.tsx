@@ -11,6 +11,13 @@ interface NieuwsItem {
   relevantieScore: 'hoog' | 'normaal'
 }
 
+interface FeedStatus {
+  bron: string
+  actief: boolean
+  url: string | null
+  fout: string | null
+}
+
 const BRON_BADGE: Record<string, { bg: string; text: string }> = {
   'Vastgoedjournaal': { bg: '#dbeafe', text: '#1e40af' },
   'Vastgoedmarkt':    { bg: '#fed7aa', text: '#c2410c' },
@@ -35,28 +42,31 @@ function tijdGeleden(iso: string): string {
 }
 
 export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
-  const [items, setItems]           = useState<NieuwsItem[]>([])
-  const [loading, setLoading]       = useState(true)
+  const [items, setItems]             = useState<NieuwsItem[]>([])
+  const [feedStatus, setFeedStatus]   = useState<FeedStatus[]>([])
+  const [loading, setLoading]         = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  const [nieuwCount, setNieuwCount] = useState(0)
-  const [stadToggle, setStadToggle] = useState<string>(stadFilter ?? 'alle')
-  const [bronFilter, setBronFilter] = useState<Set<string>>(new Set())
-  const [zoekterm, setZoekterm]     = useState('')
-  const prevIds   = useRef<Set<string>>(new Set())
-  const isFirst   = useRef(true)
+  const [nieuwCount, setNieuwCount]   = useState(0)
+  const [stadToggle, setStadToggle]   = useState<string>(stadFilter ?? 'alle')
+  const [bronFilter, setBronFilter]   = useState<Set<string>>(new Set())
+  const [zoekterm, setZoekterm]       = useState('')
+  const [showStatus, setShowStatus]   = useState(false)
+  const prevIds = useRef<Set<string>>(new Set())
+  const isFirst = useRef(true)
 
   async function fetchNieuws() {
     try {
       const res = await fetch('/api/nieuws')
       if (!res.ok) return
-      const data: NieuwsItem[] = await res.json()
+      const data: { items: NieuwsItem[]; feedStatus: FeedStatus[] } = await res.json()
       if (!isFirst.current) {
-        const nieuw = data.filter(d => !prevIds.current.has(d.id))
+        const nieuw = data.items.filter(d => !prevIds.current.has(d.id))
         setNieuwCount(nieuw.length)
       }
-      prevIds.current = new Set(data.map(d => d.id))
+      prevIds.current = new Set(data.items.map(d => d.id))
       isFirst.current = false
-      setItems(data)
+      setItems(data.items)
+      setFeedStatus(data.feedStatus ?? [])
       setLastUpdated(new Date())
     } catch { /* ignore */ }
     finally { setLoading(false) }
@@ -134,6 +144,42 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
         </div>
       </div>
 
+      {/* Feed status */}
+      {feedStatus.length > 0 && (
+        <div>
+          <button
+            onClick={() => setShowStatus(v => !v)}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
+            <div style={{ display: 'flex', gap: 3 }}>
+              {feedStatus.map(s => (
+                <div key={s.bron} style={{ width: 7, height: 7, borderRadius: '50%', background: s.actief ? '#22c55e' : '#94a3b8' }} title={s.bron} />
+              ))}
+            </div>
+            <span style={{ fontSize: 10, color: 'var(--c-subtle)' }}>
+              {feedStatus.filter(s => s.actief).length}/{feedStatus.length} bronnen actief
+            </span>
+            <span style={{ fontSize: 10, color: 'var(--c-subtle)' }}>{showStatus ? '▲' : '▼'}</span>
+          </button>
+          {showStatus && (
+            <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', background: '#f8fafc', borderRadius: 8, border: '1px solid var(--c-border)' }}>
+              {feedStatus.map(s => (
+                <div key={s.bron} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                  <div style={{ width: 7, height: 7, borderRadius: '50%', background: s.actief ? '#22c55e' : '#94a3b8', marginTop: 3, flexShrink: 0 }} />
+                  <div>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }}>{s.bron}</span>
+                    {s.actief
+                      ? <span style={{ fontSize: 10, color: '#22c55e', marginLeft: 6 }}>actief</span>
+                      : <span style={{ fontSize: 10, color: '#94a3b8', marginLeft: 6 }}>offline{s.fout ? ` — ${s.fout.slice(0, 60)}` : ''}</span>
+                    }
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Stad toggle (verberg als stadFilter via prop opgegeven) */}
       {!stadFilter && (
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
@@ -194,8 +240,10 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
       {/* Berichten */}
       {filtered.length === 0 ? (
         <div style={{ border: '1px dashed var(--c-border)', borderRadius: 10, padding: '24px 16px', textAlign: 'center', fontSize: 12, color: 'var(--c-muted)', fontStyle: 'italic' }}>
-          {items.length === 0
-            ? 'Nieuws laden mislukt. Controleer of de API bereikbaar is.'
+          {items.length === 0 && feedStatus.length > 0 && feedStatus.every(s => !s.actief)
+            ? 'Alle nieuwsbronnen zijn momenteel niet bereikbaar. Probeer het later opnieuw — de feeds worden automatisch herladen.'
+            : items.length === 0
+            ? 'Nog geen berichten geladen. Feed wordt automatisch bijgewerkt.'
             : 'Geen berichten gevonden voor deze filters.'}
         </div>
       ) : (
