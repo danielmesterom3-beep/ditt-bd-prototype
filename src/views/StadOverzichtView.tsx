@@ -638,15 +638,7 @@ function OmgevingskenmerkenPanel({ showContext = false }: { showContext?: boolea
                 />
                 <EditableText
                   storageKey="omgeving.ehv.ctx1.tekst"
-                  defaultValue="De eigendomsverhoudingen in Eindhoven zijn de afgelopen jaren flink verschoven. Internationale beleggers zoals NSI en Aroundtown hebben posities afgestoten, deels aan de gemeente Eindhoven (voorkeursrecht ingeschakeld) die actief kantoren opkoopt in het van oudsher kantoorgebied Fellenoord (Knoop XL plan).
-
-Lokale speler Braintown (eigenaar werkte 10 jaar bij gemeente Eindhoven als vastgoedadviseur) heeft hier juist van geprofiteerd en een grote portefeuille opgebouwd: De Witte Dame, The Core, Donna, en in 2023 drie gebouwen op Flight Forum (ruim 33.000 m²), waarmee zij bijna een derde van dat kantorenpark in handen heeft.
-
-Het operationele en technische beheer van Braintowns portefeuille wordt verzorgd door Profinn Vastgoedmanagement, een nauw verbonden Eindhovens bedrijf gevestigd op hetzelfde adres in De Witte Dame aan de Emmasingel (vergelijkbaar met de relatie Hoff/Hoff & Partners).
-
-Strijp-S wordt beheerd via Park Strijp Beheer, een publiek-private samenwerking tussen gemeente Eindhoven, Volkerswessels en woningcorporatie Trudo. Zij bepalen gezamenlijk de functiemix van het gebied, maar de afbouw van kantoorruimte is aan de huurders zelf, die ook hun eigen inrichtingspartijen kiezen.
-
-Verder zijn SDK Vastgoed (onderdeel Volkerswessels), Geva Vastgoed (ontwikkelaar, belegger én bouwer), Oak Tree Capital Management (eigenaar Hightech Campus) en NLV (beheerder namens pensioenfondsen, o.a. OV&D-gebouw, Admirant en Admirantoren) grote eigenaren. Op Strijp-S speelt ook een Amerikaans investeringsbedrijf dat BOLD heeft overgenomen, met JamesTown als property manager."
+                  defaultValue="De eigendomsverhoudingen in Eindhoven zijn de afgelopen jaren flink verschoven. Internationale beleggers zoals NSI en Aroundtown hebben posities afgestoten, deels aan de <strong>gemeente Eindhoven</strong> (voorkeursrecht ingeschakeld) die actief kantoren opkoopt in het van oudsher kantoorgebied Fellenoord (Knoop XL plan).<br><br>Lokale speler <strong>Braintown</strong> (eigenaar werkte 10 jaar bij gemeente Eindhoven als vastgoedadviseur) heeft hier juist van geprofiteerd en een grote portefeuille opgebouwd: De Witte Dame, The Core, Donna, en in 2023 drie gebouwen op Flight Forum (ruim 33.000 m²), waarmee zij bijna een derde van dat kantorenpark in handen heeft.<br><br>Het operationele en technische beheer van Braintowns portefeuille wordt verzorgd door <strong>Profinn</strong> Vastgoedmanagement, een nauw verbonden Eindhovens bedrijf gevestigd op hetzelfde adres in De Witte Dame aan de Emmasingel (vergelijkbaar met de relatie Hoff/Hoff &amp; Partners).<br><br>Strijp-S wordt beheerd via <strong>Park Strijp Beheer</strong>, een publiek-private samenwerking tussen gemeente Eindhoven, Volkerswessels en woningcorporatie Trudo. Zij bepalen gezamenlijk de functiemix van het gebied, maar de afbouw van kantoorruimte is aan de huurders zelf, die ook hun eigen inrichtingspartijen kiezen.<br><br>Verder zijn <strong>SDK Vastgoed</strong> (onderdeel Volkerswessels), <strong>Geva Vastgoed</strong> (ontwikkelaar, belegger én bouwer), <strong>Oak Tree Capital Management</strong> (eigenaar Hightech Campus) en <strong>NLV</strong> (beheerder namens pensioenfondsen, o.a. OV&amp;D-gebouw, Admirant en Admirantoren) grote eigenaren. Op Strijp-S speelt ook een Amerikaans investeringsbedrijf dat BOLD heeft overgenomen, met JamesTown als property manager."
                   tag="div"
                   multiline
                   style={{ fontSize: 12, fontWeight: 400, color: 'var(--c-muted)', lineHeight: 1.7, minHeight: '60px' }}
@@ -1145,13 +1137,7 @@ function RotterdamOmgevingskenmerkenPanel({ showContext = false }: { showContext
                 />
                 <EditableText
                   storageKey="omgeving.rdam.ctx1.tekst"
-                  defaultValue="Rotterdam kenmerkt zich door een mix van institutionele beleggers en opvallend veel particuliere eigenaren. Aan de institutionele kant zijn Bouwinvest, EDGE, NSI, CBRE Investment Management en ING actief. Maarse Groep is een prominente lokale eigenaar met onder andere De Modernist (tegenover Centraal Station).
-
-Schroeder Capital bezit Air Offices en Van Herk Groep heeft meerdere grote kantoorpanden in de stad. DuDoc is een grote belegger die zich meer richt op monumentaal vastgoed, maar ook kantoren en logistiek in portefeuille heeft.
-
-In het Central Business District rond Rotterdam Centraal Station liggen grootschalige herontwikkelingsplannen (o.a. Schiekadeblok, circa 300.000 m² geprognosticeerd), maar die worden bemoeilijkt door versnipperd eigendom, verschillende erfpachtcontracten en veel stakeholders.
-
-Rond het Marconiplein en de oude stadshaven ontstaat een mixed-use gebied voor haven-, maritieme en creatieve bedrijven in combinatie met woningbouw. Opvallend is dat de gemeente Rotterdam, anders dan in Eindhoven, minder actief kantoren opkoopt en de focus qua grote ontwikkelingen vooral op woningbouw legt, waardoor er de afgelopen jaren weinig nieuwe kantoorontwikkelingen zijn bijgekomen."
+                  defaultValue="Rotterdam kenmerkt zich door een mix van institutionele beleggers en opvallend veel particuliere eigenaren. Aan de institutionele kant zijn <strong>Bouwinvest, EDGE, NSI, CBRE Investment Management en ING actief. Maarse Groep</strong> is een prominente lokale eigenaar met onder andere De Modernist (tegenover Centraal Station).<br><br><strong>Schroeder Capital</strong> bezit Air Offices en <strong>Van Herk Groep</strong> heeft meerdere grote kantoorpanden in de stad. <strong>DuDoc</strong> is een grote belegger die zich meer richt op monumentaal vastgoed, maar ook kantoren en logistiek in portefeuille heeft.<br><br>In het <strong>Central Business District</strong> rond Rotterdam Centraal Station liggen grootschalige herontwikkelingsplannen (o.a. Schiekadeblok, circa 300.000 m² geprognosticeerd), maar die worden bemoeilijkt door versnipperd eigendom, verschillende erfpachtcontracten en veel stakeholders.<br><br><strong>Rond het Marconiplein en de oude stadshaven</strong> ontstaat een mixed-use gebied voor haven-, maritieme en creatieve bedrijven in combinatie met woningbouw. Opvallend is dat de gemeente Rotterdam, anders dan in Eindhoven, minder actief kantoren opkoopt en de focus qua grote ontwikkelingen vooral op woningbouw legt, waardoor er de afgelopen jaren weinig nieuwe kantoorontwikkelingen zijn bijgekomen."
                   tag="div"
                   multiline
                   style={{ fontSize: 12, fontWeight: 400, color: 'var(--c-muted)', lineHeight: 1.7, minHeight: '60px' }}
@@ -3910,6 +3896,7 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
 
   const { deleted: deletedPanden,      deleteItem: deletePand }      = useDeletedItemsFase2(`deleted_panden_fase3_v2_${stadId}`)
   const { deleted: deletedTransacties, deleteItem: deleteTransactie } = useDeletedItemsFase2(`deleted_transacties_fase3_${stadId}`)
+  const { deleted: deletedLeads,       deleteItem: deleteLead }       = useDeletedItemsFase2(`deleted_leads_fase3_${stadId}`)
 
   // Panden in ontwikkeling,  aggregaat uit steden-data
   const stadData = steden.find((s) => s.naam === stadNaam)
@@ -3922,6 +3909,18 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
 
   // 3. Recente transacties,  gefilterd op stad
   const transactiesVoorStad = TRANSACTIES_DATA.filter((g) => g.stad === stadId)
+
+  // 4. Aflopende huurcontracten (kansrijkeLeads) per gebied
+  const leadsPerGebied = (stadData?.gebieden
+    .map((g) => ({ ...g, leads: (g.kansrijkeLeads ?? []).filter((l) => !deletedLeads.has(l.id)) }))
+    .filter((g) => g.leads.length > 0) ?? [])
+  const totalLeads = leadsPerGebied.reduce((s, g) => s + g.leads.length, 0)
+
+  function contractEind(begin: string): string {
+    const [y, m] = begin.split('-').map(Number)
+    const d = new Date(y + 5, m - 1)
+    return d.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' })
+  }
   const totalTransacties = transactiesVoorStad.reduce((s, g) => s + g.transacties.length, 0)
 
   const subLabel: React.CSSProperties = {
@@ -4190,23 +4189,80 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
           onClick={() => setOpenHuurcontracten((o) => !o)}
           style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
         >
-          <div style={subLabel} onClick={(e) => e.stopPropagation()}>
-            <EditableText storageKey={`fase3.${stadId}.sublabel.4`} defaultValue="4 · Aflopende huurcontracten" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={subLabel} onClick={(e) => e.stopPropagation()}>
+              <EditableText storageKey={`fase3.${stadId}.sublabel.4`} defaultValue="4 · Aflopende huurcontracten" />
+            </div>
+            {totalLeads > 0 && (
+              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#f1f5f9', color: '#475569', marginBottom: 8 }}>
+                {totalLeads} leads · {leadsPerGebied.length} {leadsPerGebied.length === 1 ? 'gebied' : 'gebieden'}
+              </span>
+            )}
           </div>
           <span style={{ fontSize: 16, color: 'var(--c-subtle)', transform: openHuurcontracten ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>↓</span>
         </button>
         {openHuurcontracten && (
           <div style={{ borderTop: '1px solid var(--c-border)', padding: '16px' }}>
-            <div style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 12 }}>
-              Huurcontracten met verwachte einddatum binnen 12–24 maanden. Bron: NVM/CBRE lease-data of directe navraag bij makelaars.
-            </div>
-            <EditableText
-              storageKey={`fase3.${stadId}.huurcontracten.placeholder`}
-              defaultValue={`Voeg hier aflopende huurcontracten in voor ${stadNaam}. Format: pandnaam · huurder · m² · einddatum contract.`}
-              tag="div"
-              multiline
-              style={{ fontSize: 12, color: 'var(--c-subtle)', lineHeight: 1.6, padding: '12px 14px', background: '#f8f7f5', borderRadius: 8, border: '1px solid var(--c-border)' }}
-            />
+            {leadsPerGebied.length === 0 ? (
+              <EditableText
+                storageKey={`fase3.${stadId}.huurcontracten.placeholder`}
+                defaultValue={`Voeg hier aflopende huurcontracten in voor ${stadNaam}. Format: pandnaam · huurder · m² · einddatum contract.`}
+                tag="div"
+                multiline
+                style={{ fontSize: 12, color: 'var(--c-subtle)', lineHeight: 1.6, padding: '12px 14px', background: '#f8f7f5', borderRadius: 8, border: '1px solid var(--c-border)' }}
+              />
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                {leadsPerGebied.map((gebied) => (
+                  <div key={gebied.id}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                      <div style={{ width: 3, height: 16, borderRadius: 2, background: colors.accent, flexShrink: 0 }} />
+                      <EditableText storageKey={`lead.${gebied.id}.naam`} defaultValue={gebied.naam} style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)' }} />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10 }}>
+                      {gebied.leads.map((l) => (
+                        <div
+                          key={l.id}
+                          style={{ position: 'relative', background: colors.accentLight, border: `1px solid ${colors.accentBorder}`, borderRadius: 10, padding: '12px 14px' }}
+                        >
+                          <F2DeleteBtn onDelete={() => deleteLead(l.id)} />
+                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text)', marginBottom: 6, paddingRight: 20 }}>
+                            <EditableText storageKey={`lead.${l.id}.adres`} defaultValue={l.pandnaam || l.adres} />
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 6 }}>
+                            <span style={{ fontSize: 10, color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 6, padding: '2px 7px' }}>
+                              <EditableText storageKey={`lead.${l.id}.huurder`} defaultValue={l.huurder} />
+                            </span>
+                            <span style={{ fontSize: 10, color: 'var(--c-muted)', background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 6, padding: '2px 7px' }}>
+                              <EditableText storageKey={`lead.${l.id}.branche`} defaultValue={l.branche} />
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: colors.accent, color: '#fff' }}>
+                              <EditableText storageKey={`lead.${l.id}.omvang`} defaultValue={`${l.omvang.toLocaleString('nl-NL')} m²`} />
+                            </span>
+                            <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: 'var(--c-surface)', color: 'var(--c-muted)', border: '1px solid var(--c-border)' }}>
+                              afloop <EditableText storageKey={`lead.${l.id}.einddatum`} defaultValue={contractEind(l.contractBegin)} />
+                            </span>
+                            {l.eigenaar && (
+                              <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: colors.badge, color: colors.badgeText, border: `1px solid ${colors.accentBorder}` }}>
+                                <EditableText storageKey={`lead.${l.id}.eigenaar`} defaultValue={l.eigenaar} />
+                              </span>
+                            )}
+                          </div>
+                          <EditableText
+                            storageKey={`lead.${l.id}.motivatie`}
+                            defaultValue={l.motivatie}
+                            tag="div"
+                            style={{ fontSize: 11, color: 'var(--c-muted)', lineHeight: 1.6 }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
