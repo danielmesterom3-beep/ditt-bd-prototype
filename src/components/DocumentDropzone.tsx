@@ -306,6 +306,40 @@ function extractDocxText(buffer: ArrayBuffer): Promise<string | null> {
   })
 }
 
+async function extractXlsxText(buf: ArrayBuffer): Promise<string> {
+  return new Promise((resolve) => {
+    unzip(new Uint8Array(buf), (err, files) => {
+      if (err) return resolve('')
+
+      // Shared strings = tekst-cellen
+      const ssFile = files['xl/sharedStrings.xml']
+      const sharedStrings: string[] = []
+      if (ssFile) {
+        const xml = new TextDecoder().decode(ssFile)
+        for (const m of xml.matchAll(/<t[^>]*>([^<]*)<\/t>/g))
+          sharedStrings.push(m[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>'))
+      }
+
+      // Sheet data → rijen
+      const sheetFile = files['xl/worksheets/sheet1.xml']
+      if (!sheetFile) return resolve(sharedStrings.join('\n'))
+
+      const sheetXml = new TextDecoder().decode(sheetFile)
+      const rows: string[][] = []
+      for (const rowM of sheetXml.matchAll(/<row[^>]*>([\s\S]*?)<\/row>/g)) {
+        const cells: string[] = []
+        for (const cellM of rowM[1].matchAll(/<c[^>]*>([\s\S]*?)<\/c>/g)) {
+          const t = (cellM[0].match(/t="([^"]*)"/) ?? [])[1] ?? 'n'
+          const v = (cellM[1].match(/<v>([^<]*)<\/v>/) ?? [])[1] ?? ''
+          cells.push(t === 's' ? (sharedStrings[parseInt(v, 10)] ?? '') : v)
+        }
+        if (cells.some(c => c)) rows.push(cells)
+      }
+      resolve(rows.map(r => r.join('\t')).join('\n'))
+    })
+  })
+}
+
 async function extractText(file: File): Promise<string | null> {
   const ext = fileExt(file)
   if (['txt', 'md', 'csv'].includes(ext)) {
@@ -323,6 +357,18 @@ async function extractText(file: File): Promise<string | null> {
         const buf = e.target?.result as ArrayBuffer
         if (!buf) return resolve(null)
         extractDocxText(buf).then(resolve)
+      }
+      r.onerror = () => resolve(null)
+      r.readAsArrayBuffer(file)
+    })
+  }
+  if (['xlsx', 'xls'].includes(ext)) {
+    return new Promise((resolve) => {
+      const r = new FileReader()
+      r.onload = (e) => {
+        const buf = e.target?.result as ArrayBuffer
+        if (!buf) return resolve(null)
+        extractXlsxText(buf).then(t => resolve(t || null))
       }
       r.onerror = () => resolve(null)
       r.readAsArrayBuffer(file)
@@ -712,17 +758,46 @@ export default function DocumentDropzone() {
                 >
                   Wat wil je aanmaken?
                 </div>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: 8,
-                  }}
-                >
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   {ENTITY_TYPES.map((et) => (
                     <TypeCard key={et.type} def={et} onClick={() => pickType(et)} />
                   ))}
                 </div>
+
+                {/* Documentinhoud preview op pick-stap */}
+                {extractedText && extractedText.trim().length > 0 && (
+                  <div style={{ marginTop: 14 }}>
+                    <button
+                      onClick={() => setShowPreview((v) => !v)}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        background: '#1e293b', border: '1px solid #334155',
+                        borderRadius: showPreview ? '8px 8px 0 0' : 8,
+                        padding: '8px 12px', cursor: 'pointer', color: '#94a3b8',
+                      }}
+                    >
+                      <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                        Documentinhoud bekijken
+                      </span>
+                      <span style={{ fontSize: 11 }}>{showPreview ? '▲' : '▼'}</span>
+                    </button>
+                    {showPreview && (
+                      <div style={{
+                        background: '#0f172a', border: '1px solid #334155', borderTop: 'none',
+                        borderRadius: '0 0 8px 8px', padding: '12px',
+                        maxHeight: 200, overflowY: 'auto',
+                      }}>
+                        <pre style={{
+                          fontSize: 11, color: '#94a3b8', lineHeight: 1.7,
+                          whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0,
+                          fontFamily: 'inherit',
+                        }}>
+                          {extractedText}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
