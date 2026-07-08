@@ -638,7 +638,15 @@ function OmgevingskenmerkenPanel({ showContext = false }: { showContext?: boolea
                 />
                 <EditableText
                   storageKey="omgeving.ehv.ctx1.tekst"
-                  defaultValue=""
+                  defaultValue="De eigendomsverhoudingen in Eindhoven zijn de afgelopen jaren flink verschoven. Internationale beleggers zoals NSI en Aroundtown hebben posities afgestoten, deels aan de gemeente Eindhoven (voorkeursrecht ingeschakeld) die actief kantoren opkoopt in het van oudsher kantoorgebied Fellenoord (Knoop XL plan).
+
+Lokale speler Braintown (eigenaar werkte 10 jaar bij gemeente Eindhoven als vastgoedadviseur) heeft hier juist van geprofiteerd en een grote portefeuille opgebouwd: De Witte Dame, The Core, Donna, en in 2023 drie gebouwen op Flight Forum (ruim 33.000 m²), waarmee zij bijna een derde van dat kantorenpark in handen heeft.
+
+Het operationele en technische beheer van Braintowns portefeuille wordt verzorgd door Profinn Vastgoedmanagement, een nauw verbonden Eindhovens bedrijf gevestigd op hetzelfde adres in De Witte Dame aan de Emmasingel (vergelijkbaar met de relatie Hoff/Hoff & Partners).
+
+Strijp-S wordt beheerd via Park Strijp Beheer, een publiek-private samenwerking tussen gemeente Eindhoven, Volkerswessels en woningcorporatie Trudo. Zij bepalen gezamenlijk de functiemix van het gebied, maar de afbouw van kantoorruimte is aan de huurders zelf, die ook hun eigen inrichtingspartijen kiezen.
+
+Verder zijn SDK Vastgoed (onderdeel Volkerswessels), Geva Vastgoed (ontwikkelaar, belegger én bouwer), Oak Tree Capital Management (eigenaar Hightech Campus) en NLV (beheerder namens pensioenfondsen, o.a. OV&D-gebouw, Admirant en Admirantoren) grote eigenaren. Op Strijp-S speelt ook een Amerikaans investeringsbedrijf dat BOLD heeft overgenomen, met JamesTown als property manager."
                   tag="div"
                   multiline
                   style={{ fontSize: 12, fontWeight: 400, color: 'var(--c-muted)', lineHeight: 1.7, minHeight: '60px' }}
@@ -1137,7 +1145,13 @@ function RotterdamOmgevingskenmerkenPanel({ showContext = false }: { showContext
                 />
                 <EditableText
                   storageKey="omgeving.rdam.ctx1.tekst"
-                  defaultValue=""
+                  defaultValue="Rotterdam kenmerkt zich door een mix van institutionele beleggers en opvallend veel particuliere eigenaren. Aan de institutionele kant zijn Bouwinvest, EDGE, NSI, CBRE Investment Management en ING actief. Maarse Groep is een prominente lokale eigenaar met onder andere De Modernist (tegenover Centraal Station).
+
+Schroeder Capital bezit Air Offices en Van Herk Groep heeft meerdere grote kantoorpanden in de stad. DuDoc is een grote belegger die zich meer richt op monumentaal vastgoed, maar ook kantoren en logistiek in portefeuille heeft.
+
+In het Central Business District rond Rotterdam Centraal Station liggen grootschalige herontwikkelingsplannen (o.a. Schiekadeblok, circa 300.000 m² geprognosticeerd), maar die worden bemoeilijkt door versnipperd eigendom, verschillende erfpachtcontracten en veel stakeholders.
+
+Rond het Marconiplein en de oude stadshaven ontstaat een mixed-use gebied voor haven-, maritieme en creatieve bedrijven in combinatie met woningbouw. Opvallend is dat de gemeente Rotterdam, anders dan in Eindhoven, minder actief kantoren opkoopt en de focus qua grote ontwikkelingen vooral op woningbouw legt, waardoor er de afgelopen jaren weinig nieuwe kantoorontwikkelingen zijn bijgekomen."
                   tag="div"
                   multiline
                   style={{ fontSize: 12, fontWeight: 400, color: 'var(--c-muted)', lineHeight: 1.7, minHeight: '60px' }}
