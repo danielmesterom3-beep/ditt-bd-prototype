@@ -6,41 +6,49 @@ const FEEDS = [
   { bron: 'Stadszaken',       url: 'https://stadszaken.nl/rss' },
 ]
 
-// Scoring: +10 stad hoofdterm
-const STAD_HOOFD = ['rotterdam', 'eindhoven']
-
-// +5 specifieke locaties
-const STAD_LOCATIES = [
-  'knoop xl', 'fellenoord', 'strijp-s', 'strijp s', 'flight forum', 'brainport',
-  'high tech campus', 'park forum', 'kennedyplein',
-  'wilhelminapier', 'kop van zuid', 'coolsingel', 'schiekade', 'weena', 'hofplein',
-  'blaak', 'alexandrium',
+// Stap 1: stadsterm VERPLICHT aanwezig (hard filter)
+const STAD_TERMEN = [
+  'rotterdam', 'eindhoven',
+  'kop van zuid', 'wilhelminapier', 'wilhelminakade', 'katendrecht',
+  'coolsingel', 'weena', 'hofplein', 'blaak', 'alexanderplein', 'stadionweg',
+  'knoop xl', 'fellenoord', 'strijp-s', 'strijp s', 'strijp',
+  'flight forum', 'brainport', 'high tech campus', 'park forum',
+  'kennedyplein', 'meerhoven', 'woensel',
 ]
 
-// +5 kantoor/commercieel vastgoed termen
-const KANTOOR_TERMEN = [
-  'kantoor', 'kantoren', 'office', 'werkplek', 'werkplekken', 'werkomgeving',
-  'huisvesting', 'gehuisvest', 'vierkante meter', 'm²', 'm2', 'vloeroppervlak',
-  'verhuurd', 'verhuurt', 'verhuur', 'gehuurd', 'huurt', 'huurder', 'huurovereenkomst',
-  'eigenaar', 'eigendom', 'belegger', 'belegging', 'investeerder', 'asset manager',
-  'makelaar', 'transactie', 'opname', 'leegstand', 'bezettingsgraad',
-  'herontwikkeling', 'renovatie', 'transformatie', 'nieuwbouw', 'oplevering',
-  'inrichting', 'design build', 'interieur', 'fit-out', 'fit out',
-  'gebiedsontwikkeling', 'masterplan', 'bedrijfsruimte', 'werklocatie', 'werklocaties',
-  'commercieel vastgoed', 'bedrijfspand', 'bedrijventerrein',
+// Stap 2: uitsluitingstermen (hard filter — artikel valt af als titel+samen dit bevat)
+const UITSLUIT_TERMEN = [
+  'woning', 'woningen', 'woningbouw', 'woningmarkt', 'koopwoning', 'huurwoning',
+  'sociale huur', 'hypotheek', 'huizenprijs', 'eengezins', 'corporatie',
+  'ouderenwoning', 'zorgwoning', 'appartement', 'nieuwbouwwoning',
+  'slaapkamer', 'kookeiland', 'badkamer', 'tuin', 'balkon',
+  'vacature', 'topvacature', 'register-taxateur', 'in dienst getreden',
+  'benoemd tot', 'carrière', 'overstap naar',
 ]
 
-// -20 woning (alleen als geen kantoor ook aanwezig)
-const WONING_TERMEN = [
-  'woning', 'woningen', 'woningbouw', 'woningmarkt', 'huurwoning', 'koopwoning',
-  'appartement', 'appartementen', 'hypotheek', 'huizenprijs', 'eengezins',
-  'sociale huur', 'corporatie', 'woonruimte',
-]
+// Stap 3: scoring voor ranking
+const RANK_TITEL_HOOG = ['kantoor', 'kantoren', 'office']
+const RANK_TEKST_MID  = ['verhuur', 'verhuurd', 'transactie', 'leegstand', 'makelaar', 'eigenaar', 'belegger']
+const RANK_TEKST_LAAG = ['m2', 'm²', 'vierkante meter', 'huurovereenkomst']
 
 const laag = (s: string) => (s ?? '').toLowerCase()
 const bevat = (tekst: string, termen: string[]) => termen.some(t => laag(tekst).includes(t))
-const stripHtml = (s: string) =>
-  (s ?? '').replace(/<[^>]*>/g, '').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim()
+
+function stripHtml(s: string): string {
+  return (s ?? '')
+    .replace(/<[^>]*>/g, '')
+    // HTML entities: named + numeric
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#039;/gi, "'")
+    .replace(/&[a-z]{2,8};/gi, ' ')
+    .replace(/&#\d+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
 
 function cdata(s: string): string {
   return s.replace(/^<!\[CDATA\[/, '').replace(/\]\]>$/, '').trim()
@@ -66,24 +74,23 @@ function parseRss(xml: string): { title: string; link: string; pubDate: string; 
   return items
 }
 
-function berekenScore(tekst: string, titel: string): number {
+function berekenScore(titel: string, tekst: string): number {
   let score = 0
-  if (bevat(tekst, STAD_HOOFD))    score += 10
-  if (bevat(tekst, STAD_LOCATIES)) score += 5
-  if (bevat(tekst, KANTOOR_TERMEN)) score += 5
-  // -20 alleen als woning ZONDER kantoor
-  if (bevat(tekst, WONING_TERMEN) && !bevat(tekst, KANTOOR_TERMEN)) score -= 20
-  // bonus: titel bevat zowel stad als kantoor
-  if (bevat(titel, STAD_HOOFD) && bevat(titel, KANTOOR_TERMEN)) score += 5
+  if (bevat(titel, RANK_TITEL_HOOG)) score += 10
+  if (bevat(tekst,  RANK_TEKST_MID))  score += 5
+  if (bevat(tekst,  RANK_TEKST_LAAG)) score += 3
   return score
 }
 
 function detectSteden(tekst: string): string[] {
   const t = laag(tekst)
   const steden: string[] = []
-  if (['rotterdam', 'kop van zuid', 'wilhelminapier', 'coolsingel', 'schiekade', 'weena', 'hofplein', 'blaak', 'alexandrium'].some(w => t.includes(w)))
+  if (['rotterdam', 'kop van zuid', 'wilhelminapier', 'wilhelminakade', 'katendrecht',
+       'coolsingel', 'weena', 'hofplein', 'blaak', 'alexanderplein', 'stadionweg'].some(w => t.includes(w)))
     steden.push('rotterdam')
-  if (['eindhoven', 'knoop xl', 'fellenoord', 'strijp-s', 'strijp s', 'flight forum', 'brainport', 'high tech campus', 'park forum', 'kennedyplein'].some(w => t.includes(w)))
+  if (['eindhoven', 'knoop xl', 'fellenoord', 'strijp-s', 'strijp s', 'strijp',
+       'flight forum', 'brainport', 'high tech campus', 'park forum',
+       'kennedyplein', 'meerhoven', 'woensel'].some(w => t.includes(w)))
     steden.push('eindhoven')
   return steden
 }
@@ -91,7 +98,7 @@ function detectSteden(tekst: string): string[] {
 type NieuwsApiItem = {
   id: string; titel: string; link: string; datum: string
   samenvatting: string; bron: string; steden: string[]
-  relevantieScore: 'hoog' | 'normaal' | 'ongefilterd'
+  relevantieScore: 'hoog' | 'normaal'
   score: number
 }
 
@@ -104,7 +111,7 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
   res.setHeader('Cache-Control', 's-maxage=900, stale-while-revalidate=1800')
   res.setHeader('Access-Control-Allow-Origin', '*')
 
-  const alleItems: NieuwsApiItem[] = []
+  const results: NieuwsApiItem[] = []
   const feedStatus: FeedStatus[] = []
 
   await Promise.allSettled(
@@ -129,35 +136,43 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
 
         const xml = await r.text()
         const items = parseRss(xml)
-        console.log(`[nieuws] ${bron} — ${items.length} items geparsed`)
+        console.log(`[nieuws] ${bron} — ${items.length} raw items`)
 
-        // DEBUG: eerste 5 titels loggen
+        // Debug: eerste 5 titels
         items.slice(0, 5).forEach((it, i) =>
           console.log(`[nieuws]   [${i}] ${it.title.slice(0, 80)}`)
         )
 
         let bronCount = 0
         for (const item of items) {
-          const titel   = stripHtml(item.title)
-          const samen   = stripHtml(item.description)
-          const tekst   = titel + ' ' + samen
-          const score   = berekenScore(tekst, titel)
-          const steden  = detectSteden(tekst)
+          const titel  = stripHtml(item.title)
+          const samen  = stripHtml(item.description)
+          const tekst  = titel + ' ' + samen
 
-          alleItems.push({
-            id:              item.guid || item.link || `${bron}_${titel}`,
+          // Hard filter 1: stadsterm verplicht
+          if (!bevat(tekst, STAD_TERMEN)) continue
+
+          // Hard filter 2: uitsluitingstermen verbieden
+          if (bevat(tekst, UITSLUIT_TERMEN)) continue
+
+          const score  = berekenScore(titel, tekst)
+          const steden = detectSteden(tekst)
+
+          results.push({
+            id:           item.guid || item.link || `${bron}_${titel}`,
             titel,
-            link:            item.link,
-            datum:           item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
-            samenvatting:    samen.slice(0, 300),
+            link:         item.link,
+            datum:        item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
+            samenvatting: samen.slice(0, 300),
             bron,
             steden,
             score,
-            relevantieScore: score >= 15 ? 'hoog' : score > 0 ? 'normaal' : 'ongefilterd',
+            relevantieScore: score >= 10 ? 'hoog' : 'normaal',
           })
           bronCount++
         }
 
+        console.log(`[nieuws] ${bron} — ${bronCount} items na filter`)
         feedStatus.push({ bron, actief: true, url, fout: null, aantalItems: bronCount })
 
       } catch (err) {
@@ -168,26 +183,10 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
     })
   )
 
-  console.log(`[nieuws] totaal items voor filter: ${alleItems.length}`)
+  // Sorteer: score desc, dan datum desc
+  results.sort((a, b) => b.score - a.score || new Date(b.datum).getTime() - new Date(a.datum).getTime())
 
-  // Gefilterd: score > 0, gesorteerd score desc dan datum desc
-  let results = alleItems
-    .filter(i => i.score > 0)
-    .sort((a, b) => b.score - a.score || new Date(b.datum).getTime() - new Date(a.datum).getTime())
+  console.log(`[nieuws] klaar — ${results.length} relevante items, ${feedStatus.filter(s => s.actief).length}/${feedStatus.length} feeds actief`)
 
-  console.log(`[nieuws] na scoring (>0): ${results.length} items`)
-
-  // Fallback: als 0 resultaten, toon 10 recente ongefilterd
-  const fallback = results.length === 0
-  if (fallback) {
-    console.log('[nieuws] fallback: geen scorende items, toon 10 meest recent ongefilterd')
-    results = alleItems
-      .sort((a, b) => new Date(b.datum).getTime() - new Date(a.datum).getTime())
-      .slice(0, 10)
-      .map(i => ({ ...i, relevantieScore: 'ongefilterd' as const }))
-  }
-
-  console.log(`[nieuws] klaar — ${results.length} items, ${feedStatus.filter(s => s.actief).length}/${feedStatus.length} feeds actief`)
-
-  res.end(JSON.stringify({ items: results.slice(0, 60), feedStatus, fallback }))
+  res.end(JSON.stringify({ items: results.slice(0, 60), feedStatus }))
 }
