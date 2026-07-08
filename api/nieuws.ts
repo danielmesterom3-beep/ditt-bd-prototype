@@ -1,9 +1,12 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
 const FEEDS = [
-  { bron: 'Vastgoedjournaal', url: 'https://vastgoedjournaal.nl/news/rss' },
-  { bron: 'Vastgoed Actueel', url: 'https://vastgoedactueel.nl/feed/' },
-  { bron: 'Stadszaken',       url: 'https://stadszaken.nl/rss' },
+  { bron: 'Vastgoedjournaal',      url: 'https://vastgoedjournaal.nl/news/rss',        stripSourceSuffix: false },
+  { bron: 'Vastgoed Actueel',      url: 'https://vastgoedactueel.nl/feed/',             stripSourceSuffix: false },
+  { bron: 'Stadszaken',            url: 'https://stadszaken.nl/rss',                   stripSourceSuffix: false },
+  { bron: 'Google News Rotterdam', url: 'https://news.google.com/rss/search?q=kantoor+Rotterdam+verhuur+OR+transactie+OR+huurder+OR+leegstand&hl=nl&gl=NL&ceid=NL:nl', stripSourceSuffix: true },
+  { bron: 'Google News Eindhoven', url: 'https://news.google.com/rss/search?q=kantoor+Eindhoven+verhuur+OR+transactie+OR+huurder+OR+leegstand&hl=nl&gl=NL&ceid=NL:nl', stripSourceSuffix: true },
+  { bron: 'Google News D&B',       url: 'https://news.google.com/rss/search?q=kantoorinrichting+OR+design+build+OR+kantoorverbouwing+Rotterdam+OR+Eindhoven&hl=nl&gl=NL&ceid=NL:nl', stripSourceSuffix: true },
 ]
 
 // Stap 1: stadsterm VERPLICHT aanwezig (hard filter)
@@ -129,7 +132,7 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
   const feedStatus: FeedStatus[] = []
 
   await Promise.allSettled(
-    FEEDS.map(async ({ bron, url }) => {
+    FEEDS.map(async ({ bron, url, stripSourceSuffix }) => {
       try {
         console.log(`[nieuws] fetch ${bron}: ${url}`)
         const r = await fetch(url, {
@@ -159,7 +162,11 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
 
         let bronCount = 0
         for (const item of items) {
-          const titel  = stripHtml(item.title)
+          // Google News titels eindigen op " - Bronnaam" — strip dat
+          const rawTitel = stripHtml(item.title)
+          const titel = stripSourceSuffix
+            ? rawTitel.replace(/\s+-\s+[^-]+$/, '').trim()
+            : rawTitel
           const samen  = stripHtml(item.description)
           const tekst  = titel + ' ' + samen
 

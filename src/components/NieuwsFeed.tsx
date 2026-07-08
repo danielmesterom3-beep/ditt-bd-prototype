@@ -21,10 +21,14 @@ interface FeedStatus {
 }
 
 const BRON_BADGE: Record<string, { bg: string; text: string }> = {
-  'Vastgoedjournaal': { bg: '#dbeafe', text: '#1e40af' },
-  'Vastgoedmarkt':    { bg: '#fed7aa', text: '#c2410c' },
-  'PropertyNL':       { bg: '#d1fae5', text: '#065f46' },
-  'Vastgoed Actueel': { bg: '#ede9fe', text: '#5b21b6' },
+  'Vastgoedjournaal':      { bg: '#dbeafe', text: '#1e40af' },
+  'Vastgoedmarkt':         { bg: '#fed7aa', text: '#c2410c' },
+  'PropertyNL':            { bg: '#d1fae5', text: '#065f46' },
+  'Vastgoed Actueel':      { bg: '#ede9fe', text: '#5b21b6' },
+  'Stadszaken':            { bg: '#f0fdf4', text: '#15803d' },
+  'Google News Rotterdam': { bg: '#fee2e2', text: '#b91c1c' },
+  'Google News Eindhoven': { bg: '#fee2e2', text: '#b91c1c' },
+  'Google News D&B':       { bg: '#fee2e2', text: '#b91c1c' },
 }
 
 const STAD_BADGE: Record<string, { bg: string; text: string }> = {
