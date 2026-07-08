@@ -4238,6 +4238,33 @@ function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
         </div>
       )}
 
+      {/* Aanbevolen actie,  Rotterdam */}
+      {stadNaam === 'Rotterdam' && (
+        <div style={{ border: '1px solid #bfdbfe', borderRadius: 12, overflow: 'hidden', background: '#eff6ff' }}>
+          <div style={{ padding: '14px 18px', borderBottom: '1px solid #bfdbfe', background: '#dbeafe' }}>
+            <EditableText
+              storageKey="fase3.rdam.aanbevolen.titel"
+              defaultValue="Aanbevolen actie: voeg hier je actie voor Rotterdam toe"
+              style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'block' }}
+            />
+            <EditableText
+              storageKey="fase3.rdam.aanbevolen.sub"
+              defaultValue="Subtitel — klik om te bewerken"
+              style={{ fontSize: 11, color: '#3b82f6', marginTop: 2, display: 'block' }}
+            />
+          </div>
+          <div style={{ padding: '14px 18px' }}>
+            <EditableText
+              storageKey="fase3.rdam.aanbevolen.body"
+              defaultValue="Beschrijf hier de aanbevolen acquisitieaanpak voor Rotterdam. Klik om te bewerken."
+              tag="div"
+              multiline
+              style={{ fontSize: 12, color: '#1e3a8a', lineHeight: 1.7 }}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Gekoppelde kansen,  warme contacten + aflopende contracten in prioriteitsgebieden */}
       {stadNaam === 'Eindhoven' && (prioriteitContacten.length > 0 || prioriteitLeads.length > 0) && (
         <div style={{ border: '1px solid #bfdbfe', borderLeft: '4px solid #3b82f6', borderRadius: 12, overflow: 'hidden', background: '#f8faff' }}>
