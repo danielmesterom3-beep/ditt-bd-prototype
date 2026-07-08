@@ -24,7 +24,7 @@ const MARKT_STATUS_CFG: Record<GebiedStatus, { label: string; bg: string; text: 
 // helpers
 
 function klasseVanGebied(gebied: Gebied): LocatieKlasse {
-  const klassen = gebied.partijen
+  const klassen = (gebied.partijen ?? [])
     .map((p) => p.locatieKlasse)
     .filter((k): k is NonNullable<LocatieKlasse> => k !== null)
   if (!klassen.length) return null
@@ -325,7 +325,9 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
   const { getMarktdata, setField } = useDataOverride()
   const klasse = klasseVanGebied(gebied)
   const ks = klasse ? KLASSE_STYLE[klasse] : null
-  const { pandenInOntwikkeling, trends, warmeContacten } = gebied
+  const pandenInOntwikkeling = gebied.pandenInOntwikkeling ?? []
+  const trends = gebied.trends ?? []
+  const warmeContacten = gebied.warmeContacten ?? []
   const marktdata = getMarktdata(gebied.id, gebied.marktdata)
   const mainTrend = trends[0] ?? null
   const activePanden = pandenInOntwikkeling.filter(p => pandJaar(p.verwachteOplevering) >= 2025)
@@ -553,7 +555,7 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
           )}
           <EditableText
             storageKey={`gebied.${gebied.id}.badge.partijen`}
-            defaultValue={`${gebied.partijen.length} partijen`}
+            defaultValue={`${(gebied.partijen ?? []).length} partijen`}
             className="text-xs"
             style={{ color: 'var(--c-subtle)' }}
           />
@@ -580,7 +582,7 @@ export default function MarktDashboard() {
   const huidigStad = geselecteerdeStad ?? steden[0]
 
   const gefilterdeGebieden = huidigStad.gebieden.filter((g) => {
-    if (filters.alleenMetOntwikkeling && g.pandenInOntwikkeling.length === 0) return false
+    if (filters.alleenMetOntwikkeling && (g.pandenInOntwikkeling ?? []).length === 0) return false
     if (filters.klassen.size > 0) {
       const k = klasseVanGebied(g)
       if (!k || !filters.klassen.has(k)) return false

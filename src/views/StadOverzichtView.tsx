@@ -137,11 +137,11 @@ function VastgoedMixChart({ gebieden }: { gebieden: Gebied[] }) {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', flex: 1, gap: 6 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, color: '#ff7f50', minWidth: 26, textAlign: 'right', flexShrink: 0 }}>
-                  {g.vastgoedMix.kantoor}%
+                  {(g.vastgoedMix ?? { kantoor: 0 }).kantoor}%
                 </span>
                 <div style={{ flex: 1, display: 'flex', height: 20, borderRadius: 4, overflow: 'hidden', background: '#f0ede8' }}>
                   {Object.keys(MIX).map((key) => {
-                    const pct = g.vastgoedMix[key as keyof typeof g.vastgoedMix]
+                    const pct = (g.vastgoedMix ?? {})[key as keyof typeof g.vastgoedMix]
                     if (!pct) return null
                     return (
                       <div key={key} title={`${MIX[key].label}: ${pct}%`} style={{ width: `${pct}%`, background: MIX[key].color }} />
@@ -249,7 +249,7 @@ function StadPanel({ stad, onDelete }: { stad: Stad; onDelete?: () => void }) {
   const totaalVVO         = stad.gebieden.reduce((s, g) => s + g.marktdata.totaalKantoorVvo, 0)
   const opname            = stad.gebieden.reduce((s, g) => s + g.marktdata.opnameVorigeJaar, 0)
   const aantalOntwikkeling = stad.gebieden.reduce((s, g) =>
-    s + g.pandenInOntwikkeling.filter(p => !/afgerond|opgeleverd|in gebruik/i.test(p.verwachteOplevering)).length, 0)
+    s + (g.pandenInOntwikkeling ?? []).filter(p => !/afgerond|opgeleverd|in gebruik/i.test(p.verwachteOplevering)).length, 0)
 
 
   return (
