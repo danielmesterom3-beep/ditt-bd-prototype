@@ -439,16 +439,18 @@ const inputStyle: React.CSSProperties = {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function DocumentDropzone() {
-  const [dragDepth, setDragDepth]       = useState(0)
-  const [droppedFile, setDroppedFile]   = useState<File | null>(null)
-  const [step, setStep]                 = useState<'pick' | 'form'>('pick')
-  const [selectedType, setSelectedType] = useState<EntityTypeDef | null>(null)
-  const [formData, setFormData]         = useState<Record<string, string>>({})
-  const [saved, setSaved]               = useState(false)
-  const [analyzing, setAnalyzing]       = useState(false)
-  const [stadId, setStadId]             = useState('')
-  const [gebiedId, setGebiedId]         = useState('')
-  const { allSteden }                   = useAllSteden()
+  const [dragDepth, setDragDepth]           = useState(0)
+  const [droppedFile, setDroppedFile]       = useState<File | null>(null)
+  const [step, setStep]                     = useState<'pick' | 'form'>('pick')
+  const [selectedType, setSelectedType]     = useState<EntityTypeDef | null>(null)
+  const [formData, setFormData]             = useState<Record<string, string>>({})
+  const [saved, setSaved]                   = useState(false)
+  const [analyzing, setAnalyzing]           = useState(false)
+  const [stadId, setStadId]                 = useState('')
+  const [gebiedId, setGebiedId]             = useState('')
+  const [extractedText, setExtractedText]   = useState<string | null>(null)
+  const [showPreview, setShowPreview]       = useState(false)
+  const { allSteden }                       = useAllSteden()
 
   const geselecteerdeStad = allSteden.find((s) => s.id === stadId)
   const gebieden = geselecteerdeStad?.gebieden ?? []
@@ -478,6 +480,10 @@ export default function DocumentDropzone() {
         setStadId('')
         setGebiedId('')
         setSaved(false)
+        setExtractedText(null)
+        setShowPreview(false)
+        // Meteen tekst extraheren — zichtbaar in formulier stap
+        extractText(file).then((t) => setExtractedText(t ?? ''))
       }
     }
 
@@ -501,6 +507,8 @@ export default function DocumentDropzone() {
     setSaved(false)
     setStadId('')
     setGebiedId('')
+    setExtractedText(null)
+    setShowPreview(false)
   }
 
   async function pickType(def: EntityTypeDef) {
@@ -784,6 +792,53 @@ export default function DocumentDropzone() {
                   </div>
 
                   <div style={{ height: 1, background: '#1e293b', marginBottom: 12 }} />
+
+                  {/* Documentinhoud preview */}
+                  {droppedFile && (() => {
+                    const ext = fileExt(droppedFile)
+                    const isPdf = ext === 'pdf'
+                    const hasText = extractedText && extractedText.trim().length > 0
+                    if (!hasText && !isPdf) return null
+                    return (
+                      <div style={{ marginBottom: 12 }}>
+                        <button
+                          onClick={() => setShowPreview((v) => !v)}
+                          style={{
+                            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            background: '#1e293b', border: '1px solid #334155', borderRadius: showPreview ? '8px 8px 0 0' : 8,
+                            padding: '8px 12px', cursor: 'pointer', color: '#94a3b8',
+                          }}
+                        >
+                          <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+                            Documentinhoud
+                          </span>
+                          <span style={{ fontSize: 11 }}>{showPreview ? '▲' : '▼'}</span>
+                        </button>
+                        {showPreview && (
+                          <div style={{
+                            background: '#0f172a', border: '1px solid #334155', borderTop: 'none',
+                            borderRadius: '0 0 8px 8px', padding: '12px',
+                            maxHeight: 220, overflowY: 'auto',
+                          }}>
+                            {isPdf && !hasText ? (
+                              <p style={{ fontSize: 11, color: '#64748b', margin: 0, fontStyle: 'italic' }}>
+                                PDF-tekst kan niet worden gelezen zonder API-sleutel of PDF.js library.
+                                Gebruik de velden hieronder om de informatie handmatig in te voeren.
+                              </p>
+                            ) : (
+                              <pre style={{
+                                fontSize: 11, color: '#94a3b8', lineHeight: 1.7,
+                                whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0,
+                                fontFamily: 'inherit',
+                              }}>
+                                {extractedText}
+                              </pre>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })()}
 
                   {/* Fields */}
                   {selectedType.fields.map((f) => (
