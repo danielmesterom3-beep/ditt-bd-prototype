@@ -756,7 +756,7 @@ function OmgevingskenmerkenPanel({ showContext = false }: { showContext?: boolea
                     bron: 'ininterieurs.nl/projecten',
                     projecten: [],
                     gem: 0,
-                    context: 'Schrijf hier je eigen notities over INinterieurs,  projecten, formaat, positionering, contacten.',
+                    context: 'Gericht op de Design kant van Design and Build. Op Strijp-S projecten in gebouw de Donna en Oase Videolab. Vaak in opdracht van Park Strijp Beheer, een samenwerking tussen gemeente Eindhoven en VolkerWessels als gebiedsregisseur van gebied Strijp-S.',
                   },
                 ].map((c) => (
                   <div key={c.id} style={{ background: '#fff', borderRadius: 8, padding: '12px', border: '1px solid var(--c-border)' }}>
@@ -786,9 +786,6 @@ function OmgevingskenmerkenPanel({ showContext = false }: { showContext?: boolea
                 ))}
               </div>
 
-              <div style={{ padding: '10px 12px', background: '#fff7f4', borderRadius: 8, border: '1px solid #ffd4c2' }}>
-                <EditableText storageKey="omgeving.concformaat.conclusie" defaultValue="Duotone (ø 970 m²) domineert enterprise op HTC. HAL 2 (ø 480 m²) en INinterieurs bedienen MKB op Strijp-S. Ditt kan zich positioneren in het segment 500–1.500 m² op HTC en Strijp-S." tag="div" style={{ fontSize: 11, color: 'var(--c-coral)', lineHeight: 1.6, fontWeight: 600 }} />
-              </div>
             </div>
 
           </div>
@@ -1289,16 +1286,6 @@ function RotterdamOmgevingskenmerkenPanel({ showContext = false }: { showContext
             </div>
             )}
 
-            {/* Strategische conclusie Rotterdam */}
-            {!hiddenCards.has('conclusie') && (
-            <div style={{ background: '#fff7f4', borderRadius: 10, padding: '16px', border: '1px solid #ffd4c2' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                <EditableText storageKey="omgeving.rdam.conclusie.titel" defaultValue="Strategische positie Ditt,  Rotterdam" style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-coral)', display: 'block' }} />
-                {deleteBtn('conclusie')}
-              </div>
-              <EditableText storageKey="omgeving.rdam.conclusie.tekst" defaultValue="Rotterdam heeft geen dominante lokale D&B-speler van de omvang van HAL 2 in Eindhoven. Sprank is de meest directe concurrent maar opereert breder dan alleen D&B. Plan@Office en UP zitten in het lagere segment. Dit geeft Ditt ruimte om zich te positioneren als de kwalitatieve D&B-specialist op Kop van Zuid en Brainpark,  een gat dat nog niet gevuld is. Prioriteit: makelaarsrelaties opbouwen (Ooms, Verschuuren & Schreppers) voordat concurrenten die positie innemen." multiline tag="div" style={{ fontSize: 12, color: 'var(--c-text)', lineHeight: 1.7 }} />
-            </div>
-            )}
 
           </div>
         </div>
@@ -2984,9 +2971,6 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
               <EditableText storageKey={`fase1.${stadId}.marktinfo.dbpartijen`} defaultValue={`${mc.partijen}`} />
             </div>
           </div>
-        </div>
-        <div style={{ marginTop: 8, fontSize: 11, color: 'var(--c-muted)' }}>
-          Concurrenten in scope: <span style={{ fontWeight: 600, color: 'var(--c-text)' }}>{mc.concurrenten}</span>
         </div>
       </div>
 
