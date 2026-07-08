@@ -57,6 +57,39 @@ interface CustomStedenContextValue {
 
 const CustomStedenContext = createContext<CustomStedenContextValue | null>(null)
 
+// Normalize a Gebied loaded from JSON to ensure all required fields exist
+function normalizeGebied(g: Partial<Gebied> & { id: string; naam: string }): Gebied {
+  const blank = blankGebied(g.id, g.naam)
+  return {
+    ...blank,
+    ...g,
+    marktdata: {
+      ...blank.marktdata,
+      ...(g.marktdata ?? {}),
+      huurprijsBandwidth: {
+        min: g.marktdata?.huurprijsBandwidth?.min ?? 0,
+        max: g.marktdata?.huurprijsBandwidth?.max ?? 0,
+      },
+    },
+    vastgoedMix: { ...blank.vastgoedMix, ...(g.vastgoedMix ?? {}) },
+    pandenInOntwikkeling: g.pandenInOntwikkeling ?? [],
+    trends: g.trends ?? [],
+    warmeContacten: g.warmeContacten ?? [],
+    interessanteOpdrachtgevers: g.interessanteOpdrachtgevers ?? [],
+    inzichten: g.inzichten ?? [],
+    partijen: g.partijen ?? [],
+    kansrijkeLeads: g.kansrijkeLeads ?? [],
+  }
+}
+
+function normalizeStad(s: Partial<Stad> & { id: string; naam: string }): Stad {
+  return {
+    id: s.id,
+    naam: s.naam,
+    gebieden: (s.gebieden ?? []).map((g) => normalizeGebied(g as Parameters<typeof normalizeGebied>[0])),
+  }
+}
+
 async function fetchCustomSteden(): Promise<Stad[]> {
   try {
     const { data } = await supabase
@@ -64,7 +97,10 @@ async function fetchCustomSteden(): Promise<Stad[]> {
       .select('value')
       .eq('key', CUSTOM_STEDEN_KEY)
       .maybeSingle()
-    if (data?.value) return JSON.parse(data.value) as Stad[]
+    if (data?.value) {
+      const raw = JSON.parse(data.value) as Partial<Stad>[]
+      return raw.map((s) => normalizeStad(s as Parameters<typeof normalizeStad>[0]))
+    }
   } catch { /* ignore */ }
   return []
 }
