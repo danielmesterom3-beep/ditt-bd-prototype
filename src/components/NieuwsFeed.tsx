@@ -8,7 +8,8 @@ interface NieuwsItem {
   samenvatting: string
   bron: string
   steden: string[]
-  relevantieScore: 'hoog' | 'normaal'
+  relevantieScore: 'hoog' | 'normaal' | 'ongefilterd'
+  score: number
 }
 
 interface FeedStatus {
@@ -16,6 +17,7 @@ interface FeedStatus {
   actief: boolean
   url: string | null
   fout: string | null
+  aantalItems?: number
 }
 
 const BRON_BADGE: Record<string, { bg: string; text: string }> = {
@@ -51,6 +53,7 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
   const [bronFilter, setBronFilter]   = useState<Set<string>>(new Set())
   const [zoekterm, setZoekterm]       = useState('')
   const [showStatus, setShowStatus]   = useState(false)
+  const [isFallback, setIsFallback]   = useState(false)
   const prevIds = useRef<Set<string>>(new Set())
   const isFirst = useRef(true)
 
@@ -58,7 +61,7 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
     try {
       const res = await fetch('/api/nieuws')
       if (!res.ok) return
-      const data: { items: NieuwsItem[]; feedStatus: FeedStatus[] } = await res.json()
+      const data: { items: NieuwsItem[]; feedStatus: FeedStatus[]; fallback?: boolean } = await res.json()
       if (!isFirst.current) {
         const nieuw = data.items.filter(d => !prevIds.current.has(d.id))
         setNieuwCount(nieuw.length)
@@ -67,6 +70,7 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
       isFirst.current = false
       setItems(data.items)
       setFeedStatus(data.feedStatus ?? [])
+      setIsFallback(data.fallback ?? false)
       setLastUpdated(new Date())
     } catch { /* ignore */ }
     finally { setLoading(false) }
@@ -169,7 +173,7 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
                   <div>
                     <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text)' }}>{s.bron}</span>
                     {s.actief
-                      ? <span style={{ fontSize: 10, color: '#22c55e', marginLeft: 6 }}>actief</span>
+                      ? <span style={{ fontSize: 10, color: '#22c55e', marginLeft: 6 }}>actief{s.aantalItems != null ? ` · ${s.aantalItems} items` : ''}</span>
                       : <span style={{ fontSize: 10, color: '#94a3b8', marginLeft: 6 }}>offline{s.fout ? ` — ${s.fout.slice(0, 60)}` : ''}</span>
                     }
                   </div>
@@ -237,6 +241,13 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
         }}
       />
 
+      {/* Fallback melding */}
+      {isFallback && (
+        <div style={{ fontSize: 11, color: '#92400e', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, padding: '8px 12px' }}>
+          Geen specifiek kantoormarkt nieuws gevonden voor Rotterdam/Eindhoven. Hieronder staan de meest recente berichten uit alle bronnen.
+        </div>
+      )}
+
       {/* Berichten */}
       {filtered.length === 0 ? (
         <div style={{ border: '1px dashed var(--c-border)', borderRadius: 10, padding: '24px 16px', textAlign: 'center', fontSize: 12, color: 'var(--c-muted)', fontStyle: 'italic' }}>
@@ -251,6 +262,8 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
           {filtered.map(item => {
             const bron = BRON_BADGE[item.bron] ?? { bg: '#f1f5f9', text: '#475569' }
             const isHoog = item.relevantieScore === 'hoog'
+            const isOngefilterd = item.relevantieScore === 'ongefilterd'
+            const sterren = isHoog ? '★★★' : item.score >= 5 ? '★★' : item.score > 0 ? '★' : null
             return (
               <a
                 key={item.id}
@@ -260,12 +273,13 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
                 style={{
                   display: 'block',
                   border: '1px solid var(--c-border)',
-                  borderLeft: isHoog ? '3px solid #f59e0b' : '1px solid var(--c-border)',
+                  borderLeft: isHoog ? '3px solid #f59e0b' : isOngefilterd ? '3px solid #cbd5e1' : '1px solid var(--c-border)',
                   borderRadius: 10,
                   padding: '12px 14px',
-                  background: 'var(--c-surface)',
+                  background: isOngefilterd ? '#fafafa' : 'var(--c-surface)',
                   textDecoration: 'none',
                   transition: 'border-color 0.15s',
+                  opacity: isOngefilterd ? 0.75 : 1,
                 }}
               >
                 {/* Badge rij */}
@@ -278,13 +292,23 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
                       {s.charAt(0).toUpperCase() + s.slice(1)}
                     </span>
                   ))}
+                  {isOngefilterd && (
+                    <span style={{ fontSize: 9, fontWeight: 600, padding: '1px 6px', borderRadius: 20, background: '#f1f5f9', color: '#94a3b8' }}>
+                      ongefilterd
+                    </span>
+                  )}
+                  {sterren && (
+                    <span style={{ fontSize: 9, color: isHoog ? '#f59e0b' : '#94a3b8', letterSpacing: 1 }} title={`Relevantiescore: ${item.score}`}>
+                      {sterren}
+                    </span>
+                  )}
                   <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--c-subtle)', flexShrink: 0 }}>
                     {tijdGeleden(item.datum)}
                   </span>
                 </div>
 
                 {/* Titel */}
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text)', lineHeight: 1.4, marginBottom: 4 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: isOngefilterd ? 'var(--c-muted)' : 'var(--c-text)', lineHeight: 1.4, marginBottom: 4 }}>
                   {item.titel}
                 </div>
 
