@@ -90,7 +90,7 @@ function DeleteBtn({ onDelete }: { onDelete: () => void }) {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function klasseVanGebied(gebied: Gebied): LocatieKlasse {
-  const klassen = gebied.partijen
+  const klassen = (gebied.partijen ?? [])
     .map((p) => p.locatieKlasse)
     .filter((k): k is NonNullable<LocatieKlasse> => k !== null)
   if (!klassen.length) return null
@@ -1684,9 +1684,9 @@ export default function GebiedDetailView() {
   const { items: addedPanden,    addItem: addPand }    = useAddedItems<PandInOntwikkeling>(`added_panden_${gebied.id}`)
   const alleLeads  = [...(gebied.kansrijkeLeads ?? []), ...addedLeads]
 
-  const zichtbarePanden    = [...gebied.pandenInOntwikkeling, ...addedPanden].filter((p) => !deletedPanden.has(p.id))
-  const zichtbareTrends    = [...gebied.trends, ...addedTrends].filter((t) => !deletedTrends.has(t.id))
-  const zichtbareContacten = [...gebied.warmeContacten, ...addedContacten].filter((c) => !deletedContacten.has(c.id))
+  const zichtbarePanden    = [...(gebied.pandenInOntwikkeling ?? []), ...addedPanden].filter((p) => !deletedPanden.has(p.id))
+  const zichtbareTrends    = [...(gebied.trends ?? []), ...addedTrends].filter((t) => !deletedTrends.has(t.id))
+  const zichtbareContacten = [...(gebied.warmeContacten ?? []), ...addedContacten].filter((c) => !deletedContacten.has(c.id))
 
   const heeftPanden    = zichtbarePanden.length > 0
   const heeftContacten = zichtbareContacten.length > 0
@@ -1793,7 +1793,7 @@ export default function GebiedDetailView() {
         {/* Quick stats */}
         <div style={{ display: 'flex', gap: 20, flexShrink: 0 }}>
           {[
-            { label: 'In ontwikkeling', value: `${heeftPanden ? gebied.pandenInOntwikkeling.length : ', '}` },
+            { label: 'In ontwikkeling', value: `${heeftPanden ? (gebied.pandenInOntwikkeling ?? []).length : ', '}` },
           ].map(({ label, value }) => (
             <div key={label} style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)' }}>
@@ -1947,9 +1947,9 @@ export default function GebiedDetailView() {
               </Section>
             )}
 
-            {gebied.inzichten.length > 0 && (
-              <Section title={`Veldonderzoek,  ${gebied.inzichten.length} inzicht${gebied.inzichten.length !== 1 ? 'en' : ''} uit interviews`}>
-                <InzichtKaarten inzichten={gebied.inzichten} />
+            {(gebied.inzichten ?? []).length > 0 && (
+              <Section title={`Veldonderzoek,  ${(gebied.inzichten ?? []).length} inzicht${(gebied.inzichten ?? []).length !== 1 ? 'en' : ''} uit interviews`}>
+                <InzichtKaarten inzichten={gebied.inzichten ?? []} />
               </Section>
             )}
           </div>
