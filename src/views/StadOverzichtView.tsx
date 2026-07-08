@@ -494,205 +494,6 @@ const sectionLabelStyle: React.CSSProperties = {
   color: 'var(--c-subtle)',
 }
 
-// ── TestvalidatiePanel ────────────────────────────────────────────────────────
-
-type ValidatieStatus = 'bevestigd' | 'deels' | 'ontbreekt'
-
-interface ValidatiePunt {
-  label: string
-  toelichting: string
-  status: ValidatieStatus
-  bron: string
-}
-
-const VALIDATIE_DATA: ValidatiePunt[] = [
-  {
-    label: 'Locatieklasse-indeling (A/B/C)',
-    toelichting: 'Indeling herkend en werkbaar bevonden. Michiel illustreerde dit met het rekenvoorbeeld huurprijs/fit-out ratio: een fit-out van €1.000/m² is niet logisch bij €150/m²/jr huur over 5 jaar.',
-    status: 'bevestigd',
-    bron: 'Michiel Bijmolt,  testmoment 24 april 2026',
-  },
-  {
-    label: 'Warme ingangen uit CRM',
-    toelichting: 'Overzicht van bekende contacten (Edge Eindhoven, The Pulse, HERE Technologies, Aroundtown, NSI) herkend als bruikbaar vertrekpunt. Sluit aan op hoe het BD-team in de praktijk werkt.',
-    status: 'bevestigd',
-    bron: 'Mattijs Kaak,  testmoment 17 april 2026',
-  },
-  {
-    label: 'Differentiatie per dienstvorm (Fast Fit-Out / Smart Moves / D&B)',
-    toelichting: 'Duidelijk en groot verschil bevestigd. Fast Fit-Out = snelheid; Smart Moves = technologie en data; Design & Build = meest uitgebreide propositie met beide elementen.',
-    status: 'bevestigd',
-    bron: 'Michiel Bijmolt,  testmoment 24 april 2026',
-  },
-  {
-    label: 'Eerste contact altijd telefonisch',
-    toelichting: 'Bevestigd: koude e-mail werkt te afstandelijk. Bellen geeft directe mogelijkheid om het gesprek te sturen op totale ontzorging. Bij geen reactie: twee dagen later opnieuw bellen.',
-    status: 'bevestigd',
-    bron: 'Michiel Bijmolt,  testmoment 24 april 2026',
-  },
-  {
-    label: 'Marktcap-berekening per stad',
-    toelichting: 'Redenering herkend en werkbaar als indicatie. Verzocht om Amsterdam en Utrecht toe te voegen zodat nieuwe doelsteden naast bestaande markten kunnen worden afgezet.',
-    status: 'deels',
-    bron: 'Mattijs Kaak,  testmoment 17 april 2026',
-  },
-  {
-    label: 'Gespreksopbouw per type partij',
-    toelichting: 'Indeling herkend maar uitwerking op gespreksinhoudniveau te globaal. Bij advocatenkantoren: andere taal, kleding en nadruk. Bij gebouweigenaren: verhuurbaarheid centraal, niet fit-out investering.',
-    status: 'deels',
-    bron: 'Michiel Bijmolt,  testmoment 24 april 2026',
-  },
-  {
-    label: 'Smart Moves als ingang voor gebouweigenaren',
-    toelichting: 'Instaplogica Smart Moves richting gebouweigenaren (leegstandsanalyse als trigger) ontbrak in het prototype. Verbetersuggestie: proactief benaderen op basis van leegstandscijfers per stad.',
-    status: 'ontbreekt',
-    bron: 'Michiel Bijmolt,  testmoment 24 april 2026',
-  },
-  {
-    label: 'Tab relevante spelers en panden per doelstad',
-    toelichting: 'Direct gemis: zonder inzicht in welke partijen en panden relevant zijn, is de marktcap-berekening op zichzelf onvoldoende om een BD zonder voorkennis direct aan de slag te laten gaan.',
-    status: 'ontbreekt',
-    bron: 'Mattijs Kaak,  testmoment 17 april 2026',
-  },
-]
-
-const VALIDATIE_STYLE: Record<ValidatieStatus, { bg: string; text: string; border: string; icon: string; label: string }> = {
-  bevestigd: { bg: '#f0fdf4', text: '#166534', border: '#bbf7d0', icon: '✓', label: 'Bevestigd' },
-  deels:     { bg: '#fffbeb', text: '#92400e', border: '#fcd34d', icon: '~', label: 'Deels' },
-  ontbreekt: { bg: '#fff1f2', text: '#9f1239', border: '#fecdd3', icon: '×', label: 'Ontbreekt' },
-}
-
-function TestvalidatiePanel() {
-  const [open, setOpen] = useState(false)
-
-  const counts = {
-    bevestigd: VALIDATIE_DATA.filter((v) => v.status === 'bevestigd').length,
-    deels:     VALIDATIE_DATA.filter((v) => v.status === 'deels').length,
-    ontbreekt: VALIDATIE_DATA.filter((v) => v.status === 'ontbreekt').length,
-  }
-
-  return (
-    <div
-      style={{
-        background: 'var(--c-surface)',
-        border: '1px solid var(--c-border)',
-        borderRadius: 12,
-        overflow: 'hidden',
-      }}
-    >
-      {/* Header,  altijd zichtbaar */}
-      <button
-        onClick={() => setOpen((o) => !o)}
-        style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '14px 18px',
-          background: '#faf9f7',
-          border: 'none',
-          cursor: 'pointer',
-          gap: 12,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ textAlign: 'left' }}>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                color: 'var(--c-subtle)',
-              }}
-            >
-              Testvalidatie prototype
-            </div>
-            <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 2 }}>
-              Bijlage 14,  testronde 1 (17 & 24 april 2026) · Mattijs Kaak & Michiel Bijmolt
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            {(
-              [
-                ['bevestigd', counts.bevestigd],
-                ['deels',     counts.deels],
-                ['ontbreekt', counts.ontbreekt],
-              ] as [ValidatieStatus, number][]
-            ).map(([status, count]) => {
-              const s = VALIDATIE_STYLE[status]
-              return (
-                <span
-                  key={status}
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    padding: '2px 9px',
-                    borderRadius: 20,
-                    background: s.bg,
-                    color: s.text,
-                    border: `1px solid ${s.border}`,
-                  }}
-                >
-                  {s.icon} {count} {s.label.toLowerCase()}
-                </span>
-              )
-            })}
-          </div>
-        </div>
-        <span style={{ fontSize: 16, color: 'var(--c-subtle)', transition: 'transform 0.15s', transform: open ? 'rotate(180deg)' : 'none' }}>
-          ↓
-        </span>
-      </button>
-
-      {/* Inhoud,  uitklapbaar */}
-      {open && (
-        <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {VALIDATIE_DATA.map((punt) => {
-            const s = VALIDATIE_STYLE[punt.status]
-            return (
-              <div
-                key={punt.label}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '100px 1fr',
-                  gap: 12,
-                  padding: '12px 14px',
-                  borderRadius: 8,
-                  background: s.bg,
-                  border: `1px solid ${s.border}`,
-                  alignItems: 'start',
-                }}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: s.text,
-                    }}
-                  >
-                    {s.icon} {s.label}
-                  </span>
-                  <span style={{ fontSize: 10, color: 'var(--c-subtle)', lineHeight: 1.4 }}>{punt.bron}</span>
-                </div>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--c-text)', marginBottom: 3 }}>
-                    {punt.label}
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--c-muted)', lineHeight: 1.6 }}>
-                    {punt.toelichting}
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ── BlankOmgevingskenmerkenPanel (lege template voor custom steden) ───────────
 
 function BlankOmgevingskenmerkenPanel({ stadId, stadNaam, showContext = false }: { stadId: string; stadNaam: string; showContext?: boolean }) {
@@ -1465,7 +1266,6 @@ function RotterdamOmgevingskenmerkenPanel({ showContext = false }: { showContext
                   <EditableText storageKey="omgeving.rdam.desque.meta" defaultValue="desque.nl · Rotterdam (Sint Jobsweg) + Eindhoven · Projectinrichting" style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 1, display: 'block' }} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <EditableText storageKey="omgeving.rdam.desque.badge" defaultValue="Top-3 NL" style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: '#fef9c3', color: '#854d0e', border: '1px solid #fde047' }} />
                   {deleteBtn('desque-rdam')}
                 </div>
               </div>
@@ -3193,7 +2993,7 @@ function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
       {/* 2 · Omgevingskenmerken */}
       <div>
         <div style={subLabel}><EditableText storageKey={`fase1.${stadId}.sublabel.2`} defaultValue="2 · Omgevingskenmerken,  concurrentie & D&B-activiteit" /></div>
-        {stadNaam === 'Eindhoven' ? <OmgevingskenmerkenPanel showContext /> : <RotterdamOmgevingskenmerkenPanel />}
+        {stadNaam === 'Eindhoven' ? <OmgevingskenmerkenPanel showContext /> : <RotterdamOmgevingskenmerkenPanel showContext />}
       </div>
 
       {/* 3 · Gemeente- / marktstrategieblok */}
@@ -5850,9 +5650,6 @@ export default function StadOverzichtView() {
 
       {/* Geïmporteerde items */}
       <RecenteImportsPanel />
-
-      {/* Testvalidatie */}
-      <PanelWrapper hidden={hiddenPanels.has('testvalidatie')} onHide={() => hidePanel('testvalidatie')} editMode={isEditMode}><TestvalidatiePanel /></PanelWrapper>
 
       {/* Omgevingskenmerken Eindhoven */}
       <PanelWrapper hidden={hiddenPanels.has('omgeving-eindhoven')} onHide={() => hidePanel('omgeving-eindhoven')} editMode={isEditMode}><OmgevingskenmerkenPanel showContext /></PanelWrapper>

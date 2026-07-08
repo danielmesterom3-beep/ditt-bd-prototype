@@ -4,6 +4,7 @@ import { useFilters } from '../context/FilterContext'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
 import { useDataOverride } from '../context/DataOverrideContext'
 import { useAllSteden } from '../context/CustomStedenContext'
+import { useEditMode } from '../context/EditContext'
 import type { Gebied, LocatieKlasse, GebiedStatus } from '../data/types'
 import BronTooltip from '../components/BronTooltip'
 import InlineEdit from '../components/InlineEdit'
@@ -116,11 +117,52 @@ const DB_NETWERK: Record<string, { design: DBPartner[]; build: DBPartner[] }> = 
 
 function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
   const [tab, setTab] = useState<'design' | 'build'>('design')
+  const { isEditMode } = useEditMode()
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({ naam: '', type: '' })
+  const [customDesign, setCustomDesign] = useState<DBPartner[]>(() => {
+    try { return JSON.parse(localStorage.getItem(`db_partijen_${stadNaam}_design`) ?? '[]') } catch { return [] }
+  })
+  const [customBuild, setCustomBuild] = useState<DBPartner[]>(() => {
+    try { return JSON.parse(localStorage.getItem(`db_partijen_${stadNaam}_build`) ?? '[]') } catch { return [] }
+  })
+
   const data = DB_NETWERK[stadNaam]
   if (!data) return null
-  const lijst = data[tab]
+
+  const customLijst = tab === 'design' ? customDesign : customBuild
+  const lijst = [...data[tab], ...customLijst]
   const prospects = lijst.filter((p) => !p.partner)
   const partners  = lijst.filter((p) =>  p.partner)
+
+  function addPartij(e: React.FormEvent) {
+    e.preventDefault()
+    if (!form.naam.trim()) return
+    const nieuw: DBPartner = { naam: form.naam.trim(), type: form.type.trim(), partner: false }
+    if (tab === 'design') {
+      const updated = [...customDesign, nieuw]
+      setCustomDesign(updated)
+      localStorage.setItem(`db_partijen_${stadNaam}_design`, JSON.stringify(updated))
+    } else {
+      const updated = [...customBuild, nieuw]
+      setCustomBuild(updated)
+      localStorage.setItem(`db_partijen_${stadNaam}_build`, JSON.stringify(updated))
+    }
+    setForm({ naam: '', type: '' })
+    setShowForm(false)
+  }
+
+  function removeCustom(naam: string) {
+    if (tab === 'design') {
+      const updated = customDesign.filter(p => p.naam !== naam)
+      setCustomDesign(updated)
+      localStorage.setItem(`db_partijen_${stadNaam}_design`, JSON.stringify(updated))
+    } else {
+      const updated = customBuild.filter(p => p.naam !== naam)
+      setCustomBuild(updated)
+      localStorage.setItem(`db_partijen_${stadNaam}_build`, JSON.stringify(updated))
+    }
+  }
 
   return (
     <div
@@ -141,51 +183,95 @@ function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
             ontwerp &amp; uitvoering
           </p>
         </div>
-        {/* Toggle */}
-        <div className="flex gap-0.5 rounded-lg p-0.5 shrink-0" style={{ background: '#f0ede8', border: '1px solid var(--c-border)' }}>
-          <button
-            onClick={() => setTab('design')}
-            className="px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all"
-            style={{
-              background: tab === 'design' ? 'var(--c-surface)' : 'transparent',
-              color: tab === 'design' ? 'var(--c-coral)' : 'var(--c-subtle)',
-              boxShadow: tab === 'design' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-              border: 'none', cursor: 'pointer',
-            }}
-          >
-            D
-          </button>
-          <button
-            onClick={() => setTab('build')}
-            className="px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all"
-            style={{
-              background: tab === 'build' ? 'var(--c-surface)' : 'transparent',
-              color: tab === 'build' ? 'var(--c-coral)' : 'var(--c-subtle)',
-              boxShadow: tab === 'build' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-              border: 'none', cursor: 'pointer',
-            }}
-          >
-            B
-          </button>
+        <div className="flex items-center gap-2 shrink-0">
+          {isEditMode && (
+            <button
+              onClick={() => setShowForm(v => !v)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 9px', fontSize: 11, fontWeight: 600, borderRadius: 7, cursor: 'pointer', border: '1px solid var(--c-border)', background: showForm ? '#1a1a1a' : 'var(--c-surface)', color: showForm ? '#fff' : 'var(--c-muted)' }}
+            >
+              <span style={{ fontSize: 13, lineHeight: 1 }}>{showForm ? '×' : '+'}</span>
+              {showForm ? 'Sluiten' : 'Toevoegen'}
+            </button>
+          )}
+          {/* Toggle */}
+          <div className="flex gap-0.5 rounded-lg p-0.5" style={{ background: '#f0ede8', border: '1px solid var(--c-border)' }}>
+            <button
+              onClick={() => setTab('design')}
+              className="px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all"
+              style={{
+                background: tab === 'design' ? 'var(--c-surface)' : 'transparent',
+                color: tab === 'design' ? 'var(--c-coral)' : 'var(--c-subtle)',
+                boxShadow: tab === 'design' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                border: 'none', cursor: 'pointer',
+              }}
+            >
+              D
+            </button>
+            <button
+              onClick={() => setTab('build')}
+              className="px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all"
+              style={{
+                background: tab === 'build' ? 'var(--c-surface)' : 'transparent',
+                color: tab === 'build' ? 'var(--c-coral)' : 'var(--c-subtle)',
+                boxShadow: tab === 'build' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                border: 'none', cursor: 'pointer',
+              }}
+            >
+              B
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* Toevoegen form */}
+      {showForm && (
+        <form onSubmit={addPartij} style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '10px 12px', background: '#f8f7f5', borderRadius: 8, border: '1px solid var(--c-border)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+            <input
+              required
+              placeholder="Naam *"
+              value={form.naam}
+              onChange={e => setForm(f => ({ ...f, naam: e.target.value }))}
+              style={{ padding: '5px 8px', fontSize: 11, borderRadius: 6, border: '1px solid var(--c-border)', outline: 'none' }}
+            />
+            <input
+              placeholder="Type (bijv. Aannemer)"
+              value={form.type}
+              onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
+              style={{ padding: '5px 8px', fontSize: 11, borderRadius: 6, border: '1px solid var(--c-border)', outline: 'none' }}
+            />
+          </div>
+          <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+            <button type="button" onClick={() => setShowForm(false)} style={{ padding: '4px 10px', fontSize: 11, borderRadius: 6, border: '1px solid var(--c-border)', background: 'none', cursor: 'pointer' }}>Annuleren</button>
+            <button type="submit" style={{ padding: '4px 10px', fontSize: 11, fontWeight: 600, borderRadius: 6, border: 'none', background: '#1a1a1a', color: '#fff', cursor: 'pointer' }}>Opslaan</button>
+          </div>
+        </form>
+      )}
+
       {/* Lijst */}
       <div className="flex flex-col overflow-y-auto" style={{ maxHeight: 180 }}>
-        {prospects.map((p) => (
-          <div key={p.naam} className="flex items-center justify-between py-1.5" style={{ borderBottom: '1px solid var(--c-border)' }}>
-            <div>
-              <div className="text-[11px] font-medium" style={{ color: 'var(--c-text)' }}>{p.naam}</div>
-              <div className="text-[10px]" style={{ color: 'var(--c-subtle)' }}>{p.type}</div>
+        {prospects.map((p) => {
+          const isCustom = customLijst.some(c => c.naam === p.naam)
+          return (
+            <div key={p.naam} className="flex items-center justify-between py-1.5" style={{ borderBottom: '1px solid var(--c-border)' }}>
+              <div>
+                <div className="text-[11px] font-medium" style={{ color: 'var(--c-text)' }}>{p.naam}</div>
+                <div className="text-[10px]" style={{ color: 'var(--c-subtle)' }}>{p.type}</div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span
+                  className="text-[9px] font-semibold shrink-0 px-1.5 py-0.5 rounded-full"
+                  style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa' }}
+                >
+                  lokale partij
+                </span>
+                {isEditMode && isCustom && (
+                  <button onClick={() => removeCustom(p.naam)} style={{ width: 16, height: 16, borderRadius: '50%', border: '1px solid var(--c-border)', background: 'var(--c-surface)', color: 'var(--c-subtle)', fontSize: 10, lineHeight: 1, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>×</button>
+                )}
+              </div>
             </div>
-            <span
-              className="text-[9px] font-semibold shrink-0 ml-2 px-1.5 py-0.5 rounded-full"
-              style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #fed7aa' }}
-            >
-              lokale partij
-            </span>
-          </div>
-        ))}
+          )
+        })}
         {partners.map((p) => (
           <div key={p.naam} className="flex items-center justify-between py-1.5" style={{ borderBottom: '1px solid var(--c-border)' }}>
             <div>
