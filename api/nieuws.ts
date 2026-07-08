@@ -16,7 +16,21 @@ const STAD_TERMEN = [
   'kennedyplein', 'meerhoven', 'woensel',
 ]
 
-// Stap 2: uitsluitingstermen (hard filter — artikel valt af als titel+samen dit bevat)
+// Stap 2: kantoor-relevantie VERPLICHT (hard filter)
+const KANTOOR_TERMEN = [
+  'kantoor', 'kantoren', 'office', 'werkplek', 'werkomgeving', 'huisvesting',
+  'verhuur', 'verhuurd', 'huurder', 'huurovereenkomst', 'gehuurd',
+  'eigenaar', 'belegger', 'belegging', 'investeerder', 'asset manager',
+  'makelaar', 'transactie', 'aankoop', 'verkoop', 'opname',
+  'leegstand', 'bezettingsgraad',
+  'm²', 'm2', 'vierkante meter', 'vloeroppervlak',
+  'herontwikkeling', 'renovatie', 'transformatie', 'nieuwbouw', 'oplevering',
+  'inrichting', 'design build', 'interieur', 'fit-out', 'verbouwing',
+  'gebiedsontwikkeling', 'bestemmingsplan', 'masterplan',
+  'bedrijfsruimte', 'commercieel vastgoed', 'vastgoedbelegger',
+]
+
+// Stap 3: uitsluitingstermen (hard filter — artikel valt af als titel+samen dit bevat)
 const UITSLUIT_TERMEN = [
   'woning', 'woningen', 'woningbouw', 'woningmarkt', 'koopwoning', 'huurwoning',
   'sociale huur', 'hypotheek', 'huizenprijs', 'eengezins', 'corporatie',
@@ -152,7 +166,10 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
           // Hard filter 1: stadsterm verplicht
           if (!bevat(tekst, STAD_TERMEN)) continue
 
-          // Hard filter 2: uitsluitingstermen verbieden
+          // Hard filter 2: kantoor-relevantie verplicht
+          if (!bevat(tekst, KANTOOR_TERMEN)) continue
+
+          // Hard filter 3: uitsluitingstermen verbieden
           if (bevat(tekst, UITSLUIT_TERMEN)) continue
 
           const score  = berekenScore(titel, tekst)

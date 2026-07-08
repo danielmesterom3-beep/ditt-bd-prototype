@@ -245,7 +245,7 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
           {feedStatus.length > 0 && feedStatus.every(s => !s.actief)
             ? 'Alle nieuwsbronnen zijn momenteel niet bereikbaar. Probeer het later opnieuw.'
             : items.length === 0
-            ? 'Geen relevant kantoornieuws gevonden voor Rotterdam of Eindhoven in de afgelopen dagen.'
+            ? 'Geen relevant kantoornieuws voor Rotterdam of Eindhoven vandaag. De feed wordt elke 5 minuten ververst.'
             : 'Geen berichten gevonden voor deze filters.'}
         </div>
       ) : (
