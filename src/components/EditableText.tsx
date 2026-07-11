@@ -518,6 +518,37 @@ export default function EditableText({
   )
 }
 
+// ── Migration utility ──────────────────────────────────────────────────────────
+// Temporary: call window.__dittMigrate() in browser console to push all
+// localStorage edits to Supabase (use after Supabase was paused/reset).
+if (typeof window !== 'undefined') {
+  ;(window as unknown as Record<string, unknown>).__dittMigrate = async function () {
+    const prefix = STORAGE_PREFIX
+    const entries: { key: string; value: string; updated_at: string }[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (k && k.startsWith(prefix)) {
+        const value = localStorage.getItem(k)
+        if (value !== null) {
+          entries.push({ key: k.slice(prefix.length), value, updated_at: new Date().toISOString() })
+        }
+      }
+    }
+    console.log(`[dittMigrate] ${entries.length} items gevonden in localStorage`)
+    if (entries.length === 0) { console.warn('[dittMigrate] Niets te migreren.'); return }
+    const BATCH = 50
+    let ok = 0
+    for (let i = 0; i < entries.length; i += BATCH) {
+      const batch = entries.slice(i, i + BATCH)
+      const { error } = await supabase.from('edits').upsert(batch)
+      if (error) { console.error('[dittMigrate] Fout bij batch', i, error); return }
+      ok += batch.length
+      console.log(`[dittMigrate] ${ok}/${entries.length} opgeslagen...`)
+    }
+    console.log('[dittMigrate] Klaar! Alle bewerkingen staan nu in Supabase.')
+  }
+}
+
 // ── SaveButton ─────────────────────────────────────────────────────────────────
 
 export function SaveButton() {
