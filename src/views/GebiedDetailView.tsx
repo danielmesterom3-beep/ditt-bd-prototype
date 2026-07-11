@@ -1193,9 +1193,9 @@ function InzichtKaart({ inzicht, onDelete }: { inzicht: InterviewInzicht; onDele
 }
 
 function InzichtKaarten({ inzichten }: { inzichten: InterviewInzicht[] }) {
-  if (inzichten.length === 0) return null
   const [actief, setActief] = useState<InzichtCategorie | 'alle'>('alle')
   const { deleted, deleteItem } = useDeletedItems('deleted_inzichten')
+  if (inzichten.length === 0) return null
 
   const zichtbaar = inzichten.filter((i) => !deleted.has(i.id))
   const categorieën = ['alle', ...Array.from(new Set(zichtbaar.map((i) => i.categorie)))] as (InzichtCategorie | 'alle')[]
