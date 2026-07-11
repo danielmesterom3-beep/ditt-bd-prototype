@@ -1,4 +1,5 @@
 import { useViewMode } from '../context/ViewModeContext'
+import EditableText from './EditableText'
 
 export default function ViewModeSidebar() {
   const { viewMode, setViewMode } = useViewMode()
@@ -68,7 +69,7 @@ export default function ViewModeSidebar() {
             lineHeight: 1.5,
           }}
         >
-          Begeleidt je van marktinzicht naar acquisitiegesprek
+          <EditableText storageKey="sidebar.actie.beschrijving" defaultValue="Begeleidt je van marktinzicht naar acquisitiegesprek" />
         </span>
       </button>
 
@@ -105,7 +106,7 @@ export default function ViewModeSidebar() {
             lineHeight: 1.4,
           }}
         >
-          Naslag, marktdata, concurrenten, vastgoeddata
+          <EditableText storageKey="sidebar.info.beschrijving" defaultValue="Naslag, marktdata, concurrenten, vastgoeddata" />
         </span>
       </button>
 
@@ -118,8 +119,8 @@ export default function ViewModeSidebar() {
       >
         <div style={{ fontSize: 10, color: 'var(--c-subtle)' }}>
           <div style={{ fontWeight: 600, marginBottom: 2 }}>Peildatum</div>
-          <div>29 april 2026</div>
-          <div style={{ color: '#bbb', marginTop: 2 }}>Bron: Vastgoeddata.nl</div>
+          <div><EditableText storageKey="sidebar.peildatum.datum" defaultValue="29 april 2026" /></div>
+          <div style={{ color: '#bbb', marginTop: 2 }}><EditableText storageKey="sidebar.peildatum.bron" defaultValue="Bron: Vastgoeddata.nl" /></div>
         </div>
       </div>
     </aside>

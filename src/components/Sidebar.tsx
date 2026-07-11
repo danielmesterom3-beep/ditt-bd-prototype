@@ -1,4 +1,5 @@
 import type { NavItem } from '../types'
+import EditableText from './EditableText'
 
 const navItems: { id: NavItem; label: string; icon: string }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: '▦' },
@@ -47,8 +48,8 @@ export default function Sidebar({ active, onChange }: SidebarProps) {
             JK
           </div>
           <div className="min-w-0">
-            <div className="text-slate-200 text-sm font-medium truncate">Joos Kanders</div>
-            <div className="text-slate-500 text-xs">BD Manager</div>
+            <div className="text-slate-200 text-sm font-medium truncate"><EditableText storageKey="sidebar.user.naam" defaultValue="Joos Kanders" /></div>
+            <div className="text-slate-500 text-xs"><EditableText storageKey="sidebar.user.rol" defaultValue="BD Manager" /></div>
           </div>
         </div>
       </div>

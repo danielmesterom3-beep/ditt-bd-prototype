@@ -236,7 +236,7 @@ export default function DashboardView() {
             <div className="text-[11px] font-semibold uppercase tracking-widest text-indigo-300 mb-1">
               Testmoment
             </div>
-            <h3 className="text-base font-semibold">Interview Michiel Bijmols</h3>
+            <h3 className="text-base font-semibold"><EditableText storageKey="dashboard.testmoment.titel" defaultValue="Interview Michiel Bijmols" /></h3>
           </div>
           <span className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ${
             aantalAfgevinkt === VRAGEN.length
@@ -248,7 +248,7 @@ export default function DashboardView() {
         </div>
 
         <p className="text-indigo-300 text-xs mb-5">
-          Gebruik deze vragen als leidraad tijdens het testgesprek met Michiel.
+          <EditableText storageKey="dashboard.testmoment.beschrijving" defaultValue="Gebruik deze vragen als leidraad tijdens het testgesprek met Michiel." />
         </p>
 
         <ul className="flex flex-col gap-3">
@@ -267,7 +267,7 @@ export default function DashboardView() {
               <span className={`text-sm leading-snug transition-colors ${
                 checked[i] ? 'text-indigo-400 line-through' : 'text-indigo-100'
               }`}>
-                {vraag}
+                <EditableText storageKey={`dashboard.testmoment.vraag.${i}`} defaultValue={vraag} />
               </span>
             </li>
           ))}
