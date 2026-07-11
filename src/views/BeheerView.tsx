@@ -77,11 +77,14 @@ function StatusCycleButton({
 // ── BeheerView ────────────────────────────────────────────────────────────────
 
 export default function BeheerView() {
-  const { allSteden: steden, customSteden, addStad, removeStad } = useAllSteden()
+  const { allSteden: steden, customSteden, addStad, removeStad, addGebied, removeGebied, isExtraGebied } = useAllSteden()
   const { getStatus, setStatus, overrides } = useGebiedStatus()
   const [stadAanmakenOpen, setStadAanmakenOpen] = useState(false)
   const [nieuwStadNaam, setNieuwStadNaam] = useState('')
   const [bezig, setBezig] = useState(false)
+  const [nieuwGebiedStad, setNieuwGebiedStad] = useState<string | null>(null)
+  const [nieuwGebiedNaam, setNieuwGebiedNaam] = useState('')
+  const [gebiedBezig, setGebiedBezig] = useState(false)
 
   async function handleStadAanmaken() {
     const naam = nieuwStadNaam.trim()
@@ -90,6 +93,25 @@ export default function BeheerView() {
     await addStad(naam)
     setNieuwStadNaam('')
     setBezig(false)
+  }
+
+  async function handleGebiedAanmaken(stadId: string) {
+    const naam = nieuwGebiedNaam.trim()
+    if (!naam) return
+    setGebiedBezig(true)
+    await addGebied(stadId, naam)
+    setNieuwGebiedNaam('')
+    setNieuwGebiedStad(null)
+    setGebiedBezig(false)
+  }
+
+  async function handleGebiedVerwijderen(stadId: string, gebiedId: string, gebiedNaam: string, isLaatste: boolean) {
+    const isStatisch = !customSteden.some((s) => s.id === stadId)
+    const waarschuwing = isLaatste && isStatisch
+      ? `Dit is het laatste gebied van deze stad. Weet je zeker dat je "${gebiedNaam || gebiedId}" wilt verwijderen?`
+      : `Gebied "${gebiedNaam || gebiedId}" definitief verwijderen?`
+    if (!window.confirm(waarschuwing)) return
+    await removeGebied(stadId, gebiedId)
   }
 
   const shareUrl = `${window.location.origin}${window.location.pathname}#beheer`
@@ -210,9 +232,15 @@ export default function BeheerView() {
 
               {/* Gebieden */}
               <div>
+                {stad.gebieden.length === 0 && (
+                  <div style={{ padding: '14px 20px', fontSize: 12, color: 'var(--c-subtle)', fontStyle: 'italic' }}>
+                    Geen gebieden — voeg er een toe via de + knop.
+                  </div>
+                )}
                 {stad.gebieden.map((gebied, i) => {
                   const effectiveStatus = getStatus(gebied.id, gebied.status ?? 'live')
                   const isLast = i === stad.gebieden.length - 1
+                  const kanVerwijderen = isExtraGebied(stad.id, gebied.id)
                   return (
                     <div
                       key={gebied.id}
@@ -227,7 +255,7 @@ export default function BeheerView() {
                     >
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-text)' }}>
-                          {gebied.naam}
+                          {gebied.naam || <span style={{ color: 'var(--c-subtle)', fontStyle: 'italic' }}>Naamloos gebied</span>}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--c-subtle)', marginTop: 2, fontFamily: 'ui-monospace, monospace' }}>
                           {gebied.id}
@@ -236,28 +264,98 @@ export default function BeheerView() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                         <StatusBadge status={effectiveStatus} />
                         <StatusCycleButton gebiedId={gebied.id} currentStatus={effectiveStatus} />
-                        {/* Reset knop,  alleen zichtbaar als er een override is */}
                         {gebied.id in overrides && (
                           <button
                             onClick={() => setStatus(gebied.id, gebied.status ?? 'live')}
                             title="Reset naar standaard"
                             style={{
-                              fontSize: 11,
-                              padding: '3px 8px',
-                              borderRadius: 20,
-                              background: 'transparent',
-                              color: '#dc2626',
-                              border: '1px solid #fca5a5',
-                              cursor: 'pointer',
+                              fontSize: 11, padding: '3px 8px', borderRadius: 20,
+                              background: 'transparent', color: '#dc2626',
+                              border: '1px solid #fca5a5', cursor: 'pointer',
                             }}
                           >
                             Reset
+                          </button>
+                        )}
+                        {kanVerwijderen && (
+                          <button
+                            onClick={() => handleGebiedVerwijderen(stad.id, gebied.id, gebied.naam, stad.gebieden.length === 1)}
+                            title="Gebied verwijderen"
+                            style={{
+                              fontSize: 13, width: 24, height: 24, borderRadius: 6,
+                              background: 'transparent', color: '#9ca3af',
+                              border: '1px solid #e2e8f0', cursor: 'pointer',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              flexShrink: 0,
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fca5a5' }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#9ca3af'; e.currentTarget.style.borderColor = '#e2e8f0' }}
+                          >
+                            ×
                           </button>
                         )}
                       </div>
                     </div>
                   )
                 })}
+
+                {/* Nieuw gebied toevoegen */}
+                {nieuwGebiedStad === stad.id ? (
+                  <div style={{ padding: '12px 20px', borderTop: '1px solid var(--c-border)', display: 'flex', gap: 8 }}>
+                    <input
+                      autoFocus
+                      type="text"
+                      value={nieuwGebiedNaam}
+                      onChange={(e) => setNieuwGebiedNaam(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleGebiedAanmaken(stad.id)
+                        if (e.key === 'Escape') { setNieuwGebiedStad(null); setNieuwGebiedNaam('') }
+                      }}
+                      placeholder="Gebiedsnaam, bijv. Centrum"
+                      style={{
+                        flex: 1, padding: '7px 10px', borderRadius: 7,
+                        border: '1px solid var(--c-border)', background: '#faf9f7',
+                        fontSize: 12, color: 'var(--c-text)', outline: 'none',
+                      }}
+                    />
+                    <button
+                      onClick={() => handleGebiedAanmaken(stad.id)}
+                      disabled={!nieuwGebiedNaam.trim() || gebiedBezig}
+                      style={{
+                        padding: '7px 14px', borderRadius: 7, border: 'none',
+                        background: nieuwGebiedNaam.trim() ? '#ff7f50' : '#e5e7eb',
+                        color: nieuwGebiedNaam.trim() ? '#fff' : '#9ca3af',
+                        fontSize: 12, fontWeight: 600, cursor: nieuwGebiedNaam.trim() ? 'pointer' : 'default',
+                      }}
+                    >
+                      {gebiedBezig ? '...' : 'Aanmaken'}
+                    </button>
+                    <button
+                      onClick={() => { setNieuwGebiedStad(null); setNieuwGebiedNaam('') }}
+                      style={{
+                        padding: '7px 10px', borderRadius: 7,
+                        border: '1px solid var(--c-border)', background: 'none',
+                        fontSize: 12, color: 'var(--c-muted)', cursor: 'pointer',
+                      }}
+                    >
+                      Annuleer
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ padding: '10px 20px', borderTop: '1px solid var(--c-border)' }}>
+                    <button
+                      onClick={() => { setNieuwGebiedStad(stad.id); setNieuwGebiedNaam('') }}
+                      style={{
+                        fontSize: 12, fontWeight: 600, padding: '5px 12px', borderRadius: 7,
+                        background: 'none', color: 'var(--c-coral)',
+                        border: '1px dashed var(--c-coral)', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 5,
+                      }}
+                    >
+                      + Gebied toevoegen
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -412,8 +510,7 @@ export default function BeheerView() {
           border: '1px solid var(--c-border)',
         }}
       >
-        Statuswijzigingen worden opgeslagen in <code style={{ fontFamily: 'ui-monospace, monospace' }}>localStorage</code> van de browser.
-        Voor permanente wijzigingen: pas het <code style={{ fontFamily: 'ui-monospace, monospace' }}>status</code>-veld direct aan in het databestand van het gebied.
+        Alle wijzigingen worden opgeslagen in Supabase en direct gesynchroniseerd naar alle gebruikers.
       </div>
     </div>
   )

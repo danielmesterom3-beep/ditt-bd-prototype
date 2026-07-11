@@ -4,6 +4,7 @@ import staticSteden from '../data/steden'
 import type { Stad, Gebied } from '../data/types'
 
 const CUSTOM_STEDEN_KEY = 'custom_steden'
+const EXTRA_GEBIEDEN_KEY = 'extra_gebieden'
 
 function blankGebied(id: string, naam: string): Gebied {
   return {
@@ -53,6 +54,9 @@ interface CustomStedenContextValue {
   customSteden: Stad[]
   addStad: (naam: string) => Promise<void>
   removeStad: (id: string) => Promise<void>
+  addGebied: (stadId: string, naam: string) => Promise<void>
+  removeGebied: (stadId: string, gebiedId: string) => Promise<void>
+  isExtraGebied: (stadId: string, gebiedId: string) => boolean
 }
 
 const CustomStedenContext = createContext<CustomStedenContextValue | null>(null)
@@ -105,19 +109,39 @@ async function fetchCustomSteden(): Promise<Stad[]> {
   return []
 }
 
+async function fetchExtraGebieden(): Promise<Record<string, Gebied[]>> {
+  try {
+    const { data } = await supabase
+      .from('edits')
+      .select('value')
+      .eq('key', EXTRA_GEBIEDEN_KEY)
+      .maybeSingle()
+    if (data?.value) {
+      const raw = JSON.parse(data.value) as Record<string, Partial<Gebied>[]>
+      const result: Record<string, Gebied[]> = {}
+      for (const [stadId, gebieden] of Object.entries(raw)) {
+        result[stadId] = gebieden.map((g) => normalizeGebied(g as Parameters<typeof normalizeGebied>[0]))
+      }
+      return result
+    }
+  } catch { /* ignore */ }
+  return {}
+}
+
 export function CustomStedenProvider({ children }: { children: ReactNode }) {
   const [customSteden, setCustomSteden] = useState<Stad[]>([])
+  const [extraGebieden, setExtraGebieden] = useState<Record<string, Gebied[]>>({})
 
   useEffect(() => {
     fetchCustomSteden().then(setCustomSteden)
+    fetchExtraGebieden().then(setExtraGebieden)
 
     const channel = supabase
       .channel('custom-steden-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'edits' }, (payload) => {
         const key = (payload.new as Record<string, string>)?.key ?? (payload.old as Record<string, string>)?.key
-        if (key === CUSTOM_STEDEN_KEY) {
-          fetchCustomSteden().then(setCustomSteden)
-        }
+        if (key === CUSTOM_STEDEN_KEY) fetchCustomSteden().then(setCustomSteden)
+        if (key === EXTRA_GEBIEDEN_KEY) fetchExtraGebieden().then(setExtraGebieden)
       })
       .subscribe()
 
@@ -128,6 +152,13 @@ export function CustomStedenProvider({ children }: { children: ReactNode }) {
     const value = JSON.stringify(next)
     try {
       await supabase.from('edits').upsert({ key: CUSTOM_STEDEN_KEY, value, updated_at: new Date().toISOString() })
+    } catch { /* ignore */ }
+  }
+
+  async function persistExtra(next: Record<string, Gebied[]>) {
+    const value = JSON.stringify(next)
+    try {
+      await supabase.from('edits').upsert({ key: EXTRA_GEBIEDEN_KEY, value, updated_at: new Date().toISOString() })
     } catch { /* ignore */ }
   }
 
@@ -144,8 +175,56 @@ export function CustomStedenProvider({ children }: { children: ReactNode }) {
     await persist(next)
   }
 
+  async function addGebied(stadId: string, naam: string) {
+    const newGebied = blankGebied(`${stadId}-${Date.now()}`, naam)
+    const isCustom = customSteden.some((s) => s.id === stadId)
+    if (isCustom) {
+      const next = customSteden.map((s) =>
+        s.id === stadId ? { ...s, gebieden: [...s.gebieden, newGebied] } : s
+      )
+      setCustomSteden(next)
+      await persist(next)
+    } else {
+      const next = { ...extraGebieden, [stadId]: [...(extraGebieden[stadId] ?? []), newGebied] }
+      setExtraGebieden(next)
+      await persistExtra(next)
+    }
+  }
+
+  async function removeGebied(stadId: string, gebiedId: string) {
+    const isCustom = customSteden.some((s) => s.id === stadId)
+    if (isCustom) {
+      const next = customSteden.map((s) =>
+        s.id === stadId ? { ...s, gebieden: s.gebieden.filter((g) => g.id !== gebiedId) } : s
+      )
+      setCustomSteden(next)
+      await persist(next)
+    } else {
+      const next = {
+        ...extraGebieden,
+        [stadId]: (extraGebieden[stadId] ?? []).filter((g) => g.id !== gebiedId),
+      }
+      setExtraGebieden(next)
+      await persistExtra(next)
+    }
+  }
+
+  function isExtraGebied(stadId: string, gebiedId: string): boolean {
+    const isCustom = customSteden.some((s) => s.id === stadId)
+    if (isCustom) return true
+    return (extraGebieden[stadId] ?? []).some((g) => g.id === gebiedId)
+  }
+
+  const allSteden: Stad[] = [
+    ...staticSteden.map((s) => ({
+      ...s,
+      gebieden: [...s.gebieden, ...(extraGebieden[s.id] ?? [])],
+    })),
+    ...customSteden,
+  ]
+
   return (
-    <CustomStedenContext.Provider value={{ allSteden: [...staticSteden, ...customSteden], customSteden, addStad, removeStad }}>
+    <CustomStedenContext.Provider value={{ allSteden, customSteden, addStad, removeStad, addGebied, removeGebied, isExtraGebied }}>
       {children}
     </CustomStedenContext.Provider>
   )
