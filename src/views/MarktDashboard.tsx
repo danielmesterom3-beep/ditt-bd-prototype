@@ -127,14 +127,6 @@ function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
     try { return JSON.parse(localStorage.getItem(`db_partijen_${stadNaam}_build`) ?? '[]') } catch { return [] }
   })
 
-  const data = DB_NETWERK[stadNaam]
-  if (!data) return null
-
-  const customLijst = tab === 'design' ? customDesign : customBuild
-  const lijst = [...data[tab], ...customLijst]
-  const prospects = lijst.filter((p) => !p.partner)
-  const partners  = lijst.filter((p) =>  p.partner)
-
   useEffect(() => {
     function onRemote(e: Event) {
       const { key, value } = (e as CustomEvent<{ key: string; value: string }>).detail
@@ -146,6 +138,14 @@ function DesignBouwKaart({ stadNaam }: { stadNaam: string }) {
     window.addEventListener('ditt-remote-edit', onRemote)
     return () => window.removeEventListener('ditt-remote-edit', onRemote)
   }, [stadNaam])
+
+  const data = DB_NETWERK[stadNaam]
+  if (!data) return null
+
+  const customLijst = tab === 'design' ? customDesign : customBuild
+  const lijst = [...data[tab], ...customLijst]
+  const prospects = lijst.filter((p) => !p.partner)
+  const partners  = lijst.filter((p) =>  p.partner)
 
   function addPartij(e: React.FormEvent) {
     e.preventDefault()
