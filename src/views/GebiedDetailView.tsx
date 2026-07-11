@@ -1668,6 +1668,15 @@ export default function GebiedDetailView() {
   const { viewMode } = useViewMode()
   const { isEditMode } = useEditMode()
 
+  // Hooks must all be called before any conditional return (Rules of Hooks)
+  const { deleted: deletedPanden,    deleteItem: deletePand }    = useDeletedItems('deleted_panden')
+  const { deleted: deletedTrends,    deleteItem: deleteTrend }   = useDeletedItems('deleted_trends')
+  const { deleted: deletedContacten, deleteItem: deleteContact } = useDeletedItems('deleted_wc')
+  const { items: addedTrends,    addItem: addTrend }   = useAddedItems<Trend>(`added_trends_${geselecteerdGebied?.id ?? ''}`)
+  const { items: addedContacten, addItem: addContact } = useAddedItems<WarmContact>(`added_wc_${geselecteerdGebied?.id ?? ''}`)
+  const { items: addedLeads,     addItem: addLead }    = useAddedItems<KansrijkeLead>(`added_leads_${geselecteerdGebied?.id ?? ''}`)
+  const { items: addedPanden,    addItem: addPand }    = useAddedItems<PandInOntwikkeling>(`added_panden_${geselecteerdGebied?.id ?? ''}`)
+
   if (!geselecteerdGebied) return null
 
   const gebied = geselecteerdGebied
@@ -1675,13 +1684,6 @@ export default function GebiedDetailView() {
   const ks = klasse ? KLASSE_STYLE[klasse] : null
   const effectiveStatus = getStatus(gebied.id, gebied.status ?? 'live')
   const statusCfg = GEBIED_STATUS_CFG[effectiveStatus]
-  const { deleted: deletedPanden,    deleteItem: deletePand }    = useDeletedItems('deleted_panden')
-  const { deleted: deletedTrends,    deleteItem: deleteTrend }   = useDeletedItems('deleted_trends')
-  const { deleted: deletedContacten, deleteItem: deleteContact } = useDeletedItems('deleted_wc')
-  const { items: addedTrends,    addItem: addTrend }   = useAddedItems<Trend>(`added_trends_${gebied.id}`)
-  const { items: addedContacten, addItem: addContact } = useAddedItems<WarmContact>(`added_wc_${gebied.id}`)
-  const { items: addedLeads,     addItem: addLead }    = useAddedItems<KansrijkeLead>(`added_leads_${gebied.id}`)
-  const { items: addedPanden,    addItem: addPand }    = useAddedItems<PandInOntwikkeling>(`added_panden_${gebied.id}`)
   const alleLeads  = [...(gebied.kansrijkeLeads ?? []), ...addedLeads]
 
   const zichtbarePanden    = [...(gebied.pandenInOntwikkeling ?? []), ...addedPanden].filter((p) => !deletedPanden.has(p.id))
