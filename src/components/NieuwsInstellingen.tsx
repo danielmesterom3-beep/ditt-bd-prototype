@@ -166,6 +166,7 @@ export default function NieuwsInstellingen() {
   const [filters, setFilters]   = useState<NieuwsFilters>({ kantoor: DEFAULT_KANTOOR_TERMEN, uitsluit: DEFAULT_UITSLUIT_TERMEN })
   const [queries, setQueries]   = useState<Record<string, string>>(DEFAULT_QUERIES)
   const [savedMsg, setSavedMsg] = useState('')
+  const [extraGebiedenPerStad, setExtraGebiedenPerStad] = useState<Record<string, string[]>>({})
 
   // Bron toevoegen
   const [nieuweBron, setNieuweBron]     = useState({ naam: '', url: '' })
@@ -181,14 +182,27 @@ export default function NieuwsInstellingen() {
   useEffect(() => {
     if (!open) return
     setLoading(true)
+    type StadGebied = { id: string; naam: string }
+    type CustomStad = { id: string; naam: string; gebieden: StadGebied[] }
     Promise.all([
       fetchKey<Bron[]>(BRONNEN_KEY),
       fetchKey<NieuwsFilters>(FILTERS_KEY),
       fetchKey<Record<string, string>>(QUERIES_KEY),
-    ]).then(([b, f, q]) => {
+      fetchKey<Record<string, StadGebied[]>>('extra_gebieden'),
+      fetchKey<CustomStad[]>('custom_steden'),
+    ]).then(([b, f, q, extra, custom]) => {
       if (b && b.length > 0) setBronnen(b)
       if (f) setFilters(f)
       if (q && Object.keys(q).length > 0) setQueries(q)
+      // Bouw extra gebieden map
+      const gebMap: Record<string, string[]> = {}
+      for (const [stadId, gebieden] of Object.entries(extra ?? {})) {
+        gebMap[stadId] = gebieden.map(g => g.naam).filter(n => n.trim())
+      }
+      for (const cs of custom ?? []) {
+        gebMap[cs.id] = cs.gebieden.map(g => g.naam).filter(n => n.trim())
+      }
+      setExtraGebiedenPerStad(gebMap)
       setLoading(false)
     })
   }, [open])
@@ -622,6 +636,9 @@ export default function NieuwsInstellingen() {
                         const kleur = staticStad?.kleur ?? '#6366f1'
                         const defaultQuery = DEFAULT_QUERIES[stad.id]
                           ?? `kantoor+${encodeURIComponent(stad.naam)}+verhuur+OR+transactie+OR+huurder+OR+leegstand`
+                        const staticTermen = staticStad?.zoektermen ?? [stad.naam.toLowerCase()]
+                        const extraTermen  = extraGebiedenPerStad[stad.id] ?? []
+                        const alleTermen   = [...new Set([...staticTermen, ...extraTermen])]
                         return (
                           <div key={stad.id}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
@@ -647,6 +664,24 @@ export default function NieuwsInstellingen() {
                             />
                             <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 3 }}>
                               URL-preview: news.google.com/rss/search?q=<span style={{ color: '#3b82f6' }}>{queries[stad.id] ?? defaultQuery}</span>&hl=nl&gl=NL
+                            </div>
+                            {/* Actieve zoektermen */}
+                            <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 3 }}>
+                              <span style={{ fontSize: 10, color: '#94a3b8', fontStyle: 'italic', marginRight: 2, flexShrink: 0 }}>
+                                Actieve termen:
+                              </span>
+                              {alleTermen.map(t => (
+                                <span
+                                  key={t}
+                                  style={{
+                                    fontSize: 10, fontWeight: 600,
+                                    padding: '1px 7px', borderRadius: 20,
+                                    background: kleur + '18', color: kleur,
+                                  }}
+                                >
+                                  {t}
+                                </span>
+                              ))}
                             </div>
                           </div>
                         )

@@ -23,27 +23,49 @@ async function fetchSupabaseKey<T>(key: string): Promise<T | null> {
 
 // ── STEDEN config inline (Vercel bundelt API routes apart) ───────────────────
 // Bron van waarheid voor frontend: /src/config/steden.ts
-// Als je een stad toevoegt in steden.ts, voeg die ook hier toe.
+// SYNC HOUDEN als je steden.ts aanpast!
 const STEDEN = [
   {
     id: 'rotterdam',
     naam: 'Rotterdam',
     zoektermen: [
-      'rotterdam', 'kop van zuid', 'wilhelminapier', 'wilhelminakade',
-      'coolsingel', 'weena', 'hofplein', 'blaak', 'alexandrium',
-      'katendrecht', 'schiekade',
+      'rotterdam',
+      'kop van zuid', 'wilhelminapier', 'wilhelminakade',
+      'rotterdam centrum', 'scheepvaartkwartier', 'blaak',
+      'coolsingel', 'weena', 'hofplein', 'schiekade',
+      'brainpark', 'alexandrium', 'kralingse zoom',
+      'rotterdam airport', 'zestienhoven',
+      'katendrecht',
     ],
   },
   {
     id: 'eindhoven',
     naam: 'Eindhoven',
     zoektermen: [
-      'eindhoven', 'knoop xl', 'fellenoord', 'strijp-s', 'strijp s', 'strijp',
-      'flight forum', 'brainport', 'high tech campus', 'park forum',
-      'kennedyplein', 'meerhoven', 'woensel',
+      'eindhoven',
+      'strijp-s', 'strijp s', 'strijp',
+      'flight forum', 'airport eindhoven',
+      'high tech campus', 'brainport',
+      'knoop xl', 'fellenoord',
+      'park forum', 'meerhoven',
+      'kennedyplein', 'woensel',
+      'centrum eindhoven',
     ],
   },
 ]
+
+// ── Query builder ─────────────────────────────────────────────────────────────
+// Bouwt een Google News RSS query van zoektermen
+// Termen met spaties worden tussen aanhalingstekens geplaatst
+function buildGoogleQuery(zoektermen: string[]): string {
+  const uniek = [...new Set(zoektermen)].filter(t => t.trim().length > 1)
+  const locaties = uniek.map(t => {
+    const enc = t.trim().replace(/ /g, '+')
+    return t.includes(' ') ? `"${enc}"` : enc
+  })
+  if (locaties.length === 0) return 'kantoor+vastgoed+verhuur+OR+transactie'
+  return `kantoor+${locaties[0]}+OR+${locaties.slice(1).join('+OR+')}+verhuur+OR+transactie+OR+huurder+OR+leegstand`
+}
 
 // ── Hardcoded defaults (fallback als Supabase leeg is) ───────────────────────
 
@@ -52,10 +74,10 @@ const DEFAULT_BRONNEN: Bron[] = [
   { id: 'va', naam: 'Vastgoed Actueel',  url: 'https://vastgoedactueel.nl/feed/',    actief: true },
 ]
 
-const DEFAULT_QUERIES: Record<string, string> = {
-  rotterdam: 'kantoor+Rotterdam+verhuur+OR+transactie+OR+huurder+OR+leegstand',
-  eindhoven: 'kantoor+Eindhoven+verhuur+OR+transactie+OR+huurder+OR+leegstand',
-  db:        'kantoorinrichting+OR+design+build+OR+kantoorverbouwing+Rotterdam+OR+Eindhoven',
+// DEFAULT_QUERIES worden nu dynamisch opgebouwd vanuit STEDEN.zoektermen
+// Zie buildGoogleQuery() — deze fallback wordt alleen gebruikt als STEDEN leeg is
+const FALLBACK_QUERIES: Record<string, string> = {
+  db: 'kantoorinrichting+OR+"design+build"+OR+kantoorverbouwing+Rotterdam+OR+Eindhoven',
 }
 
 const DEFAULT_KANTOOR_TERMEN: string[] = [
@@ -82,8 +104,8 @@ const DEFAULT_UITSLUIT_TERMEN: string[] = [
   'leefbaarheid', 'openbare ruimte', 'stadspark', 'wateroverlast',
 ]
 
-// Alle stadszoektermen gecombineerd (statisch — zoektermen worden niet via UI beheerd)
-const ALLE_STAD_TERMEN = STEDEN.flatMap(s => s.zoektermen)
+// ALLE_STAD_TERMEN wordt dynamisch opgebouwd per request (zie handler)
+// om ook Supabase-gebieden te includeren
 
 // Datum grens: artikelen vóór deze datum worden gefilterd
 const DATUM_GRENS = new Date('2026-02-09T00:00:00Z')
@@ -152,9 +174,9 @@ function berekenScore(titel: string, tekst: string): number {
   return score
 }
 
-function detectSteden(tekst: string): string[] {
-  return STEDEN
-    .filter(stad => stad.zoektermen.some(t => laag(tekst).includes(t)))
+function detectSteden(tekst: string, termenMap: Array<{ id: string; termen: string[] }>): string[] {
+  return termenMap
+    .filter(stad => stad.termen.some(t => laag(tekst).includes(t)))
     .map(s => s.id)
 }
 
@@ -174,34 +196,108 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
   res.setHeader('Cache-Control', 's-maxage=900, stale-while-revalidate=1800')
   res.setHeader('Access-Control-Allow-Origin', '*')
 
-  // ── Laad configuratie uit Supabase (met fallback op defaults) ──────────────
-  const [sbBronnen, sbFilters, sbQueries] = await Promise.all([
+  // ── Laad configuratie uit Supabase ──────────────────────────────────────────
+  type StadGebied = { id: string; naam: string }
+  type CustomStad = { id: string; naam: string; gebieden: StadGebied[] }
+
+  const [sbBronnen, sbFilters, sbQueries, sbCustom, sbExtra] = await Promise.all([
     fetchSupabaseKey<Bron[]>('nieuws_bronnen'),
     fetchSupabaseKey<NieuwsFilters>('nieuws_filters'),
     fetchSupabaseKey<Record<string, string>>('nieuws_queries'),
+    fetchSupabaseKey<CustomStad[]>('custom_steden'),
+    fetchSupabaseKey<Record<string, StadGebied[]>>('extra_gebieden'),
   ])
+
+  // Gebiedsnamen per stad: static steden + Supabase extra gebieden
+  const gebiedNamenPerStad: Record<string, string[]> = {}
+  for (const stad of STEDEN) {
+    const extraGebieden = sbExtra?.[stad.id] ?? []
+    gebiedNamenPerStad[stad.id] = extraGebieden
+      .map(g => g.naam)
+      .filter(n => n.trim().length > 1)
+  }
+
+  // Custom steden: combineer hun gebiedsnamen met de stadsnaam als zoektermen
+  const customSteden = sbCustom ?? []
+  for (const cs of customSteden) {
+    gebiedNamenPerStad[cs.id] = cs.gebieden
+      .map(g => g.naam)
+      .filter(n => n.trim().length > 1)
+  }
+
+  // Bouw ALLE_STAD_TERMEN: statische zoektermen + gebiedsnamen uit Supabase
+  const ALLE_STAD_TERMEN = [
+    ...STEDEN.flatMap(s => [
+      ...s.zoektermen,
+      ...(gebiedNamenPerStad[s.id] ?? []).map(n => n.toLowerCase()),
+    ]),
+    ...customSteden.flatMap(cs => [
+      cs.naam.toLowerCase(),
+      ...(gebiedNamenPerStad[cs.id] ?? []).map(n => n.toLowerCase()),
+    ]),
+  ]
+
+  // Bouw queries dynamisch: per stad zoektermen + extra gebieden
+  // User-override in sbQueries heeft prioriteit
+  const sbQueryOverrides = sbQueries ?? {}
+  const builtQueries: Record<string, string> = {}
+  for (const stad of STEDEN) {
+    if (sbQueryOverrides[stad.id]) {
+      builtQueries[stad.id] = sbQueryOverrides[stad.id]
+    } else {
+      const extraNamen = (gebiedNamenPerStad[stad.id] ?? [])
+      const alleTermen = [...stad.zoektermen, ...extraNamen]
+      builtQueries[stad.id] = buildGoogleQuery(alleTermen)
+    }
+  }
+  for (const cs of customSteden) {
+    if (sbQueryOverrides[cs.id]) {
+      builtQueries[cs.id] = sbQueryOverrides[cs.id]
+    } else {
+      const alleTermen = [cs.naam, ...(gebiedNamenPerStad[cs.id] ?? [])]
+      builtQueries[cs.id] = buildGoogleQuery(alleTermen)
+    }
+  }
+  const dbQuery = sbQueryOverrides['db'] ?? FALLBACK_QUERIES['db']
 
   const activeBronnen = (sbBronnen && sbBronnen.length > 0 ? sbBronnen : DEFAULT_BRONNEN)
     .filter(b => b.actief)
-  const queries = sbQueries && Object.keys(sbQueries).length > 0 ? sbQueries : DEFAULT_QUERIES
   const KANTOOR_TERMEN = sbFilters?.kantoor?.length ? sbFilters.kantoor : DEFAULT_KANTOOR_TERMEN
   const UITSLUIT_TERMEN = sbFilters?.uitsluit?.length ? sbFilters.uitsluit : DEFAULT_UITSLUIT_TERMEN
 
+  // Alle steden waarvoor een Google News feed gebouwd wordt
+  const alleSteden = [
+    ...STEDEN.map(s => ({ id: s.id, naam: s.naam })),
+    ...customSteden.map(cs => ({ id: cs.id, naam: cs.naam })),
+  ]
+
   // Bouw FEEDS dynamisch op
   const VASTE_FEEDS = activeBronnen.map(b => ({ bron: b.naam, url: b.url, stripSourceSuffix: false }))
-  const GOOGLE_FEEDS = STEDEN.map(stad => ({
+  const GOOGLE_FEEDS = alleSteden.map(stad => ({
     bron: `Google News ${stad.naam}`,
-    url: `https://news.google.com/rss/search?q=${queries[stad.id] ?? DEFAULT_QUERIES[stad.id] ?? ''}&hl=nl&gl=NL&ceid=NL:nl`,
+    url: `https://news.google.com/rss/search?q=${builtQueries[stad.id] ?? ''}&hl=nl&gl=NL&ceid=NL:nl`,
     stripSourceSuffix: true,
   }))
   const DB_FEED = {
     bron: 'Google News D&B',
-    url: `https://news.google.com/rss/search?q=${queries['db'] ?? DEFAULT_QUERIES['db']}&hl=nl&gl=NL&ceid=NL:nl`,
+    url: `https://news.google.com/rss/search?q=${dbQuery}&hl=nl&gl=NL&ceid=NL:nl`,
     stripSourceSuffix: true,
   }
   const FEEDS = [...VASTE_FEEDS, ...GOOGLE_FEEDS, DB_FEED]
 
-  console.log(`[nieuws] config: ${activeBronnen.length} vaste bronnen, ${KANTOOR_TERMEN.length} kantoor-termen, ${UITSLUIT_TERMEN.length} uitsluit-termen (${sbBronnen ? 'Supabase' : 'defaults'})`)
+  // TermenMap voor detectSteden: static steden + extra gebieden + custom steden
+  const TERMEN_MAP = [
+    ...STEDEN.map(s => ({
+      id: s.id,
+      termen: [...s.zoektermen, ...(gebiedNamenPerStad[s.id] ?? []).map(n => n.toLowerCase())],
+    })),
+    ...customSteden.map(cs => ({
+      id: cs.id,
+      termen: [cs.naam.toLowerCase(), ...(gebiedNamenPerStad[cs.id] ?? []).map(n => n.toLowerCase())],
+    })),
+  ]
+
+  console.log(`[nieuws] config: ${activeBronnen.length} bronnen, ${alleSteden.length} steden, ${ALLE_STAD_TERMEN.length} zoektermen (Supabase: ${!!sbBronnen})`)
 
   const results: NieuwsApiItem[] = []
   const feedStatus: FeedStatus[] = []
@@ -266,7 +362,7 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
           naUitsluit++
 
           const score  = berekenScore(titel, tekst)
-          const steden = detectSteden(tekst)
+          const steden = detectSteden(tekst, TERMEN_MAP)
           const datum  = isNaN(artikelDatum.getTime()) ? new Date() : artikelDatum
 
           results.push({
