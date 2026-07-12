@@ -58,9 +58,10 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
   const prevIds = useRef<Set<string>>(new Set())
   const isFirst = useRef(true)
 
-  async function fetchNieuws() {
+  async function fetchNieuws(bustCache = false) {
     try {
-      const res = await fetch('/api/nieuws')
+      const url = bustCache ? `/api/nieuws?t=${Date.now()}` : '/api/nieuws'
+      const res = await fetch(url)
       if (!res.ok) return
       const data: { items: NieuwsItem[]; feedStatus: FeedStatus[] } = await res.json()
       if (!isFirst.current) {
@@ -143,7 +144,7 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
             </span>
           )}
           <button
-            onClick={() => { setLoading(true); setNieuwCount(0); fetchNieuws() }}
+            onClick={() => { setLoading(true); setNieuwCount(0); fetchNieuws(true) }}
             style={{ fontSize: 11, padding: '3px 9px', borderRadius: 6, border: '1px solid var(--c-border)', background: 'var(--c-surface)', color: 'var(--c-muted)', cursor: 'pointer' }}
           >
             ↻ Verversen
