@@ -2931,14 +2931,47 @@ function EindhovenGemeenteStrategiePanel() {
 
 // ── Fase 1 Oriëntatie,  samengestelde inhoud per stad ─────────────────────────
 
+// ── Lege stad fallback (custom stad zonder marktdata) ─────────────────────────
+
+function LegeStadFaseContent({ stadNaam }: { stadNaam: string }) {
+  return (
+    <div
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', padding: '40px 24px', gap: 14, textAlign: 'center',
+      }}
+    >
+      <div style={{ fontSize: 32, opacity: 0.3 }}>🏙</div>
+      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)' }}>
+        Geen marktdata voor {stadNaam}
+      </div>
+      <div style={{ fontSize: 12, color: 'var(--c-muted)', maxWidth: 320, lineHeight: 1.6 }}>
+        Dit is een nieuwe stad zonder vooringestelde data. Fase-inhoud wordt zichtbaar zodra marktdata is geconfigureerd.
+      </div>
+      <button
+        onClick={() => { window.location.hash = '#beheer' }}
+        style={{
+          marginTop: 4, padding: '8px 18px', borderRadius: 8,
+          fontSize: 12, fontWeight: 600, cursor: 'pointer',
+          background: 'var(--c-coral)', color: '#fff', border: 'none',
+        }}
+      >
+        Ga naar Beheer →
+      </button>
+    </div>
+  )
+}
+
 function Fase1OrientatieContent({ stadNaam }: { stadNaam: string }) {
-  const stadId = stadNaam.toLowerCase() as 'eindhoven' | 'rotterdam'
-  const mc     = MARKTCAP_STEDEN.find((s) => s.naam === stadNaam)!
+  const stadId = stadNaam.toLowerCase()
+  const mc     = MARKTCAP_STEDEN.find((s) => s.naam === stadNaam)
   const jll    = JLL[stadId]?.['Q4 2025']
   const stadVVO = STAD_KANTOOR_VVO[stadId] ?? 0
 
   const [openVeld,    setOpenVeld]    = useState(false)
   const [deletedVeld, setDeletedVeld] = useState<Set<string>>(new Set())
+
+  if (!mc) return <LegeStadFaseContent stadNaam={stadNaam} />
 
   const inzichtFilter = (inzicht: VeldonderzoekInzicht) =>
     !inzicht.stad || inzicht.stad === stadId || inzicht.stad === 'both'
@@ -3940,8 +3973,8 @@ const FASE_BADGE: Record<string, OntwikkelingFaseBadge> = {
 
 function Fase3ProspectingContent({ stadNaam }: { stadNaam: string }) {
   const { allSteden: steden } = useAllSteden()
-  const stadId = stadNaam.toLowerCase() as 'eindhoven' | 'rotterdam'
-  const colors = STAD_COLORS[stadId]
+  const stadId = stadNaam.toLowerCase()
+  const colors = getStadColor(stadId)
 
   const [openVeldonderzoek, setOpenVeldonderzoek] = useState(false)
   const [openPanden, setOpenPanden] = useState(false)
@@ -4545,6 +4578,7 @@ const F4_ELEVATOR_PITCH =
   'binnen budget en met een resultaat waar mensen blij van worden.'
 
 function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
+  // stadId used as string key — safe for custom steden
   const [product,    setProduct]    = useState<F2Product>('design-and-build')
   const [partijType, setPartijType] = useState<F4Partij>('eigenaar')
   const [m2Input,    setM2Input]    = useState<string>('')
@@ -4818,7 +4852,7 @@ function Fase4AcquisitieContent({ stadNaam }: { stadNaam: string }) {
 
 function Fase2NetwerkContent({ stadNaam }: { stadNaam: string }) {
   const { allSteden: steden } = useAllSteden()
-  const stadId = stadNaam.toLowerCase() as 'eindhoven' | 'rotterdam'
+  const stadId = stadNaam.toLowerCase()
   const [product,    setProduct]    = useState<F2Product>('design-and-build')
   const [partijType, setPartijType] = useState<F2Partij>('makelaar')
 

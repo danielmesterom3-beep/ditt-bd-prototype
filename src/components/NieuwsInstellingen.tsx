@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useEditMode } from '../context/EditContext'
+import { useAllSteden } from '../context/CustomStedenContext'
 import { STEDEN } from '../config/steden'
 
 // ── Defaults (fallback als Supabase leeg is) ────────────────────────────────
@@ -155,6 +156,7 @@ function TagInput({
 
 export default function NieuwsInstellingen() {
   const { isEditMode } = useEditMode()
+  const { allSteden: alleSteden } = useAllSteden()
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState<'bronnen' | 'filters' | 'queries'>('bronnen')
   const [loading, setLoading] = useState(false)
@@ -614,43 +616,41 @@ export default function NieuwsInstellingen() {
                         Google News RSS-feeds worden opgebouwd uit deze zoekopdrachten. Gebruik + als spatie en OR voor alternatieven.
                       </div>
 
-                      {/* Steden queries */}
-                      {STEDEN.map(stad => (
-                        <div key={stad.id}>
-                          <div
-                            style={{
-                              display: 'flex', alignItems: 'center', gap: 8,
-                              marginBottom: 6,
-                            }}
-                          >
-                            <span
+                      {/* Steden queries — alle steden incl. custom */}
+                      {alleSteden.map(stad => {
+                        const staticStad = STEDEN.find(s => s.id === stad.id)
+                        const kleur = staticStad?.kleur ?? '#6366f1'
+                        const defaultQuery = DEFAULT_QUERIES[stad.id]
+                          ?? `kantoor+${encodeURIComponent(stad.naam)}+verhuur+OR+transactie+OR+huurder+OR+leegstand`
+                        return (
+                          <div key={stad.id}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                              <span style={{ width: 10, height: 10, borderRadius: '50%', background: kleur, flexShrink: 0, display: 'inline-block' }} />
+                              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>
+                                Google News {stad.naam}
+                              </span>
+                              {!staticStad && (
+                                <span style={{ fontSize: 10, color: '#94a3b8', fontStyle: 'italic' }}>nieuwe stad</span>
+                              )}
+                            </div>
+                            <textarea
+                              value={queries[stad.id] ?? defaultQuery}
+                              onChange={e => updateQuery(stad.id, e.target.value)}
+                              rows={2}
                               style={{
-                                width: 10, height: 10, borderRadius: '50%',
-                                background: stad.kleur, flexShrink: 0,
-                                display: 'inline-block',
+                                width: '100%', fontSize: 11, padding: '8px 10px',
+                                borderRadius: 8, border: '1px solid #e2e8f0',
+                                background: '#fff', color: '#1e293b',
+                                resize: 'vertical', fontFamily: 'monospace',
+                                boxSizing: 'border-box', outline: 'none',
                               }}
                             />
-                            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>
-                              Google News {stad.naam}
-                            </span>
+                            <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 3 }}>
+                              URL-preview: news.google.com/rss/search?q=<span style={{ color: '#3b82f6' }}>{queries[stad.id] ?? defaultQuery}</span>&hl=nl&gl=NL
+                            </div>
                           </div>
-                          <textarea
-                            value={queries[stad.id] ?? ''}
-                            onChange={e => updateQuery(stad.id, e.target.value)}
-                            rows={2}
-                            style={{
-                              width: '100%', fontSize: 11, padding: '8px 10px',
-                              borderRadius: 8, border: '1px solid #e2e8f0',
-                              background: '#fff', color: '#1e293b',
-                              resize: 'vertical', fontFamily: 'monospace',
-                              boxSizing: 'border-box', outline: 'none',
-                            }}
-                          />
-                          <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 3 }}>
-                            URL-preview: news.google.com/rss/search?q=<span style={{ color: '#3b82f6' }}>{queries[stad.id] ?? ''}</span>&hl=nl&gl=NL
-                          </div>
-                        </div>
-                      ))}
+                        )
+                      })}
 
                       {/* D&B feed */}
                       <div>

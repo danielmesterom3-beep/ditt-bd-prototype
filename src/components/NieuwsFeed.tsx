@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { STEDEN } from '../config/steden'
+import { useAllSteden } from '../context/CustomStedenContext'
 
 interface NieuwsItem {
   id: string
@@ -46,6 +47,7 @@ function tijdGeleden(iso: string): string {
 }
 
 export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
+  const { allSteden: alleSteden } = useAllSteden()
   const [items, setItems]             = useState<NieuwsItem[]>([])
   const [feedStatus, setFeedStatus]   = useState<FeedStatus[]>([])
   const [loading, setLoading]         = useState(true)
@@ -188,12 +190,15 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
         </div>
       )}
 
-      {/* Stad toggle — dynamisch vanuit STEDEN config */}
+      {/* Stad toggle — alle steden incl. custom */}
       {!stadFilter && (
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-          {['alle', ...STEDEN.map(s => s.id)].map(id => {
-            const stad = STEDEN.find(s => s.id === id)
-            const isActive = stadToggle === id
+          {['alle', ...alleSteden.map(s => s.id)].map(id => {
+            const staticStad = STEDEN.find(s => s.id === id)
+            const alleStad   = alleSteden.find(s => s.id === id)
+            const kleur      = staticStad?.kleur ?? '#6366f1'
+            const naam       = alleStad?.naam ?? id
+            const isActive   = stadToggle === id
             return (
               <button
                 key={id}
@@ -202,11 +207,11 @@ export default function NieuwsFeed({ stadFilter }: { stadFilter?: string }) {
                   fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
                   cursor: 'pointer', border: '1px solid',
                   borderColor: isActive ? 'transparent' : 'var(--c-border)',
-                  background: isActive ? (stad?.kleur ?? '#1e40af') : 'var(--c-surface)',
+                  background: isActive ? kleur : 'var(--c-surface)',
                   color: isActive ? '#fff' : 'var(--c-muted)',
                 }}
               >
-                {id === 'alle' ? 'Alle' : stad?.naam ?? id}
+                {id === 'alle' ? 'Alle' : naam}
               </button>
             )
           })}
