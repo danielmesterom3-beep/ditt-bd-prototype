@@ -12,6 +12,7 @@ import GebiedDetailView from './views/GebiedDetailView'
 import BeheerView from './views/BeheerView'
 import Breadcrumb from './components/Breadcrumb'
 import NieuwsFeed from './components/NieuwsFeed'
+import NieuwsInstellingen from './components/NieuwsInstellingen'
 
 // ── UndoButton ────────────────────────────────────────────────────────────────
 
@@ -329,9 +330,12 @@ function AppContent() {
                 {showMarkt  && viewMode === 'kaart'     && <MarktDashboard />}
                 {showMarkt  && viewMode === 'nieuws'    && (
                   <div>
-                    <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--c-text)', marginBottom: 16 }}>
-                      Marktnieuws
-                    </h2>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                      <h2 style={{ fontSize: 15, fontWeight: 700, color: 'var(--c-text)' }}>
+                        Marktnieuws
+                      </h2>
+                      <NieuwsInstellingen />
+                    </div>
                     <NieuwsFeed />
                   </div>
                 )}

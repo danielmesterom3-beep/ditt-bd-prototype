@@ -1,6 +1,27 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
-// STEDEN config inline (Vercel bundelt API routes apart — cross-directory import faalt runtime)
+// ── Supabase config (beschikbaar als process.env in Vercel serverless) ───────
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL ?? ''
+const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY ?? ''
+
+interface Bron { id: string; naam: string; url: string; actief: boolean }
+interface NieuwsFilters { kantoor: string[]; uitsluit: string[] }
+
+async function fetchSupabaseKey<T>(key: string): Promise<T | null> {
+  if (!SUPABASE_URL || !SUPABASE_KEY) return null
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/edits?key=eq.${encodeURIComponent(key)}&select=value&limit=1`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    )
+    if (!r.ok) return null
+    const rows: { value: string }[] = await r.json()
+    if (rows[0]?.value) return JSON.parse(rows[0].value) as T
+  } catch { /* ignore */ }
+  return null
+}
+
+// ── STEDEN config inline (Vercel bundelt API routes apart) ───────────────────
 // Bron van waarheid voor frontend: /src/config/steden.ts
 // Als je een stad toevoegt in steden.ts, voeg die ook hier toe.
 const STEDEN = [
@@ -12,7 +33,6 @@ const STEDEN = [
       'coolsingel', 'weena', 'hofplein', 'blaak', 'alexandrium',
       'katendrecht', 'schiekade',
     ],
-    googleNewsQuery: 'kantoor+Rotterdam+verhuur+OR+transactie+OR+huurder+OR+leegstand',
   },
   {
     id: 'eindhoven',
@@ -22,36 +42,23 @@ const STEDEN = [
       'flight forum', 'brainport', 'high tech campus', 'park forum',
       'kennedyplein', 'meerhoven', 'woensel',
     ],
-    googleNewsQuery: 'kantoor+Eindhoven+verhuur+OR+transactie+OR+huurder+OR+leegstand',
   },
 ]
 
-// Vaste feeds
-const VASTE_FEEDS = [
-  { bron: 'Vastgoedjournaal', url: 'https://vastgoedjournaal.nl/news/rss', stripSourceSuffix: false },
-  { bron: 'Vastgoed Actueel', url: 'https://vastgoedactueel.nl/feed/',     stripSourceSuffix: false },
+// ── Hardcoded defaults (fallback als Supabase leeg is) ───────────────────────
+
+const DEFAULT_BRONNEN: Bron[] = [
+  { id: 'vj', naam: 'Vastgoedjournaal', url: 'https://vastgoedjournaal.nl/news/rss', actief: true },
+  { id: 'va', naam: 'Vastgoed Actueel',  url: 'https://vastgoedactueel.nl/feed/',    actief: true },
 ]
 
-// Google News feeds dynamisch per stad + D&B
-const GOOGLE_FEEDS = STEDEN.map(stad => ({
-  bron: `Google News ${stad.naam}`,
-  url: `https://news.google.com/rss/search?q=${stad.googleNewsQuery}&hl=nl&gl=NL&ceid=NL:nl`,
-  stripSourceSuffix: true,
-}))
-
-const DB_FEED = {
-  bron: 'Google News D&B',
-  url: 'https://news.google.com/rss/search?q=kantoorinrichting+OR+design+build+OR+kantoorverbouwing+Rotterdam+OR+Eindhoven&hl=nl&gl=NL&ceid=NL:nl',
-  stripSourceSuffix: true,
+const DEFAULT_QUERIES: Record<string, string> = {
+  rotterdam: 'kantoor+Rotterdam+verhuur+OR+transactie+OR+huurder+OR+leegstand',
+  eindhoven: 'kantoor+Eindhoven+verhuur+OR+transactie+OR+huurder+OR+leegstand',
+  db:        'kantoorinrichting+OR+design+build+OR+kantoorverbouwing+Rotterdam+OR+Eindhoven',
 }
 
-const FEEDS = [...VASTE_FEEDS, ...GOOGLE_FEEDS, DB_FEED]
-
-// Alle stadszoektermen gecombineerd
-const ALLE_STAD_TERMEN = STEDEN.flatMap(s => s.zoektermen)
-
-// Kantoor-relevantie: VERPLICHT — beide checks (stad + kantoor) moeten true zijn
-const KANTOOR_TERMEN = [
+const DEFAULT_KANTOOR_TERMEN: string[] = [
   'kantoor', 'kantoren', 'office', 'werkplek', 'werkomgeving',
   'verhuur', 'verhuurd', 'huurder', 'huurovereenkomst',
   'eigenaar', 'belegger', 'vastgoedbelegger', 'asset manager',
@@ -61,22 +68,22 @@ const KANTOOR_TERMEN = [
   'herontwikkeling', 'renovatie', 'transformatie', 'oplevering',
   'inrichting', 'design build', 'interieur', 'fit-out', 'verbouwing',
   'commercieel vastgoed', 'bedrijfsruimte',
-  // 'nieuwbouw' verwijderd — te breed (ook groen/wonen/infra)
 ]
 
-// Uitsluitingstermen
-const UITSLUIT_TERMEN = [
+const DEFAULT_UITSLUIT_TERMEN: string[] = [
   'woning', 'woningen', 'woningbouw', 'woningmarkt', 'koopwoning', 'huurwoning',
   'sociale huur', 'hypotheek', 'huizenprijs', 'eengezins', 'corporatie',
   'ouderenwoning', 'zorgwoning', 'appartement', 'nieuwbouwwoning',
   'slaapkamer', 'kookeiland', 'badkamer', 'tuin', 'balkon',
   'vacature', 'topvacature', 'register-taxateur', 'in dienst getreden',
   'benoemd tot', 'carrière', 'overstap naar',
-  // klimaat/duurzaamheid — geen kantoorvastgoed
   'klimaatadaptatie', 'biodiversiteit', 'groene daken', 'groendak',
   'zonnepanelen', 'energielabel', 'warmtepomp', 'verduurzaming',
   'leefbaarheid', 'openbare ruimte', 'stadspark', 'wateroverlast',
 ]
+
+// Alle stadszoektermen gecombineerd (statisch — zoektermen worden niet via UI beheerd)
+const ALLE_STAD_TERMEN = STEDEN.flatMap(s => s.zoektermen)
 
 // Datum grens: artikelen vóór deze datum worden gefilterd
 const DATUM_GRENS = new Date('2026-02-09T00:00:00Z')
@@ -166,6 +173,35 @@ export default async function handler(_req: IncomingMessage, res: ServerResponse
   res.setHeader('Content-Type', 'application/json')
   res.setHeader('Cache-Control', 's-maxage=900, stale-while-revalidate=1800')
   res.setHeader('Access-Control-Allow-Origin', '*')
+
+  // ── Laad configuratie uit Supabase (met fallback op defaults) ──────────────
+  const [sbBronnen, sbFilters, sbQueries] = await Promise.all([
+    fetchSupabaseKey<Bron[]>('nieuws_bronnen'),
+    fetchSupabaseKey<NieuwsFilters>('nieuws_filters'),
+    fetchSupabaseKey<Record<string, string>>('nieuws_queries'),
+  ])
+
+  const activeBronnen = (sbBronnen && sbBronnen.length > 0 ? sbBronnen : DEFAULT_BRONNEN)
+    .filter(b => b.actief)
+  const queries = sbQueries && Object.keys(sbQueries).length > 0 ? sbQueries : DEFAULT_QUERIES
+  const KANTOOR_TERMEN = sbFilters?.kantoor?.length ? sbFilters.kantoor : DEFAULT_KANTOOR_TERMEN
+  const UITSLUIT_TERMEN = sbFilters?.uitsluit?.length ? sbFilters.uitsluit : DEFAULT_UITSLUIT_TERMEN
+
+  // Bouw FEEDS dynamisch op
+  const VASTE_FEEDS = activeBronnen.map(b => ({ bron: b.naam, url: b.url, stripSourceSuffix: false }))
+  const GOOGLE_FEEDS = STEDEN.map(stad => ({
+    bron: `Google News ${stad.naam}`,
+    url: `https://news.google.com/rss/search?q=${queries[stad.id] ?? DEFAULT_QUERIES[stad.id] ?? ''}&hl=nl&gl=NL&ceid=NL:nl`,
+    stripSourceSuffix: true,
+  }))
+  const DB_FEED = {
+    bron: 'Google News D&B',
+    url: `https://news.google.com/rss/search?q=${queries['db'] ?? DEFAULT_QUERIES['db']}&hl=nl&gl=NL&ceid=NL:nl`,
+    stripSourceSuffix: true,
+  }
+  const FEEDS = [...VASTE_FEEDS, ...GOOGLE_FEEDS, DB_FEED]
+
+  console.log(`[nieuws] config: ${activeBronnen.length} vaste bronnen, ${KANTOOR_TERMEN.length} kantoor-termen, ${UITSLUIT_TERMEN.length} uitsluit-termen (${sbBronnen ? 'Supabase' : 'defaults'})`)
 
   const results: NieuwsApiItem[] = []
   const feedStatus: FeedStatus[] = []
