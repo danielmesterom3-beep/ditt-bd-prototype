@@ -77,6 +77,7 @@ function EditModeButton() {
     <>
       <button
         onClick={() => isEditMode ? lock() : setShowDialog(true)}
+        title={isEditMode ? 'Klik om bewerkingsmodus uit te zetten' : 'Klik om bewerkingsmodus te ontgrendelen met wachtwoord — klik daarna op elke tekst om deze te bewerken'}
         style={{
           fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 6,
           background: isEditMode ? '#1a3a1a' : '#1c1c1c',
@@ -171,6 +172,7 @@ const VIEW_TABS: { id: ViewMode; label: string }[] = [
 
 function AppContent() {
   const { geselecteerdGebied } = useNavigation()
+  const { isEditMode } = useEditMode()
   const [viewMode, setViewMode] = useState<ViewMode>('overzicht')
   const [isBeheer, setIsBeheer] = useState(() => window.location.hash === '#beheer')
 
@@ -255,6 +257,7 @@ function AppContent() {
           ) : (
             <button
               onClick={openBeheer}
+              title="Steden en gebieden beheren: status instellen, steden toevoegen/verwijderen, gebieden aanmaken, wachtwoord wijzigen"
               style={{
                 fontSize: 11,
                 fontWeight: 600,
@@ -272,6 +275,26 @@ function AppContent() {
           )}
         </div>
       </header>
+
+      {/* ── Bewerkingsmodus banner ────────────────────────────────────── */}
+      {isEditMode && !isBeheer && (
+        <div
+          style={{
+            background: '#1a3a1a',
+            borderBottom: '1px solid #166534',
+            padding: '6px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            flexShrink: 0,
+          }}
+        >
+          <span style={{ fontSize: 10, color: '#4ade80' }}>●</span>
+          <span style={{ fontSize: 12, color: '#86efac', fontWeight: 500 }}>
+            Bewerkingsmodus actief — klik op elke tekst om deze te bewerken. Getallen zijn klikbaar via het potlood-icoontje. Structuurwijzigingen (steden/gebieden) via de <strong style={{ color: '#4ade80' }}>Beheer</strong> knop rechtsboven.
+          </span>
+        </div>
+      )}
 
       {/* ── Beheer view ─────────────────────────────────────────────────── */}
       {isBeheer && (

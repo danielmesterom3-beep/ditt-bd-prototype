@@ -575,9 +575,13 @@ function GebiedCard({ gebied }: { gebied: Gebied }) {
 // MarktDashboard
 
 export default function MarktDashboard() {
-  const { allSteden: steden } = useAllSteden()
+  const { allSteden: steden, customSteden, addStad, removeStad } = useAllSteden()
   const { geselecteerdeStad, setStad } = useNavigation()
   const { filters } = useFilters()
+  const { isEditMode } = useEditMode()
+  const [showNieuwStad, setShowNieuwStad] = useState(false)
+  const [nieuwStadNaam, setNieuwStadNaam] = useState('')
+  const [bevestigVerwijder, setBevestigVerwijder] = useState<string | null>(null)
 
   const huidigStad = geselecteerdeStad ?? steden[0]
 
@@ -604,27 +608,158 @@ export default function MarktDashboard() {
           >
             Stad
           </div>
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5 flex-wrap items-center">
             {steden.map((stad) => {
               const active = stad.id === huidigStad.id
+              const isCustom = customSteden.some((c) => c.id === stad.id)
               return (
-                <button
-                  key={stad.id}
-                  onClick={() => setStad(stad)}
-                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
-                  style={{
-                    background: active ? 'var(--c-coral)' : 'var(--c-surface)',
-                    color: active ? '#fff' : 'var(--c-muted)',
-                    border: `1px solid ${active ? 'var(--c-coral)' : 'var(--c-border)'}`,
-                    cursor: 'pointer',
-                    boxShadow: active ? '0 2px 8px rgba(255,127,80,0.3)' : 'none',
-                  }}
-                >
-                  {stad.naam}
-                </button>
+                <div key={stad.id} className="relative inline-flex">
+                  <button
+                    onClick={() => setStad(stad)}
+                    className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                    style={{
+                      background: active ? 'var(--c-coral)' : 'var(--c-surface)',
+                      color: active ? '#fff' : 'var(--c-muted)',
+                      border: `1px solid ${active ? 'var(--c-coral)' : 'var(--c-border)'}`,
+                      cursor: 'pointer',
+                      boxShadow: active ? '0 2px 8px rgba(255,127,80,0.3)' : 'none',
+                      paddingRight: isEditMode && isCustom ? 24 : undefined,
+                    }}
+                  >
+                    {stad.naam}
+                  </button>
+                  {isEditMode && isCustom && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setBevestigVerwijder(stad.id) }}
+                      title="Stad verwijderen"
+                      style={{
+                        position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)',
+                        width: 16, height: 16, borderRadius: '50%',
+                        border: '1px solid rgba(255,255,255,0.5)',
+                        background: 'rgba(0,0,0,0.25)',
+                        color: '#fff', fontSize: 10, lineHeight: 1,
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        padding: 0,
+                      }}
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
               )
             })}
+
+            {/* Nieuwe stad toevoegen — alleen in edit mode */}
+            {isEditMode && !showNieuwStad && (
+              <button
+                onClick={() => { setShowNieuwStad(true); setNieuwStadNaam('') }}
+                className="px-3 py-2 rounded-lg text-sm font-medium transition-all"
+                style={{
+                  background: 'transparent',
+                  color: 'var(--c-subtle)',
+                  border: '1.5px dashed var(--c-border)',
+                  cursor: 'pointer',
+                  lineHeight: 1,
+                }}
+              >
+                +
+              </button>
+            )}
+            {isEditMode && showNieuwStad && (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault()
+                  const naam = nieuwStadNaam.trim()
+                  if (!naam) return
+                  await addStad(naam)
+                  setShowNieuwStad(false)
+                  setNieuwStadNaam('')
+                }}
+                style={{ display: 'flex', gap: 4, alignItems: 'center' }}
+              >
+                <input
+                  autoFocus
+                  placeholder="Stadsnaam"
+                  value={nieuwStadNaam}
+                  onChange={(e) => setNieuwStadNaam(e.target.value)}
+                  style={{
+                    padding: '5px 10px', fontSize: 13, borderRadius: 8,
+                    border: '1.5px dashed var(--c-border)', outline: 'none',
+                    background: 'var(--c-surface)', color: 'var(--c-text)',
+                    width: 130,
+                  }}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    padding: '5px 10px', fontSize: 12, fontWeight: 600, borderRadius: 7,
+                    border: 'none', background: '#1a1a1a', color: '#fff', cursor: 'pointer',
+                  }}
+                >
+                  Toevoegen
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowNieuwStad(false)}
+                  style={{
+                    padding: '5px 8px', fontSize: 12, borderRadius: 7,
+                    border: '1px solid var(--c-border)', background: 'none', cursor: 'pointer',
+                    color: 'var(--c-muted)',
+                  }}
+                >
+                  ×
+                </button>
+              </form>
+            )}
           </div>
+
+          {/* Bevestigingsdialoog verwijderen stad */}
+          {bevestigVerwijder && (() => {
+            const te = steden.find((s) => s.id === bevestigVerwijder)
+            return (
+              <div
+                style={{
+                  position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+                }}
+                onClick={() => setBevestigVerwijder(null)}
+              >
+                <div
+                  style={{
+                    background: 'var(--c-surface)', borderRadius: 12,
+                    padding: '24px 28px', maxWidth: 360, width: '90%',
+                    border: '1px solid var(--c-border)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <p style={{ fontSize: 14, color: 'var(--c-text)', marginBottom: 6, fontWeight: 600 }}>
+                    Stad verwijderen
+                  </p>
+                  <p style={{ fontSize: 13, color: 'var(--c-muted)', marginBottom: 20 }}>
+                    Weet je zeker dat je <strong>{te?.naam}</strong> wilt verwijderen? Alle data van deze stad gaat verloren.
+                  </p>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={() => setBevestigVerwijder(null)}
+                      style={{ padding: '6px 14px', fontSize: 13, borderRadius: 7, border: '1px solid var(--c-border)', background: 'none', cursor: 'pointer', color: 'var(--c-muted)' }}
+                    >
+                      Annuleren
+                    </button>
+                    <button
+                      onClick={async () => {
+                        await removeStad(bevestigVerwijder)
+                        setBevestigVerwijder(null)
+                      }}
+                      style={{ padding: '6px 14px', fontSize: 13, fontWeight: 600, borderRadius: 7, border: 'none', background: '#dc2626', color: '#fff', cursor: 'pointer' }}
+                    >
+                      Verwijderen
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
         </div>
 
         {/* Aggregate stats */}

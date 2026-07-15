@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useEditMode } from '../context/EditContext'
-import { queueChange } from '../components/EditableText'
+import { queueChange, getEditableText } from '../components/EditableText'
 import type {
   LocatieKlasse,
   PandInOntwikkeling,
@@ -27,6 +27,16 @@ function useDeletedItems(storageKey: string) {
   const [deleted, setDeleted] = useState<Set<string>>(() => {
     try { return new Set(JSON.parse(localStorage.getItem(storageKey) ?? '[]')) } catch { return new Set() }
   })
+  // Sync vanuit Supabase (realtime + incognito): luister naar remote edits
+  useEffect(() => {
+    function handler(e: Event) {
+      const { key, value } = (e as CustomEvent<{ key: string; value: string | null }>).detail
+      if (key !== storageKey) return
+      try { setDeleted(value ? new Set(JSON.parse(value)) : new Set()) } catch {}
+    }
+    window.addEventListener('ditt-remote-edit', handler)
+    return () => window.removeEventListener('ditt-remote-edit', handler)
+  }, [storageKey])
   function deleteItem(id: string) {
     setDeleted(prev => {
       const next = new Set(prev)
@@ -454,8 +464,40 @@ function ActionBtn({
   )
 }
 
+type ContactStatus = 'warm' | 'koud' | 'actief'
+const CONTACT_STATUS_CFG: Record<ContactStatus, { label: string; bg: string; text: string; border: string; cardBg: string; cardBorder: string; cardLeft: string }> = {
+  warm:   { label: 'Warm contact',   bg: '#d97706', text: '#fff',    border: '#d97706', cardBg: 'linear-gradient(160deg, #fffbeb 0%, #fefce8 100%)', cardBorder: '#fcd34d', cardLeft: '#d97706' },
+  koud:   { label: 'Koud contact',   bg: '#6b7280', text: '#fff',    border: '#6b7280', cardBg: 'linear-gradient(160deg, #f9fafb 0%, #f3f4f6 100%)', cardBorder: '#e5e7eb', cardLeft: '#9ca3af' },
+  actief: { label: 'Actief contact', bg: '#059669', text: '#fff',    border: '#059669', cardBg: 'linear-gradient(160deg, #f0fdf4 0%, #dcfce7 100%)', cardBorder: '#86efac', cardLeft: '#059669' },
+}
+const STATUS_CYCLE: ContactStatus[] = ['warm', 'koud', 'actief']
+
 function WarmContactCard({ contact, onDelete }: { contact: WarmContact; onDelete?: () => void }) {
+  const { isEditMode } = useEditMode()
   const [showNote, setShowNote] = useState(false)
+  const statusKey = `wc.${contact.id}.status`
+  const [status, setStatus] = useState<ContactStatus>(() => {
+    const stored = getEditableText(statusKey, '')
+    return (stored as ContactStatus) || 'warm'
+  })
+
+  useEffect(() => {
+    function handler(e: Event) {
+      const { key, value } = (e as CustomEvent<{ key: string; value: string | null }>).detail
+      if (key === statusKey && value) setStatus(value as ContactStatus)
+    }
+    window.addEventListener('ditt-remote-edit', handler)
+    return () => window.removeEventListener('ditt-remote-edit', handler)
+  }, [statusKey])
+
+  function cycleStatus() {
+    const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(status) + 1) % STATUS_CYCLE.length]
+    setStatus(next)
+    queueChange(statusKey, next)
+    localStorage.setItem(statusKey, next)
+  }
+
+  const cfg = CONTACT_STATUS_CFG[status]
   const heeftEmail    = !!contact.email
   const heeftTelefoon = !!contact.telefoon
   const heeftNotitie  = !!contact.notitie
@@ -463,38 +505,37 @@ function WarmContactCard({ contact, onDelete }: { contact: WarmContact; onDelete
   return (
     <div
       style={{
-        background: 'linear-gradient(160deg, #fffbeb 0%, #fefce8 100%)',
-        border: '1px solid #fcd34d',
-        borderLeft: '4px solid #d97706',
+        background: cfg.cardBg,
+        border: `1px solid ${cfg.cardBorder}`,
+        borderLeft: `4px solid ${cfg.cardLeft}`,
         borderRadius: 12,
         overflow: 'hidden',
-        boxShadow: '0 2px 8px rgba(217,119,6,0.08)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
         position: 'relative',
       }}
     >
       <DeleteBtn onDelete={onDelete ?? (() => {})} />
-      {/* Warm badge + header */}
+      {/* Status badge + header */}
       <div style={{ padding: '14px 16px 12px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
           <div>
             <EditableText storageKey={`wc.${contact.id}.naam`} defaultValue={contact.naam || 'Naamloos'} style={{ fontWeight: 700, fontSize: 13, color: '#1a1a1a' }} />
             <EditableText storageKey={`wc.${contact.id}.organisatie`} defaultValue={contact.organisatie} style={{ fontSize: 12, color: '#78716c', marginTop: 2, display: 'block' }} />
           </div>
-          <span
+          <button
+            onClick={isEditMode ? cycleStatus : undefined}
+            title={isEditMode ? `Status: ${cfg.label} — klik om te wisselen` : cfg.label}
             style={{
-              fontSize: 9,
-              fontWeight: 800,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              padding: '3px 8px',
-              borderRadius: 20,
-              background: '#d97706',
-              color: '#fff',
-              flexShrink: 0,
+              fontSize: 9, fontWeight: 800, letterSpacing: '0.1em',
+              textTransform: 'uppercase', padding: '3px 8px', borderRadius: 20,
+              background: cfg.bg, color: cfg.text, flexShrink: 0,
+              border: 'none', cursor: isEditMode ? 'pointer' : 'default',
+              outline: isEditMode ? '2px dashed rgba(255,255,255,0.4)' : 'none',
+              outlineOffset: 2,
             }}
           >
-            Warm contact
-          </span>
+            {cfg.label}
+          </button>
         </div>
 
         {/* Rol badge */}

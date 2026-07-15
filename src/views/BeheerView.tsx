@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAllSteden } from '../context/CustomStedenContext'
 import { useGebiedStatus } from '../context/GebiedStatusContext'
+import { useEditMode } from '../context/EditContext'
 import type { GebiedStatus } from '../data/types'
 
 // ── Status badge config ───────────────────────────────────────────────────────
@@ -79,12 +80,35 @@ function StatusCycleButton({
 export default function BeheerView() {
   const { allSteden: steden, customSteden, addStad, removeStad, addGebied, removeGebied, isExtraGebied } = useAllSteden()
   const { getStatus, setStatus, overrides } = useGebiedStatus()
+  const { changePin } = useEditMode()
   const [stadAanmakenOpen, setStadAanmakenOpen] = useState(false)
   const [nieuwStadNaam, setNieuwStadNaam] = useState('')
   const [bezig, setBezig] = useState(false)
   const [nieuwGebiedStad, setNieuwGebiedStad] = useState<string | null>(null)
   const [nieuwGebiedNaam, setNieuwGebiedNaam] = useState('')
   const [gebiedBezig, setGebiedBezig] = useState(false)
+
+  // PIN wijzigen
+  const [pinForm, setPinForm] = useState({ huidig: '', nieuw: '', bevestig: '' })
+  const [pinMsg, setPinMsg] = useState<{ ok: boolean; tekst: string } | null>(null)
+  const [pinBezig, setPinBezig] = useState(false)
+
+  async function handlePinWijzigen(e: React.FormEvent) {
+    e.preventDefault()
+    if (pinForm.nieuw !== pinForm.bevestig) {
+      setPinMsg({ ok: false, tekst: 'Nieuw wachtwoord en bevestiging komen niet overeen.' })
+      return
+    }
+    setPinBezig(true)
+    const result = await changePin(pinForm.huidig, pinForm.nieuw)
+    setPinBezig(false)
+    if (result.ok) {
+      setPinMsg({ ok: true, tekst: 'Wachtwoord gewijzigd. Alle gebruikers moeten opnieuw inloggen.' })
+      setPinForm({ huidig: '', nieuw: '', bevestig: '' })
+    } else {
+      setPinMsg({ ok: false, tekst: result.fout ?? 'Onbekende fout.' })
+    }
+  }
 
   async function handleStadAanmaken() {
     const naam = nieuwStadNaam.trim()
@@ -498,6 +522,72 @@ export default function BeheerView() {
           </div>
         </div>
       )}
+
+      {/* ── Wachtwoord wijzigen ── */}
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--c-subtle)', marginBottom: 14 }}>
+          Bewerkingsmodus · wachtwoord
+        </div>
+        <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ padding: '14px 18px', background: '#faf9f7', borderBottom: '1px solid var(--c-border)' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-text)' }}>Wachtwoord wijzigen</div>
+            <div style={{ fontSize: 12, color: 'var(--c-muted)', marginTop: 3 }}>
+              Sla het nieuwe wachtwoord op een veilige plek op en deel het met je team. Wijziging is direct actief voor alle gebruikers.
+            </div>
+          </div>
+          <form onSubmit={handlePinWijzigen} style={{ padding: '18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-subtle)', display: 'block', marginBottom: 4 }}>Huidig wachtwoord</label>
+                <input
+                  type="password"
+                  required
+                  value={pinForm.huidig}
+                  onChange={e => { setPinForm(f => ({ ...f, huidig: e.target.value })); setPinMsg(null) }}
+                  placeholder="••••••••"
+                  style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 8, border: '1px solid var(--c-border)', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-subtle)', display: 'block', marginBottom: 4 }}>Nieuw wachtwoord</label>
+                <input
+                  type="password"
+                  required
+                  value={pinForm.nieuw}
+                  onChange={e => { setPinForm(f => ({ ...f, nieuw: e.target.value })); setPinMsg(null) }}
+                  placeholder="Minimaal 4 tekens"
+                  style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 8, border: '1px solid var(--c-border)', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-subtle)', display: 'block', marginBottom: 4 }}>Bevestig nieuw</label>
+                <input
+                  type="password"
+                  required
+                  value={pinForm.bevestig}
+                  onChange={e => { setPinForm(f => ({ ...f, bevestig: e.target.value })); setPinMsg(null) }}
+                  placeholder="Herhaal wachtwoord"
+                  style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 8, border: '1px solid var(--c-border)', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+            {pinMsg && (
+              <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: pinMsg.ok ? '#f0fdf4' : '#fef2f2', color: pinMsg.ok ? '#15803d' : '#dc2626', border: `1px solid ${pinMsg.ok ? '#bbf7d0' : '#fecaca'}` }}>
+                {pinMsg.ok ? '✓ ' : '✗ '}{pinMsg.tekst}
+              </div>
+            )}
+            <div>
+              <button
+                type="submit"
+                disabled={!pinForm.huidig || !pinForm.nieuw || !pinForm.bevestig || pinBezig}
+                style={{ padding: '8px 18px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600, cursor: (!pinForm.huidig || !pinForm.nieuw || !pinForm.bevestig || pinBezig) ? 'default' : 'pointer', background: (!pinForm.huidig || !pinForm.nieuw || !pinForm.bevestig || pinBezig) ? '#e5e7eb' : '#ff7f50', color: (!pinForm.huidig || !pinForm.nieuw || !pinForm.bevestig || pinBezig) ? '#9ca3af' : '#fff' }}
+              >
+                {pinBezig ? 'Opslaan…' : 'Wachtwoord wijzigen'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
 
       {/* ── Footer ── */}
       <div
