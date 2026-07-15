@@ -2585,18 +2585,65 @@ function calcDittM2(s: MarktCapStad, partijOverrides: Record<string, number>) {
   return Math.round(s.dittM2 * s.partijen / n)
 }
 
-function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrides: Record<string, number>; setPartijOverrides: React.Dispatch<React.SetStateAction<Record<string, number>>> }) {
-  const [prijzen, setPrijzen] = useState<Record<string, number>>(() =>
-    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, s.defaultPrijs]))
-  )
+// Kleuren voor custom steden (cyclisch)
+const CUSTOM_STAD_KLEUREN = ['#8b5cf6', '#0ea5e9', '#f59e0b', '#ec4899', '#14b8a6', '#f97316']
 
-  const totaal = MARKTCAP_STEDEN.reduce((sum, s) => sum + calcDittM2(s, partijOverrides) * prijzen[s.naam], 0)
+function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrides: Record<string, number>; setPartijOverrides: React.Dispatch<React.SetStateAction<Record<string, number>>> }) {
+  const { customSteden, addStad } = useAllSteden()
+  const { isEditMode } = useEditMode()
+
+  // Custom steden als blank MarktCapStad entries
+  const customAlsMarktCap: MarktCapStad[] = customSteden.map((s) => ({
+    naam:         s.naam,
+    leegstandM2:  0,
+    partijen:     3,
+    penetratie:   0.40,
+    dittM2:       0,
+    defaultPrijs: 900,
+    concurrenten: 'Onbekend',
+  }))
+
+  const alleSteden = [...MARKTCAP_STEDEN, ...customAlsMarktCap]
 
   const STAD_KLEUR: Record<string, string> = {
     Eindhoven: '#ff7f50',
     Rotterdam: '#5bb8c4',
     Amsterdam: '#8fc4a0',
   }
+  function getKleur(naam: string): string {
+    if (STAD_KLEUR[naam]) return STAD_KLEUR[naam]
+    const idx = customSteden.findIndex((s) => s.naam === naam)
+    return CUSTOM_STAD_KLEUREN[idx % CUSTOM_STAD_KLEUREN.length]
+  }
+
+  const [prijzen, setPrijzen] = useState<Record<string, number>>(() =>
+    Object.fromEntries(MARKTCAP_STEDEN.map((s) => [s.naam, s.defaultPrijs]))
+  )
+
+  // Nieuwe custom steden initialiseren in prijzen
+  useEffect(() => {
+    setPrijzen((prev) => {
+      const next = { ...prev }
+      for (const s of customAlsMarktCap) {
+        if (!(s.naam in next)) next[s.naam] = s.defaultPrijs
+      }
+      return next
+    })
+    setPartijOverrides((prev) => {
+      const next = { ...prev }
+      for (const s of customAlsMarktCap) {
+        if (!(s.naam in next)) next[s.naam] = s.partijen
+      }
+      return next
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customSteden.length])
+
+  const totaal = alleSteden.reduce((sum, s) => sum + calcDittM2(s, partijOverrides) * (prijzen[s.naam] ?? s.defaultPrijs), 0)
+
+  // + Stad toevoegen state
+  const [showNieuwStad, setShowNieuwStad] = useState(false)
+  const [nieuwStadNaam, setNieuwStadNaam] = useState('')
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -2626,7 +2673,7 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
       }}>
         <div>
           <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            <EditableText storageKey="marketcap-banner-label" defaultValue="Totaal market cap (3 steden)" />
+            <EditableText storageKey="marketcap-banner-label" defaultValue={`Totaal market cap (${alleSteden.length} steden)`} />
           </p>
           <p style={{ fontSize: 28, fontWeight: 800, color: '#fff', margin: 0, fontVariantNumeric: 'tabular-nums' }}>
             {fmEuro(totaal)}
@@ -2635,25 +2682,26 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
         <div style={{ textAlign: 'right' }}>
           <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', margin: '0 0 2px' }}><EditableText storageKey="marketcap-banner-aandeel-label" defaultValue="Ditt-aandeel m²" /></p>
           <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: 0 }}>
-            {(MARKTCAP_STEDEN.reduce((s, c) => s + calcDittM2(c, partijOverrides), 0)).toLocaleString('nl-NL')} m²
+            {(alleSteden.reduce((s, c) => s + calcDittM2(c, partijOverrides), 0)).toLocaleString('nl-NL')} m²
           </p>
         </div>
       </div>
 
       {/* Per stad */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {MARKTCAP_STEDEN.map((stad) => {
-          const prijs    = prijzen[stad.naam]
+        {alleSteden.map((stad) => {
+          const prijs     = prijzen[stad.naam] ?? stad.defaultPrijs
           const nPartijen = partijOverrides[stad.naam] ?? stad.partijen
-          const dittM2   = calcDittM2(stad, partijOverrides)
-          const cap      = dittM2 * prijs
-          const kleur    = STAD_KLEUR[stad.naam]
-          const barPct   = Math.round((cap / totaal) * 100)
+          const dittM2    = calcDittM2(stad, partijOverrides)
+          const cap       = dittM2 * prijs
+          const kleur     = getKleur(stad.naam)
+          const barPct    = totaal > 0 ? Math.round((cap / totaal) * 100) : 0
+          const isCustom  = customSteden.some((s) => s.naam === stad.naam)
 
           return (
             <div key={stad.naam} style={{
               background: '#fff',
-              border: '1px solid var(--c-border)',
+              border: `1px solid ${isCustom ? kleur + '40' : 'var(--c-border)'}`,
               borderRadius: 10,
               padding: '16px 20px',
               display: 'flex',
@@ -2663,16 +2711,23 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
               {/* Stad naam + cap */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', margin: '0 0 2px' }}>
-                    {stad.naam}
-                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text)', margin: 0 }}>
+                      {stad.naam}
+                    </p>
+                    {isCustom && (
+                      <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 20, background: kleur + '20', color: kleur, letterSpacing: '0.05em' }}>
+                        NIEUW
+                      </span>
+                    )}
+                  </div>
                   <p style={{ fontSize: 11, color: 'var(--c-subtle)', margin: 0 }}>
                     D&amp;B-partijen: {nPartijen} · Concurrenten: <EditableText storageKey={`marketcap-concurrenten-${stad.naam}`} defaultValue={stad.concurrenten} />
                   </p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <p style={{ fontSize: 20, fontWeight: 800, color: kleur, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
-                    {fmEuro(cap)}
+                    {dittM2 > 0 ? fmEuro(cap) : <span style={{ fontSize: 12, color: 'var(--c-subtle)', fontWeight: 400 }}>Stel m² in</span>}
                   </p>
                   <p style={{ fontSize: 10, color: 'var(--c-subtle)', margin: 0 }}>{barPct}% van totaal</p>
                 </div>
@@ -2682,6 +2737,13 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
               <div style={{ height: 6, background: 'var(--c-border)', borderRadius: 3, overflow: 'hidden' }}>
                 <div style={{ height: '100%', width: `${barPct}%`, background: kleur, borderRadius: 3, transition: 'width 0.2s' }} />
               </div>
+
+              {/* Hint voor custom steden zonder data */}
+              {isCustom && stad.leegstandM2 === 0 && (
+                <p style={{ fontSize: 11, color: 'var(--c-subtle)', margin: 0, fontStyle: 'italic' }}>
+                  Voeg leegstand m² en D&amp;B-partijen toe via de berekeningswijze hieronder om het marktpotentieel te berekenen.
+                </p>
+              )}
 
               {/* Formule,  uitklapbaar */}
               <details style={{ fontSize: 12 }}>
@@ -2708,8 +2770,12 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
                   gap: 6,
                   flexWrap: 'wrap',
                 }}>
-                  <span style={{ fontVariantNumeric: 'tabular-nums' }}>{stad.leegstandM2.toLocaleString('nl-NL')} m²</span>
-                  <span style={{ color: 'var(--c-subtle)' }}>leegstand</span>
+                  <EditableText
+                    storageKey={`marketcap-leegstand-${stad.naam}`}
+                    defaultValue={stad.leegstandM2.toLocaleString('nl-NL')}
+                    style={{ fontVariantNumeric: 'tabular-nums' }}
+                  />
+                  <span style={{ color: 'var(--c-subtle)' }}>m² leegstand</span>
                   <span style={{ color: 'var(--c-subtle)' }}>÷</span>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                     <button onClick={() => setPartijOverrides(p => ({ ...p, [stad.naam]: Math.max(1, nPartijen - 1) }))}
@@ -2726,7 +2792,7 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
                   <span style={{ color: 'var(--c-subtle)' }}>×</span>
                   <strong style={{ color: kleur }}>€ {prijs.toLocaleString('nl-NL')}/m²</strong>
                   <span style={{ color: 'var(--c-subtle)' }}>=</span>
-                  <strong style={{ color: 'var(--c-text)' }}>{fmEuro(cap)}</strong>
+                  <strong style={{ color: 'var(--c-text)' }}>{dittM2 > 0 ? fmEuro(cap) : '—'}</strong>
                   <BronTooltip bron={MARKTCAP_BRON} />
                 </div>
               </details>
@@ -2776,6 +2842,76 @@ function MarketCapPanel({ partijOverrides, setPartijOverrides }: { partijOverrid
             </div>
           )
         })}
+
+        {/* + Stad toevoegen (alleen in edit mode) */}
+        {isEditMode && !showNieuwStad && (
+          <button
+            onClick={() => { setShowNieuwStad(true); setNieuwStadNaam('') }}
+            style={{
+              padding: '12px 16px',
+              borderRadius: 10,
+              border: '1.5px dashed var(--c-border)',
+              background: 'transparent',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'var(--c-subtle)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              textAlign: 'left',
+            }}
+          >
+            <span style={{ fontSize: 16, lineHeight: 1 }}>+</span>
+            Stad toevoegen aan market cap
+          </button>
+        )}
+        {isEditMode && showNieuwStad && (
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault()
+              const naam = nieuwStadNaam.trim()
+              if (!naam) return
+              await addStad(naam)
+              setShowNieuwStad(false)
+              setNieuwStadNaam('')
+            }}
+            style={{
+              padding: '14px 16px',
+              borderRadius: 10,
+              border: '1.5px dashed var(--c-border)',
+              background: '#f8f7f5',
+              display: 'flex',
+              gap: 8,
+              alignItems: 'center',
+            }}
+          >
+            <input
+              autoFocus
+              placeholder="Stadsnaam, bijv. Utrecht"
+              value={nieuwStadNaam}
+              onChange={(e) => setNieuwStadNaam(e.target.value)}
+              style={{
+                flex: 1, padding: '8px 12px', fontSize: 13,
+                borderRadius: 8, border: '1px solid var(--c-border)',
+                outline: 'none', background: '#fff', color: 'var(--c-text)',
+              }}
+            />
+            <button
+              type="submit"
+              style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#ff7f50', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+            >
+              Toevoegen
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowNieuwStad(false)}
+              style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid var(--c-border)', background: 'none', color: 'var(--c-muted)', fontSize: 13, cursor: 'pointer' }}
+            >
+              ×
+            </button>
+          </form>
+        )}
       </div>
     </div>
   )
